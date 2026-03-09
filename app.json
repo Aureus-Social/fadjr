@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "FADJR",
+    "slug": "fadjr",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a1a2e"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.fadjr"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a1a2e"
+      },
+      "package": "app.fadjr"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "02599b38-057d-438c-a2e3-3c43f43bf7e6"
+      }
+    },
+    "owner": "aureus-social"
+  }
+}
