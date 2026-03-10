@@ -47,45 +47,108 @@ export const CITIES_TO_SCRAPE = [
   { city: 'Strasbourg', country: 'FR', lat: 48.5734, lng: 7.7521 },
   { city: 'Bordeaux', country: 'FR', lat: 44.8378, lng: -0.5792 },
   { city: 'Lille', country: 'FR', lat: 50.6292, lng: 3.0573 },
+  { city: 'Nantes', country: 'FR', lat: 47.2184, lng: -1.5536 },
+  { city: 'Montpellier', country: 'FR', lat: 43.6108, lng: 3.8767 },
+  { city: 'Rennes', country: 'FR', lat: 48.1173, lng: -1.6778 },
 
   // MAROC
   { city: 'Casablanca', country: 'MA', lat: 33.5731, lng: -7.5898 },
   { city: 'Rabat', country: 'MA', lat: 34.0209, lng: -6.8416 },
   { city: 'Marrakech', country: 'MA', lat: 31.6295, lng: -7.9811 },
   { city: 'Fès', country: 'MA', lat: 34.0181, lng: -5.0078 },
+  { city: 'Tanger', country: 'MA', lat: 35.7595, lng: -5.8340 },
+  { city: 'Agadir', country: 'MA', lat: 30.4278, lng: -9.5981 },
+
+  // ALGÉRIE
+  { city: 'Algiers', country: 'DZ', lat: 36.7372, lng: 3.0865 },
+  { city: 'Oran', country: 'DZ', lat: 35.6969, lng: -0.6331 },
+  { city: 'Constantine', country: 'DZ', lat: 36.3650, lng: 6.6147 },
+
+  // TUNISIE
+  { city: 'Tunis', country: 'TN', lat: 36.8065, lng: 10.1815 },
+  { city: 'Sfax', country: 'TN', lat: 34.7406, lng: 10.7603 },
 
   // ROYAUME-UNI
   { city: 'London', country: 'GB', lat: 51.5074, lng: -0.1278 },
   { city: 'Birmingham', country: 'GB', lat: 52.4862, lng: -1.8904 },
   { city: 'Manchester', country: 'GB', lat: 53.4808, lng: -2.2426 },
+  { city: 'Bradford', country: 'GB', lat: 53.7960, lng: -1.7594 },
+  { city: 'Leicester', country: 'GB', lat: 52.6369, lng: -1.1398 },
+  { city: 'Leeds', country: 'GB', lat: 53.8008, lng: -1.5491 },
 
   // ALLEMAGNE
   { city: 'Berlin', country: 'DE', lat: 52.5200, lng: 13.4050 },
   { city: 'Hamburg', country: 'DE', lat: 53.5511, lng: 9.9937 },
   { city: 'Cologne', country: 'DE', lat: 50.9333, lng: 6.9500 },
+  { city: 'Frankfurt', country: 'DE', lat: 50.1109, lng: 8.6821 },
+  { city: 'Munich', country: 'DE', lat: 48.1351, lng: 11.5820 },
+  { city: 'Stuttgart', country: 'DE', lat: 48.7758, lng: 9.1829 },
+  { city: 'Duisburg', country: 'DE', lat: 51.4344, lng: 6.7623 },
 
   // PAYS-BAS
   { city: 'Amsterdam', country: 'NL', lat: 52.3676, lng: 4.9041 },
   { city: 'Rotterdam', country: 'NL', lat: 51.9244, lng: 4.4777 },
   { city: 'The Hague', country: 'NL', lat: 52.0705, lng: 4.3007 },
 
+  // ESPAGNE
+  { city: 'Madrid', country: 'ES', lat: 40.4168, lng: -3.7038 },
+  { city: 'Barcelona', country: 'ES', lat: 41.3851, lng: 2.1734 },
+  { city: 'Valencia', country: 'ES', lat: 39.4699, lng: -0.3763 },
+
+  // ITALIE
+  { city: 'Rome', country: 'IT', lat: 41.9028, lng: 12.4964 },
+  { city: 'Milan', country: 'IT', lat: 45.4654, lng: 9.1859 },
+
+  // SUISSE
+  { city: 'Geneva', country: 'CH', lat: 46.2044, lng: 6.1432 },
+  { city: 'Zurich', country: 'CH', lat: 47.3769, lng: 8.5417 },
+
   // ÉTATS-UNIS
   { city: 'New York', country: 'US', lat: 40.7128, lng: -74.0060 },
   { city: 'Los Angeles', country: 'US', lat: 34.0522, lng: -118.2437 },
   { city: 'Chicago', country: 'US', lat: 41.8781, lng: -87.6298 },
-  { city: 'Dearborn', country: 'US', lat: 42.3223, lng: -83.1763 }, // grande communauté
+  { city: 'Dearborn', country: 'US', lat: 42.3223, lng: -83.1763 },
+  { city: 'Houston', country: 'US', lat: 29.7604, lng: -95.3698 },
+  { city: 'Dallas', country: 'US', lat: 32.7767, lng: -96.7970 },
+  { city: 'Washington DC', country: 'US', lat: 38.9072, lng: -77.0369 },
+  { city: 'Philadelphia', country: 'US', lat: 39.9526, lng: -75.1652 },
+  { city: 'Minneapolis', country: 'US', lat: 44.9778, lng: -93.2650 },
 
   // CANADA
   { city: 'Toronto', country: 'CA', lat: 43.6532, lng: -79.3832 },
   { city: 'Montreal', country: 'CA', lat: 45.5017, lng: -73.5673 },
+  { city: 'Ottawa', country: 'CA', lat: 45.4215, lng: -75.6972 },
+  { city: 'Calgary', country: 'CA', lat: 51.0447, lng: -114.0719 },
 
-  // ÉMIRATS
+  // ÉMIRATS ARABES UNIS
   { city: 'Dubai', country: 'AE', lat: 25.2048, lng: 55.2708 },
   { city: 'Abu Dhabi', country: 'AE', lat: 24.4539, lng: 54.3773 },
+
+  // ARABIE SAOUDITE
+  { city: 'Riyadh', country: 'SA', lat: 24.7136, lng: 46.6753 },
+  { city: 'Jeddah', country: 'SA', lat: 21.5433, lng: 39.1728 },
+  { city: 'Mecca', country: 'SA', lat: 21.3891, lng: 39.8579 },
+
+  // TURQUIE
+  { city: 'Istanbul', country: 'TR', lat: 41.0082, lng: 28.9784 },
+  { city: 'Ankara', country: 'TR', lat: 39.9334, lng: 32.8597 },
+
+  // SÉNÉGAL
+  { city: 'Dakar', country: 'SN', lat: 14.7167, lng: -17.4677 },
+
+  // CÔTE D IVOIRE
+  { city: 'Abidjan', country: 'CI', lat: 5.3600, lng: -4.0083 },
+
+  // CAMEROUN
+  { city: 'Douala', country: 'CM', lat: 4.0511, lng: 9.7679 },
+  { city: 'Yaoundé', country: 'CM', lat: 3.8480, lng: 11.5021 },
 
   // AUSTRALIE
   { city: 'Sydney', country: 'AU', lat: -33.8688, lng: 151.2093 },
   { city: 'Melbourne', country: 'AU', lat: -37.8136, lng: 144.9631 },
+
+  // SINGAPOUR
+  { city: 'Singapore', country: 'SG', lat: 1.3521, lng: 103.8198 },
 ]
 
 // ============================================================
