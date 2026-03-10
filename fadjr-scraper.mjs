@@ -12,10 +12,18 @@ import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-)
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.FADJR_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.FADJR_SUPABASE_SERVICE_KEY
+
+console.log('🔑 Supabase URL:', SUPABASE_URL ? '✅ OK' : '❌ MANQUANT')
+console.log('🔑 Supabase Key:', SUPABASE_KEY ? '✅ OK' : '❌ MANQUANT')
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ Variables manquantes. Vérifiez les secrets GitHub.')
+  process.exit(1)
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY
 
