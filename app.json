@@ -20,7 +20,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a1a2e"
       },
-      "package": "app.fadjr"
+      "package": "app.fadjr",
+      "targetSdkVersion": 35,
+      "compileSdkVersion": 35
     },
     "extra": {
       "eas": {
