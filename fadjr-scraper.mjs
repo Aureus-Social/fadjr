@@ -12,10 +12,10 @@ import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.FADJR_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.FADJR_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.FADJR_SUPABASE_SERVICE_KEY
 
-console.log('🔑 Supabase URL:', SUPABASE_URL ? '✅ OK' : '❌ MANQUANT')
+console.log('🔑 Supabase URL:', SUPABASE_URL)
 console.log('🔑 Supabase Key:', SUPABASE_KEY ? '✅ OK' : '❌ MANQUANT')
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
