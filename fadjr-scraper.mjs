@@ -12,7 +12,7 @@ import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.FADJR_SUPABASE_URL
+const SUPABASE_URL = 'https://bpvrqphmxrnjrbjtaxuw.supabase.co'
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.FADJR_SUPABASE_SERVICE_KEY
 
 console.log('🔑 Supabase URL:', SUPABASE_URL)
