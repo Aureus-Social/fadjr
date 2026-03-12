@@ -5,8 +5,7 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "newArchEnabled": false
+      "distribution": "internal"
     },
     "preview": {
       "distribution": "internal",
@@ -16,15 +15,13 @@
       },
       "android": {
         "buildType": "apk"
-      },
-      "newArchEnabled": false
+      }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
-      },
-      "newArchEnabled": false
+      }
     }
   },
   "submit": {
