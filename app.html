@@ -373,6 +373,12 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">ADHKARS CLASSIQUES</div>
       <div id="dhikr-list" style="display:flex;flex-direction:column;gap:8px"></div>
 
+      <!-- 99 Noms d'Allah -->
+      <div style="margin-top:24px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:14px">🌟 LES 99 NOMS D'ALLAH — أسماء الله الحسنى</div>
+        <div id="asma-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+      </div>
+
       <!-- Calendrier Hijri -->
       <div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
         <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:14px">📅 CALENDRIER HIJRI</div>
@@ -1386,6 +1392,136 @@ applyAdhan()
 if(adhanEnabled) startAdhanChecker()
 setInterval(syncAccueilPrayer, 10000)
 setTimeout(syncAccueilPrayer, 2000)
+
+
+// ── 99 NOMS D'ALLAH ───────────────────────────────────────────
+const ASMA = [
+  {n:1,ar:"الرَّحْمَنُ",tr:"Ar-Rahman",fr:"Le Tout Miséricordieux"},
+  {n:2,ar:"الرَّحِيمُ",tr:"Ar-Rahim",fr:"Le Très Miséricordieux"},
+  {n:3,ar:"الْمَلِكُ",tr:"Al-Malik",fr:"Le Roi"},
+  {n:4,ar:"الْقُدُّوسُ",tr:"Al-Quddus",fr:"Le Très Saint"},
+  {n:5,ar:"السَّلَامُ",tr:"As-Salam",fr:"La Paix"},
+  {n:6,ar:"الْمُؤْمِنُ",tr:"Al-Mu'min",fr:"Le Fidèle"},
+  {n:7,ar:"الْمُهَيْمِنُ",tr:"Al-Muhaymin",fr:"Le Gardien"},
+  {n:8,ar:"الْعَزِيزُ",tr:"Al-Aziz",fr:"Le Tout-Puissant"},
+  {n:9,ar:"الْجَبَّارُ",tr:"Al-Jabbar",fr:"Le Contraignant"},
+  {n:10,ar:"الْمُتَكَبِّرُ",tr:"Al-Mutakabbir",fr:"Le Très Grand"},
+  {n:11,ar:"الْخَالِقُ",tr:"Al-Khaliq",fr:"Le Créateur"},
+  {n:12,ar:"الْبَارِئُ",tr:"Al-Bari",fr:"Le Créateur du néant"},
+  {n:13,ar:"الْمُصَوِّرُ",tr:"Al-Musawwir",fr:"Le Formateur"},
+  {n:14,ar:"الْغَفَّارُ",tr:"Al-Ghaffar",fr:"Le Grand Pardonneur"},
+  {n:15,ar:"الْقَهَّارُ",tr:"Al-Qahhar",fr:"Le Dominateur"},
+  {n:16,ar:"الْوَهَّابُ",tr:"Al-Wahhab",fr:"Le Grand Donateur"},
+  {n:17,ar:"الرَّزَّاقُ",tr:"Ar-Razzaq",fr:"Le Pourvoyeur"},
+  {n:18,ar:"الْفَتَّاحُ",tr:"Al-Fattah",fr:"Le Grand Ouvreur"},
+  {n:19,ar:"الْعَلِيمُ",tr:"Al-Alim",fr:"L'Omniscient"},
+  {n:20,ar:"الْقَابِضُ",tr:"Al-Qabid",fr:"Celui qui retient"},
+  {n:21,ar:"الْبَاسِطُ",tr:"Al-Basit",fr:"Celui qui étend"},
+  {n:22,ar:"الْخَافِضُ",tr:"Al-Khafid",fr:"Celui qui abaisse"},
+  {n:23,ar:"الرَّافِعُ",tr:"Ar-Rafi",fr:"Celui qui élève"},
+  {n:24,ar:"الْمُعِزُّ",tr:"Al-Mu'izz",fr:"Celui qui honore"},
+  {n:25,ar:"الْمُذِلُّ",tr:"Al-Mudhill",fr:"Celui qui humilie"},
+  {n:26,ar:"السَّمِيعُ",tr:"As-Sami",fr:"Le Tout-Entendant"},
+  {n:27,ar:"الْبَصِيرُ",tr:"Al-Basir",fr:"Le Tout-Voyant"},
+  {n:28,ar:"الْحَكَمُ",tr:"Al-Hakam",fr:"Le Juge"},
+  {n:29,ar:"الْعَدْلُ",tr:"Al-Adl",fr:"Le Juste"},
+  {n:30,ar:"اللَّطِيفُ",tr:"Al-Latif",fr:"Le Subtil"},
+  {n:31,ar:"الْخَبِيرُ",tr:"Al-Khabir",fr:"Le Bien Informé"},
+  {n:32,ar:"الْحَلِيمُ",tr:"Al-Halim",fr:"Le Clément"},
+  {n:33,ar:"الْعَظِيمُ",tr:"Al-Azim",fr:"L'Immense"},
+  {n:34,ar:"الْغَفُورُ",tr:"Al-Ghafur",fr:"Le Tout-Pardonnant"},
+  {n:35,ar:"الشَّكُورُ",tr:"Ash-Shakur",fr:"Le Très Reconnaissant"},
+  {n:36,ar:"الْعَلِيُّ",tr:"Al-Ali",fr:"Le Très Haut"},
+  {n:37,ar:"الْكَبِيرُ",tr:"Al-Kabir",fr:"Le Grand"},
+  {n:38,ar:"الْحَفِيظُ",tr:"Al-Hafiz",fr:"Le Gardien"},
+  {n:39,ar:"الْمُقِيتُ",tr:"Al-Muqit",fr:"Le Pourvoyeur de subsistance"},
+  {n:40,ar:"الْحَسِيبُ",tr:"Al-Hasib",fr:"Le Calculateur"},
+  {n:41,ar:"الْجَلِيلُ",tr:"Al-Jalil",fr:"Le Majestueux"},
+  {n:42,ar:"الْكَرِيمُ",tr:"Al-Karim",fr:"Le Généreux"},
+  {n:43,ar:"الرَّقِيبُ",tr:"Ar-Raqib",fr:"Le Surveillant"},
+  {n:44,ar:"الْمُجِيبُ",tr:"Al-Mujib",fr:"Celui qui répond"},
+  {n:45,ar:"الْوَاسِعُ",tr:"Al-Wasi",fr:"L'Immensément Vaste"},
+  {n:46,ar:"الْحَكِيمُ",tr:"Al-Hakim",fr:"Le Sage"},
+  {n:47,ar:"الْوَدُودُ",tr:"Al-Wadud",fr:"Le Très Aimant"},
+  {n:48,ar:"الْمَجِيدُ",tr:"Al-Majid",fr:"Le Très Glorieux"},
+  {n:49,ar:"الْبَاعِثُ",tr:"Al-Ba'ith",fr:"Celui qui ressuscite"},
+  {n:50,ar:"الشَّهِيدُ",tr:"Ash-Shahid",fr:"Le Témoin"},
+  {n:51,ar:"الْحَقُّ",tr:"Al-Haqq",fr:"La Vérité"},
+  {n:52,ar:"الْوَكِيلُ",tr:"Al-Wakil",fr:"Le Garant"},
+  {n:53,ar:"الْقَوِيُّ",tr:"Al-Qawi",fr:"Le Très Fort"},
+  {n:54,ar:"الْمَتِينُ",tr:"Al-Matin",fr:"Le Ferme"},
+  {n:55,ar:"الْوَلِيُّ",tr:"Al-Wali",fr:"L'Ami Protecteur"},
+  {n:56,ar:"الْحَمِيدُ",tr:"Al-Hamid",fr:"Le Digne de louange"},
+  {n:57,ar:"الْمُحْصِي",tr:"Al-Muhsi",fr:"Le Dénombrateur"},
+  {n:58,ar:"الْمُبْدِئُ",tr:"Al-Mubdi",fr:"L'Initiateur"},
+  {n:59,ar:"الْمُعِيدُ",tr:"Al-Mu'id",fr:"Le Restaurateur"},
+  {n:60,ar:"الْمُحْيِي",tr:"Al-Muhyi",fr:"Celui qui donne la vie"},
+  {n:61,ar:"الْمُمِيتُ",tr:"Al-Mumit",fr:"Celui qui donne la mort"},
+  {n:62,ar:"الْحَيُّ",tr:"Al-Hayy",fr:"Le Vivant"},
+  {n:63,ar:"الْقَيُّومُ",tr:"Al-Qayyum",fr:"Le Subsistant"},
+  {n:64,ar:"الْوَاجِدُ",tr:"Al-Wajid",fr:"Le Trouveur"},
+  {n:65,ar:"الْمَاجِدُ",tr:"Al-Majid",fr:"Le Noble"},
+  {n:66,ar:"الْوَاحِدُ",tr:"Al-Wahid",fr:"L'Unique"},
+  {n:67,ar:"الْأَحَدُ",tr:"Al-Ahad",fr:"L'Un"},
+  {n:68,ar:"الصَّمَدُ",tr:"As-Samad",fr:"L'Éternel Absolu"},
+  {n:69,ar:"الْقَادِرُ",tr:"Al-Qadir",fr:"Le Capable"},
+  {n:70,ar:"الْمُقْتَدِرُ",tr:"Al-Muqtadir",fr:"Le Tout-Puissant"},
+  {n:71,ar:"الْمُقَدِّمُ",tr:"Al-Muqaddim",fr:"Celui qui avance"},
+  {n:72,ar:"الْمُؤَخِّرُ",tr:"Al-Mu'akhkhir",fr:"Celui qui reporte"},
+  {n:73,ar:"الْأَوَّلُ",tr:"Al-Awwal",fr:"Le Premier"},
+  {n:74,ar:"الْآخِرُ",tr:"Al-Akhir",fr:"Le Dernier"},
+  {n:75,ar:"الظَّاهِرُ",tr:"Az-Zahir",fr:"L'Apparent"},
+  {n:76,ar:"الْبَاطِنُ",tr:"Al-Batin",fr:"Le Caché"},
+  {n:77,ar:"الْوَالِي",tr:"Al-Wali",fr:"Le Gouverneur"},
+  {n:78,ar:"الْمُتَعَالِي",tr:"Al-Muta'ali",fr:"Le Très Élevé"},
+  {n:79,ar:"الْبَرُّ",tr:"Al-Barr",fr:"La Source de Bonté"},
+  {n:80,ar:"التَّوَّابُ",tr:"At-Tawwab",fr:"Celui qui accepte le repentir"},
+  {n:81,ar:"الْمُنْتَقِمُ",tr:"Al-Muntaqim",fr:"Le Vengeur"},
+  {n:82,ar:"الْعَفُوُّ",tr:"Al-Afuww",fr:"Le Très Indulgent"},
+  {n:83,ar:"الرَّؤُوفُ",tr:"Ar-Ra'uf",fr:"Le Compatissant"},
+  {n:84,ar:"مَالِكُ الْمُلْكِ",tr:"Malik ul-Mulk",fr:"Maître du Royaume"},
+  {n:85,ar:"ذُو الْجَلَالِ وَالْإِكْرَامِ",tr:"Dhul Jalali wal Ikram",fr:"Seigneur de Majesté et de Générosité"},
+  {n:86,ar:"الْمُقْسِطُ",tr:"Al-Muqsit",fr:"L'Équitable"},
+  {n:87,ar:"الْجَامِعُ",tr:"Al-Jami",fr:"Le Rassembleur"},
+  {n:88,ar:"الْغَنِيُّ",tr:"Al-Ghani",fr:"Le Riche"},
+  {n:89,ar:"الْمُغْنِي",tr:"Al-Mughni",fr:"Celui qui enrichit"},
+  {n:90,ar:"الْمَانِعُ",tr:"Al-Mani",fr:"Celui qui empêche"},
+  {n:91,ar:"الضَّارُّ",tr:"Ad-Darr",fr:"Celui qui afflige"},
+  {n:92,ar:"النَّافِعُ",tr:"An-Nafi",fr:"Celui qui profite"},
+  {n:93,ar:"النُّورُ",tr:"An-Nur",fr:"La Lumière"},
+  {n:94,ar:"الْهَادِي",tr:"Al-Hadi",fr:"Le Guide"},
+  {n:95,ar:"الْبَدِيعُ",tr:"Al-Badi",fr:"L'Incomparable Créateur"},
+  {n:96,ar:"الْبَاقِي",tr:"Al-Baqi",fr:"Le Permanent"},
+  {n:97,ar:"الْوَارِثُ",tr:"Al-Warith",fr:"L'Héritier"},
+  {n:98,ar:"الرَّشِيدُ",tr:"Ar-Rashid",fr:"Le Guide Droit"},
+  {n:99,ar:"الصَّبُورُ",tr:"As-Sabur",fr:"Le Patient"},
+]
+
+function renderAsma(){
+  const el = document.getElementById('asma-grid')
+  if(!el) return
+  el.innerHTML = ASMA.map(a => `
+    <div onclick="selectAsmaForTasbih(${a.n})" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:.2s;text-align:center" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:9px;color:rgba(201,168,76,.4);margin-bottom:4px">${a.n}</div>
+      <div style="font-family:'Tajawal',sans-serif;font-size:16px;color:var(--gold);direction:rtl;margin-bottom:4px">${a.ar}</div>
+      <div style="font-size:9px;font-weight:700;color:var(--white);letter-spacing:.05em">${a.tr}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:2px">${a.fr}</div>
+    </div>`).join('')
+}
+
+function selectAsmaForTasbih(n){
+  const asma = ASMA.find(a=>a.n===n)
+  if(!asma) return
+  document.getElementById('tasbih-name').textContent = asma.ar
+  document.getElementById('tasbih-fr').textContent = asma.tr + ' — ' + asma.fr
+  tasbihCount = 0; tasbihRound = 1
+  document.getElementById('tasbih-count').textContent = '0'
+  document.getElementById('tasbih-round').textContent = 'Tour 1'
+  // Scroll to tasbih
+  document.getElementById('tasbih-btn').scrollIntoView({behavior:'smooth'})
+}
+
+renderAsma()
 
 </script>
 </body>
