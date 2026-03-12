@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FADJR — Super App Halal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07070F;
+  --card: #0F0F1C;
+  --card2: #161626;
+  --gold: #C9A84C;
+  --gold2: #E8C76A;
+  --goldDim: rgba(201,168,76,0.15);
+  --white: #F0EAD8;
+  --muted: #4A4A6A;
+  --green: #27AE60;
+  --red: #C0392B;
+  --blue: #2980B9;
+  --purple: #8E44AD;
+  --teal: #16A085;
+  --brown: #7D5A3C;
+  --border: rgba(201,168,76,0.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+/* STAR FIELD */
+#stars { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.star { position:absolute; border-radius:50%; background:var(--gold); animation:twinkle var(--d,3s) ease-in-out infinite; }
+@keyframes twinkle { 0%,100%{opacity:.1;transform:scale(1)} 50%{opacity:.8;transform:scale(1.5)} }
+
+/* LAYOUT */
+#app { position:relative; z-index:1; display:flex; flex-direction:column; height:100vh; max-width:420px; margin:0 auto; background:rgba(7,7,15,0.97); box-shadow:0 0 80px rgba(201,168,76,0.08); }
+
+/* HEADER */
+#header { background:linear-gradient(180deg,#0D0D20 0%,#07070F 100%); padding:16px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.header-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.logo-text { font-family:'Cinzel',serif; font-size:22px; font-weight:900; color:var(--gold); letter-spacing:4px; }
+.logo-sub { font-size:10px; color:var(--gold); opacity:.5; letter-spacing:2px; margin-top:2px; }
+.header-date { text-align:right; font-size:11px; color:var(--muted); line-height:1.6; }
+.header-date span { color:var(--gold); display:block; }
+
+/* NEXT PRAYER CARD */
+#next-prayer { background:linear-gradient(135deg,#1A1A35,#12122A); border:1px solid rgba(201,168,76,.25); border-left:3px solid var(--gold); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; }
+.np-label { font-size:9px; color:var(--muted); letter-spacing:2px; margin-bottom:3px; }
+.np-name { font-family:'Cinzel',serif; font-size:18px; color:var(--gold); font-weight:700; }
+.np-ar { font-size:12px; color:var(--white); opacity:.5; }
+.np-time { font-family:'Cinzel',serif; font-size:26px; color:var(--white); font-weight:900; text-align:right; }
+.np-countdown { font-size:11px; color:var(--green); margin-top:3px; text-align:right; }
+.np-emoji { font-size:18px; text-align:right; }
+
+/* CONTENT */
+#content { flex:1; overflow-y:auto; overflow-x:hidden; padding:0; }
+#content::-webkit-scrollbar { width:3px; }
+#content::-webkit-scrollbar-track { background:transparent; }
+#content::-webkit-scrollbar-thumb { background:var(--goldDim); border-radius:99px; }
+
+/* SCREENS */
+.screen { display:none; padding:16px; }
+.screen.active { display:block; }
+
+/* SECTION LABEL */
+.sec-label { font-size:9px; color:var(--muted); letter-spacing:2.5px; font-weight:700; margin-bottom:10px; }
+
+/* PILIERS GRID */
+.piliers { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+.pilier-btn { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 8px; text-align:center; cursor:pointer; transition:.2s; border-top-width:2px; }
+.pilier-btn:hover { background:var(--card2); transform:translateY(-2px); }
+.pilier-btn .p-icon { font-size:24px; margin-bottom:6px; }
+.pilier-btn .p-label { font-size:9px; color:var(--white); font-weight:700; letter-spacing:1px; }
+
+/* CARDS */
+.card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:10px; transition:.2s; }
+.card:hover { border-color:rgba(201,168,76,.3); }
+.card-row { display:flex; gap:12px; align-items:flex-start; }
+.emoji-box { width:44px; height:44px; border-radius:10px; background:rgba(255,255,255,.04); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.card-title { font-size:14px; font-weight:700; color:var(--white); }
+.card-meta { font-size:11px; color:var(--gold); margin-top:2px; }
+.card-desc { font-size:11px; color:var(--muted); margin-top:3px; }
+.card-dist { font-size:10px; color:var(--muted); }
+.badge { display:inline-block; padding:2px 8px; border-radius:99px; font-size:9px; font-weight:700; border:1px solid; margin-top:6px; margin-right:4px; }
+.ouvert { color:var(--green); font-size:10px; font-weight:700; }
+.ferme { color:var(--red); font-size:10px; font-weight:700; }
+
+/* PRAYER LIST */
+.prayer-item { display:flex; align-items:center; gap:14px; padding:13px 16px; border-radius:12px; margin-bottom:8px; background:var(--card); border:1px solid var(--border); border-left:3px solid transparent; transition:.2s; }
+.prayer-item.next { background:#161630; border-left-color:var(--gold); }
+.prayer-emoji { font-size:24px; width:32px; text-align:center; }
+.prayer-name { font-weight:700; font-size:15px; flex:1; }
+.prayer-ar { font-size:12px; color:var(--muted); }
+.prayer-time { font-family:'Cinzel',serif; font-size:20px; font-weight:900; }
+.prayer-item.next .prayer-name, .prayer-item.next .prayer-time { color:var(--gold); }
+
+/* SUBTABS */
+.subtabs { display:flex; gap:6px; margin-bottom:16px; }
+.subtab { flex:1; padding:8px; text-align:center; border-radius:8px; background:rgba(255,255,255,.04); border:none; color:var(--muted); font-size:12px; font-family:'Cairo',sans-serif; cursor:pointer; border-bottom:2px solid transparent; transition:.2s; }
+.subtab.active { background:var(--goldDim); color:var(--gold); font-weight:700; border-bottom-color:var(--gold); }
+
+/* QIBLA */
+.qibla-compass { width:180px; height:180px; border-radius:50%; border:2px solid rgba(201,168,76,.3); background:#12122A; display:flex; align-items:center; justify-content:center; margin:20px auto; position:relative; font-size:40px; }
+.qibla-deg { font-family:'Cinzel',serif; font-size:48px; color:var(--gold); font-weight:900; text-align:center; margin-top:10px; }
+
+/* DHIKR */
+.dhikr-btn { width:150px; height:150px; border-radius:50%; background:var(--card); border:3px solid var(--gold); display:flex; flex-direction:column; align-items:center; justify-content:center; margin:16px auto; cursor:pointer; transition:.15s; user-select:none; }
+.dhikr-btn:active { transform:scale(.95); }
+.dhikr-count { font-family:'Cinzel',serif; font-size:52px; font-weight:900; color:var(--gold); line-height:1; }
+.dhikr-sub { font-size:11px; color:var(--muted); }
+.progress-bar { height:6px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; margin:8px 0 16px; }
+.progress-fill { height:100%; background:var(--gold); border-radius:99px; transition:.3s; }
+.dhikr-chips { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.dhikr-chip { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; cursor:pointer; transition:.2s; }
+.dhikr-chip.active { border-color:var(--gold); background:var(--goldDim); }
+.dhikr-chip .dc-name { font-size:12px; font-weight:700; }
+.dhikr-chip .dc-count { font-size:10px; color:var(--muted); }
+.dhikr-chip.active .dc-name { color:var(--gold); }
+
+/* SEARCH */
+.search-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--white); font-size:13px; font-family:'Cairo',sans-serif; width:100%; margin-bottom:10px; outline:none; }
+.search-box:focus { border-color:rgba(201,168,76,.4); }
+.filter-row { display:flex; gap:6px; overflow-x:auto; padding-bottom:10px; margin-bottom:4px; }
+.filter-row::-webkit-scrollbar { display:none; }
+.filter-chip { padding:5px 12px; border-radius:99px; border:1px solid var(--border); background:var(--card); color:var(--muted); font-size:11px; cursor:pointer; white-space:nowrap; font-family:'Cairo',sans-serif; transition:.2s; }
+.filter-chip.active { border-color:var(--gold); background:var(--goldDim); color:var(--gold); font-weight:700; }
+
+/* PROFILE */
+.avatar { width:76px; height:76px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:32px; margin:0 auto 12px; }
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0; }
+.stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; }
+.stat-val { font-family:'Cinzel',serif; font-size:20px; font-weight:900; }
+.stat-label { font-size:9px; color:var(--muted); margin-top:3px; letter-spacing:1px; }
+.pref-row { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
+.pref-icon { width:38px; height:38px; border-radius:9px; background:var(--goldDim); display:flex; align-items:center; justify-content:center; font-size:18px; }
+.pref-label { flex:1; font-size:13px; font-weight:600; }
+.pref-val { font-size:11px; color:var(--muted); }
+.pref-arrow { color:var(--muted); font-size:18px; }
+
+/* DASHBOARD LINK */
+.dashboard-banner { background:linear-gradient(135deg,#1A1535,#0D0D25); border:1px solid rgba(201,168,76,.4); border-radius:14px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; text-decoration:none; transition:.2s; }
+.dashboard-banner:hover { border-color:var(--gold); }
+.db-title { font-size:13px; font-weight:800; color:var(--gold); margin-bottom:3px; }
+.db-sub { font-size:11px; color:var(--muted); }
+.db-arrow { font-size:22px; color:var(--gold); }
+
+/* TAB BAR */
+#tabbar { display:flex; background:rgba(7,7,15,.98); border-top:1px solid var(--border); flex-shrink:0; padding:8px 0 12px; }
+.tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; border:none; background:none; position:relative; padding:4px 0; }
+.tab-indicator { position:absolute; top:-1px; left:25%; right:25%; height:2px; background:var(--gold); border-radius:99px; display:none; }
+.tab-btn.active .tab-indicator { display:block; }
+.tab-icon { font-size:20px; opacity:.4; transition:.2s; }
+.tab-btn.active .tab-icon { opacity:1; }
+.tab-label { font-size:8px; color:var(--muted); font-weight:700; letter-spacing:.5px; transition:.2s; font-family:'Cairo',sans-serif; }
+.tab-btn.active .tab-label { color:var(--gold); }
+
+/* SECTION HEADER */
+.screen-header { margin-bottom:16px; }
+.screen-title { font-family:'Cinzel',serif; font-size:16px; color:var(--gold); font-weight:700; margin-bottom:2px; }
+
+/* See all link */
+.see-all { font-size:11px; color:var(--gold); cursor:pointer; }
+.row-between { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div id="app">
+  <!-- HEADER -->
+  <div id="header">
+    <div class="header-top">
+      <div>
+        <div class="logo-text">FADJR</div>
+        <div class="logo-sub">☪ BRUXELLES</div>
+      </div>
+      <div class="header-date">
+        <span id="today-date"></span>
+        <span style="color:var(--gold);margin-top:2px">12 Ramadan 1447 H</span>
+      </div>
+    </div>
+    <div id="next-prayer">
+      <div>
+        <div class="np-label">PROCHAINE PRIÈRE</div>
+        <div class="np-name" id="np-name">Chargement...</div>
+        <div class="np-ar" id="np-ar"></div>
+      </div>
+      <div>
+        <div class="np-time" id="np-time">--:--</div>
+        <div class="np-countdown" id="np-countdown"></div>
+        <div class="np-emoji" id="np-emoji">🕌</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ACCUEIL -->
+    <div class="screen active" id="screen-accueil">
+      <div style="height:16px"></div>
+      
+      <a class="dashboard-banner" href="https://fadjr-admin.vercel.app" target="_blank">
+        <div>
+          <div class="db-title">📊 Dashboard Admin</div>
+          <div class="db-sub">Partenaires · MRR · Pub géolocalisée</div>
+        </div>
+        <div class="db-arrow">→</div>
+      </a>
+
+      <div class="sec-label">EXPLORER</div>
+      <div class="piliers">
+        <div class="pilier-btn" style="border-top-color:#C9A84C" onclick="goTab('priere')">
+          <div class="p-icon">🕌</div><div class="p-label">PRIÈRE</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#C0392B" onclick="goTab('carte')">
+          <div class="p-icon">🍽️</div><div class="p-label">HALAL</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#7D5A3C" onclick="goTab('culture')">
+          <div class="p-icon">📚</div><div class="p-label">CULTURE</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#8E44AD" onclick="goTab('carte')">
+          <div class="p-icon">🏦</div><div class="p-label">FINANCE</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#2980B9" onclick="goTab('carte')">
+          <div class="p-icon">✈️</div><div class="p-label">VOYAGE</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#16A085" onclick="goTab('profil')">
+          <div class="p-icon">👥</div><div class="p-label">COMMUNAUTÉ</div>
+        </div>
+      </div>
+
+      <div class="row-between">
+        <div class="sec-label" style="margin:0">PRÈS DE VOUS</div>
+        <div class="see-all" onclick="goTab('carte')">Voir tout →</div>
+      </div>
+      <div id="accueil-commerces"></div>
+    </div>
+
+    <!-- PRIÈRE -->
+    <div class="screen" id="screen-priere">
+      <div style="height:16px"></div>
+      <div class="screen-header">
+        <div class="sec-label">PRIÈRE & SPIRITUALITÉ</div>
+        <div class="screen-title">☪ Bruxelles, Belgique</div>
+      </div>
+      <div class="subtabs">
+        <button class="subtab active" onclick="showSubtab('horaires',this)">🕐 Horaires</button>
+        <button class="subtab" onclick="showSubtab('qibla',this)">🧭 Qibla</button>
+        <button class="subtab" onclick="showSubtab('dhikr',this)">📿 Dhikr</button>
+      </div>
+      <div id="sub-horaires">
+        <div id="prayer-list"></div>
+      </div>
+      <div id="sub-qibla" style="display:none;text-align:center">
+        <div class="qibla-compass">🕋</div>
+        <div class="qibla-deg">127°</div>
+        <div style="color:var(--white);font-size:15px;margin-top:8px">Direction de La Mecque</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:4px">depuis Bruxelles · 50.850°N 4.352°E</div>
+        <div class="card" style="margin-top:20px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">DISTANCE</div>
+          <div style="font-family:'Cinzel',serif;font-size:30px;color:var(--gold);font-weight:900">5 248 km</div>
+          <div style="font-size:12px;color:var(--muted)">jusqu'à la Kaaba</div>
+        </div>
+      </div>
+      <div id="sub-dhikr" style="display:none">
+        <div class="card" style="text-align:center;padding:20px;margin-bottom:16px">
+          <div id="dhikr-ar" style="font-size:22px;color:var(--gold);margin-bottom:10px"></div>
+          <div id="dhikr-fr" style="font-size:17px;font-weight:700"></div>
+          <div id="dhikr-trad" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+          <div id="dhikr-total" style="font-size:12px;color:var(--gold);margin-top:6px"></div>
+        </div>
+        <div class="dhikr-btn" id="dhikr-btn" onclick="incrementDhikr()">
+          <div class="dhikr-count" id="dhikr-count">0</div>
+          <div class="dhikr-sub" id="dhikr-sub">appuyer</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="dhikr-progress" style="width:0%"></div></div>
+        <div class="dhikr-chips" id="dhikr-chips"></div>
+      </div>
+    </div>
+
+    <!-- CARTE HALAL -->
+    <div class="screen" id="screen-carte">
+      <div style="height:16px"></div>
+      <div class="screen-header">
+        <div class="sec-label">CARTE HALAL BRUXELLES</div>
+      </div>
+      <input class="search-box" placeholder="🔍  Chercher un commerce halal..." oninput="filterCommerces(this.value)" id="search-input">
+      <div class="filter-row" id="filter-row"></div>
+      <div id="commerce-list"></div>
+    </div>
+
+    <!-- CULTURE -->
+    <div class="screen" id="screen-culture">
+      <div style="height:16px"></div>
+      <div class="screen-header">
+        <div class="sec-label">CULTURE & SAVOIR</div>
+        <div class="screen-title">📚 Commerces Islamiques</div>
+      </div>
+      <div id="culture-list"></div>
+    </div>
+
+    <!-- PROFIL -->
+    <div class="screen" id="screen-profil">
+      <div style="height:16px"></div>
+      <div style="text-align:center;padding:0 0 16px">
+        <div class="avatar">☪</div>
+        <div style="font-size:20px;font-weight:900">Nourdin</div>
+        <div style="color:var(--gold);font-size:13px;margin-top:4px">Bruxelles, Belgique 🇧🇪</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:3px">Fondateur · Aureus IA SPRL</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val" style="color:var(--gold)">3/5</div><div class="stat-label">PRIÈRES</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--blue)">7</div><div class="stat-label">FAVORIS</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--green)">12</div><div class="stat-label">AVIS</div></div>
+      </div>
+      <a class="dashboard-banner" href="https://fadjr-admin.vercel.app" target="_blank">
+        <div>
+          <div class="db-title">📊 Dashboard Admin FADJR</div>
+          <div class="db-sub">Accès complet · MRR · Partenaires · Pub</div>
+        </div>
+        <div class="db-arrow">→</div>
+      </a>
+      <div>
+        <div class="pref-row"><div class="pref-icon">📍</div><div style="flex:1"><div class="pref-label">Ville</div><div class="pref-val">Bruxelles · 50.850°N 4.352°E</div></div><div class="pref-arrow">›</div></div>
+        <div class="pref-row"><div class="pref-icon">🔔</div><div style="flex:1"><div class="pref-label">Adhan</div><div class="pref-val">5 minutes avant chaque prière</div></div><div class="pref-arrow">›</div></div>
+        <div class="pref-row"><div class="pref-icon">🌍</div><div style="flex:1"><div class="pref-label">Langue</div><div class="pref-val">Français · العربية disponible</div></div><div class="pref-arrow">›</div></div>
+        <div class="pref-row"><div class="pref-icon">📱</div><div style="flex:1"><div class="pref-label">Version</div><div class="pref-val">FADJR v1.0 · Sprint 1 MVP</div></div><div class="pref-arrow">›</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div id="tabbar">
+    <button class="tab-btn active" onclick="goTab('accueil',this)" id="tab-accueil">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🏠</div>
+      <div class="tab-label">ACCUEIL</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('priere',this)" id="tab-priere">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🕌</div>
+      <div class="tab-label">PRIÈRE</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('carte',this)" id="tab-carte">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🗺️</div>
+      <div class="tab-label">HALAL</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('culture',this)" id="tab-culture">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">📚</div>
+      <div class="tab-label">CULTURE</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('profil',this)" id="tab-profil">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">👤</div>
+      <div class="tab-label">PROFIL</div>
+    </button>
+  </div>
+</div>
+
+<script>
+// ── STARS ────────────────────────────────────────────────────
+const starsEl = document.getElementById('stars')
+for(let i=0;i<60;i++){
+  const s=document.createElement('div')
+  s.className='star'
+  const sz=Math.random()*2+0.5
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`
+  starsEl.appendChild(s)
+}
+
+// ── DATA ─────────────────────────────────────────────────────
+const COMMERCES = [
+  {id:1,nom:"Le Sultane",type:"Restaurant",adresse:"Chaussée de Wavre 142, Ixelles",dist:"0.3 km",note:4.8,certif:"HBE",emoji:"🍽️",color:"#C9A84C",ouvert:true,spec:"Cuisine orientale, tagine, couscous"},
+  {id:2,nom:"Boucherie Al Madina",type:"Boucherie",adresse:"Rue Molenbeek 67, Molenbeek",dist:"0.7 km",note:4.6,certif:"AVS",emoji:"🥩",color:"#C0392B",ouvert:true,spec:"Agneau, veau, poulet, merguez"},
+  {id:3,nom:"Al Bouraq Books",type:"Librairie",adresse:"Rue de Flandre 88, Bruxelles",dist:"1.1 km",note:4.9,certif:"FADJR",emoji:"📚",color:"#7D5A3C",ouvert:true,spec:"Coran, hadith, livres enfants"},
+  {id:4,nom:"Nour Abaya",type:"Boutique",adresse:"Chaussée d'Anvers 234, Laeken",dist:"1.4 km",note:4.7,certif:"FADJR",emoji:"👗",color:"#8E44AD",ouvert:false,spec:"Abaya, qamis, hijab, tenues mariage"},
+  {id:5,nom:"Oud & Musc BXL",type:"Parfumerie",adresse:"Rue des Alexiens 12, Centre",dist:"1.8 km",note:4.5,certif:"FADJR",emoji:"🌸",color:"#16A085",ouvert:true,spec:"Oud, musc, attar — sans alcool"},
+  {id:6,nom:"Omra Express Belgique",type:"Voyage",adresse:"Av. de Stalingrad 55, Saint-Gilles",dist:"2.1 km",note:4.9,certif:"FADJR",emoji:"✈️",color:"#2980B9",ouvert:true,spec:"Omra, Hajj, voyages halal-friendly"},
+  {id:7,nom:"École Dar Al Ilm",type:"École",adresse:"Rue de la Colonne 7, Anderlecht",dist:"2.4 km",note:5.0,certif:"FADJR",emoji:"🎓",color:"#27AE60",ouvert:true,spec:"Coran, tajwid, arabe, tous niveaux"},
+  {id:8,nom:"Takaful Belux",type:"Finance",adresse:"Bd Anspach 110, Bruxelles",dist:"2.9 km",note:4.4,certif:"FADJR",emoji:"🏦",color:"#8E44AD",ouvert:true,spec:"Assurance islamique, épargne halal"},
+]
+const CATS = ["Tous","Restaurant","Boucherie","Librairie","Boutique","Parfumerie","Voyage","École","Finance"]
+const PRAYERS_AR = {Fajr:"الفجر",Sunrise:"الشروق",Dhuhr:"الظهر",Asr:"العصر",Maghrib:"المغرب",Isha:"العشاء"}
+const PRAYERS_EMOJI = {Fajr:"🌙",Sunrise:"🌅",Dhuhr:"☀️",Asr:"🌤️",Maghrib:"🌇",Isha:"🌃"}
+const DHIKR_LIST = [
+  {ar:"سُبْحَانَ اللَّهِ",fr:"Subhan Allah",trad:"Gloire à Allah",count:33},
+  {ar:"الْحَمْدُ لِلَّهِ",fr:"Alhamdulillah",trad:"Louange à Allah",count:33},
+  {ar:"اللَّهُ أَكْبَرُ",fr:"Allahu Akbar",trad:"Allah est le Plus Grand",count:34},
+  {ar:"لَا إِلَٰهَ إِلَّا اللَّهُ",fr:"La ilaha illallah",trad:"Nulle divinité sauf Allah",count:100},
+]
+
+// ── STATE ─────────────────────────────────────────────────────
+let prayers=[], nextP=null, activeTab='accueil', activeCat='Tous'
+let dhikrIdx=0, dhikrCount=0, activeSubtab='horaires'
+
+// ── DATE ─────────────────────────────────────────────────────
+const now=new Date()
+document.getElementById('today-date').textContent = now.toLocaleDateString('fr-BE',{weekday:'long',day:'numeric',month:'long'})
+
+// ── PRAYERS ──────────────────────────────────────────────────
+async function loadPrayers(){
+  try{
+    const d=now.getDate(),m=now.getMonth()+1,y=now.getFullYear()
+    const r=await fetch(`https://api.aladhan.com/v1/timings/${d}-${m}-${y}?latitude=50.8503&longitude=4.3517&method=3`)
+    const data=await r.json()
+    if(data.code===200){
+      const t=data.data.timings
+      prayers=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(n=>({name:n,ar:PRAYERS_AR[n],time:t[n],emoji:PRAYERS_EMOJI[n]}))
+    }
+  }catch(e){
+    prayers=[
+      {name:'Fajr',ar:'الفجر',time:'05:42',emoji:'🌙'},
+      {name:'Sunrise',ar:'الشروق',time:'07:18',emoji:'🌅'},
+      {name:'Dhuhr',ar:'الظهر',time:'13:12',emoji:'☀️'},
+      {name:'Asr',ar:'العصر',time:'16:35',emoji:'🌤️'},
+      {name:'Maghrib',ar:'المغرب',time:'19:48',emoji:'🌇'},
+      {name:'Isha',ar:'العشاء',time:'21:22',emoji:'🌃'},
+    ]
+  }
+  computeNext()
+  renderPrayers()
+}
+
+function computeNext(){
+  const nowMin=now.getHours()*60+now.getMinutes()
+  for(const p of prayers){
+    const [h,m]=p.time.split(':').map(Number)
+    if(h*60+m>nowMin){
+      nextP=p
+      const diff=h*60+m-nowMin
+      document.getElementById('np-name').textContent=p.name
+      document.getElementById('np-ar').textContent=p.ar
+      document.getElementById('np-time').textContent=p.time
+      document.getElementById('np-emoji').textContent=p.emoji
+      document.getElementById('np-countdown').textContent=`dans ${Math.floor(diff/60)}h${String(diff%60).padStart(2,'0')}`
+      return
+    }
+  }
+  nextP=prayers[0]
+  document.getElementById('np-name').textContent=prayers[0]?.name||'Fajr'
+  document.getElementById('np-countdown').textContent='demain'
+}
+
+function renderPrayers(){
+  const el=document.getElementById('prayer-list')
+  el.innerHTML=prayers.map(p=>{
+    const isNext=nextP&&nextP.name===p.name
+    return `<div class="prayer-item${isNext?' next':''}">
+      <div class="prayer-emoji">${p.emoji}</div>
+      <div style="flex:1">
+        <div class="prayer-name">${p.name}</div>
+        <div class="prayer-ar">${p.ar}</div>
+      </div>
+      <div>
+        <div class="prayer-time">${p.time}</div>
+        ${isNext?'<div style="color:var(--green);font-size:9px;text-align:right;margin-top:2px">● prochaine</div>':''}
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ── COMMERCES ────────────────────────────────────────────────
+function commerceCard(c){
+  return `<div class="card">
+    <div class="card-row">
+      <div class="emoji-box" style="background:${c.color}18">${c.emoji}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="card-title">${c.nom}</div>
+          <div class="card-dist">${c.dist}</div>
+        </div>
+        <div class="card-meta">${'★'.repeat(Math.floor(c.note))} ${c.note}</div>
+        <div class="card-desc">${c.adresse}</div>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="badge" style="color:${c.color};border-color:${c.color}40;background:${c.color}10">${c.certif}</span>
+          <span class="${c.ouvert?'ouvert':'ferme'}">${c.ouvert?'● Ouvert':'● Fermé'}</span>
+        </div>
+        <div class="card-desc" style="margin-top:6px">${c.spec}</div>
+      </div>
+    </div>
+  </div>`
+}
+
+function renderAccueilCommerces(){
+  document.getElementById('accueil-commerces').innerHTML=COMMERCES.slice(0,3).map(commerceCard).join('')
+}
+
+function renderAllCommerces(search=''){
+  const filtered=COMMERCES.filter(c=>(activeCat==='Tous'||c.type===activeCat)&&(c.nom.toLowerCase().includes(search.toLowerCase())||c.spec.toLowerCase().includes(search.toLowerCase())))
+  document.getElementById('commerce-list').innerHTML=filtered.map(commerceCard).join('')||'<div style="text-align:center;color:var(--muted);padding:40px">Aucun résultat</div>'
+}
+
+function renderFilters(){
+  document.getElementById('filter-row').innerHTML=CATS.map(c=>`<button class="filter-chip${activeCat===c?' active':''}" onclick="setFilter('${c}')">${c}</button>`).join('')
+}
+
+function setFilter(cat){ activeCat=cat; renderFilters(); renderAllCommerces(document.getElementById('search-input')?.value||'') }
+function filterCommerces(v){ renderAllCommerces(v) }
+
+function renderCulture(){
+  const types=['Librairie','Boutique','Parfumerie','École']
+  const list=COMMERCES.filter(c=>types.includes(c.type))
+  document.getElementById('culture-list').innerHTML=list.map(commerceCard).join('')
+}
+
+// ── DHIKR ────────────────────────────────────────────────────
+function renderDhikrChips(){
+  document.getElementById('dhikr-chips').innerHTML=DHIKR_LIST.map((d,i)=>`
+    <div class="dhikr-chip${dhikrIdx===i?' active':''}" onclick="setDhikr(${i})">
+      <div class="dc-name">${d.fr}</div>
+      <div class="dc-count">× ${d.count}</div>
+    </div>`).join('')
+}
+function renderDhikrCard(){
+  const d=DHIKR_LIST[dhikrIdx]
+  document.getElementById('dhikr-ar').textContent=d.ar
+  document.getElementById('dhikr-fr').textContent=d.fr
+  document.getElementById('dhikr-trad').textContent=d.trad
+  document.getElementById('dhikr-total').textContent=`× ${d.count}`
+  document.getElementById('dhikr-count').textContent=dhikrCount
+  document.getElementById('dhikr-sub').textContent=`sur ${d.count}`
+  document.getElementById('dhikr-progress').style.width=`${Math.min(dhikrCount/d.count*100,100)}%`
+  const done=dhikrCount>=d.count
+  document.getElementById('dhikr-btn').style.borderColor=done?'var(--green)':'var(--gold)'
+  document.getElementById('dhikr-count').style.color=done?'var(--green)':'var(--gold)'
+}
+function setDhikr(i){ dhikrIdx=i; dhikrCount=0; renderDhikrCard(); renderDhikrChips() }
+function incrementDhikr(){ const d=DHIKR_LIST[dhikrIdx]; dhikrCount=dhikrCount>=d.count?0:dhikrCount+1; renderDhikrCard() }
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function goTab(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'))
+  document.getElementById('screen-'+tab).classList.add('active')
+  document.getElementById('tab-'+tab).classList.add('active')
+  activeTab=tab
+  if(tab==='carte'){renderFilters();renderAllCommerces()}
+  if(tab==='culture') renderCulture()
+  if(tab==='priere'){renderDhikrCard();renderDhikrChips()}
+}
+
+function showSubtab(id, btn){
+  document.querySelectorAll('.subtab').forEach(b=>b.classList.remove('active'))
+  btn.classList.add('active')
+  document.getElementById('sub-horaires').style.display='none'
+  document.getElementById('sub-qibla').style.display='none'
+  document.getElementById('sub-dhikr').style.display='none'
+  document.getElementById('sub-'+id).style.display='block'
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+loadPrayers()
+renderAccueilCommerces()
+renderDhikrCard()
+renderDhikrChips()
+</script>
+</body>
+</html>
