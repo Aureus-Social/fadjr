@@ -149,16 +149,13 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
   .cursor,.cursor-ring{display:none}
 }
 
-/* ── LANG SWITCHER ── */
-.lang-switcher{position:relative;display:inline-block}
-.lang-btn{background:transparent;border:1px solid var(--border);color:var(--gold);padding:6px 12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s}
-.lang-btn:hover{border-color:var(--gold)}
-.lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:#0A0A18;border:1px solid var(--border);min-width:180px;display:none;z-index:200;max-height:320px;overflow-y:auto}
-.lang-dropdown.open{display:block}
-.lang-option{padding:10px 16px;font-size:11px;color:var(--gray);cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s;border-bottom:1px solid rgba(255,255,255,.04)}
-.lang-option:hover,.lang-option.active{background:rgba(201,168,76,.08);color:var(--gold)}
-.lang-flag{font-size:16px}
-
+.lang-sw{position:relative;display:inline-block}
+.lang-btn{background:transparent;border:1px solid rgba(201,168,76,.3);color:#C9A84C;padding:6px 12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;cursor:pointer;transition:.2s}
+.lang-btn:hover{border-color:#C9A84C}
+.lang-dd{position:absolute;top:calc(100% + 6px);right:0;background:#0A0A18;border:1px solid rgba(201,168,76,.2);min-width:190px;display:none;z-index:500;max-height:340px;overflow-y:auto}
+.lang-dd.open{display:block}
+.lang-opt{padding:9px 14px;font-size:11px;color:#5A5A7A;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s;border-bottom:1px solid rgba(255,255,255,.04)}
+.lang-opt:hover,.lang-opt.sel{background:rgba(201,168,76,.08);color:#C9A84C}
 </style>
 </head>
 <body>
@@ -173,11 +170,12 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
 <nav id="nav">
   <div class="nav-logo">FADJR</div>
   <div class="nav-links">
-    <a href="#features" class="nav-link" data-i18n="nav_features">Fonctions</a>
-    <a href="#prieres" class="nav-link">Prières</a>
-    <a href="#download" class="nav-link">Télécharger</a>
+    <a href="#features" class="nav-link" data-i18n="nav_feat">Fonctions</a>
+    <a href="#prieres" class="nav-link" data-i18n="nav_pray">Prières</a>
+    <a href="#download" class="nav-link" data-i18n="nav_dl">Télécharger</a>
     <a href="privacy.html" class="nav-link">Confidentialité</a>
-    <a href="#download" class="nav-cta">Bientôt disponible</a>
+    <div class="lang-sw"><button class="lang-btn" onclick="toggleDD()" id="lbtn">🇫🇷 FR ▾</button><div class="lang-dd" id="ldd"></div></div>
+    <a href="#download" class="nav-cta" data-i18n="nav_cta">Bientôt disponible</a>
   </div>
 </nav>
 
@@ -188,8 +186,8 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
   <h1 class="hero-title">L'aube de votre<br><span>quotidien islamique</span></h1>
   <p class="hero-sub">Horaires de prière en temps réel · Restaurants halal · Coran complet · Voyage & Finance islamique</p>
   <div class="hero-ctas">
-    <a href="#download" class="btn-primary">Rejoindre la liste d'attente</a>
-    <a href="#features" class="btn-secondary">Découvrir l'app</a>
+    <a href="#download" class="btn-primary" data-i18n="btn_join">Rejoindre la liste d'attente</a>
+    <a href="#features" class="btn-secondary" data-i18n="btn_disc">Découvrir l'app</a>
   </div>
   <div class="hero-scroll">
     <div class="hero-scroll-line"></div>
@@ -210,42 +208,42 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
 
 <!-- Features -->
 <section class="section reveal" id="features">
-  <div class="section-label">✦ Fonctionnalités</div>
+  <div class="section-label" data-i18n="feat_label">✦ Fonctionnalités</div>
   <h2 class="section-title">Tout ce dont vous avez<br>besoin, <em>réuni en un seul endroit</em></h2>
   <div class="features-grid">
     <div class="feature">
       <span class="feature-icon">🕌</span>
-      <div class="feature-title">Horaires de prière</div>
+      <div class="feature-title" data-i18n="f_pray">Horaires de prière</div>
       <div class="feature-desc">Horaires précis géolocalisés pour votre ville. Adhan automatique avec 4 voix (La Mecque, Médine, Al-Azhar, Istanbul). Compte à rebours en temps réel.</div>
       <span class="feature-tag">GPS · Temps réel</span>
     </div>
     <div class="feature">
       <span class="feature-icon">🍽️</span>
-      <div class="feature-title">Restaurants Halal</div>
+      <div class="feature-title" data-i18n="f_food">Restaurants Halal</div>
       <div class="feature-desc">Trouvez les meilleurs restaurants halal certifiés près de vous. Avis, horaires, réservation. Belgique, France, Maroc et plus.</div>
       <span class="feature-tag">Certifié Halal</span>
     </div>
     <div class="feature">
       <span class="feature-icon">📖</span>
-      <div class="feature-title">Coran complet</div>
+      <div class="feature-title" data-i18n="f_quran">Coran complet</div>
       <div class="feature-desc">114 sourates en arabe avec traduction Hamidullah. Taille de police ajustable. Favoris et marque-pages. Lecture audio avec 20+ récitateurs.</div>
       <span class="feature-tag">114 sourates</span>
     </div>
     <div class="feature">
       <span class="feature-icon">✈️</span>
-      <div class="feature-title" data-i18n="p4_title">Voyage Halal</div>
+      <div class="feature-title" data-i18n="f_travel">Voyage Halal</div>
       <div class="feature-desc">Destinations halal-friendly dans le monde. Omra & Hajj. Hôtels certifiés. Compagnies aériennes partenaires. La Mecque, Istanbul, Marrakech et plus.</div>
       <span class="feature-tag">Mondial</span>
     </div>
     <div class="feature">
       <span class="feature-icon">💰</span>
-      <div class="feature-title" data-i18n="p3_title">Finance Islamique</div>
+      <div class="feature-title" data-i18n="f_fin">Finance Islamique</div>
       <div class="feature-desc">Services financiers conformes à la Charia. Transferts sans intérêts. Investissement halal. Crédit immobilier islamique.</div>
       <span class="feature-tag">Charia compliant</span>
     </div>
     <div class="feature">
       <span class="feature-icon">🧭</span>
-      <div class="feature-title">Outils spirituels</div>
+      <div class="feature-title" data-i18n="f_tools">Outils spirituels</div>
       <div class="feature-desc">Boussole Qibla précise. Tasbih numérique. Calendrier Hijri. Douas du quotidien. Verset et Hadith du jour. Rappels personnalisés.</div>
       <span class="feature-tag">Complet</span>
     </div>
@@ -305,7 +303,7 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
 <section class="download-section reveal" id="download">
   <div class="download-arabic">تنزيل</div>
   <h2 class="download-title">Disponible bientôt<br>sur <em>iOS & Android</em></h2>
-  <p class="download-sub">Rejoignez la liste d'attente et soyez parmi les premiers à télécharger FADJR dès le lancement.</p>
+  <p class="download-sub"><span data-i18n="dl_sub">Rejoignez la liste d'attente et soyez parmi les premiers à télécharger FADJR dès le lancement.</span></p>
   <div class="store-btns">
     <a href="#" class="store-btn">
       <span class="store-btn-icon">🍎</span>
@@ -326,7 +324,7 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
   <!-- Waitlist form -->
   <div style="margin-top:48px;max-width:400px;margin-left:auto;margin-right:auto">
     <div style="display:flex;gap:0;border:1px solid var(--border)">
-      <input type="email" id="emailInput" placeholder="votre@email.com" style="flex:1;background:var(--dark2);border:none;padding:14px 16px;color:var(--white);font-family:'DM Mono',monospace;font-size:11px;outline:none">
+      <input type="email" id="emailInput" placeholder="votre@email.com" data-i18n-ph="email_ph" style="flex:1;background:var(--dark2);border:none;padding:14px 16px;color:var(--white);font-family:'DM Mono',monospace;font-size:11px;outline:none">
       <button onclick="joinWaitlist()" style="background:var(--gold);color:var(--dark);border:none;padding:14px 24px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Je m'inscris</button>
     </div>
     <div id="waitlistMsg" style="margin-top:10px;font-size:10px;color:var(--green);letter-spacing:0.1em;display:none">✓ Inscrit ! Vous serez notifié au lancement.</div>
@@ -429,103 +427,75 @@ function joinWaitlist(){
 }
 </script>
 
-<script id="i18n-script">
-const LANGS = {
-  fr: { flag:'🇫🇷', name:'Français',       dir:'ltr' },
-  ar: { flag:'🇸🇦', name:'العربية',         dir:'rtl' },
-  en: { flag:'🇬🇧', name:'English',         dir:'ltr' },
-  nl: { flag:'🇳🇱', name:'Nederlands',      dir:'ltr' },
-  tr: { flag:'🇹🇷', name:'Türkçe',          dir:'ltr' },
-  id: { flag:'🇮🇩', name:'Bahasa Indonesia',dir:'ltr' },
-  ur: { flag:'🇵🇰', name:'اردو',            dir:'rtl' },
-  de: { flag:'🇩🇪', name:'Deutsch',         dir:'ltr' },
-  es: { flag:'🇪🇸', name:'Español',         dir:'ltr' },
-  bn: { flag:'🇧🇩', name:'বাংলা',           dir:'ltr' },
-  so: { flag:'🇸🇴', name:'Soomaali',        dir:'ltr' },
-  ha: { flag:'🇳🇬', name:'Hausa',           dir:'ltr' },
-  ru: { flag:'🇷🇺', name:'Русский',           dir:'ltr' },
-  pt: { flag:'🇵🇹', name:'Português',          dir:'ltr' },
+<script>
+const LANGS={
+  fr:{f:'🇫🇷',n:'Français',d:'ltr'},
+  ar:{f:'🇸🇦',n:'العربية',d:'rtl'},
+  en:{f:'🇬🇧',n:'English',d:'ltr'},
+  nl:{f:'🇳🇱',n:'Nederlands',d:'ltr'},
+  tr:{f:'🇹🇷',n:'Türkçe',d:'ltr'},
+  id:{f:'🇮🇩',n:'Bahasa Indonesia',d:'ltr'},
+  ur:{f:'🇵🇰',n:'اردو',d:'rtl'},
+  de:{f:'🇩🇪',n:'Deutsch',d:'ltr'},
+  es:{f:'🇪🇸',n:'Español',d:'ltr'},
+  pt:{f:'🇵🇹',n:'Português',d:'ltr'},
+  ru:{f:'🇷🇺',n:'Русский',d:'ltr'},
+  bn:{f:'🇧🇩',n:'বাংলা',d:'ltr'},
+  so:{f:'🇸🇴',n:'Soomaali',d:'ltr'},
+  ha:{f:'🇳🇬',n:'Hausa',d:'ltr'},
+}
+const T={
+  nav_feat: {fr:'Fonctions',ar:'المميزات',en:'Features',nl:'Functies',tr:'Özellikler',id:'Fitur',ur:'خصوصیات',de:'Features',es:'Funciones',pt:'Recursos',ru:'Функции',bn:'বৈশিষ্ট্য',so:'Sifooyinka',ha:'Fasali'},
+  nav_pray: {fr:'Prières',ar:'الصلاة',en:'Prayers',nl:'Gebeden',tr:'Namazlar',id:'Shalat',ur:'نمازیں',de:'Gebete',es:'Oraciones',pt:'Orações',ru:'Молитвы',bn:'নামাজ',so:'Salaadaha',ha:'Salloli'},
+  nav_dl:   {fr:'Télécharger',ar:'تحميل',en:'Download',nl:'Downloaden',tr:'İndir',id:'Unduh',ur:'ڈاؤن لوڈ',de:'Herunterladen',es:'Descargar',pt:'Baixar',ru:'Скачать',bn:'ডাউনলোড',so:'Soo deji',ha:'Sauke'},
+  nav_cta:  {fr:'Bientôt disponible',ar:'قريباً',en:'Coming soon',nl:'Binnenkort',tr:'Yakında',id:'Segera hadir',ur:'جلد آ رہا ہے',de:'Demnächst',es:'Próximamente',pt:'Em breve',ru:'Скоро',bn:'শীঘ্রই',so:'Dhawaan',ha:'Ba da daɗewa'},
+  hero_sub: {fr:'Horaires de prière · Restaurants halal · Coran · Voyage & Finance islamique',ar:'أوقات الصلاة · المطاعم الحلال · القرآن الكريم · السفر والتمويل الإسلامي',en:'Prayer times · Halal restaurants · Quran · Islamic Travel & Finance',nl:'Gebedstijden · Halal restaurants · Koran · Islamitisch reizen & financiën',tr:'Namaz vakitleri · Helal restoranlar · Kuran · İslami seyahat & finans',id:'Waktu shalat · Restoran halal · Al-Quran · Perjalanan & Keuangan Islam',ur:'نماز کے اوقات · حلال ریستوران · قرآن · اسلامی سفر اور مالیات',de:'Gebetszeiten · Halal-Restaurants · Koran · Islamisches Reisen & Finanzen',es:'Horarios de oración · Restaurantes halal · Corán · Viajes & Finanzas islámicas',pt:'Horários de oração · Restaurantes halal · Corão · Viagem & Finanças islâmicas',ru:'Время молитв · Халяль-рестораны · Коран · Исламские путешествия и финансы',bn:'নামাজের সময় · হালাল রেস্তোরাঁ · কোরআন · ইসলামী ভ্রমণ ও অর্থনীতি',so:'Waqtiyada salaadda · Restaurants xalaalka · Quraanka · Safar & Maaliyadda Islaamiga',ha:'Lokacin sallah · Gidajen abinci halal · Alƙur'ani · Tafiya & Kudi na Musulunci'},
+  btn_join: {fr:'Rejoindre la liste d'attente',ar:'انضم إلى قائمة الانتظار',en:'Join the waitlist',nl:'Aanmelden voor wachtlijst',tr:'Bekleme listesine katıl',id:'Daftar waitlist',ur:'انتظار کی فہرست میں شامل ہوں',de:'Warteliste beitreten',es:'Unirse a la lista de espera',pt:'Entrar na lista de espera',ru:'Присоединиться к списку',bn:'ওয়েটলিস্টে যোগ দিন',so:'Ku biir liiska sugitaanka',ha:'Shiga jerin jira'},
+  btn_disc: {fr:'Découvrir l'app',ar:'اكتشف التطبيق',en:'Discover the app',nl:'Ontdek de app',tr:'Uygulamayı keşfet',id:'Temukan aplikasi',ur:'ایپ دریافت کریں',de:'App entdecken',es:'Descubrir la app',pt:'Descobrir o app',ru:'Открыть приложение',bn:'অ্যাপ আবিষ্কার করুন',so:'Baadhi appka',ha:'Gano app'},
+  feat_label:{fr:'✦ Fonctionnalités',ar:'✦ المميزات',en:'✦ Features',nl:'✦ Functies',tr:'✦ Özellikler',id:'✦ Fitur',ur:'✦ خصوصیات',de:'✦ Features',es:'✦ Funciones',pt:'✦ Funcionalidades',ru:'✦ Функции',bn:'✦ বৈশিষ্ট্য',so:'✦ Sifooyinka',ha:'✦ Fasali'},
+  f_pray:   {fr:'Horaires de prière',ar:'أوقات الصلاة',en:'Prayer Times',nl:'Gebedstijden',tr:'Namaz Vakitleri',id:'Waktu Shalat',ur:'نماز کے اوقات',de:'Gebetszeiten',es:'Horarios de oración',pt:'Horários de oração',ru:'Время молитв',bn:'নামাজের সময়',so:'Waqtiyada Salaadda',ha:'Lokacin Sallah'},
+  f_food:   {fr:'Restaurants Halal',ar:'المطاعم الحلال',en:'Halal Restaurants',nl:'Halal Restaurants',tr:'Helal Restoranlar',id:'Restoran Halal',ur:'حلال ریستوران',de:'Halal-Restaurants',es:'Restaurantes Halal',pt:'Restaurantes Halal',ru:'Халяль-рестораны',bn:'হালাল রেস্তোরাঁ',so:'Restaurants Xalaalka',ha:'Gidajen Abinci Halal'},
+  f_quran:  {fr:'Coran complet',ar:'القرآن الكريم',en:'Full Quran',nl:'Volledige Koran',tr:'Tam Kuran',id:'Al-Quran Lengkap',ur:'مکمل قرآن',de:'Vollständiger Koran',es:'Corán completo',pt:'Corão completo',ru:'Полный Коран',bn:'সম্পূর্ণ কোরআন',so:'Quraanka Oo Dhan',ha:'Cikakken Alƙur'ani'},
+  f_travel: {fr:'Voyage Halal',ar:'السياحة الحلال',en:'Halal Travel',nl:'Halal Reizen',tr:'Helal Seyahat',id:'Perjalanan Halal',ur:'حلال سفر',de:'Halal Reisen',es:'Viaje Halal',pt:'Viagem Halal',ru:'Халяль-путешествия',bn:'হালাল ভ্রমণ',so:'Safarka Xalaalka',ha:'Tafiya Halal'},
+  f_fin:    {fr:'Finance Islamique',ar:'التمويل الإسلامي',en:'Islamic Finance',nl:'Islamitisch Bankieren',tr:'İslami Finans',id:'Keuangan Islam',ur:'اسلامی مالیات',de:'Islamische Finanzen',es:'Finanzas Islámicas',pt:'Finanças Islâmicas',ru:'Исламские финансы',bn:'ইসলামী অর্থনীতি',so:'Maaliyadda Islaamiga',ha:'Kudi na Musulunci'},
+  f_tools:  {fr:'Outils spirituels',ar:'الأدوات الروحية',en:'Spiritual Tools',nl:'Spirituele tools',tr:'Manevi Araçlar',id:'Alat Spiritual',ur:'روحانی اوزار',de:'Spirituelle Werkzeuge',es:'Herramientas espirituales',pt:'Ferramentas espirituais',ru:'Духовные инструменты',bn:'আধ্যাত্মিক সরঞ্জাম',so:'Qalab Ruuxiga',ha:'Kayan Ruhi'},
+  dl_sub:   {fr:'Rejoignez la liste d'attente et soyez parmi les premiers à télécharger FADJR dès le lancement.',ar:'انضم إلى قائمة الانتظار وكن من أوائل المستخدمين عند الإطلاق.',en:'Join the waitlist and be among the first to download FADJR at launch.',nl:'Meld je aan voor de wachtlijst en wees een van de eersten bij de lancering.',tr:'Bekleme listesine katıl ve lansmanında FADJR'ı ilk indirenlerden ol.',id:'Daftar waitlist dan jadilah yang pertama mengunduh FADJR saat diluncurkan.',ur:'انتظار کی فہرست میں شامل ہوں اور لانچ پر FADJR پہلے ڈاؤن لوڈ کریں۔',de:'Trag dich in die Warteliste ein und gehöre zu den Ersten beim Launch.',es:'Únete a la lista de espera y sé de los primeros en descargar FADJR.',pt:'Entre na lista de espera e seja um dos primeiros a baixar o FADJR.',ru:'Присоединитесь к списку ожидания и будьте первыми при запуске.',bn:'ওয়েটলিস্টে যোগ দিন এবং লঞ্চে FADJR প্রথম ডাউনলোড করুন।',so:'Ku biir liiska sugitaanka oo noqo mid ka mid ah kuwa hore FADJR la soo deji.',ha:'Shiga jerin jira ka kasance daga na farko sauke FADJR.'},
+  email_ph: {fr:'votre@email.com',ar:'بريدك@الإلكتروني.com',en:'your@email.com',nl:'jouw@email.com',tr:'sizin@email.com',id:'email@anda.com',ur:'آپ@ای میل.com',de:'ihre@email.com',es:'tu@correo.com',pt:'seu@email.com',ru:'ваш@email.com',bn:'আপনার@ইমেইল.com',so:'kaadhkaaga@email.com',ha:'naka@email.com'},
 }
 
-const T = {
-  nav_features:  {fr:'Fonctions',ar:'المميزات',en:'Features',ru:'Функции',pt:'Recursos',nl:'Functies',tr:'Özellikler',id:'Fitur',ur:'خصوصیات',de:'Features',es:'Funciones',bn:'বৈশিষ্ট্য',so:'Sifooyinka',ha:'Fasali'},
-  nav_community: {fr:'Communauté',ar:'المجتمع',en:'Community',ru:'Сообщество',pt:'Comunidade',nl:'Gemeenschap',tr:'Topluluk',id:'Komunitas',ur:'کمیونٹی',de:'Gemeinschaft',es:'Comunidad',bn:'সম্প্রদায়',so:'Bulshada',ha:'Al'umma'},
-  nav_about:     {fr:'À propos',ar:'حول',en:'About',ru:'О нас',pt:'Sobre',nl:'Over',tr:'Hakkında',id:'Tentang',ur:'بارے میں',de:'Über uns',es:'Acerca de',bn:'সম্পর্কে',so:'Ku saabsan',ha:'Game da'},
-  nav_join:      {fr:'Rejoindre',ar:'انضم',en:'Join',ru:'Присоединиться',pt:'Juntar',nl:'Meedoen',tr:'Katıl',id:'Bergabung',ur:'شامل ہوں',de:'Mitmachen',es:'Unirse',bn:'যোগ দিন',so:'Ku biir',ha:'Shiga'},
-  hero_eyebrow:  {fr:'Application Mobile · Gratuit · Halal',ar:'تطبيق الجوال · مجاني · حلال',en:'Mobile App · Free · Halal',ru:'Мобильное приложение · Бесплатно · Халяль',pt:'App Mobile · Grátis · Halal',nl:'Mobiele App · Gratis · Halal',tr:'Mobil Uygulama · Ücretsiz · Helal',id:'Aplikasi Mobile · Gratis · Halal',ur:'موبائل ایپ · مفت · حلال',de:'Mobile App · Kostenlos · Halal',es:'App Móvil · Gratis · Halal',bn:'মোবাইল অ্যাপ · বিনামূল্যে · হালাল',so:'App Mobail · Bilaash · Xalaal',ha:'App na Hannu · Kyauta · Halal'},
-  hero_sub:      {fr:'L'app qui accompagne chaque musulman au quotidien.',ar:'التطبيق الذي يرافق كل مسلم في حياته اليومية.',en:'The app that guides every Muslim through daily life.',ru:'Приложение, сопровождающее каждого мусульманина в повседневной жизни.',pt:'O app que acompanha cada muçulmano no dia a dia.',nl:'De app die elke moslim dagelijks begeleidt.',tr:'Her Müslümanın günlük hayatında rehberi olan uygulama.',id:'Aplikasi yang menemani setiap Muslim dalam kehidupan sehari-hari.',ur:'وہ ایپ جو ہر مسلمان کے روزمرہ میں ساتھ دیتی ہے۔',de:'Die App, die jeden Muslim im Alltag begleitet.',es:'La app que acompaña a cada musulmán en su vida diaria.',bn:'যে অ্যাপ প্রতিটি মুসলমানকে দৈনন্দিন জীবনে সঙ্গ দেয়।',so:'Appka ku saaxibta Muslimiinta maalinkooda.',ha:'Aikace-aikacen da ke tare da kowane Musulmi a kowace rana.'},
-  btn_download:  {fr:'Télécharger l'app',ar:'تحميل التطبيق',en:'Download the app',ru:'Скачать приложение',pt:'Baixar o app',nl:'Download de app',tr:'Uygulamayı indir',id:'Unduh aplikasi',ur:'ایپ ڈاؤن لوڈ کریں',de:'App herunterladen',es:'Descargar la app',bn:'অ্যাপ ডাউনলোড করুন',so:'Soo deji appka',ha:'Sauke app'},
-  btn_discover:  {fr:'Découvrir',ar:'اكتشف',en:'Discover',ru:'Открыть',pt:'Descobrir',nl:'Ontdekken',tr:'Keşfet',id:'Temukan',ur:'دریافت کریں',de:'Entdecken',es:'Descubrir',bn:'আবিষ্কার করুন',so:'Baadhi',ha:'Gano'},
-  waitlist_title:{fr:'Rejoignez les premiers',ar:'انضم إلى الأوائل',en:'Join the first ones',ru:'Присоединяйтесь первыми',pt:'Seja um dos primeiros',nl:'Wees er als eerste bij',tr:'İlk katılanlardan olun',id:'Bergabunglah yang pertama',ur:'پہلے لوگوں میں شامل ہوں',de:'Zu den Ersten gehören',es:'Únete a los primeros',bn:'প্রথমদের মধ্যে যোগ দিন',so:'Ku biir kuwa hore',ha:'Kasance na farko'},
-  waitlist_sub:  {fr:'Accès anticipé gratuit. Aucune carte bancaire requise.',ar:'وصول مبكر مجاني. لا حاجة لبطاقة بنكية.',en:'Free early access. No credit card required.',ru:'Бесплатный ранний доступ. Карта не нужна.',pt:'Acesso antecipado gratuito. Sem cartão de crédito.',nl:'Gratis vroege toegang. Geen creditcard vereist.',tr:'Ücretsiz erken erişim. Kredi kartı gerekmez.',id:'Akses awal gratis. Tidak perlu kartu kredit.',ur:'مفت ابتدائی رسائی۔ کوئی کریڈٹ کارڈ نہیں چاہیے۔',de:'Kostenloser Frühzugang. Keine Kreditkarte nötig.',es:'Acceso anticipado gratuito. Sin tarjeta de crédito.',bn:'বিনামূল্যে আর্লি অ্যাক্সেস। কোনো ক্রেডিট কার্ড নেই।',so:'Gelitaan bilaash ah. Kaadhka bangiga laguma baahna.',ha:'Shiga na farko kyauta. Ba katin banki da ake bukata.'},
-  input_email:   {fr:'Votre adresse email',ar:'بريدك الإلكتروني',en:'Your email address',ru:'Ваш email',pt:'Seu endereço de email',nl:'Uw e-mailadres',tr:'E-posta adresiniz',id:'Alamat email Anda',ur:'آپ کا ای میل',de:'Ihre E-Mail-Adresse',es:'Su dirección de correo',bn:'আপনার ইমেইল ঠিকানা',so:'Cinwaanka emailkaaga',ha:'Adireshin imel ɗinka'},
-  btn_notify:    {fr:'M'avertir',ar:'أخبرني',en:'Notify me',ru:'Уведомить меня',pt:'Me avisar',nl:'Mij berichten',tr:'Beni bildir',id:'Beritahu saya',ur:'مجھے بتائیں',de:'Benachrichtigen',es:'Notificarme',bn:'আমাকে জানান',so:'I warran',ha:'Sanar da ni'},
-  features_label:{fr:'Fonctionnalités',ar:'المميزات',en:'Features',ru:'Функции',pt:'Recursos',nl:'Functies',tr:'Özellikler',id:'Fitur',ur:'خصوصیات',de:'Features',es:'Funciones',bn:'বৈশিষ্ট্য',so:'Sifooyinka',ha:'Fasali'},
-  p1_title:      {fr:'Prière & Spiritualité',ar:'الصلاة والروحانية',en:'Prayer & Spirituality',ru:'Молитва и духовность',pt:'Oração & Espiritualidade',nl:'Gebed & Spiritualiteit',tr:'Namaz & Maneviyat',id:'Shalat & Spiritualitas',ur:'نماز اور روحانیت',de:'Gebet & Spiritualität',es:'Oración & Espiritualidad',bn:'নামাজ ও আধ্যাত্মিকতা',so:'Salaadda iyo Ruuxiga',ha:'Sallah & Ruhi'},
-  p2_title:      {fr:'Gastronomie Halal',ar:'المطاعم الحلال',en:'Halal Food',ru:'Халяльная еда',pt:'Comida Halal',nl:'Halal Eten',tr:'Helal Yiyecek',id:'Makanan Halal',ur:'حلال کھانا',de:'Halal Essen',es:'Comida Halal',bn:'হালাল খাবার',so:'Cuntada Xalaalka',ha:'Abinci Halal'},
-  p3_title:      {fr:'Finance Islamique',ar:'التمويل الإسلامي',en:'Islamic Finance',ru:'Исламские финансы',pt:'Finanças Islâmicas',nl:'Islamitisch Bankieren',tr:'İslami Finans',id:'Keuangan Islam',ur:'اسلامی مالیات',de:'Islamische Finanzen',es:'Finanzas Islámicas',bn:'ইসলামী অর্থনীতি',so:'Maaliyadda Islaamiga',ha:'Kudi na Musulunci'},
-  p4_title:      {fr:'Voyage Halal',ar:'السياحة الحلال',en:'Halal Travel',ru:'Халяльные путешествия',pt:'Viagem Halal',nl:'Halal Reizen',tr:'Helal Seyahat',id:'Perjalanan Halal',ur:'حلال سفر',de:'Halal Reisen',es:'Viaje Halal',bn:'হালাল ভ্রমণ',so:'Safarka Xalaalka',ha:'Tafiya Halal'},
-  p5_title:      {fr:'Culture & Savoir',ar:'الثقافة والعلم',en:'Culture & Knowledge',ru:'Культура и знания',pt:'Cultura & Saber',nl:'Cultuur & Kennis',tr:'Kültür & Bilgi',id:'Budaya & Pengetahuan',ur:'ثقافت اور علم',de:'Kultur & Wissen',es:'Cultura & Saber',bn:'সংস্কৃতি ও জ্ঞান',so:'Dhaqanka & Aqoonta',ha:'Al'ada & Ilimi'},
-  p6_title:      {fr:'Communauté',ar:'المجتمع',en:'Community',ru:'Сообщество',pt:'Comunidade',nl:'Gemeenschap',tr:'Topluluk',id:'Komunitas',ur:'کمیونٹی',de:'Gemeinschaft',es:'Comunidad',bn:'সম্প্রদায়',so:'Bulshada',ha:'Al'umma'},
-  footer_copy:   {fr:'Tous droits réservés',ar:'جميع الحقوق محفوظة',en:'All rights reserved',ru:'Все права защищены',pt:'Todos os direitos reservados',nl:'Alle rechten voorbehouden',tr:'Tüm hakları saklıdır',id:'Semua hak dilindungi',ur:'جملہ حقوق محفوظ ہیں',de:'Alle Rechte vorbehalten',es:'Todos los derechos reservados',bn:'সর্বস্বত্ব সংরক্ষিত',so:'Xuquuqda oo dhan waa la kaydiyay',ha:'Kowane haƙƙi an kiyaye shi'},
+let lang = localStorage.getItem('fl') || 'fr'
+function t(k){ return T[k]?.[lang] || T[k]?.fr || '' }
+
+function applyLang(l){
+  lang = l
+  localStorage.setItem('fl', l)
+  const cfg = LANGS[l]
+  document.documentElement.lang = l
+  document.documentElement.dir = cfg.d
+  document.body.style.fontFamily = cfg.d==='rtl' ? "'Tajawal',sans-serif" : "'DM Mono',monospace"
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n) })
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh || el.getAttribute('data-i18n-ph')) })
+  document.querySelectorAll('.lang-opt').forEach(o => o.classList.toggle('sel', o.dataset.l === l))
+  const btn = document.getElementById('lbtn')
+  if(btn) btn.textContent = cfg.f + ' ' + l.toUpperCase() + ' ▾'
 }
 
-let currentLang = localStorage.getItem('fadjr_lang') || 'fr'
-
-function t(key){ return T[key]?.[currentLang] || T[key]?.['fr'] || '' }
-
-function applyLang(lang){
-  currentLang = lang
-  localStorage.setItem('fadjr_lang', lang)
-  const cfg = LANGS[lang]
-  document.documentElement.lang = lang
-  document.documentElement.dir = cfg.dir
-
-  // Apply all translations
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n
-    if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){
-      el.placeholder = t(key)
-    } else {
-      el.textContent = t(key)
-    }
-  })
-
-  // RTL font
-  if(cfg.dir === 'rtl'){
-    document.body.style.fontFamily = "'Tajawal', sans-serif"
-  } else {
-    document.body.style.fontFamily = "'DM Mono', monospace"
-  }
-
-  // Update dropdown active state
-  document.querySelectorAll('.lang-option').forEach(opt => {
-    opt.classList.toggle('active', opt.dataset.lang === lang)
-  })
-  // Update btn label
-  const btn = document.getElementById('lang-btn-text')
-  if(btn) btn.textContent = cfg.flag + ' ' + lang.toUpperCase()
-}
-
-function toggleLangDropdown(){
-  document.getElementById('lang-dropdown').classList.toggle('open')
+function toggleDD(){
+  const dd = document.getElementById('ldd')
+  if(dd) dd.classList.toggle('open')
 }
 document.addEventListener('click', e => {
-  if(!e.target.closest('.lang-switcher')) document.getElementById('lang-dropdown')?.classList.remove('open')
+  if(!e.target.closest('.lang-sw')) { const d=document.getElementById('ldd'); if(d) d.classList.remove('open') }
 })
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Build dropdown
-  const dd = document.getElementById('lang-dropdown')
+  const dd = document.getElementById('ldd')
   if(dd){
-    dd.innerHTML = Object.entries(LANGS).map(([code, cfg]) =>
-      `<div class="lang-option${code===currentLang?' active':''}" data-lang="${code}" onclick="applyLang('${code}');toggleLangDropdown()">
-        <span class="lang-flag">${cfg.flag}</span>
-        <span>${cfg.name}</span>
-      </div>`
+    dd.innerHTML = Object.entries(LANGS).map(([code,cfg]) =>
+      `<div class="lang-opt${code===lang?' sel':''}" data-l="${code}" onclick="applyLang('${code}');toggleDD()">${cfg.f} ${cfg.n}</div>`
     ).join('')
   }
-  applyLang(currentLang)
+  applyLang(lang)
 })
 </script>
 
