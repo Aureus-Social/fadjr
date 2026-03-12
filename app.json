@@ -3,14 +3,14 @@
     "name": "FADJR",
     "slug": "fadjr",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
+    "sdkVersion": "52.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1a1a2e"
+      "backgroundColor": "#0A0A14"
     },
     "ios": {
       "supportsTablet": true,
@@ -30,6 +30,7 @@
         "projectId": "02599b38-057d-438c-a2e3-3c43f43bf7e6"
       }
     },
-    "owner": "aureus-social"
+    "owner": "aureus-social",
+    "newArchEnabled": false
   }
 }
