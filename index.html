@@ -175,7 +175,7 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
     <a href="#prieres" class="nav-link" data-i18n="nav_pray">Prières</a>
     <a href="#download" class="nav-link" data-i18n="nav_dl">Télécharger</a>
     <a href="privacy.html" class="nav-link">Confidentialité</a>
-    <div class="lang-sw"><button class="lang-btn" onclick="toggleDD()" id="lbtn">🇫🇷 FR ▾</button><div class="lang-dd" id="ldd"></div></div>
+    <div class="lang-sw" id="lang-sw"><button class="lang-btn" id="lbtn">🇫🇷 FR ▾</button><div class="lang-dd" id="ldd"></div></div>
     <a href="#download" class="nav-cta" data-i18n="nav_cta">Bientôt disponible</a>
   </div>
 </nav>
@@ -473,18 +473,33 @@ function applyLang(l){
   if(btn) btn.textContent = cfg.f + ' ' + l.toUpperCase() + ' ▾'
 }
 
-function toggleDD(e){ if(e) e.stopPropagation(); const dd=document.getElementById('ldd'); if(dd) dd.classList.toggle('open'); }
-document.addEventListener('click', e => {
-  if(!e.target.closest('.lang-sw')) { const d=document.getElementById('ldd'); if(d) d.classList.remove('open') }
-})
-
 window.addEventListener('DOMContentLoaded', () => {
+  // Build dropdown
   const dd = document.getElementById('ldd')
   if(dd){
     dd.innerHTML = Object.entries(LANGS).map(([code,cfg]) =>
-      `<div class="lang-opt${code===lang?' sel':''}" data-l="${code}" onclick="applyLang('${code}');toggleDD()">${cfg.f} ${cfg.n}</div>`
+      `<div class="lang-opt${code===lang?' sel':''}" data-l="${code}">${cfg.f} ${cfg.n}</div>`
     ).join('')
+    dd.querySelectorAll('.lang-opt').forEach(opt => {
+      opt.addEventListener('click', function(e){
+        e.stopPropagation()
+        applyLang(this.dataset.l)
+        dd.classList.remove('open')
+      })
+    })
   }
+  // Button click
+  const btn = document.getElementById('lbtn')
+  if(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation()
+      dd.classList.toggle('open')
+    })
+  }
+  // Close on outside click
+  document.addEventListener('click', function(){
+    if(dd) dd.classList.remove('open')
+  })
   applyLang(lang)
 })
 </script>
