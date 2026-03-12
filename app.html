@@ -172,6 +172,12 @@ body.light {
 body.light #tabbar { background: rgba(245,240,232,.98); }
 body.light .screen { background: transparent; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPA_URL = "https://bpvrqphmxrnjrbjtaxuw.supabase.co"
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnJxcGhteHJuanJianRheHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTQ0MjMsImV4cCI6MjA4ODczMDQyM30.9WaS5gYPcB2d11S604xpu4hZmwtV55yDlxxgNUaZEwA"
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
+</script>
 </head>
 <body>
 
@@ -209,28 +215,47 @@ body.light .screen { background: transparent; }
 
     <!-- ACCUEIL -->
     <div class="screen active" id="screen-accueil">
-      <div style="height:16px"></div>
-      
-      <!-- Mode toggle -->
-      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span id="mode-icon" style="font-size:20px">🌙</span>
-          <div><div style="font-size:13px;font-weight:700">Mode d'affichage</div><div id="mode-label" style="font-size:11px;color:var(--muted)">Sombre</div></div>
+      <div style="height:12px"></div>
+
+      <!-- Greeting + user -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div id="accueil-greeting" style="font-size:12px;color:var(--muted)">Bonjour</div>
+          <div id="accueil-username" style="font-size:20px;font-weight:900">Bienvenue 👋</div>
         </div>
-        <div id="mode-toggle" onclick="toggleMode()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
-          <div id="mode-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+        <div onclick="goTab('profil')" style="width:44px;height:44px;border-radius:50%;background:rgba(201,168,76,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer">☪</div>
+      </div>
+
+      <!-- Verset du jour -->
+      <div id="verset-card" style="background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.3);border-radius:14px;padding:18px;margin-bottom:14px">
+        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">✦ Verset du jour</div>
+        <div id="verset-ar" style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;text-align:right;line-height:1.8;color:var(--white);margin-bottom:8px">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+        <div id="verset-fr" style="font-size:11px;color:var(--muted);line-height:1.7;font-style:italic">Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux</div>
+        <div id="verset-ref" style="font-size:9px;color:rgba(201,168,76,.5);margin-top:8px;letter-spacing:.1em">Sourate 1 · Al-Fatiha · Verset 1</div>
+      </div>
+
+      <!-- Hadith du jour -->
+      <div id="hadith-card" style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">📜 Hadith du jour</div>
+        <div id="hadith-text" style="font-size:12px;color:var(--white);line-height:1.8">Chargement...</div>
+        <div id="hadith-source" style="font-size:9px;color:var(--muted);margin-top:6px"></div>
+      </div>
+
+      <!-- Prochaine prière mini -->
+      <div onclick="goTab('priere')" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer">
+        <div style="font-size:28px" id="acc-pray-emoji">🕌</div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:.1em">PROCHAINE PRIÈRE</div>
+          <div style="font-size:16px;font-weight:900" id="acc-pray-name">—</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;color:var(--gold);font-weight:700" id="acc-pray-time">--:--</div>
+          <div style="font-size:10px;color:var(--muted)" id="acc-pray-cd">--</div>
         </div>
       </div>
 
-      <a class="dashboard-banner" href="https://fadjr-admin.vercel.app" target="_blank">
-        <div>
-          <div class="db-title">📊 Dashboard Admin</div>
-          <div class="db-sub">Partenaires · MRR · Pub géolocalisée</div>
-        </div>
-        <div class="db-arrow">→</div>
-      </a>
-
-      <div class="sec-label">EXPLORER</div>
+      <!-- Piliers -->
+      <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">EXPLORER</div>
       <div class="piliers">
         <div class="pilier-btn" style="border-top-color:#C9A84C" onclick="goTab('priere')">
           <div class="p-icon">🕌</div><div class="p-label">PRIÈRE</div>
@@ -241,14 +266,14 @@ body.light .screen { background: transparent; }
         <div class="pilier-btn" style="border-top-color:#7D5A3C" onclick="goTab('culture')">
           <div class="p-icon">📖</div><div class="p-label">CORAN</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#8E44AD" onclick="goTab('carte')">
-          <div class="p-icon">🏦</div><div class="p-label">FINANCE</div>
+        <div class="pilier-btn" style="border-top-color:#8E44AD" onclick="goTab('dhikr')">
+          <div class="p-icon">📿</div><div class="p-label">DHIKR</div>
         </div>
         <div class="pilier-btn" style="border-top-color:#2980B9" onclick="goTab('carte')">
           <div class="p-icon">✈️</div><div class="p-label">VOYAGE</div>
         </div>
         <div class="pilier-btn" style="border-top-color:#16A085" onclick="goTab('profil')">
-          <div class="p-icon">👥</div><div class="p-label">COMMUNAUTÉ</div>
+          <div class="p-icon">👤</div><div class="p-label">PROFIL</div>
         </div>
       </div>
 
@@ -414,44 +439,115 @@ body.light .screen { background: transparent; }
 
     <!-- PROFIL -->
     <div class="screen" id="screen-profil">
-      <div style="height:16px"></div>
-      <div style="text-align:center;padding:0 0 16px">
-        <div class="avatar">☪</div>
-        <div style="font-size:20px;font-weight:900">Nourdin</div>
-        <div style="color:var(--gold);font-size:13px;margin-top:4px">Bruxelles, Belgique 🇧🇪</div>
-        <div style="color:var(--muted);font-size:11px;margin-top:3px">Fondateur · Aureus IA SPRL</div>
-      </div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-val" style="color:var(--gold)">3/5</div><div class="stat-label">PRIÈRES</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:var(--blue)">7</div><div class="stat-label">FAVORIS</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:var(--green)">12</div><div class="stat-label">AVIS</div></div>
-      </div>
-      <!-- Mode toggle -->
-      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span id="mode-icon" style="font-size:20px">🌙</span>
-          <div><div style="font-size:13px;font-weight:700">Mode d'affichage</div><div id="mode-label" style="font-size:11px;color:var(--muted)">Sombre</div></div>
+      <div style="height:12px"></div>
+
+      <!-- AUTH PANEL (shown when not logged in) -->
+      <div id="auth-panel">
+        <div style="text-align:center;padding:20px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">☪</div>
+          <div style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);margin-bottom:6px">FADJR</div>
+          <div style="font-size:12px;color:var(--muted)">Connectez-vous pour sauvegarder vos préférences</div>
         </div>
-        <div id="mode-toggle" onclick="toggleMode()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
-          <div id="mode-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+
+        <!-- Tabs login/register -->
+        <div style="display:flex;border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden">
+          <button id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:10px;background:rgba(201,168,76,.1);border:none;color:var(--gold);font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Connexion</button>
+          <button id="auth-tab-register" onclick="switchAuthTab('register')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer">Inscription</button>
+        </div>
+
+        <!-- Login form -->
+        <div id="auth-login">
+          <div style="margin-bottom:12px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">EMAIL</div>
+            <input id="login-email" type="email" placeholder="votre@email.com" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <div style="margin-bottom:16px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">MOT DE PASSE</div>
+            <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <button onclick="doLogin()" id="login-btn" style="width:100%;background:var(--gold);color:#07070F;padding:13px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif;transition:.2s">Se connecter</button>
+          <div id="login-error" style="display:none;margin-top:10px;font-size:11px;color:#E76F51;text-align:center"></div>
+        </div>
+
+        <!-- Register form -->
+        <div id="auth-register" style="display:none">
+          <div style="margin-bottom:12px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">PRÉNOM</div>
+            <input id="reg-name" type="text" placeholder="Votre prénom" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">EMAIL</div>
+            <input id="reg-email" type="email" placeholder="votre@email.com" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <div style="margin-bottom:16px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">MOT DE PASSE</div>
+            <input id="reg-pass" type="password" placeholder="Min. 6 caractères" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <button onclick="doRegister()" id="reg-btn" style="width:100%;background:var(--gold);color:#07070F;padding:13px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Créer mon compte</button>
+          <div id="reg-error" style="display:none;margin-top:10px;font-size:11px;color:#E76F51;text-align:center"></div>
+          <div id="reg-success" style="display:none;margin-top:10px;font-size:11px;color:var(--green);text-align:center">✅ Compte créé ! Vérifiez votre email puis connectez-vous.</div>
+        </div>
+
+        <!-- Continuer sans compte -->
+        <div style="text-align:center;margin-top:16px">
+          <button onclick="skipAuth()" style="background:transparent;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif;text-decoration:underline">Continuer sans compte →</button>
         </div>
       </div>
 
-      <a class="dashboard-banner" href="https://fadjr-admin.vercel.app" target="_blank">
-        <div>
-          <div class="db-title">📊 Dashboard Admin FADJR</div>
-          <div class="db-sub">Accès complet · MRR · Partenaires · Pub</div>
+      <!-- LOGGED IN PANEL -->
+      <div id="user-panel" style="display:none">
+        <div style="text-align:center;padding:0 0 20px">
+          <div style="width:72px;height:72px;border-radius:50%;background:rgba(201,168,76,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px">☪</div>
+          <div id="user-name-display" style="font-size:20px;font-weight:900">—</div>
+          <div id="user-email-display" style="color:var(--gold);font-size:12px;margin-top:4px">—</div>
+          <div style="color:var(--muted);font-size:11px;margin-top:2px">Membre FADJR</div>
         </div>
-        <div class="db-arrow">→</div>
-      </a>
-      <div>
-        <div class="pref-row"><div class="pref-icon">📍</div><div style="flex:1"><div class="pref-label">Ville</div><div class="pref-val">Bruxelles · 50.850°N 4.352°E</div></div><div class="pref-arrow">›</div></div>
-        <div class="pref-row"><div class="pref-icon">🔔</div><div style="flex:1"><div class="pref-label">Adhan</div><div class="pref-val">5 minutes avant chaque prière</div></div><div class="pref-arrow">›</div></div>
-        <div class="pref-row"><div class="pref-icon">🌍</div><div style="flex:1"><div class="pref-label">Langue</div><div class="pref-val">Français · العربية disponible</div></div><div class="pref-arrow">›</div></div>
-        <div class="pref-row"><div class="pref-icon">📱</div><div style="flex:1"><div class="pref-label">Version</div><div class="pref-val">FADJR v1.0 · Sprint 1 MVP</div></div><div class="pref-arrow">›</div></div>
+
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-val" style="color:var(--gold)">5/5</div><div class="stat-label">PRIÈRES</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--blue)" id="user-favoris">0</div><div class="stat-label">FAVORIS</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--green)">🟢</div><div class="stat-label">ACTIF</div></div>
+        </div>
+
+        <!-- Mode toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="mode-icon" style="font-size:20px">🌙</span>
+            <div><div style="font-size:13px;font-weight:700">Mode d'affichage</div><div id="mode-label" style="font-size:11px;color:var(--muted)">Sombre</div></div>
+          </div>
+          <div id="mode-toggle" onclick="toggleMode()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+            <div id="mode-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+          </div>
+        </div>
+
+        <!-- Adhan toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">🔔</span>
+            <div><div style="font-size:13px;font-weight:700">Rappels Adhan</div><div id="adhan-status" style="font-size:11px;color:var(--muted)">Désactivé</div></div>
+          </div>
+          <div id="adhan-toggle" onclick="toggleAdhan()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+            <div id="adhan-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+          </div>
+        </div>
+
+        <a class="dashboard-banner" href="https://fadjr.app/dashboard" target="_blank">
+          <div>
+            <div class="db-title">📊 Dashboard Admin FADJR</div>
+            <div class="db-sub">Accès complet · MRR · Partenaires · Pub</div>
+          </div>
+          <div class="db-arrow">→</div>
+        </a>
+
+        <div>
+          <div class="pref-row"><div class="pref-icon">📍</div><div style="flex:1"><div class="pref-label">Ville</div><div class="pref-val" id="user-ville">Bruxelles</div></div><div class="pref-arrow">›</div></div>
+          <div class="pref-row"><div class="pref-icon">📱</div><div style="flex:1"><div class="pref-label">Version</div><div class="pref-val">FADJR v2.0 · Sprint 2</div></div><div class="pref-arrow">›</div></div>
+        </div>
+
+        <button onclick="doLogout()" style="width:100%;background:rgba(231,111,81,.1);border:1px solid rgba(231,111,81,.3);color:#E76F51;padding:12px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;margin-top:16px">Se déconnecter</button>
       </div>
     </div>
-  </div>
+    </div>
 
   <!-- TAB BAR -->
   <div id="tabbar">
@@ -1058,6 +1154,238 @@ function renderHijriCalendar(){
 // Init
 renderDhikrList()
 renderHijriCalendar()
+
+
+// ── SUPABASE AUTH ─────────────────────────────────────────────
+let currentUser = null
+
+async function initAuth(){
+  const { data: { session } } = await supa.auth.getSession()
+  if(session){ currentUser = session.user; showUserPanel(session.user) }
+  supa.auth.onAuthStateChange((_e, session) => {
+    currentUser = session?.user || null
+    if(currentUser) showUserPanel(currentUser)
+    else showAuthPanel()
+  })
+}
+
+function showUserPanel(user){
+  document.getElementById('auth-panel').style.display = 'none'
+  document.getElementById('user-panel').style.display = 'block'
+  const meta = user.user_metadata
+  document.getElementById('user-name-display').textContent = meta?.name || user.email.split('@')[0]
+  document.getElementById('user-email-display').textContent = user.email
+  document.getElementById('accueil-username').textContent = (meta?.name || user.email.split('@')[0]) + ' 👋'
+  const h = new Date().getHours()
+  document.getElementById('accueil-greeting').textContent = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir'
+}
+
+function showAuthPanel(){
+  document.getElementById('auth-panel').style.display = 'block'
+  document.getElementById('user-panel').style.display = 'none'
+}
+
+function skipAuth(){
+  document.getElementById('auth-panel').style.display = 'none'
+  document.getElementById('user-panel').style.display = 'block'
+  document.getElementById('user-name-display').textContent = 'Visiteur'
+  document.getElementById('user-email-display').textContent = 'Non connecté'
+}
+
+function switchAuthTab(tab){
+  document.getElementById('auth-login').style.display = tab==='login' ? 'block' : 'none'
+  document.getElementById('auth-register').style.display = tab==='register' ? 'block' : 'none'
+  document.getElementById('auth-tab-login').style.background = tab==='login' ? 'rgba(201,168,76,.1)' : 'transparent'
+  document.getElementById('auth-tab-login').style.color = tab==='login' ? 'var(--gold)' : 'var(--muted)'
+  document.getElementById('auth-tab-register').style.background = tab==='register' ? 'rgba(201,168,76,.1)' : 'transparent'
+  document.getElementById('auth-tab-register').style.color = tab==='register' ? 'var(--gold)' : 'var(--muted)'
+}
+
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim()
+  const pass  = document.getElementById('login-pass').value
+  const errEl = document.getElementById('login-error')
+  if(!email||!pass){ errEl.style.display='block'; errEl.textContent='Remplissez tous les champs'; return }
+  const btn = document.getElementById('login-btn')
+  btn.textContent = 'Connexion...'
+  btn.disabled = true
+  const { error } = await supa.auth.signInWithPassword({ email, password: pass })
+  if(error){
+    errEl.style.display='block'
+    errEl.textContent = error.message === 'Invalid login credentials' ? 'Email ou mot de passe incorrect' : error.message
+    btn.textContent = 'Se connecter'
+    btn.disabled = false
+  }
+}
+
+async function doRegister(){
+  const name  = document.getElementById('reg-name').value.trim()
+  const email = document.getElementById('reg-email').value.trim()
+  const pass  = document.getElementById('reg-pass').value
+  const errEl = document.getElementById('reg-error')
+  const okEl  = document.getElementById('reg-success')
+  if(!name||!email||!pass){ errEl.style.display='block'; errEl.textContent='Remplissez tous les champs'; return }
+  if(pass.length < 6){ errEl.style.display='block'; errEl.textContent='Mot de passe trop court (min. 6 caractères)'; return }
+  const btn = document.getElementById('reg-btn')
+  btn.textContent = 'Création...'
+  btn.disabled = true
+  const { error } = await supa.auth.signUp({ email, password: pass, options: { data: { name } } })
+  if(error){
+    errEl.style.display='block'; errEl.textContent = error.message
+    btn.textContent = 'Créer mon compte'
+    btn.disabled = false
+  } else {
+    errEl.style.display='none'
+    okEl.style.display='block'
+    btn.textContent = 'Créer mon compte'
+    btn.disabled = false
+  }
+}
+
+async function doLogout(){
+  await supa.auth.signOut()
+  showAuthPanel()
+}
+
+// ── VERSET DU JOUR ────────────────────────────────────────────
+const VERSETS = [
+  { ar:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", fr:"Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux", ref:"Al-Fatiha 1:1" },
+  { ar:"الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", fr:"Louange à Allah, Seigneur des mondes", ref:"Al-Fatiha 1:2" },
+  { ar:"وَمَا تَوَدُّوا مِنْ خَيْرٍ يَعْلَمْهُ اللَّهُ", fr:"Tout le bien que vous faites, Allah le sait", ref:"Al-Baqara 2:197" },
+  { ar:"إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", fr:"Certes, Allah est avec les patients", ref:"Al-Baqara 2:153" },
+  { ar:"وَاللَّهُ يَرْزُقُ مَن يَشَاءُ بِغَيْرِ حِسَابٍ", fr:"Allah accorde Ses largesses à qui Il veut, sans compter", ref:"Al-Baqara 2:212" },
+  { ar:"فَاذْكُرُونِي أَذْكُرْكُمْ", fr:"Souvenez-vous de Moi, Je Me souviendrai de vous", ref:"Al-Baqara 2:152" },
+  { ar:"وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ", fr:"Il est avec vous où que vous soyez", ref:"Al-Hadid 57:4" },
+  { ar:"إِنَّ مَعَ الْعُسْرِ يُسْرًا", fr:"Certes, avec la difficulté vient la facilité", ref:"Al-Inshirah 94:6" },
+  { ar:"وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا", fr:"Quiconque craint Allah, Il lui ménage une issue", ref:"At-Talaq 65:2" },
+  { ar:"حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", fr:"Allah nous suffit, et quel excellent Garant Il est !", ref:"Al-Imran 3:173" },
+  { ar:"لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", fr:"Allah n'impose à personne une charge supérieure à ses capacités", ref:"Al-Baqara 2:286" },
+  { ar:"وَاصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ", fr:"Sois patient, car Allah ne laisse pas perdre la récompense des bienfaisants", ref:"Hud 11:115" },
+  { ar:"قُلْ هُوَ اللَّهُ أَحَدٌ", fr:"Dis : Il est Allah, Unique", ref:"Al-Ikhlas 112:1" },
+  { ar:"وَبَشِّرِ الصَّابِرِينَ", fr:"Et annonce la bonne nouvelle aux endurants", ref:"Al-Baqara 2:155" },
+]
+
+const HADITHS = [
+  { text:"Les actions ne valent que par les intentions.", source:"Bukhari & Muslim" },
+  { text:"Le musulman est celui dont les musulmans sont à l'abri de sa langue et de sa main.", source:"Bukhari" },
+  { text:"La meilleure des personnes est celle qui est la plus utile aux autres.", source:"Tabarani" },
+  { text:"Souris à ton frère, c'est une aumône.", source:"Tirmidhi" },
+  { text:"Cherche la connaissance, même en Chine.", source:"Ibn Abd Al-Barr" },
+  { text:"Le paradis est sous les pieds des mères.", source:"Ahmad & Nasa'i" },
+  { text:"Celui qui ne remercie pas les gens ne remercie pas Allah.", source:"Abu Dawud & Tirmidhi" },
+  { text:"Facilitez les choses aux gens et ne les compliquez pas.", source:"Bukhari" },
+  { text:"La force n'est pas dans la lutte physique, mais dans la maîtrise de soi en cas de colère.", source:"Bukhari" },
+  { text:"Nul d'entre vous n'est croyant tant qu'il n'aime pas pour son frère ce qu'il aime pour lui-même.", source:"Bukhari & Muslim" },
+  { text:"Le meilleur d'entre vous est celui qui a le meilleur caractère.", source:"Bukhari" },
+  { text:"Dis la vérité même si elle est amère.", source:"Ibn Hibban" },
+]
+
+function loadDailyContent(){
+  const day = new Date().getDate()
+  const v = VERSETS[day % VERSETS.length]
+  const h = HADITHS[day % HADITHS.length]
+  document.getElementById('verset-ar').textContent = v.ar
+  document.getElementById('verset-fr').textContent = v.fr
+  document.getElementById('verset-ref').textContent = v.ref
+  document.getElementById('hadith-text').textContent = "« " + h.text + " »"
+  document.getElementById('hadith-source').textContent = "— " + h.source
+}
+
+// ── ADHAN NOTIFICATIONS ───────────────────────────────────────
+let adhanEnabled = localStorage.getItem('fadjr_adhan') === 'true'
+let adhanInterval = null
+
+function applyAdhan(){
+  const knob = document.getElementById('adhan-knob')
+  const tog  = document.getElementById('adhan-toggle')
+  const lbl  = document.getElementById('adhan-status')
+  if(knob){ knob.style.left = adhanEnabled ? '25px' : '3px' }
+  if(tog){ tog.style.background = adhanEnabled ? 'var(--gold)' : 'var(--muted)' }
+  if(lbl){ lbl.textContent = adhanEnabled ? 'Activé — rappel 5 min avant' : 'Désactivé' }
+}
+
+function toggleAdhan(){
+  adhanEnabled = !adhanEnabled
+  localStorage.setItem('fadjr_adhan', adhanEnabled)
+  applyAdhan()
+  if(adhanEnabled){
+    if(Notification.permission === 'default') Notification.requestPermission()
+    startAdhanChecker()
+  } else {
+    if(adhanInterval){ clearInterval(adhanInterval); adhanInterval = null }
+  }
+}
+
+function startAdhanChecker(){
+  if(adhanInterval) clearInterval(adhanInterval)
+  adhanInterval = setInterval(checkAdhanTime, 60000)
+  checkAdhanTime()
+}
+
+function checkAdhanTime(){
+  if(!adhanEnabled || !window.prayerTimes) return
+  const now = new Date()
+  const hhmm = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0')
+  window.prayerTimes.forEach(p => {
+    if(!p.time) return
+    const [ph, pm] = p.time.split(':').map(Number)
+    const prayerMins = ph * 60 + pm
+    const nowMins = now.getHours() * 60 + now.getMinutes()
+    if(nowMins === prayerMins - 5){
+      if(Notification.permission === 'granted'){
+        new Notification('🕌 FADJR — ' + p.name + ' dans 5 minutes', {
+          body: 'Il est bientôt ' + p.time + '. Préparez-vous pour la prière.',
+          icon: '/favicon.ico'
+        })
+      }
+    }
+  })
+}
+
+// ── GÉOLOCALISATION ───────────────────────────────────────────
+function getUserLocation(){
+  if(!navigator.geolocation){ return }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: lat, longitude: lng } = pos.coords
+    localStorage.setItem('fadjr_lat', lat)
+    localStorage.setItem('fadjr_lng', lng)
+    // Reverse geocode city name
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+      .then(r=>r.json()).then(d=>{
+        const city = d.address?.city || d.address?.town || d.address?.village || 'Votre ville'
+        localStorage.setItem('fadjr_city', city)
+        const el = document.getElementById('user-ville')
+        if(el) el.textContent = city
+      }).catch(()=>{})
+    // Reload prayer times with real location
+    loadPrayerTimes(lat, lng)
+    // Update map center
+    if(window.updateMapLocation) window.updateMapLocation(lat, lng)
+  }, ()=>{})
+}
+
+// ── ACCUEIL SYNC prière ───────────────────────────────────────
+function syncAccueilPrayer(){
+  if(!window.nextPrayer) return
+  const p = window.nextPrayer
+  const el1 = document.getElementById('acc-pray-name')
+  const el2 = document.getElementById('acc-pray-time')
+  const el3 = document.getElementById('acc-pray-cd')
+  const el4 = document.getElementById('acc-pray-emoji')
+  if(el1) el1.textContent = p.name
+  if(el2) el2.textContent = p.time
+  if(el3) el3.textContent = document.getElementById('np-countdown')?.textContent || ''
+  if(el4) el4.textContent = p.emoji || '🕌'
+}
+
+// Init all
+initAuth()
+loadDailyContent()
+getUserLocation()
+applyAdhan()
+if(adhanEnabled) startAdhanChecker()
+setInterval(syncAccueilPrayer, 10000)
+setTimeout(syncAccueilPrayer, 2000)
 
 </script>
 </body>
