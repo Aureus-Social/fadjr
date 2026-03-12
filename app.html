@@ -217,7 +217,7 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
           <div class="p-icon">🍽️</div><div class="p-label">HALAL</div>
         </div>
         <div class="pilier-btn" style="border-top-color:#7D5A3C" onclick="goTab('culture')">
-          <div class="p-icon">📚</div><div class="p-label">CULTURE</div>
+          <div class="p-icon">📖</div><div class="p-label">CORAN</div>
         </div>
         <div class="pilier-btn" style="border-top-color:#8E44AD" onclick="goTab('carte')">
           <div class="p-icon">🏦</div><div class="p-label">FINANCE</div>
@@ -290,14 +290,42 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
       <div id="commerce-list"></div>
     </div>
 
-    <!-- CULTURE -->
+    <!-- CORAN -->
     <div class="screen" id="screen-culture">
       <div style="height:16px"></div>
       <div class="screen-header">
-        <div class="sec-label">CULTURE & SAVOIR</div>
-        <div class="screen-title">📚 Commerces Islamiques</div>
+        <div class="sec-label">CORAN COMPLET</div>
+        <div class="screen-title">📖 القرآن الكريم</div>
       </div>
-      <div id="culture-list"></div>
+
+      <!-- Search + surah list -->
+      <div id="quran-home">
+        <input id="quran-search" type="text" placeholder="🔍 Rechercher une sourate..."
+          oninput="filterSurahs(this.value)"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--white);font-size:13px;outline:none;font-family:'Cairo',sans-serif;margin-bottom:14px;">
+        <div id="surah-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+
+      <!-- Surah reader -->
+      <div id="quran-reader" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="showQuranHome()" style="background:rgba(201,168,76,.1);border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Cairo',sans-serif">← Retour</button>
+          <div>
+            <div id="reader-title" style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold)"></div>
+            <div id="reader-sub" style="font-size:10px;color:var(--muted)"></div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <button id="audio-btn" onclick="toggleAudio()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px">▶</button>
+            <select id="trans-sel" onchange="reRenderAyahs()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:6px 10px;border-radius:8px;font-size:11px;font-family:'Cairo',sans-serif">
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="none">Arabe seulement</option>
+            </select>
+          </div>
+        </div>
+        <div id="ayahs-container" style="display:flex;flex-direction:column;gap:16px;padding-bottom:20px"></div>
+        <div id="ayahs-loading" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Chargement...</div>
+      </div>
     </div>
 
     <!-- PROFIL -->
@@ -349,8 +377,8 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
     </button>
     <button class="tab-btn" onclick="goTab('culture',this)" id="tab-culture">
       <div class="tab-indicator"></div>
-      <div class="tab-icon">📚</div>
-      <div class="tab-label">CULTURE</div>
+      <div class="tab-icon">📖</div>
+      <div class="tab-label">CORAN</div>
     </button>
     <button class="tab-btn" onclick="goTab('profil',this)" id="tab-profil">
       <div class="tab-indicator"></div>
@@ -556,6 +584,226 @@ loadPrayers()
 renderAccueilCommerces()
 renderDhikrCard()
 renderDhikrChips()
+
+// ── CORAN ─────────────────────────────────────────────────────
+const SURAHS = [
+  {n:1,ar:"الفاتحة",fr:"L'Ouverture",ayahs:7,type:"Mecquoise"},
+  {n:2,ar:"البقرة",fr:"La Vache",ayahs:286,type:"Médinoise"},
+  {n:3,ar:"آل عمران",fr:"La Famille d'Imran",ayahs:200,type:"Médinoise"},
+  {n:4,ar:"النساء",fr:"Les Femmes",ayahs:176,type:"Médinoise"},
+  {n:5,ar:"المائدة",fr:"La Table Servie",ayahs:120,type:"Médinoise"},
+  {n:6,ar:"الأنعام",fr:"Les Bestiaux",ayahs:165,type:"Mecquoise"},
+  {n:7,ar:"الأعراف",fr:"Les Murailles",ayahs:206,type:"Mecquoise"},
+  {n:8,ar:"الأنفال",fr:"Le Butin",ayahs:75,type:"Médinoise"},
+  {n:9,ar:"التوبة",fr:"Le Repentir",ayahs:129,type:"Médinoise"},
+  {n:10,ar:"يونس",fr:"Jonas",ayahs:109,type:"Mecquoise"},
+  {n:11,ar:"هود",fr:"Houd",ayahs:123,type:"Mecquoise"},
+  {n:12,ar:"يوسف",fr:"Joseph",ayahs:111,type:"Mecquoise"},
+  {n:13,ar:"الرعد",fr:"Le Tonnerre",ayahs:43,type:"Médinoise"},
+  {n:14,ar:"إبراهيم",fr:"Abraham",ayahs:52,type:"Mecquoise"},
+  {n:15,ar:"الحجر",fr:"Al-Hijr",ayahs:99,type:"Mecquoise"},
+  {n:16,ar:"النحل",fr:"Les Abeilles",ayahs:128,type:"Mecquoise"},
+  {n:17,ar:"الإسراء",fr:"Le Voyage Nocturne",ayahs:111,type:"Mecquoise"},
+  {n:18,ar:"الكهف",fr:"La Caverne",ayahs:110,type:"Mecquoise"},
+  {n:19,ar:"مريم",fr:"Marie",ayahs:98,type:"Mecquoise"},
+  {n:20,ar:"طه",fr:"Tâ-Hâ",ayahs:135,type:"Mecquoise"},
+  {n:21,ar:"الأنبياء",fr:"Les Prophètes",ayahs:112,type:"Mecquoise"},
+  {n:22,ar:"الحج",fr:"Le Pèlerinage",ayahs:78,type:"Médinoise"},
+  {n:23,ar:"المؤمنون",fr:"Les Croyants",ayahs:118,type:"Mecquoise"},
+  {n:24,ar:"النور",fr:"La Lumière",ayahs:64,type:"Médinoise"},
+  {n:25,ar:"الفرقان",fr:"Le Discernement",ayahs:77,type:"Mecquoise"},
+  {n:26,ar:"الشعراء",fr:"Les Poètes",ayahs:227,type:"Mecquoise"},
+  {n:27,ar:"النمل",fr:"Les Fourmis",ayahs:93,type:"Mecquoise"},
+  {n:28,ar:"القصص",fr:"Les Récits",ayahs:88,type:"Mecquoise"},
+  {n:29,ar:"العنكبوت",fr:"L'Araignée",ayahs:69,type:"Mecquoise"},
+  {n:30,ar:"الروم",fr:"Les Romains",ayahs:60,type:"Mecquoise"},
+  {n:31,ar:"لقمان",fr:"Luqman",ayahs:34,type:"Mecquoise"},
+  {n:32,ar:"السجدة",fr:"La Prosternation",ayahs:30,type:"Mecquoise"},
+  {n:33,ar:"الأحزاب",fr:"Les Coalisés",ayahs:73,type:"Médinoise"},
+  {n:34,ar:"سبأ",fr:"Saba",ayahs:54,type:"Mecquoise"},
+  {n:35,ar:"فاطر",fr:"Le Créateur",ayahs:45,type:"Mecquoise"},
+  {n:36,ar:"يس",fr:"Yâ-Sîn",ayahs:83,type:"Mecquoise"},
+  {n:37,ar:"الصافات",fr:"Ceux qui se rangent",ayahs:182,type:"Mecquoise"},
+  {n:38,ar:"ص",fr:"Sâd",ayahs:88,type:"Mecquoise"},
+  {n:39,ar:"الزمر",fr:"Les Groupes",ayahs:75,type:"Mecquoise"},
+  {n:40,ar:"غافر",fr:"Le Pardonneur",ayahs:85,type:"Mecquoise"},
+  {n:41,ar:"فصلت",fr:"Exposées en détail",ayahs:54,type:"Mecquoise"},
+  {n:42,ar:"الشورى",fr:"La Consultation",ayahs:53,type:"Mecquoise"},
+  {n:43,ar:"الزخرف",fr:"Les Ornements",ayahs:89,type:"Mecquoise"},
+  {n:44,ar:"الدخان",fr:"La Fumée",ayahs:59,type:"Mecquoise"},
+  {n:45,ar:"الجاثية",fr:"L'Agenouillée",ayahs:37,type:"Mecquoise"},
+  {n:46,ar:"الأحقاف",fr:"Les Dunes",ayahs:35,type:"Mecquoise"},
+  {n:47,ar:"محمد",fr:"Muhammad",ayahs:38,type:"Médinoise"},
+  {n:48,ar:"الفتح",fr:"La Victoire",ayahs:29,type:"Médinoise"},
+  {n:49,ar:"الحجرات",fr:"Les Appartements",ayahs:18,type:"Médinoise"},
+  {n:50,ar:"ق",fr:"Qâf",ayahs:45,type:"Mecquoise"},
+  {n:51,ar:"الذاريات",fr:"Les Vents Dispersants",ayahs:60,type:"Mecquoise"},
+  {n:52,ar:"الطور",fr:"La Montagne",ayahs:49,type:"Mecquoise"},
+  {n:53,ar:"النجم",fr:"L'Étoile",ayahs:62,type:"Mecquoise"},
+  {n:54,ar:"القمر",fr:"La Lune",ayahs:55,type:"Mecquoise"},
+  {n:55,ar:"الرحمن",fr:"Le Tout-Miséricordieux",ayahs:78,type:"Médinoise"},
+  {n:56,ar:"الواقعة",fr:"L'Événement",ayahs:96,type:"Mecquoise"},
+  {n:57,ar:"الحديد",fr:"Le Fer",ayahs:29,type:"Médinoise"},
+  {n:58,ar:"المجادلة",fr:"La Discussion",ayahs:22,type:"Médinoise"},
+  {n:59,ar:"الحشر",fr:"Le Rassemblement",ayahs:24,type:"Médinoise"},
+  {n:60,ar:"الممتحنة",fr:"L'Éprouvée",ayahs:13,type:"Médinoise"},
+  {n:61,ar:"الصف",fr:"Le Rang",ayahs:14,type:"Médinoise"},
+  {n:62,ar:"الجمعة",fr:"Le Vendredi",ayahs:11,type:"Médinoise"},
+  {n:63,ar:"المنافقون",fr:"Les Hypocrites",ayahs:11,type:"Médinoise"},
+  {n:64,ar:"التغابن",fr:"La Déception Mutuelle",ayahs:18,type:"Médinoise"},
+  {n:65,ar:"الطلاق",fr:"Le Divorce",ayahs:12,type:"Médinoise"},
+  {n:66,ar:"التحريم",fr:"L'Interdiction",ayahs:12,type:"Médinoise"},
+  {n:67,ar:"الملك",fr:"La Royauté",ayahs:30,type:"Mecquoise"},
+  {n:68,ar:"القلم",fr:"La Plume",ayahs:52,type:"Mecquoise"},
+  {n:69,ar:"الحاقة",fr:"L'Inévitable",ayahs:52,type:"Mecquoise"},
+  {n:70,ar:"المعارج",fr:"Les Voies d'Ascension",ayahs:44,type:"Mecquoise"},
+  {n:71,ar:"نوح",fr:"Noé",ayahs:28,type:"Mecquoise"},
+  {n:72,ar:"الجن",fr:"Les Djinns",ayahs:28,type:"Mecquoise"},
+  {n:73,ar:"المزمل",fr:"L'Enveloppé",ayahs:20,type:"Mecquoise"},
+  {n:74,ar:"المدثر",fr:"Le Revêtu",ayahs:56,type:"Mecquoise"},
+  {n:75,ar:"القيامة",fr:"La Résurrection",ayahs:40,type:"Mecquoise"},
+  {n:76,ar:"الإنسان",fr:"L'Homme",ayahs:31,type:"Médinoise"},
+  {n:77,ar:"المرسلات",fr:"Les Envoyés",ayahs:50,type:"Mecquoise"},
+  {n:78,ar:"النبأ",fr:"La Nouvelle",ayahs:40,type:"Mecquoise"},
+  {n:79,ar:"النازعات",fr:"Ceux qui arrachent",ayahs:46,type:"Mecquoise"},
+  {n:80,ar:"عبس",fr:"Il a froncé",ayahs:42,type:"Mecquoise"},
+  {n:81,ar:"التكوير",fr:"L'Enroulement",ayahs:29,type:"Mecquoise"},
+  {n:82,ar:"الانفطار",fr:"La Déchirure",ayahs:19,type:"Mecquoise"},
+  {n:83,ar:"المطففين",fr:"Les Fraudeurs",ayahs:36,type:"Mecquoise"},
+  {n:84,ar:"الانشقاق",fr:"La Fissure",ayahs:25,type:"Mecquoise"},
+  {n:85,ar:"البروج",fr:"Les Constellations",ayahs:22,type:"Mecquoise"},
+  {n:86,ar:"الطارق",fr:"L'Astre Nocturne",ayahs:17,type:"Mecquoise"},
+  {n:87,ar:"الأعلى",fr:"Le Très-Haut",ayahs:19,type:"Mecquoise"},
+  {n:88,ar:"الغاشية",fr:"L'Enveloppante",ayahs:26,type:"Mecquoise"},
+  {n:89,ar:"الفجر",fr:"L'Aube",ayahs:30,type:"Mecquoise"},
+  {n:90,ar:"البلد",fr:"La Cité",ayahs:20,type:"Mecquoise"},
+  {n:91,ar:"الشمس",fr:"Le Soleil",ayahs:15,type:"Mecquoise"},
+  {n:92,ar:"الليل",fr:"La Nuit",ayahs:21,type:"Mecquoise"},
+  {n:93,ar:"الضحى",fr:"La Matinée",ayahs:11,type:"Mecquoise"},
+  {n:94,ar:"الشرح",fr:"L'Ouverture du Cœur",ayahs:8,type:"Mecquoise"},
+  {n:95,ar:"التين",fr:"Le Figuier",ayahs:8,type:"Mecquoise"},
+  {n:96,ar:"العلق",fr:"Le Caillot de Sang",ayahs:19,type:"Mecquoise"},
+  {n:97,ar:"القدر",fr:"La Destinée",ayahs:5,type:"Mecquoise"},
+  {n:98,ar:"البينة",fr:"La Preuve",ayahs:8,type:"Médinoise"},
+  {n:99,ar:"الزلزلة",fr:"Le Séisme",ayahs:8,type:"Médinoise"},
+  {n:100,ar:"العاديات",fr:"Les Coursiers",ayahs:11,type:"Mecquoise"},
+  {n:101,ar:"القارعة",fr:"La Fracassante",ayahs:11,type:"Mecquoise"},
+  {n:102,ar:"التكاثر",fr:"La Rivalité",ayahs:8,type:"Mecquoise"},
+  {n:103,ar:"العصر",fr:"Le Temps",ayahs:3,type:"Mecquoise"},
+  {n:104,ar:"الهمزة",fr:"Le Calomniateur",ayahs:9,type:"Mecquoise"},
+  {n:105,ar:"الفيل",fr:"L'Éléphant",ayahs:5,type:"Mecquoise"},
+  {n:106,ar:"قريش",fr:"Quraysh",ayahs:4,type:"Mecquoise"},
+  {n:107,ar:"الماعون",fr:"L'Ustensile",ayahs:7,type:"Mecquoise"},
+  {n:108,ar:"الكوثر",fr:"L'Abondance",ayahs:3,type:"Mecquoise"},
+  {n:109,ar:"الكافرون",fr:"Les Mécréants",ayahs:6,type:"Mecquoise"},
+  {n:110,ar:"النصر",fr:"Le Secours",ayahs:3,type:"Médinoise"},
+  {n:111,ar:"المسد",fr:"La Fibre",ayahs:5,type:"Mecquoise"},
+  {n:112,ar:"الإخلاص",fr:"La Sincérité",ayahs:4,type:"Mecquoise"},
+  {n:113,ar:"الفلق",fr:"L'Aube Naissante",ayahs:5,type:"Mecquoise"},
+  {n:114,ar:"الناس",fr:"Les Hommes",ayahs:6,type:"Mecquoise"},
+]
+
+let currentSurah = null
+let currentAudio = null
+let quranCache = {}
+
+function renderSurahList(list){
+  document.getElementById('surah-list').innerHTML = list.map(s => `
+    <div onclick="openSurah(${s.n})" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 14px;cursor:pointer;transition:.2s" onmouseover="this.style.background='rgba(201,168,76,.06)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gold);flex-shrink:0">${s.n}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:14px;font-weight:700">${s.fr}</span>
+          <span style="font-family:'Tajawal',sans-serif;font-size:16px;color:var(--gold)">${s.ar}</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${s.ayahs} versets · ${s.type}</div>
+      </div>
+      <div style="color:var(--muted);font-size:16px">›</div>
+    </div>`).join('')
+}
+
+function filterSurahs(q){
+  const filtered = q ? SURAHS.filter(s => s.fr.toLowerCase().includes(q.toLowerCase()) || s.ar.includes(q) || String(s.n).includes(q)) : SURAHS
+  renderSurahList(filtered)
+}
+
+async function openSurah(n){
+  currentSurah = SURAHS.find(s => s.n === n)
+  document.getElementById('quran-home').style.display = 'none'
+  document.getElementById('quran-reader').style.display = 'block'
+  document.getElementById('reader-title').textContent = currentSurah.fr + ' — ' + currentSurah.ar
+  document.getElementById('reader-sub').textContent = 'Sourate ' + n + ' · ' + currentSurah.ayahs + ' versets · ' + currentSurah.type
+  document.getElementById('ayahs-container').innerHTML = ''
+  document.getElementById('ayahs-loading').style.display = 'block'
+  await loadAyahs(n)
+}
+
+async function loadAyahs(n){
+  const lang = document.getElementById('trans-sel').value
+  const cacheKey = n + '_' + lang
+  if(quranCache[cacheKey]){ renderAyahs(quranCache[cacheKey]); return }
+  try {
+    // Fetch Arabic + translation in parallel
+    const [arRes, trRes] = await Promise.all([
+      fetch(`https://api.alquran.cloud/v1/surah/${n}`),
+      lang !== 'none' ? fetch(`https://api.alquran.cloud/v1/surah/${n}/${lang === 'fr' ? 'fr.hamidullah' : 'en.sahih'}`) : Promise.resolve(null)
+    ])
+    const arData = await arRes.json()
+    const trData = trRes ? await trRes.json() : null
+    const ayahs = arData.data.ayahs.map((a, i) => ({
+      n: a.numberInSurah,
+      ar: a.text,
+      tr: trData ? trData.data.ayahs[i].text : null
+    }))
+    quranCache[cacheKey] = ayahs
+    renderAyahs(ayahs)
+  } catch(e) {
+    document.getElementById('ayahs-loading').textContent = 'Erreur de chargement. Vérifiez votre connexion.'
+  }
+}
+
+function renderAyahs(ayahs){
+  document.getElementById('ayahs-loading').style.display = 'none'
+  document.getElementById('ayahs-container').innerHTML = ayahs.map(a => `
+    <div style="border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:16px">
+      <div style="text-align:right;font-family:'Tajawal',sans-serif;font-size:22px;line-height:1.8;color:var(--white);direction:rtl;margin-bottom:10px">${a.ar} <span style="font-size:14px;color:var(--gold)">﴿${a.n}﴾</span></div>
+      ${a.tr ? `<div style="font-size:12px;color:var(--muted);line-height:1.7;font-style:italic">${a.tr}</div>` : ''}
+    </div>`).join('')
+}
+
+async function reRenderAyahs(){
+  if(!currentSurah) return
+  document.getElementById('ayahs-container').innerHTML = ''
+  document.getElementById('ayahs-loading').style.display = 'block'
+  await loadAyahs(currentSurah.n)
+}
+
+function showQuranHome(){
+  if(currentAudio){ currentAudio.pause(); currentAudio = null }
+  document.getElementById('audio-btn').textContent = '▶'
+  document.getElementById('quran-reader').style.display = 'none'
+  document.getElementById('quran-home').style.display = 'block'
+}
+
+function toggleAudio(){
+  if(!currentSurah) return
+  if(currentAudio && !currentAudio.paused){
+    currentAudio.pause()
+    document.getElementById('audio-btn').textContent = '▶'
+  } else {
+    if(!currentAudio){
+      const n = String(currentSurah.n).padStart(3,'0')
+      currentAudio = new Audio(`https://download.quranicaudio.com/quran/mishaari_raashid_al-'aafaasee/${n}.mp3`)
+      currentAudio.onended = () => { document.getElementById('audio-btn').textContent = '▶' }
+    }
+    currentAudio.play()
+    document.getElementById('audio-btn').textContent = '⏸'
+  }
+}
+
+// Init surah list
+renderSurahList(SURAHS)
+
 </script>
 </body>
 </html>
