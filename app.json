@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.fadjr"
+      "bundleIdentifier": "app.fadjr",
+      "newArchEnabled": false
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +24,8 @@
       },
       "package": "app.fadjr",
       "targetSdkVersion": 35,
-      "compileSdkVersion": 35
+      "compileSdkVersion": 35,
+      "newArchEnabled": false
     },
     "extra": {
       "eas": {
