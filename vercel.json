@@ -9,6 +9,10 @@
     {
       "source": "/dashboard",
       "destination": "/dashboard.html"
+    },
+    {
+      "source": "/partenaires",
+      "destination": "/partenaires.html"
     }
   ],
   "headers": [

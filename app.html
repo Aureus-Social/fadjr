@@ -160,6 +160,17 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
 /* See all link */
 .see-all { font-size:11px; color:var(--gold); cursor:pointer; }
 .row-between { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+
+body.light {
+  --bg: #F5F0E8;
+  --card: #FFFFFF;
+  --card2: #F0EAD8;
+  --white: #1A1A2E;
+  --muted: #6A6A8A;
+  --border: rgba(201,168,76,0.25);
+}
+body.light #tabbar { background: rgba(245,240,232,.98); }
+body.light .screen { background: transparent; }
 </style>
 </head>
 <body>
@@ -200,6 +211,17 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
     <div class="screen active" id="screen-accueil">
       <div style="height:16px"></div>
       
+      <!-- Mode toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="mode-icon" style="font-size:20px">🌙</span>
+          <div><div style="font-size:13px;font-weight:700">Mode d'affichage</div><div id="mode-label" style="font-size:11px;color:var(--muted)">Sombre</div></div>
+        </div>
+        <div id="mode-toggle" onclick="toggleMode()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+          <div id="mode-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+        </div>
+      </div>
+
       <a class="dashboard-banner" href="https://fadjr-admin.vercel.app" target="_blank">
         <div>
           <div class="db-title">📊 Dashboard Admin</div>
@@ -290,6 +312,53 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
       <div id="commerce-list"></div>
     </div>
 
+    <!-- DHIKR -->
+    <div class="screen" id="screen-dhikr">
+      <div style="height:16px"></div>
+      <div class="screen-header">
+        <div class="sec-label">DHIKR & TASBIH</div>
+        <div class="screen-title">📿 Dhikr Numérique</div>
+      </div>
+
+      <!-- Tasbih counter -->
+      <div style="text-align:center;padding:20px 0 10px">
+        <div id="tasbih-count" style="font-family:'Cinzel',serif;font-size:80px;font-weight:900;color:var(--gold);line-height:1;transition:.15s transform">0</div>
+        <div id="tasbih-target-label" style="font-size:11px;color:var(--muted);margin-top:6px">/ <span id="tasbih-target">33</span> · <span id="tasbih-round">Tour 1</span></div>
+        <div id="tasbih-name" style="font-family:'Cairo',sans-serif;font-size:18px;color:var(--white);margin-top:8px;font-weight:700">سُبْحَانَ اللَّه</div>
+        <div id="tasbih-fr" style="font-size:12px;color:var(--muted);margin-top:4px">Gloire à Allah</div>
+      </div>
+
+      <!-- Big tap button -->
+      <div style="display:flex;justify-content:center;margin:16px 0">
+        <button onclick="tapTasbih()" id="tasbih-btn" style="width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.05));border:2px solid var(--gold);cursor:pointer;font-size:36px;transition:.1s;box-shadow:0 0 30px rgba(201,168,76,.15)">📿</button>
+      </div>
+
+      <!-- Controls -->
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px">
+        <button onclick="resetTasbih()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Cairo',sans-serif">↺ Reset</button>
+        <select id="tasbih-target-sel" onchange="changeTasbihTarget()" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:8px 12px;border-radius:8px;font-size:12px;font-family:'Cairo',sans-serif">
+          <option value="33">33 fois</option>
+          <option value="99">99 fois</option>
+          <option value="100">100 fois</option>
+          <option value="1000">1000 fois</option>
+        </select>
+      </div>
+
+      <!-- Dhikr list -->
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">ADHKARS CLASSIQUES</div>
+      <div id="dhikr-list" style="display:flex;flex-direction:column;gap:8px"></div>
+
+      <!-- Calendrier Hijri -->
+      <div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:14px">📅 CALENDRIER HIJRI</div>
+        <div style="text-align:center;margin-bottom:16px">
+          <div id="hijri-date" style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);font-weight:700"></div>
+          <div id="hijri-gregorian" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+        </div>
+        <div id="hijri-events" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
     <!-- CORAN -->
     <div class="screen" id="screen-culture">
       <div style="height:16px"></div>
@@ -357,6 +426,17 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
         <div class="stat-card"><div class="stat-val" style="color:var(--blue)">7</div><div class="stat-label">FAVORIS</div></div>
         <div class="stat-card"><div class="stat-val" style="color:var(--green)">12</div><div class="stat-label">AVIS</div></div>
       </div>
+      <!-- Mode toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="mode-icon" style="font-size:20px">🌙</span>
+          <div><div style="font-size:13px;font-weight:700">Mode d'affichage</div><div id="mode-label" style="font-size:11px;color:var(--muted)">Sombre</div></div>
+        </div>
+        <div id="mode-toggle" onclick="toggleMode()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+          <div id="mode-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+        </div>
+      </div>
+
       <a class="dashboard-banner" href="https://fadjr-admin.vercel.app" target="_blank">
         <div>
           <div class="db-title">📊 Dashboard Admin FADJR</div>
@@ -384,6 +464,11 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
       <div class="tab-indicator"></div>
       <div class="tab-icon">🕌</div>
       <div class="tab-label">PRIÈRE</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('dhikr',this)" id="tab-dhikr">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">📿</div>
+      <div class="tab-label">DHIKR</div>
     </button>
     <button class="tab-btn" onclick="goTab('carte',this)" id="tab-carte">
       <div class="tab-indicator"></div>
@@ -832,6 +917,147 @@ function toggleAudio(){
 
 // Init surah list
 renderSurahList(SURAHS)
+
+
+// ── MODE SOMBRE/CLAIR ─────────────────────────────────────────
+let isLight = localStorage.getItem('fadjr_mode') === 'light'
+function applyMode(){
+  document.body.classList.toggle('light', isLight)
+  document.getElementById('mode-icon').textContent = isLight ? '☀️' : '🌙'
+  document.getElementById('mode-label').textContent = isLight ? 'Clair' : 'Sombre'
+  const knob = document.getElementById('mode-knob')
+  const tog = document.getElementById('mode-toggle')
+  if(knob){ knob.style.left = isLight ? '25px' : '3px' }
+  if(tog){ tog.style.background = isLight ? 'var(--gold)' : 'var(--muted)' }
+}
+function toggleMode(){
+  isLight = !isLight
+  localStorage.setItem('fadjr_mode', isLight ? 'light' : 'dark')
+  applyMode()
+}
+applyMode()
+
+// ── DHIKR / TASBIH ────────────────────────────────────────────
+const ADHKARS = [
+  { ar:'سُبْحَانَ اللَّه',        fr:'Gloire à Allah',               target:33 },
+  { ar:'الحَمْدُ لِلَّه',          fr:'Louange à Allah',               target:33 },
+  { ar:'اللَّهُ أَكْبَر',          fr:'Allah est le plus Grand',       target:33 },
+  { ar:'لَا إِلَٰهَ إِلَّا اللَّه', fr:'Pas de divinité sauf Allah',   target:100 },
+  { ar:'أَسْتَغْفِرُ اللَّه',      fr:'Je demande pardon à Allah',    target:100 },
+  { ar:'صَلَّى اللَّه عَلَى مُحَمَّد', fr:'Que la paix soit sur Muhammad', target:100 },
+  { ar:'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّه', fr:"Il n'y a de force qu'en Allah", target:33 },
+  { ar:'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', fr:'Gloire et louange à Allah', target:100 },
+]
+
+let tasbihCount = 0, tasbihRound = 1, tasbihTarget = 33, currentDhikrIdx = 0
+
+function renderDhikrList(){
+  document.getElementById('dhikr-list').innerHTML = ADHKARS.map((d,i) => `
+    <div onclick="selectDhikr(${i})" style="display:flex;align-items:center;gap:12px;background:${i===currentDhikrIdx?'rgba(201,168,76,.1)':'var(--card)'};border:1px solid ${i===currentDhikrIdx?'var(--gold)':'var(--border)'};border-radius:10px;padding:12px 14px;cursor:pointer;transition:.2s">
+      <div style="font-size:24px">📿</div>
+      <div style="flex:1">
+        <div style="font-family:'Cairo',sans-serif;font-size:16px;color:var(--gold);direction:rtl;text-align:right">${d.ar}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${d.fr} · ${d.target}×</div>
+      </div>
+      ${i===currentDhikrIdx ? '<div style="color:var(--gold);font-size:16px">●</div>' : ''}
+    </div>`).join('')
+}
+
+function selectDhikr(i){
+  currentDhikrIdx = i
+  tasbihCount = 0; tasbihRound = 1
+  tasbihTarget = parseInt(document.getElementById('tasbih-target-sel').value) || ADHKARS[i].target
+  document.getElementById('tasbih-count').textContent = '0'
+  document.getElementById('tasbih-name').textContent = ADHKARS[i].ar
+  document.getElementById('tasbih-fr').textContent = ADHKARS[i].fr
+  document.getElementById('tasbih-round').textContent = 'Tour 1'
+  renderDhikrList()
+}
+
+function tapTasbih(){
+  tasbihCount++
+  const el = document.getElementById('tasbih-count')
+  el.textContent = tasbihCount
+  el.style.transform = 'scale(1.15)'
+  setTimeout(()=>el.style.transform='scale(1)', 100)
+  const btn = document.getElementById('tasbih-btn')
+  btn.style.transform = 'scale(0.92)'
+  setTimeout(()=>btn.style.transform='scale(1)', 100)
+  if(tasbihCount >= tasbihTarget){
+    tasbihCount = 0; tasbihRound++
+    el.textContent = '0'
+    document.getElementById('tasbih-round').textContent = 'Tour ' + tasbihRound
+    // Flash gold
+    el.style.color = '#fff'
+    setTimeout(()=>el.style.color='var(--gold)', 300)
+  }
+}
+
+function resetTasbih(){
+  tasbihCount = 0; tasbihRound = 1
+  document.getElementById('tasbih-count').textContent = '0'
+  document.getElementById('tasbih-round').textContent = 'Tour 1'
+}
+
+function changeTasbihTarget(){
+  tasbihTarget = parseInt(document.getElementById('tasbih-target-sel').value)
+  document.getElementById('tasbih-target').textContent = tasbihTarget
+  resetTasbih()
+}
+
+// ── CALENDRIER HIJRI ─────────────────────────────────────────
+const HIJRI_MONTHS = ["Muharram","Safar","Rabi Al-Awwal","Rabi Al-Thani","Jumada Al-Awwal","Jumada Al-Thani","Rajab","Sha'ban","Ramadan","Shawwal","Dhul Qi'dah","Dhul Hijjah"]
+const ISLAMIC_EVENTS = [
+  { month:1, day:1,  name:'Nouvel An Islamique (1447 AH)', icon:'🌙' },
+  { month:1, day:10, name:'Achoura',                       icon:'🤲' },
+  { month:3, day:12, name:'Mawlid an-Nabi',                icon:'⭐' },
+  { month:7, day:27, name:"Laylat al-Mi'raj",             icon:'🌟' },
+  { month:8, day:15, name:"Laylat al-Bara'a",             icon:'✨' },
+  { month:9, day:1,  name:'Début du Ramadan 2026',         icon:'🌙' },
+  { month:9, day:27, name:'Laylat al-Qadr',                icon:'💫' },
+  { month:10,day:1,  name:'Aïd al-Fitr 2026',              icon:'🎉' },
+  { month:12,day:9,  name:"Jour d'Arafat",                icon:'🤍' },
+  { month:12,day:10, name:'Aïd al-Adha 2026',              icon:'🎊' },
+]
+
+function renderHijriCalendar(){
+  // Use Aladhan API for today's Hijri date
+  fetch('https://api.aladhan.com/v1/gToH/' + new Date().toLocaleDateString('en-GB').replace(/\//g,'-'))
+    .then(r=>r.json()).then(d=>{
+      const h = d.data.hijri
+      document.getElementById('hijri-date').textContent = h.day + ' ' + h.month.en + ' ' + h.year + ' AH'
+      document.getElementById('hijri-gregorian').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})
+      // Show upcoming events
+      const m = parseInt(h.month.number), day = parseInt(h.day)
+      const upcoming = ISLAMIC_EVENTS.filter(e => e.month > m || (e.month === m && e.day >= day)).slice(0,4)
+      document.getElementById('hijri-events').innerHTML = upcoming.map(e=>`
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.1);border-radius:8px;padding:10px 12px">
+          <span style="font-size:20px">${e.icon}</span>
+          <div>
+            <div style="font-size:12px;font-weight:700">${e.name}</div>
+            <div style="font-size:10px;color:var(--muted)">${HIJRI_MONTHS[e.month-1]} ${e.day}</div>
+          </div>
+        </div>`).join('')
+    }).catch(()=>{
+      // Fallback calcul approximatif
+      const now = new Date()
+      const jd = Math.floor((now.getTime() / 86400000) + 2440587.5)
+      const l = jd - 1948440 + 10632
+      const n = Math.floor((l-1)/10631)
+      const l2 = l - 10631*n + 354
+      const j = Math.floor((10985-l2)/5316)*Math.floor((50*l2)/17719) + Math.floor(l2/5670)*Math.floor((43*l2)/15238)
+      const l3 = l2 - Math.floor((30-j)/15)*Math.floor((17719*j)/50) - Math.floor(j/16)*Math.floor((15238*j)/43) + 29
+      const month = Math.floor((24*l3)/709)
+      const day2 = l3 - Math.floor((709*month)/24)
+      const year = 30*n + j - 30
+      document.getElementById('hijri-date').textContent = day2 + ' ' + HIJRI_MONTHS[month-1] + ' ' + year + ' AH'
+      document.getElementById('hijri-gregorian').textContent = now.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})
+    })
+}
+
+// Init
+renderDhikrList()
+renderHijriCalendar()
 
 </script>
 </body>
