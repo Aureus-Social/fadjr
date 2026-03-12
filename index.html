@@ -174,7 +174,7 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
     <a href="#features" class="nav-link" data-i18n="nav_feat">Fonctions</a>
     <a href="#prieres" class="nav-link" data-i18n="nav_pray">Prières</a>
     <a href="#download" class="nav-link" data-i18n="nav_dl">Télécharger</a>
-    <a href="privacy.html" class="nav-link">Confidentialité</a>
+    <a href="privacy.html" class="nav-link" data-i18n="nav_priv">Confidentialité</a>
     <div class="lang-sw" id="lang-sw"><button class="lang-btn" id="lbtn">🇫🇷 FR ▾</button><div class="lang-dd" id="ldd"></div></div>
     <a href="#download" class="nav-cta" data-i18n="nav_cta">Bientôt disponible</a>
   </div>
@@ -184,7 +184,7 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
 <section class="hero">
   <div class="hero-eyebrow">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
   <div class="hero-arabic">الفجر</div>
-  <h1 class="hero-title">L'aube de votre<br><span>quotidien islamique</span></h1>
+  <h1 class="hero-title" data-i18n="hero_title">L'aube de votre quotidien islamique</h1>
   <p class="hero-sub">Horaires de prière en temps réel · Restaurants halal · Coran complet · Voyage & Finance islamique</p>
   <div class="hero-ctas">
     <a href="#download" class="btn-primary" data-i18n="btn_join">Rejoindre la liste d'attente</a>
@@ -192,61 +192,61 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
   </div>
   <div class="hero-scroll">
     <div class="hero-scroll-line"></div>
-    <span class="hero-scroll-text">Défiler</span>
+    <span class="hero-scroll-text" data-i18n="scroll">Défiler</span>
   </div>
 </section>
 
 <!-- Adhan strip -->
 <div class="adhan-strip">
-  <div class="adhan-next">Prochaine prière</div>
+  <div class="adhan-next" data-i18n="next_prayer">Prochaine prière</div>
   <div class="adhan-prayer">
     <div class="adhan-dot"></div>
     <span class="adhan-name" id="nextPrayer">Maghrib</span>
     <span class="adhan-time" id="nextTime">18:42</span>
   </div>
-  <div class="adhan-next">Dans <span id="countdown" style="color:var(--gold)">--</span></div>
+  <div class="adhan-next"><span data-i18n="in_word">Dans</span> <span id="countdown" style="color:var(--gold)">--</span></div>
 </div>
 
 <!-- Features -->
 <section class="section reveal" id="features">
   <div class="section-label" data-i18n="feat_label">✦ Fonctionnalités</div>
-  <h2 class="section-title">Tout ce dont vous avez<br>besoin, <em>réuni en un seul endroit</em></h2>
+  <h2 class="section-title" data-i18n="feat_title">Tout ce dont vous avez besoin, réuni en un seul endroit</h2>
   <div class="features-grid">
     <div class="feature">
       <span class="feature-icon">🕌</span>
       <div class="feature-title" data-i18n="f_pray">Horaires de prière</div>
-      <div class="feature-desc">Horaires précis géolocalisés pour votre ville. Adhan automatique avec 4 voix (La Mecque, Médine, Al-Azhar, Istanbul). Compte à rebours en temps réel.</div>
-      <span class="feature-tag">GPS · Temps réel</span>
+      <div class="feature-desc" data-i18n="fd_pray">Horaires précis géolocalisés pour votre ville. Adhan automatique avec 4 voix. Compte à rebours en temps réel.</div>
+      <span class="feature-tag" data-i18n="ft_pray">GPS · Temps réel</span>
     </div>
     <div class="feature">
       <span class="feature-icon">🍽️</span>
       <div class="feature-title" data-i18n="f_food">Restaurants Halal</div>
-      <div class="feature-desc">Trouvez les meilleurs restaurants halal certifiés près de vous. Avis, horaires, réservation. Belgique, France, Maroc et plus.</div>
-      <span class="feature-tag">Certifié Halal</span>
+      <div class="feature-desc" data-i18n="fd_food">Trouvez les meilleurs restaurants halal certifiés près de vous. Avis, horaires, réservation.</div>
+      <span class="feature-tag" data-i18n="ft_food">Certifié Halal</span>
     </div>
     <div class="feature">
       <span class="feature-icon">📖</span>
       <div class="feature-title" data-i18n="f_quran">Coran complet</div>
-      <div class="feature-desc">114 sourates en arabe avec traduction Hamidullah. Taille de police ajustable. Favoris et marque-pages. Lecture audio avec 20+ récitateurs.</div>
-      <span class="feature-tag">114 sourates</span>
+      <div class="feature-desc" data-i18n="fd_quran">114 sourates en arabe avec traduction. Taille de police ajustable. Lecture audio avec 20+ récitateurs.</div>
+      <span class="feature-tag" data-i18n="ft_quran">114 sourates</span>
     </div>
     <div class="feature">
       <span class="feature-icon">✈️</span>
       <div class="feature-title" data-i18n="f_travel">Voyage Halal</div>
-      <div class="feature-desc">Destinations halal-friendly dans le monde. Omra & Hajj. Hôtels certifiés. Compagnies aériennes partenaires. La Mecque, Istanbul, Marrakech et plus.</div>
-      <span class="feature-tag">Mondial</span>
+      <div class="feature-desc" data-i18n="fd_travel">Destinations halal dans le monde. Omra & Hajj. Hôtels certifiés. La Mecque, Istanbul, Marrakech.</div>
+      <span class="feature-tag" data-i18n="ft_travel">Mondial</span>
     </div>
     <div class="feature">
       <span class="feature-icon">💰</span>
       <div class="feature-title" data-i18n="f_fin">Finance Islamique</div>
-      <div class="feature-desc">Services financiers conformes à la Charia. Transferts sans intérêts. Investissement halal. Crédit immobilier islamique.</div>
-      <span class="feature-tag">Charia compliant</span>
+      <div class="feature-desc" data-i18n="fd_fin">Services financiers conformes à la Charia. Transferts sans intérêts. Investissement halal.</div>
+      <span class="feature-tag" data-i18n="ft_fin">Charia compliant</span>
     </div>
     <div class="feature">
       <span class="feature-icon">🧭</span>
       <div class="feature-title" data-i18n="f_tools">Outils spirituels</div>
-      <div class="feature-desc">Boussole Qibla précise. Tasbih numérique. Calendrier Hijri. Douas du quotidien. Verset et Hadith du jour. Rappels personnalisés.</div>
-      <span class="feature-tag">Complet</span>
+      <div class="feature-desc" data-i18n="fd_tools">Boussole Qibla. Tasbih numérique. Calendrier Hijri. Douas. Verset et Hadith du jour.</div>
+      <span class="feature-tag" data-i18n="ft_tools">Complet</span>
     </div>
   </div>
 </section>
@@ -254,7 +254,7 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
 <!-- Prayer demo -->
 <div class="prayer-demo reveal" id="prieres">
   <div class="section-label">✦ Horaires du jour · Bruxelles</div>
-  <h2 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:400">Précis. <em style="color:var(--gold);font-style:italic">En temps réel.</em> Pour votre ville.</h2>
+  <h2 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:400" data-i18n="pray_title">Précis. En temps réel. Pour votre ville.</h2>
   <div class="prayer-grid">
     <div class="prayer-item">
       <div class="prayer-item-icon">🌙</div>
@@ -293,17 +293,17 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
 <!-- Stats -->
 <section style="padding:80px 0;position:relative;z-index:1" class="reveal">
   <div class="stats-wrap">
-    <div class="stat"><div class="stat-val">2.1B</div><div class="stat-label">Musulmans dans le monde</div></div>
-    <div class="stat"><div class="stat-val">5</div><div class="stat-label">Prières quotidiennes</div></div>
-    <div class="stat"><div class="stat-val">114</div><div class="stat-label">Sourates du Coran</div></div>
-    <div class="stat"><div class="stat-val">∞</div><div class="stat-label">Bénédictions</div></div>
+    <div class="stat"><div class="stat-val">2.1B</div><div class="stat-label" data-i18n="stat1">Musulmans dans le monde</div></div>
+    <div class="stat"><div class="stat-val">5</div><div class="stat-label" data-i18n="stat2">Prières quotidiennes</div></div>
+    <div class="stat"><div class="stat-val">114</div><div class="stat-label" data-i18n="stat3">Sourates du Coran</div></div>
+    <div class="stat"><div class="stat-val">∞</div><div class="stat-label" data-i18n="stat4">Bénédictions</div></div>
   </div>
 </section>
 
 <!-- Download -->
 <section class="download-section reveal" id="download">
   <div class="download-arabic">تنزيل</div>
-  <h2 class="download-title">Disponible bientôt<br>sur <em>iOS & Android</em></h2>
+  <h2 class="download-title" data-i18n="dl_title">Disponible bientôt sur iOS & Android</h2>
   <p class="download-sub"><span data-i18n="dl_sub">Rejoignez la liste d'attente et soyez parmi les premiers à télécharger FADJR dès le lancement.</span></p>
   <div class="store-btns">
     <a href="#" class="store-btn">
@@ -337,10 +337,10 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
   <div class="footer-logo">FADJR</div>
   <div class="footer-links">
     <a href="privacy.html" class="footer-link">Politique de confidentialité</a>
-    <a href="mailto:contact@fadjr.app" class="footer-link">Contact</a>
-    <a href="#" class="footer-link">Annonceurs</a>
+    <a href="mailto:contact@fadjr.app" class="footer-link" data-i18n="f_contact">Contact</a>
+    <a href="#" class="footer-link" data-i18n="f_advert">Annonceurs</a>
   </div>
-  <div class="footer-copy">© 2026 FADJR · Aureus IA SPRL · Belgique</div>
+  <div class="footer-copy" data-i18n="f_copy">© 2026 FADJR · Aureus IA SPRL · Belgique</div>
 </footer>
 
 <script>
@@ -450,6 +450,33 @@ const T={
   f_tools:  {fr:"Outils spirituels",ar:"الأدوات الروحية",en:"Spiritual Tools",nl:"Spirituele tools",tr:"Manevi Araclar",id:"Alat Spiritual",ur:"روحانی اوزار",de:"Spirituelle Werkzeuge",es:"Herramientas espirituales",pt:"Ferramentas espirituais",ru:"Духовные инструменты",bn:"আধ্যাত্মিক সরঞ্জাম",so:"Qalab Ruuxiga",ha:"Kayan Ruhi"},
   dl_sub:   {fr:"Rejoignez la liste d'attente et soyez parmi les premiers à télécharger FADJR.",ar:"انضم إلى قائمة الانتظار وكن من أوائل المستخدمين عند الإطلاق.",en:"Join the waitlist and be among the first to download FADJR at launch.",nl:"Meld je aan voor de wachtlijst en wees een van de eersten bij de lancering.",tr:"Bekleme listesine katil ve FADJR ilk indirenlerden ol.",id:"Daftar waitlist dan jadilah yang pertama mengunduh FADJR.",ur:"انتظار کی فہرست میں شامل ہوں اور لانچ پر FADJR پہلے ڈاؤن لوڈ کریں۔",de:"Trag dich in die Warteliste ein und gehöre zu den Ersten beim Launch.",es:"Únete a la lista de espera y sé de los primeros en descargar FADJR.",pt:"Entre na lista de espera e seja um dos primeiros a baixar o FADJR.",ru:"Присоединитесь к списку ожидания и будьте первыми при запуске.",bn:"ওয়েটলিস্টে যোগ দিন এবং লঞ্চে FADJR প্রথম ডাউনলোড করুন।",so:"Ku biir liiska sugitaanka oo noqo mid ka mid ah kuwa hore FADJR la soo deji.",ha:"Shiga jerin jira ka kasance daga na farko sauke FADJR."},
   email_ph: {fr:"votre@email.com",ar:"بريدك@email.com",en:"your@email.com",nl:"jouw@email.com",tr:"sizin@email.com",id:"email@anda.com",ur:"آپ@email.com",de:"ihre@email.com",es:"tu@correo.com",pt:"seu@email.com",ru:"ваш@email.com",bn:"আপনার@email.com",so:"kaadhkaaga@email.com",ha:"naka@email.com"},
+  nav_priv:  {fr:"Confidentialité",ar:"الخصوصية",en:"Privacy",nl:"Privacy",tr:"Gizlilik",id:"Privasi",ur:"رازداری",de:"Datenschutz",es:"Privacidad",pt:"Privacidade",ru:"Конфиденциальность",bn:"গোপনীয়তা",so:"Xidhmada",ha:"Sirri"},
+  hero_title:{fr:"L'aube de votre quotidien islamique",ar:"فجر حياتك اليومية الإسلامية",en:"The dawn of your Islamic daily life",nl:"De dageraad van uw islamitisch dagelijks leven",tr:"İslami günlük hayatınızın şafağı",id:"Fajar kehidupan Islam Anda sehari-hari",ur:"آپ کی اسلامی زندگی کا فجر",de:"Die Morgendämmerung Ihres islamischen Alltags",es:"El alba de tu vida cotidiana islámica",pt:"A aurora da sua vida diária islâmica",ru:"Рассвет вашей исламской повседневной жизни",bn:"আপনার ইসলামী দৈনন্দিন জীবনের ভোর",so:"Barqadda noloshaada Islaamiga",ha:"Alfijir na rayuwarku ta Musulunci"},
+  scroll:    {fr:"Défiler",ar:"التمرير",en:"Scroll",nl:"Scrollen",tr:"Kaydır",id:"Gulir",ur:"اسکرول",de:"Scrollen",es:"Desplazar",pt:"Rolar",ru:"Прокрутить",bn:"স্ক্রোল",so:"Hoos u rogi",ha:"Zaura"},
+  next_prayer:{fr:"Prochaine prière",ar:"الصلاة القادمة",en:"Next prayer",nl:"Volgende gebed",tr:"Sonraki namaz",id:"Shalat berikutnya",ur:"اگلی نماز",de:"Nächstes Gebet",es:"Próxima oración",pt:"Próxima oração",ru:"Следующая молитва",bn:"পরবর্তী নামাজ",so:"Salaadda xigta",ha:"Sallah mai zuwa"},
+  in_word:   {fr:"Dans",ar:"في",en:"In",nl:"Over",tr:"İçinde",id:"Dalam",ur:"میں",de:"In",es:"En",pt:"Em",ru:"Через",bn:"মধ্যে",so:"Gudaha",ha:"A cikin"},
+  feat_title:{fr:"Tout ce dont vous avez besoin, réuni en un seul endroit",ar:"كل ما تحتاجه في مكان واحد",en:"Everything you need, in one place",nl:"Alles wat u nodig heeft, op één plek",tr:"İhtiyacınız olan her şey, tek bir yerde",id:"Semua yang Anda butuhkan, dalam satu tempat",ur:"آپ کو جو کچھ چاہیے، ایک جگہ",de:"Alles, was Sie brauchen, an einem Ort",es:"Todo lo que necesitas, en un solo lugar",pt:"Tudo o que você precisa, em um só lugar",ru:"Всё, что вам нужно, в одном месте",bn:"আপনার প্রয়োজনীয় সবকিছু এক জায়গায়",so:"Wax kasta oo aad u baahato, meel kaliya",ha:"Duk abin da kuke bukata, a wuri ɗaya"},
+  fd_pray:   {fr:"Horaires précis géolocalisés. Adhan automatique avec 4 voix. Compte à rebours en temps réel.",ar:"أوقات دقيقة بالموقع الجغرافي. أذان تلقائي بـ4 أصوات. عداد تنازلي فوري.",en:"Precise geolocated times. Automatic Adhan with 4 voices. Real-time countdown.",nl:"Nauwkeurige geolocatie tijden. Automatische Adhan met 4 stemmen. Realtime aftelling.",tr:"Hassas coğrafi konumlu vakitler. 4 sesli otomatik Ezan. Gerçek zamanlı geri sayım.",id:"Waktu tepat berdasarkan lokasi. Adzan otomatis 4 suara. Hitung mundur real-time.",ur:"درست جغرافیائی اوقات۔ 4 آوازوں کے ساتھ خودکار اذان۔ ریئل ٹائم کاؤنٹ ڈاؤن۔",de:"Präzise geolocierte Zeiten. Automatischer Adhan mit 4 Stimmen. Echtzeit-Countdown.",es:"Horarios precisos geolocalizados. Adhan automático con 4 voces. Cuenta atrás en tiempo real.",pt:"Horários precisos geolocalizados. Adhan automático com 4 vozes. Contagem regressiva.",ru:"Точное геолоцированное время. Автоматический азан с 4 голосами. Обратный отсчёт.",bn:"সুনির্দিষ্ট জিওলোকেটেড সময়। ৪টি কণ্ঠে স্বয়ংক্রিয় আজান। রিয়েল-টাইম কাউন্টডাউন।",so:"Waqtiyada saxsan ee jogtada. Adaanka tooska ah ee 4 codad. Tirinta dib-u-celinta.",ha:"Lokacin daidai na kasa. Adhan atomatik tare da muryoyi 4. Kirga baya na ainihi."},
+  ft_pray:   {fr:"GPS · Temps réel",ar:"GPS · آني",en:"GPS · Real time",nl:"GPS · Realtime",tr:"GPS · Gerçek zamanlı",id:"GPS · Real-time",ur:"GPS · ریئل ٹائم",de:"GPS · Echtzeit",es:"GPS · Tiempo real",pt:"GPS · Tempo real",ru:"GPS · В реальном времени",bn:"GPS · রিয়েল টাইম",so:"GPS · Waqtiga dhabta",ha:"GPS · Lokaci na gaske"},
+  fd_food:   {fr:"Meilleurs restaurants halal certifiés près de vous. Avis, horaires, réservation.",ar:"أفضل المطاعم الحلال المعتمدة بالقرب منك. تقييمات وأوقات وحجز.",en:"Best certified halal restaurants near you. Reviews, hours, booking.",nl:"Beste gecertificeerde halal restaurants bij u in de buurt. Reviews, tijden, reservering.",tr:"Yakınınızdaki en iyi sertifikalı helal restoranlar. Yorumlar, saatler, rezervasyon.",id:"Restoran halal bersertifikat terbaik dekat Anda. Ulasan, jam, pemesanan.",ur:"آپ کے قریب بہترین سرٹیفائیڈ حلال ریستوران۔ جائزے، اوقات، ریزرویشن۔",de:"Beste zertifizierte Halal-Restaurants in Ihrer Nähe. Bewertungen, Zeiten, Buchung.",es:"Mejores restaurantes halal certificados cerca. Reseñas, horarios, reserva.",pt:"Melhores restaurantes halal certificados perto de você. Avaliações, horários, reserva.",ru:"Лучшие сертифицированные халяль-рестораны рядом. Отзывы, часы, бронирование.",bn:"কাছের সেরা সার্টিফাইড হালাল রেস্তোরাঁ। রিভিউ, সময়, বুকিং।",so:"Restaurants halaalka ee ugu fiican ee kuu dhow. Aragtiyada, saacadaha, buukisnta.",ha:"Gidajen abinci halal mafi kyau kusa da ku. Nazari, sa'o'i, ajiye."},
+  ft_food:   {fr:"Certifié Halal",ar:"حلال معتمد",en:"Halal Certified",nl:"Halal Gecertificeerd",tr:"Helal Sertifikalı",id:"Bersertifikat Halal",ur:"حلال سرٹیفائیڈ",de:"Halal Zertifiziert",es:"Certificado Halal",pt:"Certificado Halal",ru:"Сертифицирован Халяль",bn:"হালাল সার্টিফাইড",so:"Xalaal Xaqiijiyey",ha:"An tabbatar Halal"},
+  fd_quran:  {fr:"114 sourates en arabe avec traduction. Taille de police ajustable. Lecture audio 20+ récitateurs.",ar:"114 سورة بالعربية مع ترجمة. حجم خط قابل للتعديل. تلاوة صوتية بأكثر من 20 قارئاً.",en:"114 surahs in Arabic with translation. Adjustable font size. Audio recitation 20+ reciters.",nl:"114 soera's in het Arabisch met vertaling. Aanpasbare lettergrootte. Audio 20+ recitatoren.",tr:"Çeviriyle 114 sure. Ayarlanabilir yazı tipi. 20+ hafızla sesli tilavet.",id:"114 surah bahasa Arab dengan terjemahan. Font bisa disesuaikan. Audio 20+ qari.",ur:"ترجمے کے ساتھ 114 سورتیں۔ فونٹ سائز قابل تعدیل۔ 20+ قراء کے ساتھ آڈیو۔",de:"114 Suren auf Arabisch mit Übersetzung. Anpassbare Schriftgröße. Audio 20+ Rezitatoren.",es:"114 suras en árabe con traducción. Tamaño de fuente ajustable. Audio 20+ recitadores.",pt:"114 suras em árabe com tradução. Tamanho de fonte ajustável. Áudio 20+ recitadores.",ru:"114 сур на арабском с переводом. Настраиваемый размер шрифта. Аудио 20+ чтецов.",bn:"অনুবাদ সহ ১১৪টি সুরা। সামঞ্জস্যযোগ্য ফন্ট। ২০+ কারীর অডিও তেলাওয়াত।",so:"114 suuro Carabi ah oo leh tarjumaad. Cabbirka farta la habeyn karo. Cod 20+ aqriye.",ha:"Sura 114 Larabci tare da fassara. Ana iya daidaita girman harafi. Audio 20+ masu karatu."},
+  ft_quran:  {fr:"114 sourates",ar:"١١٤ سورة",en:"114 surahs",nl:"114 soera's",tr:"114 sure",id:"114 surah",ur:"114 سورتیں",de:"114 Suren",es:"114 suras",pt:"114 suras",ru:"114 сур",bn:"১১৪ সুরা",so:"114 suuro",ha:"Sura 114"},
+  fd_travel: {fr:"Destinations halal dans le monde. Omra & Hajj. Hôtels certifiés. La Mecque, Istanbul, Marrakech.",ar:"وجهات حلال حول العالم. عمرة وحج. فنادق معتمدة. مكة، إسطنبول، مراكش.",en:"Halal destinations worldwide. Umrah & Hajj. Certified hotels. Mecca, Istanbul, Marrakech.",nl:"Halal bestemmingen wereldwijd. Umrah & Hadj. Gecertificeerde hotels. Mekka, Istanbul, Marrakech.",tr:"Dünya genelinde helal destinasyonlar. Umre & Hac. Sertifikalı oteller. Mekke, İstanbul, Marakeş.",id:"Destinasi halal di seluruh dunia. Umroh & Haji. Hotel bersertifikat. Mekkah, Istanbul, Marrakesh.",ur:"دنیا بھر میں حلال مقامات۔ عمرہ اور حج۔ سرٹیفائیڈ ہوٹل۔ مکہ، استنبول، مراکش۔",de:"Halal-Destinationen weltweit. Umra & Hadsch. Zertifizierte Hotels. Mekka, Istanbul, Marrakesch.",es:"Destinos halal en todo el mundo. Umra & Hajj. Hoteles certificados. La Meca, Estambul, Marrakech.",pt:"Destinos halal em todo o mundo. Umra & Hajj. Hotéis certificados. Meca, Istambul, Marrakech.",ru:"Халяль-направления по всему миру. Умра и Хадж. Сертифицированные отели. Мекка, Стамбул, Марракеш.",bn:"বিশ্বজুড়ে হালাল গন্তব্য। ওমরাহ ও হজ। মক্কা, ইস্তাম্বুল, মারাকেশ।",so:"Goobo halaal ah adduunka. Umrada & Xajka. Huteelada xaqiijiyey. Makkah, Istanbul, Marrakech.",ha:"Wurare halal a duniya. Umra & Hajji. Otal da aka tabbatar. Makka, Istanbul, Marrakesh."},
+  ft_travel: {fr:"Mondial",ar:"عالمي",en:"Worldwide",nl:"Wereldwijd",tr:"Dünya geneli",id:"Seluruh dunia",ur:"عالمی",de:"Weltweit",es:"Mundial",pt:"Mundial",ru:"По всему миру",bn:"বিশ্বব্যাপী",so:"Adduunka oo dhan",ha:"Duniya baki ɗaya"},
+  fd_fin:    {fr:"Services financiers conformes à la Charia. Transferts sans intérêts. Investissement halal.",ar:"خدمات مالية متوافقة مع الشريعة. تحويلات بدون فوائد. استثمار حلال.",en:"Sharia-compliant financial services. Interest-free transfers. Halal investment.",nl:"Sharia-conforme financiële diensten. Rentevrije overboekingen. Halal investering.",tr:"Şeriata uygun finansal hizmetler. Faizsiz transferler. Helal yatırım.",id:"Layanan keuangan sesuai syariah. Transfer tanpa bunga. Investasi halal.",ur:"شریعت کے مطابق مالی خدمات۔ سود کے بغیر ٹرانسفر۔ حلال سرمایہ کاری۔",de:"Scharia-konforme Finanzdienstleistungen. Zinslose Transfers. Halal-Investitionen.",es:"Servicios financieros conformes a la Sharia. Transferencias sin intereses. Inversión halal.",pt:"Serviços financeiros conformes à Sharia. Transferências sem juros. Investimento halal.",ru:"Финансовые услуги, соответствующие шариату. Беспроцентные переводы. Халяль-инвестиции.",bn:"শরিয়া-সম্মত আর্থিক সেবা। সুদমুক্ত ট্রান্সফার। হালাল বিনিয়োগ।",so:"Adeegyada maaliyadeed ee Sharciga Islaamiga. Wareejinta aan dulsaarka lahayn. Maalgashiga halaalka.",ha:"Ayyukan kudi masu bin Shari'a. Canja wurin ba tare da riba ba. Zuba jari halal."},
+  ft_fin:    {fr:"Charia compliant",ar:"متوافق مع الشريعة",en:"Sharia compliant",nl:"Sharia conform",tr:"Şeriata uygun",id:"Sesuai syariah",ur:"شریعت کے مطابق",de:"Scharia-konform",es:"Conforme a la Sharia",pt:"Conforme Sharia",ru:"Соответствует шариату",bn:"শরিয়া সম্মত",so:"Ku habboon Sharciga",ha:"Ya dace da Shari'a"},
+  fd_tools:  {fr:"Boussole Qibla. Tasbih numérique. Calendrier Hijri. Douas. Verset et Hadith du jour.",ar:"بوصلة القبلة. مسبحة رقمية. التقويم الهجري. الأدعية. آية وحديث اليوم.",en:"Qibla compass. Digital Tasbih. Hijri calendar. Duas. Daily verse and Hadith.",nl:"Qibla-kompas. Digitale Tasbih. Islamitische kalender. Duas. Dagelijks vers en Hadith.",tr:"Kıble pusulası. Dijital Tesbih. Hicri takvim. Dualar. Günlük ayet ve Hadis.",id:"Kompas Kiblat. Tasbih digital. Kalender Hijriyah. Doa. Ayat dan Hadis harian.",ur:"قبلہ کمپاس۔ ڈیجیٹل تسبیح۔ ہجری کیلنڈر۔ دعائیں۔ روزانہ آیت اور حدیث۔",de:"Qibla-Kompass. Digitaler Tasbih. Hijri-Kalender. Duas. Täglicher Vers und Hadith.",es:"Brújula Qibla. Tasbih digital. Calendario Hijri. Duas. Versículo y Hadith del día.",pt:"Bússola Qibla. Tasbih digital. Calendário Hijri. Duas. Versículo e Hadith do dia.",ru:"Компас Киблы. Цифровой тасбих. Календарь Хиджра. Ду'а. Ежедневный аят и хадис.",bn:"কিবলা কম্পাস। ডিজিটাল তাসবিহ। হিজরি ক্যালেন্ডার। দোয়া। দৈনিক আয়াত ও হাদিস।",so:"Buundada Qiblada. Tasbiixda dijitaalka ah. Taariikhda Hijriga. Ducooyinka. Aayad iyo Xadiiث maalinlaha ah.",ha:"Kamfas Kibla. Tasbih na dijital. Kalandar Hijri. Addu'o'i. Aya da Hadisi na yau."},
+  ft_tools:  {fr:"Complet",ar:"شامل",en:"Complete",nl:"Volledig",tr:"Tam",id:"Lengkap",ur:"مکمل",de:"Vollständig",es:"Completo",pt:"Completo",ru:"Полный",bn:"সম্পূর্ণ",so:"Dhammaystiran",ha:"Cikakke"},
+  pray_title:{fr:"Précis. En temps réel. Pour votre ville.",ar:"دقيق. في الوقت الفعلي. لمدينتك.",en:"Accurate. Real time. For your city.",nl:"Nauwkeurig. In realtime. Voor uw stad.",tr:"Hassas. Gerçek zamanlı. Şehriniz için.",id:"Akurat. Real-time. Untuk kota Anda.",ur:"درست۔ ریئل ٹائم۔ آپ کے شہر کے لیے۔",de:"Präzise. In Echtzeit. Für Ihre Stadt.",es:"Preciso. En tiempo real. Para su ciudad.",pt:"Preciso. Em tempo real. Para sua cidade.",ru:"Точно. В реальном времени. Для вашего города.",bn:"সঠিক। রিয়েল টাইম। আপনার শহরের জন্য।",so:"Saxsan. Waqtiga dhabta. Magaaladaada.",ha:"Daidai. Lokaci na gaske. Domin garinku."},
+  stat1:     {fr:"Musulmans dans le monde",ar:"مسلم في العالم",en:"Muslims worldwide",nl:"Moslims wereldwijd",tr:"Dünya genelinde Müslüman",id:"Muslim di seluruh dunia",ur:"دنیا بھر میں مسلمان",de:"Muslime weltweit",es:"Musulmanes en el mundo",pt:"Muçulmanos no mundo",ru:"Мусульман в мире",bn:"বিশ্বব্যাপী মুসলমান",so:"Muslimiinta adduunka",ha:"Musulmai a duniya"},
+  stat2:     {fr:"Prières quotidiennes",ar:"صلوات يومية",en:"Daily prayers",nl:"Dagelijkse gebeden",tr:"Günlük namazlar",id:"Shalat harian",ur:"روزانہ نمازیں",de:"Tägliche Gebete",es:"Oraciones diarias",pt:"Orações diárias",ru:"Ежедневных молитв",bn:"দৈনিক নামাজ",so:"Salaadaha maalinlaha ah",ha:"Salloli na yau da kullum"},
+  stat3:     {fr:"Sourates du Coran",ar:"سور القرآن",en:"Quran Surahs",nl:"Koransoera's",tr:"Kuran Sureleri",id:"Surah Al-Quran",ur:"قرآن کی سورتیں",de:"Koransuren",es:"Suras del Corán",pt:"Suras do Alcorão",ru:"Суры Корана",bn:"কোরআনের সুরা",so:"Suurooyinka Quraanka",ha:"Surori na Alƙur'ani"},
+  stat4:     {fr:"Bénédictions",ar:"بركات",en:"Blessings",nl:"Zegeningen",tr:"Bereketler",id:"Berkah",ur:"برکتیں",de:"Segnungen",es:"Bendiciones",pt:"Bênçãos",ru:"Благословений",bn:"আশীর্বাদ",so:"Barakooyin",ha:"Albarka"},
+  dl_title:  {fr:"Disponible bientôt sur iOS & Android",ar:"قريباً على iOS وAndroid",en:"Coming soon on iOS & Android",nl:"Binnenkort op iOS & Android",tr:"Yakında iOS & Android'de",id:"Segera hadir di iOS & Android",ur:"جلد iOS اور Android پر",de:"Demnächst auf iOS & Android",es:"Próximamente en iOS & Android",pt:"Em breve no iOS & Android",ru:"Скоро на iOS и Android",bn:"শীঘ্রই iOS এবং Android-এ",so:"Dhawaan iOS & Android",ha:"Ba da daɗewa a iOS & Android"},
+  f_contact: {fr:"Contact",ar:"تواصل",en:"Contact",nl:"Contact",tr:"İletişim",id:"Kontak",ur:"رابطہ",de:"Kontakt",es:"Contacto",pt:"Contato",ru:"Контакт",bn:"যোগাযোগ",so:"Xiriir",ha:"Tuntuɓa"},
+  f_advert:  {fr:"Annonceurs",ar:"المعلنون",en:"Advertisers",nl:"Adverteerders",tr:"Reklamverenler",id:"Pengiklan",ur:"اشتہار دینے والے",de:"Werbetreibende",es:"Anunciantes",pt:"Anunciantes",ru:"Рекламодатели",bn:"বিজ্ঞাপনদাতা",so:"Xayaysiiyayaasha",ha:"Masu tallata"},
+  f_copy:    {fr:"© 2026 FADJR · Aureus IA SPRL · Belgique",ar:"© 2026 FADJR · Aureus IA SPRL · بلجيكا",en:"© 2026 FADJR · Aureus IA SPRL · Belgium",nl:"© 2026 FADJR · Aureus IA SPRL · België",tr:"© 2026 FADJR · Aureus IA SPRL · Belçika",id:"© 2026 FADJR · Aureus IA SPRL · Belgia",ur:"© 2026 FADJR · Aureus IA SPRL · بلجیم",de:"© 2026 FADJR · Aureus IA SPRL · Belgien",es:"© 2026 FADJR · Aureus IA SPRL · Bélgica",pt:"© 2026 FADJR · Aureus IA SPRL · Bélgica",ru:"© 2026 FADJR · Aureus IA SPRL · Бельгия",bn:"© 2026 FADJR · Aureus IA SPRL · বেলজিয়াম",so:"© 2026 FADJR · Aureus IA SPRL · Beljiyam",ha:"© 2026 FADJR · Aureus IA SPRL · Belgiyam"}
 }
 
 let lang = localStorage.getItem('fl') || 'fr'
