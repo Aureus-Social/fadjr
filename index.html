@@ -148,6 +148,17 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
   body{cursor:auto}
   .cursor,.cursor-ring{display:none}
 }
+
+/* ── LANG SWITCHER ── */
+.lang-switcher{position:relative;display:inline-block}
+.lang-btn{background:transparent;border:1px solid var(--border);color:var(--gold);padding:6px 12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s}
+.lang-btn:hover{border-color:var(--gold)}
+.lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:#0A0A18;border:1px solid var(--border);min-width:180px;display:none;z-index:200;max-height:320px;overflow-y:auto}
+.lang-dropdown.open{display:block}
+.lang-option{padding:10px 16px;font-size:11px;color:var(--gray);cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s;border-bottom:1px solid rgba(255,255,255,.04)}
+.lang-option:hover,.lang-option.active{background:rgba(201,168,76,.08);color:var(--gold)}
+.lang-flag{font-size:16px}
+
 </style>
 </head>
 <body>
@@ -162,7 +173,7 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
 <nav id="nav">
   <div class="nav-logo">FADJR</div>
   <div class="nav-links">
-    <a href="#features" class="nav-link">Fonctions</a>
+    <a href="#features" class="nav-link" data-i18n="nav_features">Fonctions</a>
     <a href="#prieres" class="nav-link">Prières</a>
     <a href="#download" class="nav-link">Télécharger</a>
     <a href="privacy.html" class="nav-link">Confidentialité</a>
@@ -222,13 +233,13 @@ footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:
     </div>
     <div class="feature">
       <span class="feature-icon">✈️</span>
-      <div class="feature-title">Voyage Halal</div>
+      <div class="feature-title" data-i18n="p4_title">Voyage Halal</div>
       <div class="feature-desc">Destinations halal-friendly dans le monde. Omra & Hajj. Hôtels certifiés. Compagnies aériennes partenaires. La Mecque, Istanbul, Marrakech et plus.</div>
       <span class="feature-tag">Mondial</span>
     </div>
     <div class="feature">
       <span class="feature-icon">💰</span>
-      <div class="feature-title">Finance Islamique</div>
+      <div class="feature-title" data-i18n="p3_title">Finance Islamique</div>
       <div class="feature-desc">Services financiers conformes à la Charia. Transferts sans intérêts. Investissement halal. Crédit immobilier islamique.</div>
       <span class="feature-tag">Charia compliant</span>
     </div>
@@ -417,5 +428,104 @@ function joinWaitlist(){
   document.getElementById('emailInput').value=''
 }
 </script>
+
+<script id="i18n-script">
+const LANGS = {
+  fr: { flag:'🇫🇷', name:'Français',       dir:'ltr' },
+  ar: { flag:'🇸🇦', name:'العربية',         dir:'rtl' },
+  en: { flag:'🇬🇧', name:'English',         dir:'ltr' },
+  nl: { flag:'🇳🇱', name:'Nederlands',      dir:'ltr' },
+  tr: { flag:'🇹🇷', name:'Türkçe',          dir:'ltr' },
+  id: { flag:'🇮🇩', name:'Bahasa Indonesia',dir:'ltr' },
+  ur: { flag:'🇵🇰', name:'اردو',            dir:'rtl' },
+  de: { flag:'🇩🇪', name:'Deutsch',         dir:'ltr' },
+  es: { flag:'🇪🇸', name:'Español',         dir:'ltr' },
+  bn: { flag:'🇧🇩', name:'বাংলা',           dir:'ltr' },
+  so: { flag:'🇸🇴', name:'Soomaali',        dir:'ltr' },
+  ha: { flag:'🇳🇬', name:'Hausa',           dir:'ltr' },
+}
+
+const T = {
+  nav_features:  {fr:'Fonctions',ar:'المميزات',en:'Features',nl:'Functies',tr:'Özellikler',id:'Fitur',ur:'خصوصیات',de:'Features',es:'Funciones',bn:'বৈশিষ্ট্য',so:'Sifooyinka',ha:'Fasali'},
+  nav_community: {fr:'Communauté',ar:'المجتمع',en:'Community',nl:'Gemeenschap',tr:'Topluluk',id:'Komunitas',ur:'کمیونٹی',de:'Gemeinschaft',es:'Comunidad',bn:'সম্প্রদায়',so:'Bulshada',ha:'Al'umma'},
+  nav_about:     {fr:'À propos',ar:'حول',en:'About',nl:'Over',tr:'Hakkında',id:'Tentang',ur:'بارے میں',de:'Über uns',es:'Acerca de',bn:'সম্পর্কে',so:'Ku saabsan',ha:'Game da'},
+  nav_join:      {fr:'Rejoindre',ar:'انضم',en:'Join',nl:'Meedoen',tr:'Katıl',id:'Bergabung',ur:'شامل ہوں',de:'Mitmachen',es:'Unirse',bn:'যোগ দিন',so:'Ku biir',ha:'Shiga'},
+  hero_eyebrow:  {fr:'Application Mobile · Gratuit · Halal',ar:'تطبيق الجوال · مجاني · حلال',en:'Mobile App · Free · Halal',nl:'Mobiele App · Gratis · Halal',tr:'Mobil Uygulama · Ücretsiz · Helal',id:'Aplikasi Mobile · Gratis · Halal',ur:'موبائل ایپ · مفت · حلال',de:'Mobile App · Kostenlos · Halal',es:'App Móvil · Gratis · Halal',bn:'মোবাইল অ্যাপ · বিনামূল্যে · হালাল',so:'App Mobail · Bilaash · Xalaal',ha:'App na Hannu · Kyauta · Halal'},
+  hero_sub:      {fr:'L'app qui accompagne chaque musulman au quotidien.',ar:'التطبيق الذي يرافق كل مسلم في حياته اليومية.',en:'The app that guides every Muslim through daily life.',nl:'De app die elke moslim dagelijks begeleidt.',tr:'Her Müslümanın günlük hayatında rehberi olan uygulama.',id:'Aplikasi yang menemani setiap Muslim dalam kehidupan sehari-hari.',ur:'وہ ایپ جو ہر مسلمان کے روزمرہ میں ساتھ دیتی ہے۔',de:'Die App, die jeden Muslim im Alltag begleitet.',es:'La app que acompaña a cada musulmán en su vida diaria.',bn:'যে অ্যাপ প্রতিটি মুসলমানকে দৈনন্দিন জীবনে সঙ্গ দেয়।',so:'Appka ku saaxibta Muslimiinta maalinkooda.',ha:'Aikace-aikacen da ke tare da kowane Musulmi a kowace rana.'},
+  btn_download:  {fr:'Télécharger l'app',ar:'تحميل التطبيق',en:'Download the app',nl:'Download de app',tr:'Uygulamayı indir',id:'Unduh aplikasi',ur:'ایپ ڈاؤن لوڈ کریں',de:'App herunterladen',es:'Descargar la app',bn:'অ্যাপ ডাউনলোড করুন',so:'Soo deji appka',ha:'Sauke app'},
+  btn_discover:  {fr:'Découvrir',ar:'اكتشف',en:'Discover',nl:'Ontdekken',tr:'Keşfet',id:'Temukan',ur:'دریافت کریں',de:'Entdecken',es:'Descubrir',bn:'আবিষ্কার করুন',so:'Baadhi',ha:'Gano'},
+  waitlist_title:{fr:'Rejoignez les premiers',ar:'انضم إلى الأوائل',en:'Join the first ones',nl:'Wees er als eerste bij',tr:'İlk katılanlardan olun',id:'Bergabunglah yang pertama',ur:'پہلے لوگوں میں شامل ہوں',de:'Zu den Ersten gehören',es:'Únete a los primeros',bn:'প্রথমদের মধ্যে যোগ দিন',so:'Ku biir kuwa hore',ha:'Kasance na farko'},
+  waitlist_sub:  {fr:'Accès anticipé gratuit. Aucune carte bancaire requise.',ar:'وصول مبكر مجاني. لا حاجة لبطاقة بنكية.',en:'Free early access. No credit card required.',nl:'Gratis vroege toegang. Geen creditcard vereist.',tr:'Ücretsiz erken erişim. Kredi kartı gerekmez.',id:'Akses awal gratis. Tidak perlu kartu kredit.',ur:'مفت ابتدائی رسائی۔ کوئی کریڈٹ کارڈ نہیں چاہیے۔',de:'Kostenloser Frühzugang. Keine Kreditkarte nötig.',es:'Acceso anticipado gratuito. Sin tarjeta de crédito.',bn:'বিনামূল্যে আর্লি অ্যাক্সেস। কোনো ক্রেডিট কার্ড নেই।',so:'Gelitaan bilaash ah. Kaadhka bangiga laguma baahna.',ha:'Shiga na farko kyauta. Ba katin banki da ake bukata.'},
+  input_email:   {fr:'Votre adresse email',ar:'بريدك الإلكتروني',en:'Your email address',nl:'Uw e-mailadres',tr:'E-posta adresiniz',id:'Alamat email Anda',ur:'آپ کا ای میل',de:'Ihre E-Mail-Adresse',es:'Su dirección de correo',bn:'আপনার ইমেইল ঠিকানা',so:'Cinwaanka emailkaaga',ha:'Adireshin imel ɗinka'},
+  btn_notify:    {fr:'M'avertir',ar:'أخبرني',en:'Notify me',nl:'Mij berichten',tr:'Beni bildir',id:'Beritahu saya',ur:'مجھے بتائیں',de:'Benachrichtigen',es:'Notificarme',bn:'আমাকে জানান',so:'I warran',ha:'Sanar da ni'},
+  features_label:{fr:'Fonctionnalités',ar:'المميزات',en:'Features',nl:'Functies',tr:'Özellikler',id:'Fitur',ur:'خصوصیات',de:'Features',es:'Funciones',bn:'বৈশিষ্ট্য',so:'Sifooyinka',ha:'Fasali'},
+  p1_title:      {fr:'Prière & Spiritualité',ar:'الصلاة والروحانية',en:'Prayer & Spirituality',nl:'Gebed & Spiritualiteit',tr:'Namaz & Maneviyat',id:'Shalat & Spiritualitas',ur:'نماز اور روحانیت',de:'Gebet & Spiritualität',es:'Oración & Espiritualidad',bn:'নামাজ ও আধ্যাত্মিকতা',so:'Salaadda iyo Ruuxiga',ha:'Sallah & Ruhi'},
+  p2_title:      {fr:'Gastronomie Halal',ar:'المطاعم الحلال',en:'Halal Food',nl:'Halal Eten',tr:'Helal Yiyecek',id:'Makanan Halal',ur:'حلال کھانا',de:'Halal Essen',es:'Comida Halal',bn:'হালাল খাবার',so:'Cuntada Xalaalka',ha:'Abinci Halal'},
+  p3_title:      {fr:'Finance Islamique',ar:'التمويل الإسلامي',en:'Islamic Finance',nl:'Islamitisch Bankieren',tr:'İslami Finans',id:'Keuangan Islam',ur:'اسلامی مالیات',de:'Islamische Finanzen',es:'Finanzas Islámicas',bn:'ইসলামী অর্থনীতি',so:'Maaliyadda Islaamiga',ha:'Kudi na Musulunci'},
+  p4_title:      {fr:'Voyage Halal',ar:'السياحة الحلال',en:'Halal Travel',nl:'Halal Reizen',tr:'Helal Seyahat',id:'Perjalanan Halal',ur:'حلال سفر',de:'Halal Reisen',es:'Viaje Halal',bn:'হালাল ভ্রমণ',so:'Safarka Xalaalka',ha:'Tafiya Halal'},
+  p5_title:      {fr:'Culture & Savoir',ar:'الثقافة والعلم',en:'Culture & Knowledge',nl:'Cultuur & Kennis',tr:'Kültür & Bilgi',id:'Budaya & Pengetahuan',ur:'ثقافت اور علم',de:'Kultur & Wissen',es:'Cultura & Saber',bn:'সংস্কৃতি ও জ্ঞান',so:'Dhaqanka & Aqoonta',ha:'Al'ada & Ilimi'},
+  p6_title:      {fr:'Communauté',ar:'المجتمع',en:'Community',nl:'Gemeenschap',tr:'Topluluk',id:'Komunitas',ur:'کمیونٹی',de:'Gemeinschaft',es:'Comunidad',bn:'সম্প্রদায়',so:'Bulshada',ha:'Al'umma'},
+  footer_copy:   {fr:'Tous droits réservés',ar:'جميع الحقوق محفوظة',en:'All rights reserved',nl:'Alle rechten voorbehouden',tr:'Tüm hakları saklıdır',id:'Semua hak dilindungi',ur:'جملہ حقوق محفوظ ہیں',de:'Alle Rechte vorbehalten',es:'Todos los derechos reservados',bn:'সর্বস্বত্ব সংরক্ষিত',so:'Xuquuqda oo dhan waa la kaydiyay',ha:'Kowane haƙƙi an kiyaye shi'},
+}
+
+let currentLang = localStorage.getItem('fadjr_lang') || 'fr'
+
+function t(key){ return T[key]?.[currentLang] || T[key]?.['fr'] || '' }
+
+function applyLang(lang){
+  currentLang = lang
+  localStorage.setItem('fadjr_lang', lang)
+  const cfg = LANGS[lang]
+  document.documentElement.lang = lang
+  document.documentElement.dir = cfg.dir
+
+  // Apply all translations
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n
+    if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){
+      el.placeholder = t(key)
+    } else {
+      el.textContent = t(key)
+    }
+  })
+
+  // RTL font
+  if(cfg.dir === 'rtl'){
+    document.body.style.fontFamily = "'Tajawal', sans-serif"
+  } else {
+    document.body.style.fontFamily = "'DM Mono', monospace"
+  }
+
+  // Update dropdown active state
+  document.querySelectorAll('.lang-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.lang === lang)
+  })
+  // Update btn label
+  const btn = document.getElementById('lang-btn-text')
+  if(btn) btn.textContent = cfg.flag + ' ' + lang.toUpperCase()
+}
+
+function toggleLangDropdown(){
+  document.getElementById('lang-dropdown').classList.toggle('open')
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('.lang-switcher')) document.getElementById('lang-dropdown')?.classList.remove('open')
+})
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Build dropdown
+  const dd = document.getElementById('lang-dropdown')
+  if(dd){
+    dd.innerHTML = Object.entries(LANGS).map(([code, cfg]) =>
+      `<div class="lang-option${code===currentLang?' active':''}" data-lang="${code}" onclick="applyLang('${code}');toggleLangDropdown()">
+        <span class="lang-flag">${cfg.flag}</span>
+        <span>${cfg.name}</span>
+      </div>`
+    ).join('')
+  }
+  applyLang(currentLang)
+})
+</script>
+
 </body>
 </html>
