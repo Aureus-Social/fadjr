@@ -319,7 +319,10 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
             <select id="trans-sel" onchange="reRenderAyahs()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:6px 10px;border-radius:8px;font-size:11px;font-family:'Cairo',sans-serif">
               <option value="fr">🇫🇷 Français</option>
               <option value="en">🇬🇧 English</option>
-              <option value="none">Arabe seulement</option>
+              <option value="ar">🇸🇦 عربي (تفسير)</option>
+              <option value="tr">🇹🇷 Türkçe</option>
+              <option value="ur">🇵🇰 اردو</option>
+              <option value="none">بدون ترجمة</option>
             </select>
           </div>
         </div>
@@ -744,9 +747,18 @@ async function loadAyahs(n){
   if(quranCache[cacheKey]){ renderAyahs(quranCache[cacheKey]); return }
   try {
     // Fetch Arabic + translation in parallel
+    const editions = {
+      fr: 'fr.hamidullah',
+      en: 'en.sahih',
+      ar: 'ar.muyassar',
+      tr: 'tr.diyanet',
+      ur: 'ur.jalandhry',
+      none: null
+    }
+    const edition = editions[lang]
     const [arRes, trRes] = await Promise.all([
       fetch(`https://api.alquran.cloud/v1/surah/${n}`),
-      lang !== 'none' ? fetch(`https://api.alquran.cloud/v1/surah/${n}/${lang === 'fr' ? 'fr.hamidullah' : 'en.sahih'}`) : Promise.resolve(null)
+      edition ? fetch(`https://api.alquran.cloud/v1/surah/${n}/${edition}`) : Promise.resolve(null)
     ])
     const arData = await arRes.json()
     const trData = trRes ? await trRes.json() : null
