@@ -13,6 +13,10 @@
     {
       "source": "/partenaires",
       "destination": "/partenaires.html"
+    },
+    {
+      "source": "/support",
+      "destination": "/support.html"
     }
   ],
   "headers": [
