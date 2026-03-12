@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FADJR Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0B18;--card:rgba(255,255,255,.03);--border:rgba(255,255,255,.07);--gold:#C9A84C;--goldL:#F0D080;--text:#D8D0C0;--muted:#44445A;--green:#34D399;--blue:#60A5FA;--purple:#A78BFA;--red:#F87171;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#333;border-radius:99px}
+
+/* HEADER */
+#header{padding:12px 20px;border-bottom:1px solid rgba(201,168,76,.12);background:rgba(201,168,76,.03);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:12;}
+.logo-icon{font-size:22px;}
+.logo-text{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--gold);letter-spacing:3px;}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;margin-left:8px;}
+.tabs{display:flex;gap:4;flex-wrap:wrap;}
+.tab-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-family:'Cairo',sans-serif;background:transparent;color:var(--muted);border-bottom:2px solid transparent;transition:.2s;}
+.tab-btn.active{background:rgba(201,168,76,.15);color:var(--gold);font-weight:700;border-bottom-color:var(--gold);}
+.header-right{display:flex;align-items:center;gap:14;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+
+/* CONTENT */
+#content{padding:22px 20px;max-width:1300px;margin:0 auto;}
+
+/* SCREEN */
+.screen{display:none;animation:fadeUp .4s ease both;}
+.screen.active{display:block;}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.card-accent{border-top:2px solid var(--gold);}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:22px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-cities{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+
+/* KPI */
+.kpi-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.kpi-value{font-size:28px;font-weight:700;font-family:'Cinzel',serif;margin-bottom:4px;}
+.kpi-sub{font-size:11px;color:var(--muted);}
+
+/* SPARKLINE */
+.spark-wrap{margin-top:12px;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;min-width:600px;}
+.tbl th{text-align:left;padding:10px 14px;font-size:10px;color:var(--muted);letter-spacing:2px;font-weight:400;border-bottom:1px solid rgba(255,255,255,.08);}
+.tbl td{padding:11px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);}
+.tbl tr:hover td{background:rgba(201,168,76,.04);}
+.overflow-x{overflow-x:auto;}
+
+/* BADGE */
+.badge{padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:1px;white-space:nowrap;border:1px solid;}
+
+/* PROGRESS */
+.prog-bg{background:rgba(255,255,255,.06);border-radius:99px;height:5px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;transition:width 1.1s cubic-bezier(.4,0,.2,1);}
+
+/* PUB CARD */
+.pub-card{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;margin-bottom:10px;}
+.pub-emoji{font-size:26px;}
+.chip{padding:2px 8px;border-radius:99px;font-size:10px;border:1px solid;margin-right:4px;display:inline-block;}
+.btn{padding:6px 14px;border-radius:7px;border:1px solid;font-size:11px;cursor:pointer;font-weight:700;font-family:'Cairo',sans-serif;transition:.2s;}
+.btn-gold{background:linear-gradient(135deg,#C9A84C,#F0D080);color:#0B0B18;border:none;border-radius:9px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;font-family:'Cairo',sans-serif;}
+
+/* GEO EXPL */
+.geo-explain{background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:16px 20px;margin-bottom:20px;}
+.geo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;font-size:12px;color:#999;line-height:1.7;}
+
+/* MODAL */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+#modal.open{display:flex;}
+.modal-box{background:#13131F;border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 13px;color:var(--text);font-size:13px;outline:none;font-family:'Cairo',sans-serif;margin-top:7px;}
+.field-label{font-size:11px;color:#666;letter-spacing:1px;margin-bottom:7px;}
+.select-btn{padding:5px 12px;border-radius:99px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:transparent;color:#666;font-family:'Cairo',sans-serif;transition:.2s;}
+.select-btn.on{border-color:var(--gold);background:rgba(201,168,76,.15);color:var(--gold);}
+
+/* CITY STAT */
+.city-stat{background:rgba(255,255,255,.03);border-radius:8px;padding:10px 8px;text-align:center;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="logo">
+    <span class="logo-icon">☪</span>
+    <div>
+      <span class="logo-text">FADJR</span>
+      <span class="logo-sub">ADMIN · NOURDIN</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="goTab('overview')">📊 Aperçu</button>
+    <button class="tab-btn" onclick="goTab('abonnes')">👥 Abonnés</button>
+    <button class="tab-btn" onclick="goTab('pubs')">📍 Régie Pub Géo</button>
+    <button class="tab-btn" onclick="goTab('villes')">🗺️ Par Ville</button>
+  </div>
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:6">
+      <div class="live-dot"></div>
+      <span style="font-size:11px;color:var(--green)">En ligne</span>
+    </div>
+    <span style="font-size:11px;color:var(--muted)" id="clock"></span>
+    <a href="/app" style="padding:6px 14px;border-radius:7px;border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.08);color:var(--gold);font-size:11px;text-decoration:none;font-family:'Cairo',sans-serif">← App</a>
+  </div>
+</div>
+
+<div id="content">
+
+  <!-- OVERVIEW -->
+  <div class="screen active" id="screen-overview">
+    <div class="grid-4" id="kpi-grid"></div>
+    <div class="grid-2">
+      <div class="card" id="segments-card"></div>
+      <div class="card" style="background:rgba(201,168,76,.04);border-top:2px solid var(--gold)" id="progress-card"></div>
+    </div>
+  </div>
+
+  <!-- ABONNÉS -->
+  <div class="screen" id="screen-abonnes">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8">
+      <span style="font-size:13px;color:var(--muted)">Filtre ville :</span>
+      <div id="ville-filters" style="display:flex;gap:6;flex-wrap:wrap"></div>
+    </div>
+    <div class="card overflow-x">
+      <table class="tbl" id="abonnes-table"></table>
+    </div>
+  </div>
+
+  <!-- RÉGIE PUB -->
+  <div class="screen" id="screen-pubs">
+    <div class="geo-explain">
+      <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px">⚡ Comment fonctionne la pub géolocalisée automatique</div>
+      <div class="geo-grid">
+        <div><span style="color:var(--gold);font-weight:600">1. Tu configures une fois</span><br>Ville + rayon + segment + dates + budget. C'est tout.</div>
+        <div><span style="color:var(--green);font-weight:600">2. L'app détecte le GPS</span><br>À chaque ouverture de FADJR, le GPS est comparé aux zones de diffusion.</div>
+        <div><span style="color:var(--blue);font-weight:600">3. Affichage automatique</span><br>Bruxelles → pubs Bruxelles. Paris → pubs Paris. Zéro manuel.</div>
+      </div>
+    </div>
+    <div class="grid-4" id="pub-kpis"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <span style="font-size:13px;color:var(--muted)" id="pub-count"></span>
+      <button class="btn-gold" onclick="openModal()">+ NOUVELLE CAMPAGNE</button>
+    </div>
+    <div id="pubs-list"></div>
+  </div>
+
+  <!-- PAR VILLE -->
+  <div class="screen" id="screen-villes">
+    <div class="grid-cities" id="villes-grid"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+      <span style="font-size:17px;color:var(--gold);font-weight:700">📢 Nouvelle campagne géolocalisée</span>
+      <button onclick="closeModal()" style="background:none;border:none;color:#555;cursor:pointer;font-size:20px">✕</button>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="field-label">ICÔNE</div>
+      <div id="emoji-picker" style="display:flex;gap:6;flex-wrap:wrap"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="field-label">NOM DE LA CAMPAGNE</div>
+      <input class="modal-input" id="f-nom" placeholder="Ex: Ramadan Bruxelles 2027">
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="field-label">PARTENAIRE</div>
+      <input class="modal-input" id="f-partenaire" placeholder="Nom du commerce">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12;margin-bottom:14px">
+      <div>
+        <div class="field-label">DATE DÉBUT</div>
+        <input type="date" class="modal-input" id="f-debut">
+      </div>
+      <div>
+        <div class="field-label">DATE FIN</div>
+        <input type="date" class="modal-input" id="f-fin">
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="field-label">BUDGET (€)</div>
+      <input type="number" class="modal-input" id="f-budget" value="100">
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="field-label">VILLES CIBLÉES</div>
+      <div id="ville-picker" style="display:flex;flex-wrap:wrap;gap:6;margin-top:8px"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div class="field-label">RAYON DE DIFFUSION</div>
+      <div style="display:flex;align-items:center;gap:12;margin-top:8px">
+        <input type="range" min="1" max="50" value="5" id="f-rayon" style="flex:1;accent-color:var(--gold)" oninput="document.getElementById('rayon-val').textContent=this.value+' km'">
+        <span style="color:var(--gold);font-weight:700;min-width:55px;text-align:right" id="rayon-val">5 km</span>
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="field-label">AUDIENCE CIBLÉE</div>
+      <div id="seg-picker" style="display:flex;flex-wrap:wrap;gap:6;margin-top:8px"></div>
+    </div>
+    <div id="recap-auto" style="display:none;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#999;line-height:1.7"></div>
+    <button class="btn-gold" style="width:100%" onclick="saveCampagne()">🚀 LANCER LA CAMPAGNE</button>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const VILLES=[
+  {id:1,nom:'Bruxelles',lat:50.8503,lng:4.3517,users:1840,flag:'🇧🇪'},
+  {id:2,nom:'Anvers',lat:51.2194,lng:4.4025,users:620,flag:'🇧🇪'},
+  {id:3,nom:'Liège',lat:50.6326,lng:5.5797,users:340,flag:'🇧🇪'},
+  {id:4,nom:'Gand',lat:51.0543,lng:3.7174,users:210,flag:'🇧🇪'},
+  {id:5,nom:'Paris',lat:48.8566,lng:2.3522,users:980,flag:'🇫🇷'},
+  {id:6,nom:'Lyon',lat:45.7640,lng:4.8357,users:430,flag:'🇫🇷'},
+  {id:7,nom:'Casablanca',lat:33.5731,lng:-7.5898,users:760,flag:'🇲🇦'},
+]
+const SEG_COLORS={Restaurants:'#C9A84C',Boucheries:'#C0392B',Librairies:'#7B4F00','Abaya/Qamis':'#8E44AD',Parfumeries:'#16A085',Voyages:'#2980B9',Finance:'#6A1B9A','Écoles':'#27AE60'}
+const SEGMENTS=Object.keys(SEG_COLORS)
+const ABONNES=[
+  {id:1,nom:'Le Sultane',ville:'Bruxelles',segment:'Restaurants',plan:'Pro 79€',mrr:79,statut:'actif'},
+  {id:2,nom:'Boucherie Hassan',ville:'Bruxelles',segment:'Boucheries',plan:'Starter 29€',mrr:29,statut:'actif'},
+  {id:3,nom:'Al Bouraq Books',ville:'Bruxelles',segment:'Librairies',plan:'Pro 79€',mrr:79,statut:'actif'},
+  {id:4,nom:'Nour Abaya',ville:'Anvers',segment:'Abaya/Qamis',plan:'Starter 29€',mrr:29,statut:'actif'},
+  {id:5,nom:'Omra Express',ville:'Bruxelles',segment:'Voyages',plan:'Premium 300€',mrr:300,statut:'actif'},
+  {id:6,nom:'Takaful Belux',ville:'Paris',segment:'Finance',plan:'Lead 15€',mrr:15,statut:'actif'},
+  {id:7,nom:'Dar Al Ilm',ville:'Paris',segment:'Écoles',plan:'École 49€',mrr:49,statut:'actif'},
+  {id:8,nom:'Oud & Musc BXL',ville:'Bruxelles',segment:'Parfumeries',plan:'Starter 29€',mrr:29,statut:'essai'},
+  {id:9,nom:'Isla Délices Lyon',ville:'Lyon',segment:'Restaurants',plan:'Starter 29€',mrr:29,statut:'essai'},
+  {id:10,nom:'Hassan Travel Casa',ville:'Casablanca',segment:'Voyages',plan:'Premium 300€',mrr:300,statut:'actif'},
+]
+let PUBS=[
+  {id:1,nom:'Ramadan Spécial',partenaire:'Le Sultane',villes:['Bruxelles','Anvers'],segments:['Restaurants'],rayon:5,budget:200,impressions:4820,clics:312,statut:'active',debut:'01/03/2026',fin:'31/03/2026',img:'🍽️'},
+  {id:2,nom:'Voyage Omra Avril',partenaire:'Omra Express',villes:['Bruxelles','Paris'],segments:['Voyages'],rayon:20,budget:500,impressions:9200,clics:741,statut:'active',debut:'01/02/2026',fin:'15/04/2026',img:'✈️'},
+  {id:3,nom:'Livres Islam Enfants',partenaire:'Al Bouraq',villes:['Bruxelles'],segments:['Librairies'],rayon:10,budget:100,impressions:2100,clics:89,statut:'active',debut:'05/03/2026',fin:'30/04/2026',img:'📚'},
+  {id:4,nom:'Nouvelle Abaya Coll.',partenaire:'Nour Abaya',villes:['Anvers','Gand'],segments:['Abaya/Qamis'],rayon:15,budget:150,impressions:1800,clics:203,statut:'pausée',debut:'10/03/2026',fin:'10/04/2026',img:'👗'},
+]
+
+// STATE
+let activeTab='overview', villeFiltre='Toutes'
+let modalVilles=[], modalSegs=[], modalEmoji='📢'
+
+// ── UTILS ─────────────────────────────────────────────────────
+function badge(s){
+  const m={active:['#22c55e','#052e16','● Actif'],pausée:['#f59e0b','#1c0f02','⏸ Pausée'],actif:['#22c55e','#052e16','● Actif'],essai:['#60a5fa','#0c1a2e','◎ Essai'],terminée:['#888','#111','✓ Terminée']}
+  const [fg,bg,lb]=m[s]||['#888','#111',s]
+  return `<span class="badge" style="background:${bg};color:${fg};border-color:${fg}40">${lb}</span>`
+}
+function prog(pct,color){
+  return `<div class="prog-bg"><div class="prog-fill" style="width:0%;background:${color}" data-w="${Math.min(pct,100)}"></div></div>`
+}
+function spark(data,color,h=36,w=120){
+  const max=Math.max(...data,1),min=Math.min(...data),range=max-min||1
+  const pts=data.map((v,i)=>`${(i/(data.length-1))*w},${h-((v-min)/range)*(h-6)-3}`).join(' ')
+  const uid=color.replace('#','u')
+  const last=pts.split(' ').at(-1).split(',')
+  return `<svg width="${w}" height="${h}" style="overflow:visible;display:block">
+    <defs><linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity=".35"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="0,${h} ${pts} ${w},${h}" fill="url(#${uid})"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="3.5" fill="${color}" stroke="#0B0B18" stroke-width="2"/>
+  </svg>`
+}
+
+// ── CLOCK ─────────────────────────────────────────────────────
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})},1000)
+
+// ── ANIMATE PROGRESS BARS ─────────────────────────────────────
+function animateProgs(){
+  setTimeout(()=>{
+    document.querySelectorAll('.prog-fill[data-w]').forEach(el=>{
+      el.style.width=el.dataset.w+'%'
+    })
+  },100)
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────
+function renderOverview(){
+  const mrr=ABONNES.reduce((s,a)=>s+a.mrr,0)
+  const impr=PUBS.reduce((s,p)=>s+p.impressions,0)
+  const clics=PUBS.reduce((s,p)=>s+p.clics,0)
+  const mrrHist=[87,320,812,1340,2180,mrr]
+  const aboHist=[3,8,14,22,35,ABONNES.length]
+
+  document.getElementById('kpi-grid').innerHTML=[
+    {label:'Total Abonnés B2B',value:ABONNES.length,color:'#C9A84C',sp:aboHist,sub:'↑ +6 cette semaine'},
+    {label:'MRR en cours',value:mrr.toLocaleString('fr')+' €',color:'#34D399',sp:mrrHist,sub:`ARR : ${(mrr*12).toLocaleString('fr')} €`},
+    {label:'Impressions pub',value:impr.toLocaleString('fr'),color:'#60A5FA',sp:null,sub:`${PUBS.filter(p=>p.statut==='active').length} campagnes actives`},
+    {label:'Clics totaux',value:clics.toLocaleString('fr'),color:'#A78BFA',sp:null,sub:`CTR : ${impr?((clics/impr)*100).toFixed(1):0}%`},
+  ].map((k,i)=>`
+    <div class="card" style="border-top:2px solid ${k.color};animation:fadeUp .4s ease ${i*.07}s both">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      ${k.sp?`<div class="spark-wrap">${spark(k.sp,k.color)}</div>`:''}
+    </div>`).join('')
+
+  // Segments
+  const segCount=ABONNES.reduce((acc,a)=>{acc[a.segment]=(acc[a.segment]||0)+1;return acc},{})
+  document.getElementById('segments-card').innerHTML=`
+    <div class="kpi-label">RÉPARTITION PAR SEGMENT</div>
+    ${Object.entries(segCount).map(([seg,n])=>`
+      <div style="display:flex;align-items:center;gap:10;margin-bottom:10px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${SEG_COLORS[seg]||'#888'};display:inline-block;flex-shrink:0"></span>
+        <span style="flex:1;font-size:13px">${seg}</span>
+        <span style="font-size:13px;font-weight:700;color:${SEG_COLORS[seg]||'#888'};margin-right:8px;font-family:monospace">${n}</span>
+        <div style="width:80px">${prog((n/ABONNES.length)*100,SEG_COLORS[seg]||'#888')}</div>
+      </div>`).join('')}`
+
+  // Progress vs 1M
+  document.getElementById('progress-card').innerHTML=`
+    <div style="font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:16px">PROGRESSION VERS 1 000 000 €/MOIS</div>
+    ${[
+      {label:'MRR actuel',v:mrr,max:1000000,color:'#C9A84C',fmt:v=>`${v.toLocaleString('fr')} €`},
+      {label:'Abonnés B2B',v:ABONNES.length,max:2000,color:'#34D399',fmt:v=>`${v} / 2 000`},
+      {label:'Break-even (Mois 14)',v:ABONNES.length,max:150,color:'#60A5FA',fmt:v=>`${Math.min(v,150)} / 150`},
+      {label:'Revenus pub mensuels',v:1030,max:330000,color:'#A78BFA',fmt:v=>`${v.toLocaleString('fr')} €`},
+    ].map(item=>`
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;color:#888">${item.label}</span>
+          <span style="font-size:12px;font-weight:700;color:${item.color}">${item.fmt(item.v)}</span>
+        </div>
+        ${prog((item.v/item.max)*100,item.color)}
+      </div>`).join('')}`
+
+  animateProgs()
+}
+
+// ── ABONNÉS ───────────────────────────────────────────────────
+function renderAbonnes(){
+  const filtres=['Toutes',...new Set(ABONNES.map(a=>a.ville))]
+  document.getElementById('ville-filters').innerHTML=filtres.map(v=>`
+    <button class="select-btn ${villeFiltre===v?'on':''}" onclick="setVilleFiltre('${v}')">${v}</button>`).join('')
+
+  const list=villeFiltre==='Toutes'?ABONNES:ABONNES.filter(a=>a.ville===villeFiltre)
+  document.getElementById('abonnes-table').innerHTML=`
+    <thead><tr>${['Partenaire','Ville','Segment','Plan','MRR','Statut'].map(h=>`<th>${h.toUpperCase()}</th>`).join('')}</tr></thead>
+    <tbody>${list.map((a,i)=>`
+      <tr style="${i%2===0?'':'background:rgba(255,255,255,.01)'}">
+        <td style="font-weight:600">${a.nom}</td>
+        <td style="color:#888">${a.ville}</td>
+        <td><span style="color:${SEG_COLORS[a.segment]||'#888'}">● ${a.segment}</span></td>
+        <td style="color:var(--gold)">${a.plan}</td>
+        <td style="font-weight:700;color:var(--green);font-family:monospace">${a.mrr} €</td>
+        <td>${badge(a.statut)}</td>
+      </tr>`).join('')}
+    </tbody>`
+}
+function setVilleFiltre(v){villeFiltre=v;renderAbonnes()}
+
+// ── PUBS ─────────────────────────────────────────────────────
+function renderPubs(){
+  const impr=PUBS.reduce((s,p)=>s+p.impressions,0)
+  const clics=PUBS.reduce((s,p)=>s+p.clics,0)
+  document.getElementById('pub-kpis').innerHTML=[
+    {label:'Campagnes actives',value:PUBS.filter(p=>p.statut==='active').length,color:'#34D399'},
+    {label:'Impressions totales',value:impr.toLocaleString('fr'),color:'#C9A84C'},
+    {label:'Clics totaux',value:clics.toLocaleString('fr'),color:'#60A5FA'},
+    {label:'CTR moyen',value:impr?`${((clics/impr)*100).toFixed(1)}%`:'—',color:'#A78BFA'},
+  ].map(k=>`<div class="card" style="border-top:2px solid ${k.color}"><div class="kpi-label">${k.label}</div><div class="kpi-value" style="color:${k.color};font-size:26px">${k.value}</div></div>`).join('')
+
+  document.getElementById('pub-count').innerHTML=`<span style="color:var(--gold);font-weight:700">${PUBS.length}</span> campagne${PUBS.length>1?'s':''}`
+
+  document.getElementById('pubs-list').innerHTML=PUBS.map(pub=>{
+    const ctr=pub.impressions?((pub.clics/pub.impressions)*100).toFixed(1):0
+    const bc=pub.statut==='active'?'#34D399':pub.statut==='pausée'?'#C9A84C':'var(--border)'
+    return `<div class="card pub-card" style="border-top:2px solid ${bc};margin-bottom:10px">
+      <div class="pub-emoji">${pub.img}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8;margin-bottom:5px;flex-wrap:wrap">
+          <span style="font-size:14px;font-weight:700">${pub.nom}</span>
+          ${badge(pub.statut)}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:7px">${pub.partenaire} · ${pub.debut} → ${pub.fin}</div>
+        <div>
+          ${pub.villes.map(v=>`<span class="chip" style="color:var(--gold);border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.1)">📍 ${v} · ${pub.rayon}km</span>`).join('')}
+          ${pub.segments.map(s=>`<span class="chip" style="color:${SEG_COLORS[s]||'#888'};border-color:${SEG_COLORS[s]||'#888'}30;background:${SEG_COLORS[s]||'#888'}15">● ${s}</span>`).join('')}
+        </div>
+      </div>
+      <div style="text-align:right;min-width:110px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Impressions</div>
+        <div style="font-size:18px;font-weight:700;font-family:monospace">${pub.impressions.toLocaleString('fr')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">${pub.clics} clics · ${ctr}%</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6;align-items:flex-end">
+        <button class="btn" onclick="togglePub(${pub.id})"
+          style="background:${pub.statut==='active'?'rgba(248,113,113,.1)':'rgba(52,211,153,.1)'};border-color:${pub.statut==='active'?'var(--red)':'var(--green)'};color:${pub.statut==='active'?'var(--red)':'var(--green)'}">
+          ${pub.statut==='active'?'⏸ Pause':'▶ Activer'}
+        </button>
+        <div style="font-size:10px;color:var(--muted)">Budget : ${pub.budget}€</div>
+      </div>
+    </div>`
+  }).join('')
+}
+function togglePub(id){PUBS=PUBS.map(p=>p.id===id?{...p,statut:p.statut==='active'?'pausée':'active'}:p);renderPubs()}
+
+// ── VILLES ────────────────────────────────────────────────────
+function renderVilles(){
+  const maxU=Math.max(...VILLES.map(v=>v.users))
+  document.getElementById('villes-grid').innerHTML=VILLES.map((v,i)=>{
+    const aboV=ABONNES.filter(a=>a.ville===v.nom)
+    const mrrV=aboV.reduce((s,a)=>s+a.mrr,0)
+    const pubsV=PUBS.filter(p=>p.villes.includes(v.nom)&&p.statut==='active').length
+    const bc=aboV.length>0?'var(--gold)':'var(--border)'
+    return `<div class="card" style="border-top:2px solid ${bc};animation:fadeUp .4s ease ${i*.05}s both">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10">
+          <span style="font-size:22px">${v.flag}</span>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:${aboV.length>0?'var(--gold)':'var(--text)'}">${v.nom}</div>
+            <div style="font-size:10px;color:var(--muted)">${v.lat.toFixed(2)}°N ${Math.abs(v.lng).toFixed(2)}°${v.lng<0?'O':'E'}</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:700;color:var(--green);font-family:monospace">${v.users.toLocaleString('fr')}</div>
+          <div style="font-size:10px;color:var(--muted)">utilisateurs</div>
+        </div>
+      </div>
+      ${prog((v.users/maxU)*100,'#34D399')}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px">
+        <div class="city-stat"><div style="font-size:16px;margin-bottom:4px">👥</div><div style="font-size:15px;font-weight:700;color:var(--gold);font-family:monospace">${aboV.length}</div><div style="font-size:10px;color:var(--muted)">Abonnés B2B</div></div>
+        <div class="city-stat"><div style="font-size:16px;margin-bottom:4px">💶</div><div style="font-size:15px;font-weight:700;color:var(--green);font-family:monospace">${mrrV}€</div><div style="font-size:10px;color:var(--muted)">MRR local</div></div>
+        <div class="city-stat"><div style="font-size:16px;margin-bottom:4px">📢</div><div style="font-size:15px;font-weight:700;color:var(--blue);font-family:monospace">${pubsV}</div><div style="font-size:10px;color:var(--muted)">Pubs actives</div></div>
+      </div>
+    </div>`
+  }).join('')
+  animateProgs()
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function goTab(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'))
+  document.getElementById('screen-'+tab).classList.add('active')
+  document.querySelectorAll('.tab-btn').forEach(b=>{if(b.textContent.toLowerCase().includes(tab==='overview'?'aperçu':tab==='abonnes'?'abonnés':tab==='pubs'?'pub':tab)) b.classList.add('active')})
+  activeTab=tab
+  if(tab==='overview') renderOverview()
+  if(tab==='abonnes') renderAbonnes()
+  if(tab==='pubs') renderPubs()
+  if(tab==='villes') renderVilles()
+}
+
+// Fix tab active on click
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')})
+})
+
+// ── MODAL ─────────────────────────────────────────────────────
+const EMOJIS=['📢','🍽️','🥩','📚','👗','🌸','✈️','🏦','🕌','🎓']
+function openModal(){
+  modalVilles=[];modalSegs=[];modalEmoji='📢'
+  document.getElementById('emoji-picker').innerHTML=EMOJIS.map(e=>`<button onclick="pickEmoji('${e}')" id="em-${e}" style="font-size:20px;padding:6px 10px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:${e==='📢'?'rgba(201,168,76,.2)':'transparent'};border-color:${e==='📢'?'var(--gold)':'rgba(255,255,255,.1)'}">${e}</button>`).join('')
+  document.getElementById('ville-picker').innerHTML=VILLES.map(v=>`<button class="select-btn" id="vp-${v.nom}" onclick="toggleModalVille('${v.nom}')">${v.flag} ${v.nom}</button>`).join('')
+  document.getElementById('seg-picker').innerHTML=SEGMENTS.map(s=>`<button class="select-btn" id="sp-${s}" onclick="toggleModalSeg('${s}')">${s}</button>`).join('')
+  document.getElementById('modal').classList.add('open')
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function pickEmoji(e){modalEmoji=e;document.getElementById('emoji-picker').querySelectorAll('button').forEach(b=>{b.style.background='transparent';b.style.borderColor='rgba(255,255,255,.1)'});const el=document.getElementById('em-'+e);if(el){el.style.background='rgba(201,168,76,.2)';el.style.borderColor='var(--gold)'}}
+function toggleModalVille(v){if(modalVilles.includes(v)){modalVilles=modalVilles.filter(x=>x!==v);document.getElementById('vp-'+v)?.classList.remove('on')}else{modalVilles.push(v);document.getElementById('vp-'+v)?.classList.add('on')}updateRecap()}
+function toggleModalSeg(s){if(modalSegs.includes(s)){modalSegs=modalSegs.filter(x=>x!==s);document.getElementById('sp-'+s)?.classList.remove('on')}else{modalSegs.push(s);document.getElementById('sp-'+s)?.classList.add('on')}updateRecap()}
+function updateRecap(){
+  const rayon=document.getElementById('f-rayon')?.value||5
+  const recap=document.getElementById('recap-auto')
+  if(modalVilles.length>0){
+    recap.style.display='block'
+    recap.innerHTML=`<span style="color:var(--gold);font-weight:700">⚡ Ce qui se passe automatiquement : </span>Dès qu'un utilisateur FADJR ouvre l'app dans un rayon de <strong style="color:var(--text)">${rayon} km</strong> autour de <strong style="color:var(--text)">${modalVilles.join(', ')}</strong>, ta pub s'affiche. Zéro action manuelle.`
+  }else{recap.style.display='none'}
+}
+function saveCampagne(){
+  const nom=document.getElementById('f-nom').value||'Nouvelle campagne'
+  const partenaire=document.getElementById('f-partenaire').value||'—'
+  const budget=+document.getElementById('f-budget').value||100
+  const rayon=+document.getElementById('f-rayon').value||5
+  const debut=document.getElementById('f-debut').value||'2026'
+  const fin=document.getElementById('f-fin').value||'2026'
+  PUBS.push({id:PUBS.length+1,nom,partenaire,villes:modalVilles,segments:modalSegs,rayon,budget,impressions:0,clics:0,statut:'active',debut,fin,img:modalEmoji})
+  closeModal();renderPubs()
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderOverview()
+document.getElementById('f-rayon')?.addEventListener('input',updateRecap)
+</script>
+</body>
+</html>

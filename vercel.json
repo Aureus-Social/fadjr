@@ -5,6 +5,10 @@
     {
       "source": "/app",
       "destination": "/app.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
     }
   ],
   "headers": [
