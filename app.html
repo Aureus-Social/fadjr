@@ -697,6 +697,9 @@ const DHIKR_LIST = [
 // ── STATE ─────────────────────────────────────────────────────
 let prayers=[], nextP=null, activeTab='accueil', activeCat='Tous'
 let dhikrIdx=0, dhikrCount=0, activeSubtab='horaires'
+let activeCarte='Bruxelles'
+let favoris=JSON.parse(localStorage.getItem('fadjr_favoris')||'[]')
+let obCurrent=0
 
 // ── DATE ─────────────────────────────────────────────────────
 const now=new Date()
@@ -1604,7 +1607,6 @@ renderAsma()
 
 
 // ── CARTE VILLES ──────────────────────────────────────────────
-let activeCarte = 'Bruxelles'
 
 function setCarteCity(el, city, lat, lng){
   activeCarte = city
@@ -1638,10 +1640,11 @@ function locateMe(){
 // ── PRIÈRE SUBTABS ────────────────────────────────────────────
 function setPriereTab(el, tab){
   ['horaires','qibla','douas'].forEach(t=>{
-    document.getElementById('pt-content-'+t).style.display = t===tab ? 'block' : 'none'
+    const el2=document.getElementById('pt-content-'+t)
+    if(el2) el2.style.display = t===tab ? 'block' : 'none'
   })
   document.querySelectorAll('.subtab').forEach(b=>b.classList.remove('active'))
-  el.classList.add('active')
+  if(el) el.classList.add('active')
   if(tab==='qibla') updateQibla(50.8503, 4.3517)
   if(tab==='douas') renderDouas()
 }
@@ -1732,7 +1735,6 @@ updateGreeting()
 
 
 // ── ONBOARDING ────────────────────────────────────────────────
-let obCurrent = 0
 const OB_TOTAL = 5
 
 function initOnboarding(){
@@ -1798,7 +1800,6 @@ function finishOnboarding(){
 function skipOnboarding(){ finishOnboarding() }
 
 // ── FAVORIS ────────────────────────────────────────────────────
-let favoris = JSON.parse(localStorage.getItem('fadjr_favoris')||'[]')
 
 function toggleFavori(id){
   const idx = favoris.indexOf(id)
