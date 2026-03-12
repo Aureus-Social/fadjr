@@ -1870,7 +1870,7 @@ function playAdhan(){
   if(adhanAudio){ adhanAudio.pause(); adhanAudio = null; return }
   adhanAudio = new Audio('https://download.quranicaudio.com/quran/mishari_alafasy/001.mp3')
   adhanAudio.volume = 0.8
-  adhanAudio.play().catch(()=>showToast('⚠️ Autorisez l'audio dans votre navigateur'))
+  adhanAudio.play().catch(()=>showToast("⚠️ Autorisez l'audio dans votre navigateur"))
   adhanAudio.onended = ()=>{ adhanAudio = null }
 }
 
