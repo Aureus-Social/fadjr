@@ -13,17 +13,17 @@
       "backgroundColor": "#0A0A14"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "app.fadjr"
+      "supportsTablet": false,
+      "bundleIdentifier": "app.fadjr",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1a1a2e"
+        "backgroundColor": "#07070F"
       },
       "package": "app.fadjr",
-      "targetSdkVersion": 35,
-      "compileSdkVersion": 35
+      "versionCode": 1
     },
     "extra": {
       "eas": {
