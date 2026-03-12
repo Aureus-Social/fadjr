@@ -27,12 +27,7 @@
       "compileSdkVersion": 35,
       "newArchEnabled": false
     },
-    "extra": {
-      "eas": {
-        "projectId": "02599b38-057d-438c-a2e3-3c43f43bf7e6"
-      }
-    },
-    "owner": "aureus-social",
+    "extra": {},
     "newArchEnabled": false
   }
 }
