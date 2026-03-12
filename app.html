@@ -286,7 +286,13 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
     <!-- PRIÈRE -->
     <div class="screen" id="screen-priere">
-      <div style="height:16px"></div>
+      <div style="height:12px"></div>
+      <div class="subtabs" style="margin-bottom:12px">
+        <button class="subtab active" onclick="setPriereTab(this,'horaires')" id="pt-horaires">🕌 Horaires</button>
+        <button class="subtab" onclick="setPriereTab(this,'qibla')" id="pt-qibla">🧭 Qibla</button>
+        <button class="subtab" onclick="setPriereTab(this,'douas')" id="pt-douas">🤲 Douas</button>
+      </div>
+      <div id="pt-content-horaires" style="display:block">
       <div class="screen-header">
         <div class="sec-label">PRIÈRE & SPIRITUALITÉ</div>
         <div class="screen-title">☪ Bruxelles, Belgique</div>
@@ -328,10 +334,34 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
     <!-- CARTE HALAL -->
     <div class="screen" id="screen-carte">
-      <div style="height:16px"></div>
-      <div class="screen-header">
-        <div class="sec-label">CARTE HALAL BRUXELLES</div>
+      <div style="height:12px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:9px;letter-spacing:.2em;color:var(--muted)">CARTE HALAL</div>
+          <div style="font-size:16px;font-weight:900" id="carte-city">Bruxelles</div>
+        </div>
+        <button onclick="locateMe()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif">📍 Me localiser</button>
       </div>
+
+      <!-- Mini map -->
+      <div style="border-radius:12px;overflow:hidden;margin-bottom:12px;border:1px solid var(--border);position:relative">
+        <iframe id="halal-map" 
+          src="https://www.openstreetmap.org/export/embed.html?bbox=4.3017%2C50.8203%2C4.4017%2C50.8803&layer=mapnik&marker=50.8503%2C4.3517"
+          style="width:100%;height:180px;border:none;filter:invert(90%) hue-rotate(180deg)" 
+          loading="lazy"></iframe>
+        <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);padding:4px 8px;border-radius:6px;font-size:9px;color:var(--gold)">OpenStreetMap</div>
+      </div>
+
+      <!-- Ville selector -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px" class="filter-row">
+        <button onclick="setCarteCity(this,'Bruxelles',50.8503,4.3517)" class="filter-chip active" id="city-bxl">Bruxelles</button>
+        <button onclick="setCarteCity(this,'Paris',48.8566,2.3522)" class="filter-chip" id="city-par">Paris</button>
+        <button onclick="setCarteCity(this,'Casablanca',33.5731,-7.5898)" class="filter-chip" id="city-cas">Casablanca</button>
+        <button onclick="setCarteCity(this,'Anvers',51.2194,4.4025)" class="filter-chip" id="city-anv">Anvers</button>
+        <button onclick="setCarteCity(this,'Lyon',45.7640,4.8357)" class="filter-chip" id="city-lyo">Lyon</button>
+        <button onclick="setCarteCity(this,'Liège',50.6326,5.5797)" class="filter-chip" id="city-lie">Liège</button>
+      </div>
+
       <input class="search-box" placeholder="🔍  Chercher un commerce halal..." oninput="filterCommerces(this.value)" id="search-input">
       <div class="filter-row" id="filter-row"></div>
       <div id="commerce-list"></div>
@@ -611,6 +641,18 @@ const COMMERCES = [
   {id:6,nom:"Omra Express Belgique",type:"Voyage",adresse:"Av. de Stalingrad 55, Saint-Gilles",dist:"2.1 km",note:4.9,certif:"FADJR",emoji:"✈️",color:"#2980B9",ouvert:true,spec:"Omra, Hajj, voyages halal-friendly"},
   {id:7,nom:"École Dar Al Ilm",type:"École",adresse:"Rue de la Colonne 7, Anderlecht",dist:"2.4 km",note:5.0,certif:"FADJR",emoji:"🎓",color:"#27AE60",ouvert:true,spec:"Coran, tajwid, arabe, tous niveaux"},
   {id:8,nom:"Takaful Belux",type:"Finance",adresse:"Bd Anspach 110, Bruxelles",dist:"2.9 km",note:4.4,certif:"FADJR",emoji:"🏦",color:"#8E44AD",ouvert:true,spec:"Assurance islamique, épargne halal"},
+  // Paris
+  {id:9,nom:"Mosquée de Paris",type:"Mosquée",adresse:"2bis Place du Puits de l'Ermite, Paris",dist:"1.2 km",note:4.9,certif:"FADJR",emoji:"🕌",color:"#C9A84C",ouvert:true,spec:"Grande Mosquée de Paris, restaurant halal",ville:"Paris"},
+  {id:10,nom:"Al Diwan",type:"Restaurant",adresse:"30 Rue de Ponthieu, Paris 8e",dist:"0.8 km",note:4.7,certif:"HBE",emoji:"🍽️",color:"#C9A84C",ouvert:true,spec:"Cuisine libanaise, mezze, grillades halal",ville:"Paris"},
+  {id:11,nom:"Boucherie El Baraka",type:"Boucherie",adresse:"Rue de la Goutte d'Or 45, Paris 18e",dist:"1.5 km",note:4.6,certif:"AVS",emoji:"🥩",color:"#C0392B",ouvert:true,spec:"Agneau, veau, volaille halal certifié",ville:"Paris"},
+  {id:12,nom:"Saphir Finance",type:"Finance",adresse:"12 Rue de la Paix, Paris 2e",dist:"2.1 km",note:4.5,certif:"FADJR",emoji:"🏦",color:"#8E44AD",ouvert:true,spec:"Financement immobilier halal, épargne islamique",ville:"Paris"},
+  // Casablanca
+  {id:13,nom:"Restaurant Dar Zitoun",type:"Restaurant",adresse:"Bd d'Anfa 88, Casablanca",dist:"0.5 km",note:4.8,certif:"FADJR",emoji:"🍽️",color:"#C9A84C",ouvert:true,spec:"Cuisine marocaine traditionnelle, tajines",ville:"Casablanca"},
+  {id:14,nom:"Librairie Al Qalam",type:"Librairie",adresse:"Rue Mohamed V 34, Casablanca",dist:"0.9 km",note:4.7,certif:"FADJR",emoji:"📚",color:"#7D5A3C",ouvert:true,spec:"Livres islamiques, Coran, Arabic language",ville:"Casablanca"},
+  {id:15,nom:"Parfums Andalous",type:"Parfumerie",adresse:"Derb Omar 12, Casablanca",dist:"1.3 km",note:4.9,certif:"FADJR",emoji:"🌸",color:"#16A085",ouvert:true,spec:"Oud, rose, musc naturel du Maroc",ville:"Casablanca"},
+  // Anvers
+  {id:16,nom:"Halal Market Antwerp",type:"Boucherie",adresse:"Borgerhout Turnhoutsebaan 45, Anvers",dist:"0.6 km",note:4.5,certif:"HBE",emoji:"🥩",color:"#C0392B",ouvert:true,spec:"Boucherie + épicerie halal, produits orientaux",ville:"Anvers"},
+  {id:17,nom:"Omra Travel Antwerp",type:"Voyage",adresse:"Statiestraat 78, Anvers",dist:"1.2 km",note:4.8,certif:"FADJR",emoji:"✈️",color:"#2980B9",ouvert:true,spec:"Omra, Hajj, voyages Turquie, Egypte",ville:"Anvers"},
 ]
 const CATS = ["Tous","Restaurant","Boucherie","Librairie","Boutique","Parfumerie","Voyage","École","Finance"]
 const PRAYERS_AR = {Fajr:"الفجر",Sunrise:"الشروق",Dhuhr:"الظهر",Asr:"العصر",Maghrib:"المغرب",Isha:"العشاء"}
@@ -719,7 +761,7 @@ function renderAccueilCommerces(){
 }
 
 function renderAllCommerces(search=''){
-  const filtered=COMMERCES.filter(c=>(activeCat==='Tous'||c.type===activeCat)&&(c.nom.toLowerCase().includes(search.toLowerCase())||c.spec.toLowerCase().includes(search.toLowerCase())))
+  const filtered=COMMERCES.filter(c=>(activeCat==='Tous'||c.type===activeCat)&&(!c.ville||c.ville===activeCarte||activeCarte==='Bruxelles'&&!c.ville)&&(c.nom.toLowerCase().includes(search.toLowerCase())||c.spec.toLowerCase().includes(search.toLowerCase())))
   document.getElementById('commerce-list').innerHTML=filtered.map(commerceCard).join('')||'<div style="text-align:center;color:var(--muted);padding:40px">Aucun résultat</div>'
 }
 
@@ -1522,6 +1564,134 @@ function selectAsmaForTasbih(n){
 }
 
 renderAsma()
+
+
+// ── CARTE VILLES ──────────────────────────────────────────────
+let activeCarte = 'Bruxelles'
+
+function setCarteCity(el, city, lat, lng){
+  activeCarte = city
+  document.querySelectorAll('[id^="city-"]').forEach(b=>b.classList.remove('active'))
+  el.classList.add('active')
+  document.getElementById('carte-city').textContent = city
+  // Update map
+  const bbox_delta = 0.05
+  const map = document.getElementById('halal-map')
+  if(map) map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-bbox_delta}%2C${lat-bbox_delta}%2C${lng+bbox_delta}%2C${lat+bbox_delta}&layer=mapnik&marker=${lat}%2C${lng}`
+  renderFilters()
+  renderAllCommerces()
+}
+
+function locateMe(){
+  if(!navigator.geolocation){ alert('Géolocalisation non disponible'); return }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude:lat, longitude:lng} = pos.coords
+    const map = document.getElementById('halal-map')
+    const d = 0.05
+    if(map) map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-d}%2C${lat-d}%2C${lng+d}%2C${lat+d}&layer=mapnik&marker=${lat}%2C${lng}`
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+      .then(r=>r.json()).then(d2=>{
+        const city = d2.address?.city || d2.address?.town || 'Votre ville'
+        document.getElementById('carte-city').textContent = city + ' 📍'
+        activeCarte = city
+      })
+  }, ()=>alert('Autorisation GPS refusée'))
+}
+
+// ── PRIÈRE SUBTABS ────────────────────────────────────────────
+function setPriereTab(el, tab){
+  ['horaires','qibla','douas'].forEach(t=>{
+    document.getElementById('pt-content-'+t).style.display = t===tab ? 'block' : 'none'
+  })
+  document.querySelectorAll('.subtab').forEach(b=>b.classList.remove('active'))
+  el.classList.add('active')
+  if(tab==='qibla') updateQibla(50.8503, 4.3517)
+  if(tab==='douas') renderDouas()
+}
+
+// ── QIBLA ─────────────────────────────────────────────────────
+function getQiblaAngle(lat, lng){
+  const mkkLat = 21.4225 * Math.PI / 180
+  const mkkLng = 39.8262 * Math.PI / 180
+  const myLat  = lat * Math.PI / 180
+  const myLng  = lng * Math.PI / 180
+  const dLng   = mkkLng - myLng
+  const y = Math.sin(dLng) * Math.cos(mkkLat)
+  const x = Math.cos(myLat)*Math.sin(mkkLat) - Math.sin(myLat)*Math.cos(mkkLat)*Math.cos(dLng)
+  let angle = Math.atan2(y, x) * 180 / Math.PI
+  return (angle + 360) % 360
+}
+
+function getDistToMecca(lat, lng){
+  const R = 6371
+  const dLat = (21.4225 - lat) * Math.PI / 180
+  const dLon = (39.8262 - lng) * Math.PI / 180
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat*Math.PI/180)*Math.cos(21.4225*Math.PI/180)*Math.sin(dLon/2)**2
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))
+}
+
+function updateQibla(lat, lng){
+  const angle = getQiblaAngle(lat, lng)
+  const dist  = getDistToMecca(lat, lng)
+  const needle = document.getElementById('qibla-needle')
+  const degEl  = document.getElementById('qibla-deg')
+  const distEl = document.getElementById('qibla-dist')
+  if(needle) needle.style.transform = `translateX(-50%) rotate(${angle}deg)`
+  if(degEl)  degEl.textContent = Math.round(angle) + '°'
+  if(distEl) distEl.textContent = dist.toLocaleString() + ' km'
+}
+
+function getQiblaFromGPS(){
+  if(!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(pos=>{
+    updateQibla(pos.coords.latitude, pos.coords.longitude)
+  })
+}
+
+// ── DOUAS ─────────────────────────────────────────────────────
+const DOUAS = [
+  { titre:"Au réveil", ar:"الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", fr:"Louange à Allah qui nous a redonné la vie après nous avoir donné la mort, et c'est à Lui que sera la résurrection." },
+  { titre:"Avant de dormir", ar:"بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا", fr:"En Ton nom ô Allah, je meurs et je vis." },
+  { titre:"Avant de manger", ar:"بِسْمِ اللَّهِ وَعَلَى بَرَكَةِ اللَّهِ", fr:"Au nom d'Allah et avec la bénédiction d'Allah." },
+  { titre:"Après avoir mangé", ar:"الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ", fr:"Louange à Allah qui nous a nourris, désaltérés et fait musulmans." },
+  { titre:"En sortant de chez soi", ar:"بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", fr:"Au nom d'Allah, je me confie à Allah, il n'y a de force et de puissance que par Allah." },
+  { titre:"En entrant chez soi", ar:"اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ الْمَوْلِجِ وَخَيْرَ الْمَخْرَجِ", fr:"Ô Allah, je Te demande le meilleur de l'entrée et le meilleur de la sortie." },
+  { titre:"Avant de prendre le volant", ar:"سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ", fr:"Gloire à Celui qui nous a soumis cela alors que nous n'aurions pu le faire." },
+  { titre:"Doua pour les parents", ar:"رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ", fr:"Seigneur, pardonne-moi ainsi qu'à mes parents." },
+  { titre:"Pour l'angoisse", ar:"لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ", fr:"Il n'y a pas de divinité sauf Toi, Gloire à Toi, j'étais vraiment du nombre des injustes." },
+  { titre:"Pour la réussite", ar:"رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي", fr:"Seigneur, ouvre ma poitrine et facilite-moi ma tâche." },
+  { titre:"Pour la protection", ar:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", fr:"Je cherche refuge dans les paroles parfaites d'Allah contre le mal de tout ce qu'Il a créé." },
+  { titre:"Avant de dormir (Ayat al-Kursi)", ar:"اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ", fr:"Allah, pas de divinité sauf Lui, le Vivant, le Subsistant — Verset du Trône." },
+]
+
+function renderDouas(){
+  const el = document.getElementById('douas-list')
+  if(!el) return
+  el.innerHTML = DOUAS.map((d,i) => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer" onclick="this.querySelector('.doua-fr').style.display=this.querySelector('.doua-fr').style.display==='none'?'block':'none'">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.05em">🤲 ${d.titre}</div>
+        <div style="font-size:10px;color:var(--muted)">Appuyer pour trad.</div>
+      </div>
+      <div style="font-family:'Tajawal',sans-serif;font-size:16px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">${d.ar}</div>
+      <div class="doua-fr" style="display:none;font-size:11px;color:var(--muted);margin-top:10px;font-style:italic;line-height:1.7;border-top:1px solid var(--border);padding-top:10px">${d.fr}</div>
+    </div>`).join('')
+}
+
+// ── ACCUEIL greeting update ────────────────────────────────────
+function updateGreeting(){
+  const h = new Date().getHours()
+  const greeting = h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir'
+  const el = document.getElementById('accueil-greeting')
+  if(el) el.textContent = greeting
+  // Update username if not logged in
+  const unEl = document.getElementById('accueil-username')
+  if(unEl && unEl.textContent === 'Bienvenue 👋') {
+    const saved = localStorage.getItem('fadjr_name')
+    if(saved) unEl.textContent = saved + ' 👋'
+  }
+}
+updateGreeting()
 
 </script>
 </body>
