@@ -178,6 +178,30 @@ const SUPA_URL = "https://bpvrqphmxrnjrbjtaxuw.supabase.co"
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnJxcGhteHJuanJianRheHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTQ0MjMsImV4cCI6MjA4ODczMDQyM30.9WaS5gYPcB2d11S604xpu4hZmwtV55yDlxxgNUaZEwA"
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 </script>
+
+<style>
+.ob-slide { animation: obFadeIn .4s ease }
+@keyframes obFadeIn { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
+@keyframes obFloat { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-12px) } }
+.ob-dot { width:8px;height:8px;border-radius:50%;background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.3);cursor:pointer;transition:.3s }
+.ob-dot.active { background:#C9A84C;width:24px;border-radius:4px }
+</style>
+
+<style>
+.screen { animation: screenIn .3s ease }
+@keyframes screenIn { from { opacity:0; transform:translateX(12px) } to { opacity:1; transform:translateX(0) } }
+.tab-btn { transition: all .2s ease }
+.tab-btn.active .tab-icon { transform: scale(1.15); display:block; transition:.2s }
+.pilier-btn { transition: transform .15s ease, box-shadow .15s ease }
+.pilier-btn:active { transform: scale(.94) }
+.card { transition: transform .15s ease }
+.card:active { transform: scale(.98) }
+</style>
+
+<style>
+.share-toast { position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(201,168,76,.95);color:#07070F;padding:10px 20px;border-radius:99px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:.3s;pointer-events:none;font-family:'Cairo',sans-serif }
+.share-toast.show { opacity:1 }
+</style>
 </head>
 <body>
 
@@ -231,14 +255,20 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">✦ Verset du jour</div>
         <div id="verset-ar" style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;text-align:right;line-height:1.8;color:var(--white);margin-bottom:8px">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
         <div id="verset-fr" style="font-size:11px;color:var(--muted);line-height:1.7;font-style:italic">Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux</div>
-        <div id="verset-ref" style="font-size:9px;color:rgba(201,168,76,.5);margin-top:8px;letter-spacing:.1em">Sourate 1 · Al-Fatiha · Verset 1</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+          <div id="verset-ref" style="font-size:9px;color:rgba(201,168,76,.5);letter-spacing:.1em">Sourate 1 · Al-Fatiha · Verset 1</div>
+          <button onclick="shareVerset()" style="background:transparent;border:none;color:rgba(201,168,76,.5);font-size:16px;cursor:pointer;padding:0">↗</button>
+        </div>
       </div>
 
       <!-- Hadith du jour -->
       <div id="hadith-card" style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
         <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">📜 Hadith du jour</div>
         <div id="hadith-text" style="font-size:12px;color:var(--white);line-height:1.8">Chargement...</div>
-        <div id="hadith-source" style="font-size:9px;color:var(--muted);margin-top:6px"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+          <div id="hadith-source" style="font-size:9px;color:var(--muted)"></div>
+          <button onclick="shareHadith()" style="background:transparent;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:0">↗</button>
+        </div>
       </div>
 
       <!-- Prochaine prière mini -->
@@ -736,24 +766,31 @@ function renderPrayers(){
 
 // ── COMMERCES ────────────────────────────────────────────────
 function commerceCard(c){
-  return `<div class="card">
-    <div class="card-row">
-      <div class="emoji-box" style="background:${c.color}18">${c.emoji}</div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div class="card-title">${c.nom}</div>
-          <div class="card-dist">${c.dist}</div>
-        </div>
-        <div class="card-meta">${'★'.repeat(Math.floor(c.note))} ${c.note}</div>
-        <div class="card-desc">${c.adresse}</div>
-        <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span class="badge" style="color:${c.color};border-color:${c.color}40;background:${c.color}10">${c.certif}</span>
-          <span class="${c.ouvert?'ouvert':'ferme'}">${c.ouvert?'● Ouvert':'● Fermé'}</span>
-        </div>
-        <div class="card-desc" style="margin-top:6px">${c.spec}</div>
-      </div>
-    </div>
-  </div>`
+  const fav = isFavori(c.id)
+  const favStyle = fav ? 'background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:#E74C3C' : 'background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted)'
+  const favLabel = fav ? '❤️ Favori' : '🤍 Favori'
+  return '<div class="card">' +
+    '<div class="card-row">' +
+      '<div class="emoji-box" style="background:'+c.color+'18">'+c.emoji+'</div>' +
+      '<div style="flex:1">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+          '<div class="card-title">'+c.nom+'</div>' +
+          '<div class="card-dist">'+c.dist+'</div>' +
+        '</div>' +
+        '<div class="card-meta">'+'★'.repeat(Math.floor(c.note))+' '+c.note+'</div>' +
+        '<div class="card-desc">'+c.adresse+'</div>' +
+        '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+          '<span class="badge" style="color:'+c.color+';border-color:'+c.color+'40;background:'+c.color+'10">'+c.certif+'</span>' +
+          '<span class="'+(c.ouvert?'ouvert':'ferme')+'">'+(c.ouvert?'● Ouvert':'● Fermé')+'</span>' +
+        '</div>' +
+        '<div class="card-desc" style="margin-top:6px">'+c.spec+'</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)">' +
+      '<button onclick="toggleFavori('+c.id+')" style="flex:1;'+favStyle+';padding:8px;border-radius:8px;font-size:12px;cursor:pointer;font-family:Cairo,sans-serif">'+favLabel+'</button>' +
+      '<button onclick="shareCommerce('+c.id+')" style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);padding:8px;border-radius:8px;font-size:12px;cursor:pointer;font-family:Cairo,sans-serif">&#8599; Partager</button>' +
+    '</div>' +
+  '</div>'
 }
 
 function renderAccueilCommerces(){
@@ -1693,6 +1730,232 @@ function updateGreeting(){
 }
 updateGreeting()
 
+
+// ── ONBOARDING ────────────────────────────────────────────────
+let obCurrent = 0
+const OB_TOTAL = 5
+
+function initOnboarding(){
+  // Skip if already seen
+  if(localStorage.getItem('fadjr_ob_done')){
+    document.getElementById('onboarding').style.display = 'none'
+    return
+  }
+  // Draw stars
+  const canvas = document.getElementById('ob-stars')
+  if(canvas){
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    const ctx = canvas.getContext('2d')
+    for(let i=0;i<150;i++){
+      const x = Math.random()*canvas.width
+      const y = Math.random()*canvas.height
+      const r = Math.random()*1.5+0.5
+      const a = Math.random()*0.6+0.1
+      ctx.beginPath()
+      ctx.arc(x,y,r,0,Math.PI*2)
+      ctx.fillStyle = `rgba(201,168,76,${a})`
+      ctx.fill()
+    }
+  }
+  // Swipe support
+  let touchStartX = 0
+  const ob = document.getElementById('onboarding')
+  ob.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX }, {passive:true})
+  ob.addEventListener('touchend', e=>{
+    const diff = touchStartX - e.changedTouches[0].clientX
+    if(Math.abs(diff) > 50){ diff > 0 ? nextObSlide() : prevObSlide() }
+  }, {passive:true})
+}
+
+function goObSlide(n){
+  document.getElementById('ob-'+obCurrent).style.display='none'
+  obCurrent = n
+  document.getElementById('ob-'+obCurrent).style.display='block'
+  document.querySelectorAll('.ob-dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===obCurrent)
+  })
+  // Hide next button on last slide
+  const nextBtn = document.getElementById('ob-next')
+  const skipBtn = document.getElementById('ob-skip')
+  if(nextBtn) nextBtn.style.display = obCurrent===OB_TOTAL-1 ? 'none' : 'block'
+  if(skipBtn) skipBtn.style.display = obCurrent===OB_TOTAL-1 ? 'none' : 'block'
+}
+
+function nextObSlide(){
+  if(obCurrent < OB_TOTAL-1) goObSlide(obCurrent+1)
+}
+function prevObSlide(){
+  if(obCurrent > 0) goObSlide(obCurrent-1)
+}
+
+function finishOnboarding(){
+  localStorage.setItem('fadjr_ob_done', '1')
+  const ob = document.getElementById('onboarding')
+  ob.style.opacity = '0'
+  setTimeout(()=>{ ob.style.display='none' }, 500)
+}
+function skipOnboarding(){ finishOnboarding() }
+
+// ── FAVORIS ────────────────────────────────────────────────────
+let favoris = JSON.parse(localStorage.getItem('fadjr_favoris')||'[]')
+
+function toggleFavori(id){
+  const idx = favoris.indexOf(id)
+  if(idx === -1){
+    favoris.push(id)
+    showToast('❤️ Ajouté aux favoris')
+  } else {
+    favoris.splice(idx, 1)
+    showToast('💔 Retiré des favoris')
+  }
+  localStorage.setItem('fadjr_favoris', JSON.stringify(favoris))
+  // Re-render to update heart icons
+  renderAllCommerces(document.getElementById('search-input')?.value||'')
+  renderAccueilCommerces()
+  // Update count in profil
+  const el = document.getElementById('user-favoris')
+  if(el) el.textContent = favoris.length
+}
+
+function isFavori(id){ return favoris.includes(id) }
+
+// ── SHARE ──────────────────────────────────────────────────────
+function shareVerset(){
+  const ar = document.getElementById('verset-ar')?.textContent || ''
+  const fr = document.getElementById('verset-fr')?.textContent || ''
+  const ref = document.getElementById('verset-ref')?.textContent || ''
+  const text = ar + '\n\n' + fr + '\n— ' + ref + '\n\n📲 FADJR App — fadjr.app'
+  if(navigator.share){
+    navigator.share({ title: 'Verset du jour — FADJR', text })
+  } else {
+    navigator.clipboard.writeText(text).then(()=>showToast('✓ Verset copié !'))
+  }
+}
+
+function shareHadith(){
+  const text = document.getElementById('hadith-text')?.textContent || ''
+  const src = document.getElementById('hadith-source')?.textContent || ''
+  const share = text + ' ' + src + '\n\n📲 FADJR App — fadjr.app'
+  if(navigator.share){
+    navigator.share({ title: 'Hadith du jour — FADJR', text: share })
+  } else {
+    navigator.clipboard.writeText(share).then(()=>showToast('✓ Hadith copié !'))
+  }
+}
+
+function shareCommerce(id){
+  const c = COMMERCES.find(x=>x.id===id)
+  if(!c) return
+  const text = c.emoji + ' ' + c.nom + '\n' + c.adresse + '\n' + c.spec + '\n\n📲 Trouvé sur FADJR — fadjr.app'
+  if(navigator.share){
+    navigator.share({ title: c.nom + ' — FADJR Halal', text })
+  } else {
+    navigator.clipboard.writeText(text).then(()=>showToast('✓ Copié !'))
+  }
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg){
+  const el = document.getElementById('share-toast')
+  if(!el) return
+  el.textContent = msg
+  el.classList.add('show')
+  setTimeout(()=>el.classList.remove('show'), 2200)
+}
+
+// ── AUDIO ADHAN ────────────────────────────────────────────────
+let adhanAudio = null
+function playAdhan(){
+  if(adhanAudio){ adhanAudio.pause(); adhanAudio = null; return }
+  adhanAudio = new Audio('https://download.quranicaudio.com/quran/mishari_alafasy/001.mp3')
+  adhanAudio.volume = 0.8
+  adhanAudio.play().catch(()=>showToast('⚠️ Autorisez l'audio dans votre navigateur'))
+  adhanAudio.onended = ()=>{ adhanAudio = null }
+}
+
+// ── IMPROVED goTab with animation ─────────────────────────────
+const _origGoTab = window.goTab
+
+initOnboarding()
 </script>
+
+<!-- ONBOARDING -->
+<div id="onboarding" style="position:fixed;inset:0;background:#07070F;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity .5s">
+  
+  <!-- Stars background -->
+  <canvas id="ob-stars" style="position:absolute;inset:0;pointer-events:none"></canvas>
+  
+  <!-- Slides -->
+  <div id="ob-slides" style="width:100%;max-width:360px;position:relative;z-index:1">
+    
+    <div class="ob-slide active" id="ob-0">
+      <div style="font-size:72px;text-align:center;margin-bottom:24px;animation:obFloat 3s ease-in-out infinite">☪</div>
+      <div style="font-family:'Cinzel',serif;font-size:36px;color:#C9A84C;text-align:center;letter-spacing:4px;margin-bottom:12px">FADJR</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.8">La super-app halal<br>pour ta communauté</div>
+      <div style="font-family:'Tajawal',sans-serif;font-size:20px;direction:rtl;text-align:center;color:#C9A84C;margin-top:20px;opacity:.7">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    </div>
+
+    <div class="ob-slide" id="ob-1" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🕌</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Prière & Qibla</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Horaires en temps réel selon ta position GPS.<br>Direction de la Qibla.<br>Rappels Adhan avant chaque prière.</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:24px">
+        <div style="text-align:center"><div style="font-size:28px">🌙</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">FAJR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌅</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">SHURUK</div></div>
+        <div style="text-align:center"><div style="font-size:28px">☀️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">DHUHR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌤️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ASR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌇</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">MAGHRIB</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌃</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ICHA</div></div>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-2" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">📖</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Coran Complet</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">114 sourates avec texte arabe.<br>5 traductions · 10 récitateurs audio.<br>99 noms d'Allah · Dhikr & Tasbih.</div>
+      <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:16px;margin-top:20px;text-align:center">
+        <div style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;color:#F0EAD8;line-height:1.8">إِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
+        <div style="font-size:11px;color:#888;margin-top:8px;font-style:italic">Certes avec la difficulté vient la facilité</div>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-3" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🍽️</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Halal Near Me</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Restaurants, boucheries, mosquées<br>certifiés halal près de toi.<br>Bruxelles · Paris · Casablanca et plus.</div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap">
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🍽️ Restaurants</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🥩 Boucheries</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">✈️ Voyages</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">📚 Librairies</span>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-4" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🌟</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">100% Gratuit</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">FADJR est et restera gratuit<br>pour toute la communauté.<br>Données hébergées en Europe · RGPD.</div>
+      <button onclick="finishOnboarding()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#F0D080);color:#07070F;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;margin-top:28px;font-family:'Cairo',sans-serif;letter-spacing:.1em">COMMENCER ›</button>
+    </div>
+  </div>
+
+  <!-- Dots -->
+  <div id="ob-dots" style="display:flex;gap:8px;margin-top:32px;position:relative;z-index:1">
+    <div class="ob-dot active" onclick="goObSlide(0)"></div>
+    <div class="ob-dot" onclick="goObSlide(1)"></div>
+    <div class="ob-dot" onclick="goObSlide(2)"></div>
+    <div class="ob-dot" onclick="goObSlide(3)"></div>
+    <div class="ob-dot" onclick="goObSlide(4)"></div>
+  </div>
+
+  <!-- Next / Skip -->
+  <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:1" id="ob-nav">
+    <button onclick="skipOnboarding()" id="ob-skip" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Passer →</button>
+    <button onclick="nextObSlide()" id="ob-next" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Suivant ›</button>
+  </div>
+</div>
+
+<div class="share-toast" id="share-toast">✓ Copié !</div>
 </body>
 </html>
