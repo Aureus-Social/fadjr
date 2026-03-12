@@ -27,7 +27,12 @@
       "compileSdkVersion": 35,
       "newArchEnabled": false
     },
-    "extra": {},
-    "newArchEnabled": false
+    "extra": {
+      "eas": {
+        "projectId": "cec4b75a-6131-4e4a-9cd3-ac64b91bb67f"
+      }
+    },
+    "newArchEnabled": false,
+    "owner": "fadjr"
   }
 }
