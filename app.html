@@ -1997,6 +1997,81 @@ const _origGoTab = window.goTab
 initOnboarding()
 
 // ── DOUAS HISNUL MUSLIM (étendu) ─────────────────────────────
+// ── PHONÉTIQUES ─────────────────────────────────────────────
+const PHONETICS = {
+  "Au réveil": "Alhamdu lillâhi-l-ladhî ahyânâ ba'da mâ amâtanâ wa ilayhi-n-nushûr",
+  "Avant de dormir": "Bismika-llâhumma amûtu wa ahyâ",
+  "Avant de manger": "Bismillâhi wa 'alâ barakati-llâh",
+  "Après avoir mangé": "Alhamdu lillâhi-l-ladhî at'amanâ wa saqânâ wa ja'alanâ muslimîn",
+  "En quittant la maison": "Bismillâhi tawakkaltu 'ala-llâh, wa lâ hawla wa lâ quwwata illâ billâh",
+  "En entrant chez soi": "Bismillâhi walajanâ, wa bismillâhi kharajnâ, wa 'alâ rabbinâ tawakkalnâ",
+  "Pour le voyage": "Subhâna-l-ladhî sakhkhara lanâ hâdhâ wa mâ kunnâ lahû muqrinîn",
+  "Doua contre l'anxiété": "Allâhumma innî a'ûdhu bika mina-l-hammi wa-l-hazan wa-l-'ajzi wa-l-kasal...",
+  "Pour demander pardon": "Astaghfiru-llâha-l-'adhîm alladhî lâ ilâha illâ huwa-l-hayyu-l-qayyûm wa atûbu ilayh",
+  "En cas de maladie": "Bismillâhi arqîk, min kulli shay'in yu'dhîk, min sharri kulli nafsin aw 'aynin hâsid, Allâhu yashfîk",
+  "Salutation sur le Prophète ﷺ": "Allâhumma salli 'alâ Muhammad wa 'alâ âli Muhammad...",
+  "Salat Ibrahim (dans la prière)": "Allâhumma salli 'alâ Muhammadin wa 'alâ âli Muhammad kamâ sallayta 'alâ Ibrâhîm...",
+  // Dhikr du matin/soir
+  "Dhikr du matin — Sayyid al-Istighfar": "Allâhumma anta rabbî lâ ilâha illâ anta, khalaqtanî wa anâ 'abduk...",
+  "Protection du matin": "Bismillâhi-l-ladhî lâ yadurru ma'a-smihi shay'un fi-l-ardi wa lâ fi-s-samâ'",
+  "Dhikr du soir": "Amsaynâ wa amsa-l-mulku lillâh, wa-l-hamdu lillâh, lâ ilâha illâ-llâh wahdahu lâ sharîka lah",
+  "Avant de quitter la maison": "Bismillâhi tawakkaltu 'ala-llâh wa lâ hawla wa lâ quwwata illâ billâh",
+  "Doua du voyage": "Allâhumma innâ nas'aluka fî safarinâ hâdha-l-birra wa-t-taqwâ",
+  "En montant dans un véhicule": "Subhâna-l-ladhî sakhkhara lanâ hâdhâ wa mâ kunnâ lahû muqrinîn",
+  "Après le repas": "Alhamdu lillâhi-l-ladhî at'amanâ wa saqânâ wa ja'alanâ muslimîn",
+  "En oubliant de dire Bismillah": "Bismillâhi awwalahu wa âkhirah",
+  "En entrant chez soi": "Bismillâhi walajanâ wa bismillâhi kharajnâ wa 'alâ rabbinâ tawakkalnâ",
+  "En quittant la maison": "Bismillâhi tawakkaltu 'ala-llâh, wa lâ hawla wa lâ quwwata illâ billâh",
+  // Protection
+  "Ayat al-Kursi": "Allâhu lâ ilâha illâ huwa-l-hayyu-l-qayyûm, lâ ta'khudhuhu sinatun wa lâ nawm...",
+  "Les 3 Quls (protection)": "Qul huwa-llâhu ahad · Qul a'ûdhu bi-rabbi-l-falaq · Qul a'ûdhu bi-rabbi-n-nâs",
+  // Ramadan
+  "En voyant le croissant de Ramadan": "Allâhumma ahillahu 'alaynâ bi-l-amni wa-l-îmân wa-s-salâmati wa-l-islâm",
+  "Doua de l'Iftar": "Allâhumma laka sumtu wa bika âmantu wa 'alayka tawakkaltu wa 'alâ rizqika aftartu",
+  "Doua de la Nuit du Destin": "Allâhumma innaka 'afuwwun tuhibbu-l-'afwa fa'fu 'annî",
+  "Doua du Suhoor": "Nawaytu sawma ghadin 'an adâ'i fardi ramadâna hâdhihi-s-sanati lillâhi ta'âlâ",
+  // Hisnul Muslim
+  "Maître de la demande de pardon (Sayed Al-Istighfar)": "Allâhumma anta rabbî lâ ilâha illâ anta, khalaqtanî wa anâ 'abduk, wa anâ 'alâ 'ahdika wa wa'dika ma-s-tata't...",
+  "Protection du matin — Bismillah (3×)": "Bismillâhi-l-ladhî lâ yadurru ma'a-smihi shay'un fi-l-ardi wa lâ fi-s-samâ'i wa huwa-s-samî'u-l-'alîm",
+  "Satisfaction du matin (3×)": "Radîtu billâhi rabban, wa bi-l-islâmi dînan, wa bi-Muhammadin salla-llâhu 'alayhi wa sallama nabiyyan",
+  "Dhikr du matin — 100 fois": "Subhâna-llâhi wa bihamdih",
+  "La meilleure formule (Bukhari)": "Lâ ilâha illâ-llâhu wahdahu lâ sharîka lah, lahu-l-mulku wa lahu-l-hamdu wa huwa 'alâ kulli shay'in qadîr",
+  "Dhikr du soir — Ayat al-Kursi": "Allâhu lâ ilâha illâ huwa-l-hayyu-l-qayyûm, lâ ta'khudhuhu sinatun wa lâ nawm...",
+  "Formule du soir (3×)": "Amsaynâ wa amsa-l-mulku lillâh, wa-l-hamdu lillâh, lâ ilâha illâ-llâh wahdahu lâ sharîka lah...",
+  "Protection du soir — Kalimat (3×)": "A'ûdhu bi-kalimâti-llâhi-t-tâmmâti min sharri mâ khalaq",
+  "Formule après la prière — 33×33×34": "Subhâna-llâh (33×) · Alhamdu lillâh (33×) · Allâhu akbar (34×)",
+  "Doua pour la santé": "Allâhumma 'âfinî fî badanî, Allâhumma 'âfinî fî sam'î, Allâhumma 'âfinî fî basarî",
+  "Doua en cas de maladie": "Allâhumma rabba-n-nâsi adhhibi-l-ba's wa-shfi anta-sh-shâfî",
+  "Istighfar": "Astaghfiru-llâha-l-'adhîma-l-ladhî lâ ilâha illâ huwa-l-hayyu-l-qayyûmu wa atûbu ilayh",
+  "Doua de repentir": "Rabbi-ghfir lî wa tub 'alayya innaka anta-t-tawwâbu-r-rahîm",
+  "Doua d'Ibrahim pour la connaissance": "Rabbi zidnî 'ilmâ",
+  "Doua de Moïse (Musa) pour l'aide": "Rabbi-shrah lî sadrî wa yassir lî amrî wa-hlul 'uqdatan min lisânî yafqahû qawlî",
+  "Doua des croyants — Rabbana (sourate Baqara)": "Rabbanâ lâ tu'âkhidhnâ in nasînâ aw akhta'nâ, rabbanâ wa lâ tahmil 'alaynâ isran...",
+  "Doua de la victoire": "Rabbanâ afrigh 'alaynâ sabran wa thabbit aqdâmanâ wa-nsurnâ 'ala-l-qawmi-l-kâfirîn",
+  "Doua d'Adam (repentir)": "Rabbanâ zalamanâ anfusanâ wa in lam taghfir lanâ wa tarhamnâ lanakunanna mina-l-khâsirîn",
+  "En entrant à la mosquée": "Allâhumma-ftah lî abwâba rahmatik",
+  "En sortant de la mosquée": "Allâhumma innî as'aluka min fadlik",
+  "En portant un vêtement neuf": "Allâhumma laka-l-hamdu anta kasawtanîh",
+  "En entrant aux toilettes": "Allâhumma innî a'ûdhu bika mina-l-khubuthi wa-l-khabâ'ith",
+  "En sortant des toilettes": "Ghufrânak",
+  "Avant les relations conjugales": "Bismillâh, Allâhumma jannibna-sh-shaytâna wa jannib ash-shaytâna mâ razaqtanâ",
+  "En entrant au marché / commerce": "Lâ ilâha illâ-llâhu wahdahu lâ sharîka lah, lahu-l-mulku wa lahu-l-hamdu yuhyî wa yumît...",
+  "Pour les parents": "Rabbi-rhamhumâ kamâ rabbayânî saghîrâ",
+  "Pour avoir un enfant pieux": "Rabbi hab lî min ladunka dhurriyyatan tayyibatan innaka samî'u-d-du'â'",
+  "Pour la bonne entente dans la famille": "Rabbanâ hab lanâ min azwâjinâ wa dhurriyyâtinâ qurrata a'yunin wa-j'alnâ li-l-muttaqîna imâmâ",
+  "Doua pour le travail et la subsistance": "Allâhumma innî a'ûdhu bika mina-l-hammi wa-l-hazan wa a'ûdhu bika mina-l-'ajzi wa-l-kasal...",
+  "Doua pour la bénédiction du travail": "Allâhumma bârik lî fî rizqî",
+  "Doua pour réussir un entretien / examen": "Rabbi-shrah lî sadrî wa yassir lî amrî wa-hlul 'uqdatan min lisânî yafqahû qawlî",
+  "En apprenant un décès": "Innâ lillâhi wa innâ ilayhi râji'ûn",
+  "Doua pour le défunt (lors de la Janaza)": "Allâhumma-ghfir lahu wa-rhamhu wa 'âfihi wa-'fu 'anh",
+  "Doua au cimetière": "As-salâmu 'alaykum ahla-d-diyâri mina-l-mu'minîna wa-l-muslimîn...",
+  "Doua du brisement du jeûne (Iftar)": "Dhahaba-z-zama'u wa-btalati-l-'urûqu wa thabata-l-ajru in shâ'a-llâh",
+  "Doua en offrant l'Iftar à quelqu'un": "Aftara 'indakumu-s-sâ'imûna wa akala ta'âmakumu-l-abrâru wa sallat 'alaykumu-l-malâ'ikah",
+  "Doua des 10 dernières nuits": "Allâhumma innaka 'afuwwun karîmun tuhibbu-l-'afwa fa-'fu 'annî",
+  "Doua pour Laylat al-Qadr (complète)": "Allâhumma innaka 'afuwwun karîmun tuhibbu-l-'afwa fa-'fu 'annî wa 'an wâlidayya wa 'an jamî'i-l-muslimîn",
+  "Doua de la nuit (Qiyam al-Layl)": "Allâhumma laka-l-hamdu anta nûru-s-samâwâti wa-l-ardi wa man fîhinn",
+}
+
 const DOUAS_EXTRA = [
   { cat:"matin", titre:"Dhikr du matin — Sayyid al-Istighfar", ar:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ", fr:"Ô Allah, Tu es mon Seigneur, il n'y a de dieu que Toi. Tu m'as créé et je suis Ton serviteur." },
   { cat:"matin", titre:"Protection du matin", ar:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ", fr:"Au nom d'Allah, avec Son nom, rien ne peut causer de préjudice ni sur terre ni dans le ciel." },
@@ -2127,7 +2202,8 @@ function renderRamadan(){
     douasEl.innerHTML = DOUAS_RAMADAN.map(d => '<div style="background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:14px;cursor:pointer" onclick="this.querySelector(\'.doua-fr-ram\').style.display=this.querySelector(\'.doua-fr-ram\').style.display===\'none\'?\'block\':\'none\'">' +
       '<div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:8px">🤲 ' + d.titre + '</div>' +
       '<div style="font-family:Tajawal,sans-serif;font-size:15px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">' + d.ar + '</div>' +
-      '<div class="doua-fr-ram" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.7;font-style:italic">' + d.fr + '</div>' +
+      '<div style="font-size:11px;color:rgba(201,168,76,.75);font-style:italic;margin:6px 0">' + (PHONETICS[d.titre]||d.ph||'') + '</div>' +
+      '<div class="doua-fr-ram" style="display:none;font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7;border-top:1px solid rgba(255,255,255,.06);padding-top:6px">' + d.fr + '</div>' +
     '</div>').join('')
   }
 
@@ -2222,7 +2298,8 @@ function renderDouasAll(){
       items.map(d => '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;margin-bottom:6px" onclick="this.querySelector(\'.dfr\').style.display=this.querySelector(\'.dfr\').style.display===\'none\'?\'block\':\'none\'">' +
         '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">🤲 ' + d.titre + '</div>' +
         '<div style="font-family:Tajawal,sans-serif;font-size:15px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">' + d.ar + '</div>' +
-        '<div class="dfr" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.7;font-style:italic">' + d.fr + '</div>' +
+        '<div style="font-size:11px;color:rgba(201,168,76,.75);font-style:italic;margin-top:6px;line-height:1.6">' + (PHONETICS[d.titre]||d.ph||'') + '</div>' +
+        '<div class="dfr" style="display:none;font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7;border-top:1px solid var(--border);padding-top:6px">' + d.fr + '</div>' +
       '</div>').join('') +
     '</div>'
   }).join('')
