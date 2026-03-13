@@ -375,10 +375,25 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div id="prayer-list"></div>
       </div>
       <div id="sub-qibla" style="display:none;text-align:center">
-        <div class="qibla-compass">🕋</div>
-        <div class="qibla-deg">127°</div>
-        <div style="color:var(--white);font-size:15px;margin-top:8px">Direction de La Mecque</div>
-        <div style="color:var(--muted);font-size:12px;margin-top:4px">depuis Bruxelles · 50.850°N 4.352°E</div>
+        <!-- Boussole animée -->
+        <div style="position:relative;width:220px;height:220px;margin:0 auto">
+          <!-- Cercle boussole -->
+          <div id="compass-ring" style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(201,168,76,.3);background:#12122A;display:flex;align-items:center;justify-content:center;transition:transform .1s ease">
+            <!-- Points cardinaux -->
+            <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--gold);font-weight:700">N</div>
+            <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted)">S</div>
+            <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">E</div>
+            <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">O</div>
+            <!-- Aiguille vers La Mecque -->
+            <div id="qibla-needle" style="position:absolute;width:4px;height:90px;bottom:50%;left:calc(50% - 2px);transform-origin:bottom center;border-radius:4px 4px 0 0;background:linear-gradient(to top,transparent,var(--gold));transition:transform .15s ease">
+              <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:18px">🕋</div>
+            </div>
+          </div>
+        </div>
+        <div id="qibla-deg-display" style="font-family:'Cinzel',serif;font-size:36px;color:var(--gold);font-weight:900;margin-top:12px">127°</div>
+        <div style="color:var(--white);font-size:15px;margin-top:4px">Direction de La Mecque</div>
+        <div id="compass-status" style="color:var(--muted);font-size:11px;margin-top:4px">Activation boussole...</div>
+        <button onclick="initCompass()" id="compass-btn" style="margin-top:10px;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:6px 14px;border-radius:8px;font-size:11px;cursor:pointer">🧭 Activer la boussole</button>
         <div class="card" style="margin-top:20px">
           <div style="font-size:11px;color:var(--muted);margin-bottom:4px">DISTANCE</div>
           <div style="font-family:'Cinzel',serif;font-size:30px;color:var(--gold);font-weight:900">5 248 km</div>
@@ -2817,6 +2832,72 @@ async function submitPost(){
 
 // Load on startup
 setTimeout(loadCommunityFeed, 1500)
+
+// ── BOUSSOLE QIBLA ────────────────────────────────────────────────────────────
+let qiblaAngle = 127 // default Brussels
+let compassActive = false
+
+function initCompass(){
+  const btn = document.getElementById('compass-btn')
+  const status = document.getElementById('compass-status')
+
+  // iOS 13+ requires permission for DeviceOrientationEvent
+  if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
+    DeviceOrientationEvent.requestPermission().then(perm => {
+      if(perm === 'granted'){
+        startCompass()
+      } else {
+        if(status) status.textContent = 'Permission refusée'
+      }
+    }).catch(e => {
+      if(status) status.textContent = 'Erreur permission'
+    })
+  } else if(window.DeviceOrientationEvent){
+    // Android / non-iOS
+    startCompass()
+  } else {
+    if(status) status.textContent = 'Boussole non supportée'
+  }
+}
+
+function startCompass(){
+  const status = document.getElementById('compass-status')
+  const btn = document.getElementById('compass-btn')
+  if(status) status.textContent = 'Boussole active ✓'
+  if(btn) btn.style.display = 'none'
+  compassActive = true
+
+  // Recalculate qibla with real GPS
+  const lat = parseFloat(localStorage.getItem('fadjr_lat') || '50.8503')
+  const lng = parseFloat(localStorage.getItem('fadjr_lng') || '4.3517')
+  qiblaAngle = getQiblaAngle(lat, lng)
+  const degEl = document.getElementById('qibla-deg-display')
+  if(degEl) degEl.textContent = Math.round(qiblaAngle) + '°'
+
+  window.addEventListener('deviceorientationabsolute', handleOrientation, true)
+  window.addEventListener('deviceorientation', handleOrientation, true)
+}
+
+function handleOrientation(e){
+  let heading = 0
+  if(e.webkitCompassHeading !== undefined){
+    // iOS — webkitCompassHeading is the magnetic heading
+    heading = e.webkitCompassHeading
+  } else if(e.absolute && e.alpha !== null){
+    // Android absolute
+    heading = 360 - e.alpha
+  } else if(e.alpha !== null){
+    heading = 360 - e.alpha
+  }
+
+  // Needle rotation = qibla direction - device heading
+  const needleRotation = qiblaAngle - heading
+  const needle = document.getElementById('qibla-needle')
+  const ring = document.getElementById('compass-ring')
+  if(needle) needle.style.transform = `rotate(${needleRotation}deg)`
+  // Ring rotates opposite to show north
+  if(ring) ring.style.transform = `rotate(${-heading}deg)`
+}
 </script>
 
 <!-- ONBOARDING -->
