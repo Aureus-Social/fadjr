@@ -2314,7 +2314,7 @@ async function initAuth(){
 const ADMIN_EMAILS = ['moussati.nourdin@gmail.com', 'info@aureus-ia.com']
 
 function showUserPanel(user){
-  loadMemDataCloud()
+  loadMemDataCloud().catch(()=>{}) // async, non-blocking
   document.getElementById('auth-panel').style.display = 'none'
   document.getElementById('user-panel').style.display = 'block'
   const meta = user.user_metadata
@@ -2584,9 +2584,13 @@ async function installPWA(){
 // Init all
 currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
 loadDailyContent()  // First — no waiting
+loadPrayers()       // Load prayer times immediately
+initStars()
 initAuth()
 getUserLocation()
 applyAdhan()
+renderDhikrCard()
+if(document.getElementById('accueil-commerces')) renderAccueilCommerces()
 if(adhanEnabled) startAdhanChecker()
 setInterval(syncAccueilPrayer, 10000)
 setTimeout(syncAccueilPrayer, 2000)
@@ -3409,8 +3413,8 @@ function saveMemData(){
 async function loadMemDataCloud(){
   if(!currentUser) return
   try {
-    const { data } = await supa.from('user_progress').select('hifz_data').eq('user_id', currentUser.id).single()
-    if(data?.hifz_data){
+    const { data, error } = await supa.from('user_progress').select('hifz_data').eq('user_id', currentUser.id).maybeSingle()
+    if(!error && data?.hifz_data){
       memData = data.hifz_data
       localStorage.setItem('fadjr_mem', JSON.stringify(memData))
     }
