@@ -184,6 +184,104 @@ body.light #tabbar { background: rgba(245,240,232,.98); }
 body.light .screen { background: transparent; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- ONBOARDING -->
+<div id="onboarding" style="position:fixed;inset:0;background:#07070F;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity .5s">
+  
+  <!-- Stars background -->
+  <canvas id="ob-stars" style="position:absolute;inset:0;pointer-events:none"></canvas>
+  
+  <!-- Slides -->
+  <div id="ob-slides" style="width:100%;max-width:360px;position:relative;z-index:1">
+    
+    <div class="ob-slide active" id="ob-0">
+      <div style="font-size:72px;text-align:center;margin-bottom:24px;animation:obFloat 3s ease-in-out infinite">☪</div>
+      <div style="font-family:'Cinzel',serif;font-size:36px;color:#C9A84C;text-align:center;letter-spacing:4px;margin-bottom:12px">FADJR</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.8">La super-app halal<br>pour ta communauté</div>
+      <div style="font-family:'Tajawal',sans-serif;font-size:20px;direction:rtl;text-align:center;color:#C9A84C;margin-top:20px;opacity:.7">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    </div>
+
+    <div class="ob-slide" id="ob-1" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🕌</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Prière & Qibla</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Horaires en temps réel selon ta position GPS.<br>Direction de la Qibla.<br>Rappels Adhan avant chaque prière.</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:24px">
+        <div style="text-align:center"><div style="font-size:28px">🌙</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">FAJR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌅</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">SHURUK</div></div>
+        <div style="text-align:center"><div style="font-size:28px">☀️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">DHUHR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌤️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ASR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌇</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">MAGHRIB</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌃</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ICHA</div></div>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-2" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">📖</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Coran Complet</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">114 sourates avec texte arabe.<br>5 traductions · 10 récitateurs audio.<br>99 noms d'Allah · Dhikr & Tasbih.</div>
+      <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:16px;margin-top:20px;text-align:center">
+        <div style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;color:#F0EAD8;line-height:1.8">إِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
+        <div style="font-size:11px;color:#888;margin-top:8px;font-style:italic">Certes avec la difficulté vient la facilité</div>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-3" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🍽️</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Halal Near Me</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Restaurants, boucheries, mosquées<br>certifiés halal près de toi.<br>Bruxelles · Paris · Casablanca et plus.</div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap">
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🍽️ Restaurants</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🥩 Boucheries</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">✈️ Voyages</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">📚 Librairies</span>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-4" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🌟</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">100% Gratuit</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">FADJR est et restera gratuit<br>pour toute la communauté.<br>Données hébergées en Europe · RGPD.</div>
+      <button onclick="finishOnboarding()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#F0D080);color:#07070F;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;margin-top:28px;font-family:'Cairo',sans-serif;letter-spacing:.1em">COMMENCER ›</button>
+    </div>
+  </div>
+
+  <!-- Dots -->
+  <div id="ob-dots" style="display:flex;gap:8px;margin-top:32px;position:relative;z-index:1">
+    <div class="ob-dot active" onclick="goObSlide(0)"></div>
+    <div class="ob-dot" onclick="goObSlide(1)"></div>
+    <div class="ob-dot" onclick="goObSlide(2)"></div>
+    <div class="ob-dot" onclick="goObSlide(3)"></div>
+    <div class="ob-dot" onclick="goObSlide(4)"></div>
+  </div>
+
+  <!-- Next / Skip -->
+  <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:1" id="ob-nav">
+    <button onclick="skipOnboarding()" id="ob-skip" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Passer →</button>
+    <button onclick="nextObSlide()" id="ob-next" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Suivant ›</button>
+  </div>
+</div>
+
+<div class="share-toast" id="share-toast">✓ Copié !</div>
+
+  <!-- AUTH GATE MODAL -->
+  <div id="auth-gate-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#13131F;border:1px solid var(--gold);border-radius:20px;padding:24px;max-width:340px;width:100%;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🔐</div>
+      <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:8px">Connexion requise</div>
+      <div id="auth-gate-reason" style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5">Créez un compte gratuit pour accéder à cette fonctionnalité</div>
+      <div style="font-size:11px;color:var(--muted);background:rgba(201,168,76,.08);border-radius:10px;padding:12px;margin-bottom:16px;text-align:left">
+        <div style="color:var(--gold);font-weight:700;margin-bottom:6px">✨ Avec un compte gratuit :</div>
+        <div>📊 Sync progression Hifz</div>
+        <div>🔖 Favoris mosquées & restaurants</div>
+        <div>👥 Communauté & partage</div>
+        <div>🔔 Préférences Adhan sauvegardées</div>
+      </div>
+      <button onclick="closeAuthGate(); goTab('profil')" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:12px;border:none;font-size:14px;cursor:pointer;margin-bottom:10px">Se connecter / S'inscrire</button>
+      <button onclick="closeAuthGate()" style="width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer">Continuer sans compte</button>
+    </div>
+  </div>
+
 <script>
 // ── EARLY DECLARATIONS (must be before all functions) ────────
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
@@ -645,13 +743,16 @@ const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
 // ── STARS ────────────────────────────────────────────────────
-const starsEl = document.getElementById('stars')
-for(let i=0;i<60;i++){
-  const s=document.createElement('div')
-  s.className='star'
-  const sz=Math.random()*2+0.5
-  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`
-  starsEl.appendChild(s)
+function initStars(){
+  const starsEl = document.getElementById('stars')
+  if(!starsEl) return
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div')
+    s.className='star'
+    const sz=Math.random()*2+0.5
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`
+    starsEl.appendChild(s)
+  }
 }
 
 // ── DATA ─────────────────────────────────────────────────────
@@ -3270,101 +3371,5 @@ function getAdhkarTrad(trad){
   return map[lang] || map['en'] || trad
 }
 </script>
-
-<!-- ONBOARDING -->
-<div id="onboarding" style="position:fixed;inset:0;background:#07070F;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity .5s">
-  
-  <!-- Stars background -->
-  <canvas id="ob-stars" style="position:absolute;inset:0;pointer-events:none"></canvas>
-  
-  <!-- Slides -->
-  <div id="ob-slides" style="width:100%;max-width:360px;position:relative;z-index:1">
-    
-    <div class="ob-slide active" id="ob-0">
-      <div style="font-size:72px;text-align:center;margin-bottom:24px;animation:obFloat 3s ease-in-out infinite">☪</div>
-      <div style="font-family:'Cinzel',serif;font-size:36px;color:#C9A84C;text-align:center;letter-spacing:4px;margin-bottom:12px">FADJR</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.8">La super-app halal<br>pour ta communauté</div>
-      <div style="font-family:'Tajawal',sans-serif;font-size:20px;direction:rtl;text-align:center;color:#C9A84C;margin-top:20px;opacity:.7">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-    </div>
-
-    <div class="ob-slide" id="ob-1" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">🕌</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Prière & Qibla</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Horaires en temps réel selon ta position GPS.<br>Direction de la Qibla.<br>Rappels Adhan avant chaque prière.</div>
-      <div style="display:flex;justify-content:center;gap:16px;margin-top:24px">
-        <div style="text-align:center"><div style="font-size:28px">🌙</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">FAJR</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌅</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">SHURUK</div></div>
-        <div style="text-align:center"><div style="font-size:28px">☀️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">DHUHR</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌤️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ASR</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌇</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">MAGHRIB</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌃</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ICHA</div></div>
-      </div>
-    </div>
-
-    <div class="ob-slide" id="ob-2" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">📖</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Coran Complet</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">114 sourates avec texte arabe.<br>5 traductions · 10 récitateurs audio.<br>99 noms d'Allah · Dhikr & Tasbih.</div>
-      <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:16px;margin-top:20px;text-align:center">
-        <div style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;color:#F0EAD8;line-height:1.8">إِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
-        <div style="font-size:11px;color:#888;margin-top:8px;font-style:italic">Certes avec la difficulté vient la facilité</div>
-      </div>
-    </div>
-
-    <div class="ob-slide" id="ob-3" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">🍽️</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Halal Near Me</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Restaurants, boucheries, mosquées<br>certifiés halal près de toi.<br>Bruxelles · Paris · Casablanca et plus.</div>
-      <div style="display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap">
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🍽️ Restaurants</span>
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🥩 Boucheries</span>
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">✈️ Voyages</span>
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">📚 Librairies</span>
-      </div>
-    </div>
-
-    <div class="ob-slide" id="ob-4" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">🌟</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">100% Gratuit</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">FADJR est et restera gratuit<br>pour toute la communauté.<br>Données hébergées en Europe · RGPD.</div>
-      <button onclick="finishOnboarding()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#F0D080);color:#07070F;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;margin-top:28px;font-family:'Cairo',sans-serif;letter-spacing:.1em">COMMENCER ›</button>
-    </div>
-  </div>
-
-  <!-- Dots -->
-  <div id="ob-dots" style="display:flex;gap:8px;margin-top:32px;position:relative;z-index:1">
-    <div class="ob-dot active" onclick="goObSlide(0)"></div>
-    <div class="ob-dot" onclick="goObSlide(1)"></div>
-    <div class="ob-dot" onclick="goObSlide(2)"></div>
-    <div class="ob-dot" onclick="goObSlide(3)"></div>
-    <div class="ob-dot" onclick="goObSlide(4)"></div>
-  </div>
-
-  <!-- Next / Skip -->
-  <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:1" id="ob-nav">
-    <button onclick="skipOnboarding()" id="ob-skip" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Passer →</button>
-    <button onclick="nextObSlide()" id="ob-next" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Suivant ›</button>
-  </div>
-</div>
-
-<div class="share-toast" id="share-toast">✓ Copié !</div>
-
-  <!-- AUTH GATE MODAL -->
-  <div id="auth-gate-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">
-    <div style="background:#13131F;border:1px solid var(--gold);border-radius:20px;padding:24px;max-width:340px;width:100%;text-align:center">
-      <div style="font-size:32px;margin-bottom:12px">🔐</div>
-      <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:8px">Connexion requise</div>
-      <div id="auth-gate-reason" style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5">Créez un compte gratuit pour accéder à cette fonctionnalité</div>
-      <div style="font-size:11px;color:var(--muted);background:rgba(201,168,76,.08);border-radius:10px;padding:12px;margin-bottom:16px;text-align:left">
-        <div style="color:var(--gold);font-weight:700;margin-bottom:6px">✨ Avec un compte gratuit :</div>
-        <div>📊 Sync progression Hifz</div>
-        <div>🔖 Favoris mosquées & restaurants</div>
-        <div>👥 Communauté & partage</div>
-        <div>🔔 Préférences Adhan sauvegardées</div>
-      </div>
-      <button onclick="closeAuthGate(); goTab('profil')" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:12px;border:none;font-size:14px;cursor:pointer;margin-bottom:10px">Se connecter / S'inscrire</button>
-      <button onclick="closeAuthGate()" style="width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer">Continuer sans compte</button>
-    </div>
-  </div>
 </body>
 </html>
