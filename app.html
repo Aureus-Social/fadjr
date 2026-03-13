@@ -2,8 +2,19 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>FADJR — Super App Halal</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#C9A84C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FADJR">
+<link rel="apple-touch-icon" href="/icon.png">
+<meta name="description" content="Votre compagnon spirituel halal — Prières, Coran, Dhikr, Halal Map, Ramadan">
+<meta property="og:title" content="FADJR — Super App Halal">
+<meta property="og:description" content="Horaires de prière, Coran complet, Dhikr, Carte Halal mondiale">
+<meta property="og:image" content="https://fadjr.app/icon.png">
+<meta property="og:url" content="https://fadjr.app/app">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -710,6 +721,90 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         </div>
       </div><!-- /sub-coran-memorisation -->
 
+    <!-- VOYAGE HALAL -->
+    <div class="screen" id="screen-voyage" style="display:none">
+      <div style="height:12px"></div>
+      <div style="background:linear-gradient(135deg,rgba(52,152,219,.15),rgba(201,168,76,.08));border:1px solid rgba(52,152,219,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.2em;color:#3498db;margin-bottom:6px">✈️ VOYAGE HALAL</div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">السفر الحلال</div>
+        <div style="font-size:11px;color:var(--muted)">Voyagez sereinement selon vos valeurs</div>
+      </div>
+
+      <!-- Tips voyage -->
+      <div style="display:flex;flex-direction:column;gap:10px" id="voyage-tips"></div>
+
+      <!-- Destinations populaires -->
+      <div style="font-size:10px;letter-spacing:.15em;color:var(--muted);margin:16px 0 10px">🌍 DESTINATIONS POPULAIRES</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="voyage-destinations"></div>
+      <!-- Legal footer -->
+      <div style="margin-top:20px;text-align:center;padding-bottom:20px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Version 1.0 · FADJR © 2025</div>
+        <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
+          <a href="/privacy" target="_blank" style="color:var(--muted);font-size:10px;text-decoration:none">Politique de confidentialité</a>
+          <a href="/support" target="_blank" style="color:var(--muted);font-size:10px;text-decoration:none">Support</a>
+          <span onclick="window.open('mailto:contact@fadjr.app')" style="color:var(--muted);font-size:10px;cursor:pointer">Contact</span>
+        </div>
+      </div>
+      <!-- Destinations halal -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">🌍 DESTINATIONS POPULAIRES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="destinations-halal">
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇲🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Maroc</div><div style="font-size:9px;color:var(--muted)">Casablanca · Fès · Marrakech</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇹🇷</div><div style="font-size:12px;color:var(--white);font-weight:700">Turquie</div><div style="font-size:9px;color:var(--muted)">Istanbul · Ankara · Bursa</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇸🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Arabie Saoudite</div><div style="font-size:9px;color:var(--muted)">Mecque · Médine · Riyad</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇮🇩</div><div style="font-size:12px;color:var(--white);font-weight:700">Indonésie</div><div style="font-size:9px;color:var(--muted)">Bali · Jakarta · Lombok</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇦🇪</div><div style="font-size:12px;color:var(--white);font-weight:700">Émirats</div><div style="font-size:9px;color:var(--muted)">Dubai · Abu Dhabi</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇯🇵</div><div style="font-size:12px;color:var(--white);font-weight:700">Japon</div><div style="font-size:9px;color:var(--muted)">Tokyo · Osaka · Kyoto</div></div>
+        </div>
+      </div>
+      <!-- Tips voyage halal -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">💡 CONSEILS VOYAGE HALAL</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🍽️ <strong>Restaurants halal</strong> — Utilisez l'onglet Halal Map pour trouver partout dans le monde</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🕌 <strong>Prières en voyage</strong> — Les horaires s'adaptent automatiquement à votre GPS</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">✈️ <strong>Prière Qasr</strong> — Raccourcissement à 2 rakats autorisé si voyage &gt; 80km</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🌙 <strong>Ramadan en voyage</strong> — Le jeûne peut être reporté pendant le voyage si difficile</div></div>
+        </div>
+      </div>
+      <!-- Apps partenaires -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
+        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">🔗 RESSOURCES</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Halal Advisor</div><div style="font-size:10px;color:var(--muted)">Guide voyage halal mondial</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.halaltrip.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Halal Trip</div><div style="font-size:10px;color:var(--muted)">Hotels & forfaits halal</div></div><span style="color:var(--gold)">→</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCE ISLAMIQUE -->
+    <div class="screen" id="screen-finance" style="display:none">
+      <div style="height:12px"></div>
+      <div style="background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(39,174,96,.08));border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.2em;color:var(--gold);margin-bottom:6px">💰 FINANCE ISLAMIQUE</div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">الاقتصاد الإسلامي</div>
+        <div style="font-size:11px;color:var(--muted)">Gérez vos finances selon les principes islamiques</div>
+      </div>
+
+      <!-- Calculateur Zakat -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">⚖️ CALCULATEUR ZAKAT</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Nisab actuel (or 85g) ≈ <span id="nisab-value" style="color:var(--gold)">chargement...</span></div>
+        <input id="zakat-input" type="number" placeholder="Votre épargne annuelle (€)" 
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;outline:none;margin-bottom:10px;font-family:'Cairo',sans-serif">
+        <button onclick="calculateZakat()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:10px;border-radius:10px;border:none;font-size:13px;cursor:pointer">Calculer ma Zakat</button>
+        <div id="zakat-result" style="margin-top:12px;display:none;text-align:center;background:rgba(201,168,76,.1);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:var(--muted)">Votre Zakat annuelle</div>
+          <div id="zakat-amount" style="font-size:32px;font-weight:900;color:var(--gold);font-family:'Cinzel',serif"></div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">soit 2.5% de votre épargne</div>
+        </div>
+      </div>
+
+      <!-- Concepts clés -->
+      <div style="font-size:10px;letter-spacing:.15em;color:var(--muted);margin-bottom:10px">📚 PRINCIPES ISLAMIQUES</div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="finance-cards-list"></div>
+    </div>
+
     <!-- PROFIL -->
     <div class="screen" id="screen-profil">
       <div style="height:12px"></div>
@@ -838,7 +933,42 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
     </div>
     </div>
 
-  <!-- TAB BAR -->
+      <!-- FINANCE ISLAMIQUE -->
+    <div class="screen" id="screen-finance" style="display:none">
+      <div style="height:12px"></div>
+      <div style="background:linear-gradient(135deg,rgba(39,174,96,.15),rgba(201,168,76,.08));border:1px solid rgba(39,174,96,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.2em;color:#27ae60;margin-bottom:6px">💰 FINANCE ISLAMIQUE</div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">التمويل الإسلامي</div>
+        <div style="font-size:12px;color:var(--muted)">Gérez vos finances selon la Charia</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">🧮 CALCULATEUR ZAKAT</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Nisab actuel (85g or) ≈ <span id="nisab-val">5 100 €</span></div>
+        <input id="zakat-wealth" type="number" placeholder="Votre épargne totale (€)" oninput="calcZakat()"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:14px;outline:none;margin-bottom:10px;font-family:'Cairo',sans-serif">
+        <div id="zakat-result" style="font-size:14px;color:var(--gold);text-align:center;font-weight:700;min-height:24px"></div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">📚 PRINCIPES CLÉS</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🚫 Riba (Intérêt)</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Tout intérêt fixe est interdit. Préférez les comptes islamiques sans intérêt.</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🤝 Moucharaka</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Partage des profits et pertes. Alternative halal à l'investissement classique.</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🏠 Murabaha</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Achat-revente à marge fixe. Alternative halal au crédit immobilier.</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">📈 Sukuk</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Obligations islamiques adossées à des actifs réels.</div></div>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">🏦 SERVICES HALAL</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div onclick="window.open('https://www.nooraccount.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Noor Account 🇧🇪</div><div style="font-size:10px;color:var(--muted)">Compte courant halal en Belgique</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.albaraka.be','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Al Baraka Bank 🇧🇪</div><div style="font-size:10px;color:var(--muted)">Banque islamique en Belgique</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.wahed.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Wahed Invest 🌍</div><div style="font-size:10px;color:var(--muted)">Investissement halal global</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.amundi-islamic.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Amundi Islamic</div><div style="font-size:10px;color:var(--muted)">Fonds d'investissement conformes</div></div><span style="color:var(--gold)">→</span></div>
+        </div>
+      </div>
+    </div>
+
+<!-- TAB BAR -->
 
     <!-- RAMADAN -->
     <div class="screen" id="screen-ramadan">
@@ -996,6 +1126,12 @@ let obCurrent=0
 // ── DATE ─────────────────────────────────────────────────────
 const now=new Date()
 document.getElementById('today-date').textContent = now.toLocaleDateString('fr-BE',{weekday:'long',day:'numeric',month:'long'})
+// Live clock update
+setInterval(() => {
+  const n = new Date()
+  computeNext()
+  // Update countdown live
+}, 30000)
 
 // ── PRAYERS ──────────────────────────────────────────────────
 async function loadPrayers(){
@@ -1039,8 +1175,12 @@ function computeNext(){
     }
   }
   nextP=prayers[0]
-  document.getElementById('np-name').textContent=prayers[0]?.name||'Fajr'
-  document.getElementById('np-countdown').textContent='demain'
+  const fp = prayers[0]
+  document.getElementById('np-name').textContent = fp?.name || 'Fajr'
+  document.getElementById('np-ar').textContent = fp?.ar || 'الفجر'
+  document.getElementById('np-time').textContent = fp?.time || '--:--'
+  document.getElementById('np-emoji').textContent = fp?.emoji || '🌙'
+  document.getElementById('np-countdown').textContent = 'demain'
 }
 
 function renderPrayers(){
@@ -1049,20 +1189,25 @@ function renderPrayers(){
     const isNext=nextP&&nextP.name===p.name
     const pKey = p.name.toLowerCase()
     const adhanOn = getPrayerAdhan(pKey)
-    const adhanColor = adhanOn ? 'var(--gold)' : 'rgba(255,255,255,.2)'
-    return `<div class="prayer-item${isNext?' next':''}">
-      <div class="prayer-emoji">${p.emoji}</div>
+    const isPrayed = getPrayedToday(pKey)
+    if(pKey === 'sunrise') return ''
+    return `<div class="prayer-item${isNext?' next':''}" style="${isPrayed?'opacity:.7':''}">
+      <div style="position:relative">
+        <div class="prayer-emoji">${p.emoji}</div>
+        ${isPrayed?'<div style="position:absolute;top:-4px;right:-4px;font-size:12px">✅</div>':''}
+      </div>
       <div style="flex:1">
-        <div class="prayer-name">${p.name}</div>
+        <div class="prayer-name" style="${isPrayed?'text-decoration:line-through;color:var(--muted)':''}">${p.name}</div>
         <div class="prayer-ar">${p.ar}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <button onclick="togglePrayerAdhan('${pKey}',this)" title="Adhan pour ${p.name}"
-          style="background:none;border:none;font-size:18px;cursor:pointer;opacity:${adhanOn?1:.35};transition:.2s;padding:4px">🔔</button>
-        <div>
-          <div class="prayer-time">${p.time}</div>
-          ${isNext?'<div style="color:var(--green);font-size:9px;text-align:right;margin-top:2px">● prochaine</div>':''}
-        </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="togglePrayed('${pKey}',this)" title="Marquer comme priée"
+          style="background:${isPrayed?'rgba(39,174,96,.2)':'rgba(255,255,255,.04)'};border:1px solid ${isPrayed?'#27AE60':'var(--border)'};border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;color:${isPrayed?'#27AE60':'var(--muted)'};transition:.2s">
+          ${isPrayed?'✓ Priée':'Prier'}
+        </button>
+        <button onclick="togglePrayerAdhan('${pKey}',this)" title="Adhan"
+          style="background:none;border:none;font-size:16px;cursor:pointer;opacity:${adhanOn?1:.3};transition:.2s;padding:2px">🔔</button>
+        <div class="prayer-time">${p.time}</div>
       </div>
     </div>`
   }).join('')
@@ -1452,9 +1597,20 @@ function toggleAudio(){
     }
   }
   btn.textContent = '⏸'
+  // iOS Safari: use load() before play()
+  if(currentAudio._needsLoad){
+    currentAudio._needsLoad = false
+    currentAudio.load()
+  }
   currentAudio.play().catch(e => {
     console.warn('play() error:', e.name, e.message)
     btn.textContent = '▶'
+    // Last resort: open in new tab
+    if(e.name === 'NotAllowedError' || e.name === 'NotSupportedError'){
+      const n = String(currentSurah.n).padStart(3,'0')
+      const reciter = document.getElementById('reciter-sel').value
+      window.open(`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`, '_blank')
+    }
   })
 }
 
@@ -1618,6 +1774,7 @@ async function initAuth(){
 }
 
 function showUserPanel(user){
+  loadMemDataCloud()
   document.getElementById('auth-panel').style.display = 'none'
   document.getElementById('user-panel').style.display = 'block'
   const meta = user.user_metadata
@@ -1828,6 +1985,41 @@ function syncAccueilPrayer(){
   if(el2) el2.textContent = p.time
   if(el3) el3.textContent = document.getElementById('np-countdown')?.textContent || ''
   if(el4) el4.textContent = p.emoji || '🕌'
+}
+
+// ── SERVICE WORKER ───────────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    console.log('SW registered:', reg.scope)
+  }).catch(e => console.warn('SW error:', e))
+}
+
+// ── INSTALL PROMPT PWA ───────────────────────────────────────────────────────
+let deferredInstallPrompt = null
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault()
+  deferredInstallPrompt = e
+  // Show install banner after 30s
+  setTimeout(showInstallBanner, 30000)
+})
+
+function showInstallBanner(){
+  if(deferredInstallPrompt){
+    const banner = document.createElement('div')
+    banner.id = 'install-banner'
+    banner.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#13131F;border:1px solid var(--gold);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;z-index:8000;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:320px;width:90%'
+    banner.innerHTML = '<span style="font-size:24px">📲</span><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--gold)">Installer FADJR</div><div style="font-size:10px;color:var(--muted)">Accès rapide depuis votre écran d\'accueil</div></div><button onclick="installPWA()" style="background:var(--gold);color:#0a0a0f;border:none;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Installer</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer">×</button>'
+    document.body.appendChild(banner)
+  }
+}
+
+async function installPWA(){
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt()
+    const { outcome } = await deferredInstallPrompt.userChoice
+    deferredInstallPrompt = null
+    document.getElementById('install-banner')?.remove()
+  }
 }
 
 // Init all
@@ -2210,12 +2402,15 @@ function toggleFavori(id){
     showToast('💔 Retiré des favoris')
   }
   localStorage.setItem('fadjr_favoris', JSON.stringify(favoris))
-  // Re-render to update heart icons
-  renderAllCommerces(document.getElementById('search-input')?.value||'')
-  renderAccueilCommerces()
-  // Update count in profil
-  const el = document.getElementById('user-favoris')
-  if(el) el.textContent = favoris.length
+  // Cloud sync if logged in
+  if(currentUser){
+    supa.from('user_progress').upsert({
+      user_id: currentUser.id,
+      favoris: favoris,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' }).catch(()=>{})
+  }
+  renderCommerces()
 }
 
 function isFavori(id){ return favoris.includes(id) }
@@ -2607,7 +2802,28 @@ let memSessionIdx = 0
 let memStreak = parseInt(localStorage.getItem('fadjr_streak') || '0')
 let memLastDate = localStorage.getItem('fadjr_streak_date') || ''
 
-function saveMemData(){ localStorage.setItem('fadjr_mem', JSON.stringify(memData)) }
+function saveMemData(){
+  localStorage.setItem('fadjr_mem', JSON.stringify(memData))
+  // Cloud sync if logged in
+  if(currentUser){
+    supa.from('user_progress').upsert({
+      user_id: currentUser.id,
+      hifz_data: memData,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' }).catch(()=>{})
+  }
+}
+
+async function loadMemDataCloud(){
+  if(!currentUser) return
+  try {
+    const { data } = await supa.from('user_progress').select('hifz_data').eq('user_id', currentUser.id).single()
+    if(data?.hifz_data){
+      memData = data.hifz_data
+      localStorage.setItem('fadjr_mem', JSON.stringify(memData))
+    }
+  } catch(e){}
+}
 
 function initMemorisation(){
   // Populate surah selector
@@ -3629,6 +3845,145 @@ function requireAuth(callback, reason){
 function closeAuthGate(){ 
   const modal = document.getElementById('auth-gate-modal')
   if(modal) modal.style.display = 'none'
+}
+
+// ── PRAYER TRACKER ────────────────────────────────────────────────────────────
+function getTodayKey(){ return new Date().toISOString().slice(0,10) }
+
+function getPrayedToday(pKey){
+  const data = JSON.parse(localStorage.getItem('fadjr_prayed_'+getTodayKey())||'{}')
+  return data[pKey] === true
+}
+
+function togglePrayed(pKey, btn){
+  const key = 'fadjr_prayed_' + getTodayKey()
+  const data = JSON.parse(localStorage.getItem(key)||'{}')
+  data[pKey] = !data[pKey]
+  localStorage.setItem(key, JSON.stringify(data))
+  renderPrayers()
+  updatePrayerStats()
+}
+
+function updatePrayerStats(){
+  const key = 'fadjr_prayed_' + getTodayKey()
+  const data = JSON.parse(localStorage.getItem(key)||'{}')
+  const prayers5 = ['fajr','dhuhr','asr','maghrib','isha']
+  const count = prayers5.filter(p => data[p]).length
+  const el = document.getElementById('prayers-suivi')
+  if(el){
+    el.innerHTML = prayers5.map(p => {
+      const done = data[p]
+      const names = {fajr:'Fajr',dhuhr:'Dhuhr',asr:'Asr',maghrib:'Maghrib',isha:'Isha'}
+      return `<div style="text-align:center">
+        <div style="font-size:20px">${done?'✅':'⬜'}</div>
+        <div style="font-size:9px;color:${done?'var(--gold)':'var(--muted)'}">${names[p]}</div>
+      </div>`
+    }).join('')
+  }
+}
+
+// ── FINANCE ISLAMIQUE ─────────────────────────────────────────────────────────
+const FINANCE_CONCEPTS = [
+  { icon:'🚫', title:'Riba (Intérêt)', desc:"L'intérêt est interdit en Islam. Privilégiez les banques islamiques, les contrats Mourabaha et Ijara.", color:'#e74c3c' },
+  { icon:'🤝', title:'Moucharaka', desc:"Partenariat où profits et pertes sont partagés selon des parts définies. Alternative halal aux prêts classiques.", color:'#27AE60' },
+  { icon:'🏠', title:'Mourabaha', desc:"Achat-revente avec marge bénéficiaire connue. Utilisé pour l'immobilier et les biens de consommation.", color:'#3498db' },
+  { icon:'📈', title:'Sukuk (Obligations)', desc:"Équivalent islamique des obligations. Basés sur des actifs réels, pas sur des intérêts.", color:'var(--gold)' },
+  { icon:'💝', title:'Sadaqa & Zakat', desc:"La Zakat (2.5% de l'épargne > nisab) est obligatoire. La Sadaqa est une aumône volontaire.", color:'#9b59b6' },
+  { icon:'⚖️', title:'Gharar (Incertitude)', desc:"Les contrats avec trop d'incertitude sont interdits. Pas de spéculation pure ni de produits dérivés complexes.", color:'#e67e22' },
+]
+
+function initFinance(){
+  const el = document.getElementById('finance-cards-list')
+  if(!el) return
+  el.innerHTML = FINANCE_CONCEPTS.map(c => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start">
+      <div style="font-size:24px;flex-shrink:0">${c.icon}</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:${c.color};margin-bottom:4px">${c.title}</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">${c.desc}</div>
+      </div>
+    </div>`).join('')
+  
+  // Load gold price for nisab
+  fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()).then(d=>{
+    const pricePerGram = (d.price || 85) / 31.1 // troy oz to gram
+    const nisab = Math.round(pricePerGram * 85)
+    const el2 = document.getElementById('nisab-value')
+    if(el2) el2.textContent = nisab.toLocaleString('fr-FR') + ' €'
+  }).catch(() => {
+    const el2 = document.getElementById('nisab-value')
+    if(el2) el2.textContent = '~5 900 €'
+  })
+}
+
+function calculateZakat(){
+  const input = parseFloat(document.getElementById('zakat-input').value)
+  if(!input || input <= 0) return
+  const zakat = input * 0.025
+  document.getElementById('zakat-amount').textContent = zakat.toLocaleString('fr-FR', {style:'currency', currency:'EUR'})
+  document.getElementById('zakat-result').style.display = 'block'
+}
+
+// ── VOYAGE HALAL ──────────────────────────────────────────────────────────────
+const VOYAGE_TIPS = [
+  { icon:'🕌', title:'Trouver des mosquées', desc:"Utilisez l'onglet HALAL pour localiser les mosquées près de vous dans n'importe quelle ville." },
+  { icon:'🥩', title:'Restaurants halal', desc:"Cherchez les restaurants certifiés halal. Privilégiez les établissements avec certification visible." },
+  { icon:'🧭', title:'Direction Qibla', desc:"L'onglet Prière > Qibla vous donne la direction exacte de La Mecque depuis n'importe où dans le monde." },
+  { icon:'🌙', title:'Horaires de prière', desc:"FADJR calcule automatiquement les horaires selon votre position GPS, partout dans le monde." },
+  { icon:'📿', title:'Dhikr en voyage', desc:"Votre compteur de dhikr fonctionne hors ligne. Gardez votre wird même en déplacement." },
+  { icon:'💳', title:'Finance halal', desc:"Renseignez-vous sur les banques islamiques locales. Évitez les produits avec intérêts (riba)." },
+]
+
+const VOYAGE_DESTINATIONS = [
+  { flag:'🇸🇦', name:'Arabie Saoudite', city:'La Mecque · Médine' },
+  { flag:'🇲🇦', name:'Maroc', city:'Fès · Marrakech · Casablanca' },
+  { flag:'🇹🇷', name:'Turquie', city:'Istanbul · Konya' },
+  { flag:'🇮🇩', name:'Indonésie', city:'Jakarta · Bali' },
+  { flag:'🇦🇪', name:'Émirats', city:'Dubai · Abu Dhabi' },
+  { flag:'🇲🇾', name:'Malaisie', city:'Kuala Lumpur' },
+  { flag:'🇪🇬', name:'Égypte', city:'Le Caire · Louxor' },
+  { flag:'🇯🇴', name:'Jordanie', city:'Amman · Pétra' },
+]
+
+function initVoyage(){
+  const tipsEl = document.getElementById('voyage-tips')
+  if(tipsEl) tipsEl.innerHTML = VOYAGE_TIPS.map(t => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;gap:12px">
+      <div style="font-size:22px;flex-shrink:0">${t.icon}</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px">${t.title}</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">${t.desc}</div>
+      </div>
+    </div>`).join('')
+
+  const destEl = document.getElementById('voyage-destinations')
+  if(destEl) destEl.innerHTML = VOYAGE_DESTINATIONS.map(d => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;cursor:pointer" onclick="setCarteCity && goTab('carte')">
+      <div style="font-size:28px;margin-bottom:4px">${d.flag}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--white)">${d.name}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:2px">${d.city}</div>
+    </div>`).join('')
+}
+
+// ── SERVICE WORKER (offline) ──────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(()=>{})
+}
+
+// ── ZAKAT CALCULATOR ─────────────────────────────────────────
+function calcZakat(){
+  const wealth = parseFloat(document.getElementById('zakat-wealth')?.value) || 0
+  const nisab = 5100 // approx 85g gold in EUR
+  const el = document.getElementById('zakat-result')
+  if(!el) return
+  if(wealth < nisab){
+    el.style.color = 'var(--muted)'
+    el.textContent = `Vous êtes en dessous du nisab (${nisab.toLocaleString('fr')} €) — pas de zakat obligatoire`
+  } else {
+    const zakat = wealth * 0.025
+    el.style.color = 'var(--gold)'
+    el.textContent = `Votre Zakat : ${zakat.toLocaleString('fr', {maximumFractionDigits:2})} € (2,5%)`
+  }
 }
 </script>
 

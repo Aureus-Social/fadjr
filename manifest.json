@@ -1,0 +1,22 @@
+{
+  "name": "FADJR — Super App Halal",
+  "short_name": "FADJR",
+  "description": "Votre compagnon spirituel halal — Prières, Coran, Dhikr, Halal Map",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#07070F",
+  "theme_color": "#C9A84C",
+  "orientation": "portrait",
+  "lang": "fr",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "categories": ["lifestyle", "religion", "utilities"],
+  "screenshots": [],
+  "shortcuts": [
+    { "name": "Prières", "url": "/app#priere", "icons": [{"src": "/favicon.png", "sizes": "192x192"}] },
+    { "name": "Coran", "url": "/app#culture", "icons": [{"src": "/favicon.png", "sizes": "192x192"}] },
+    { "name": "Dhikr", "url": "/app#dhikr", "icons": [{"src": "/favicon.png", "sizes": "192x192"}] }
+  ]
+}
