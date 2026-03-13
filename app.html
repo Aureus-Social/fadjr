@@ -463,7 +463,13 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
     <!-- CORAN -->
     <div class="screen" id="screen-culture">
-      <div style="height:16px"></div>
+      <div style="height:12px"></div>
+      <div class="subtabs" style="margin-bottom:12px">
+        <button class="subtab active" onclick="setCoranTab(this,'lecture')" id="ct-lecture">📖 Lecture</button>
+        <button class="subtab" onclick="setCoranTab(this,'memorisation')" id="ct-memorisation">🧠 Mémorisation</button>
+      </div>
+
+      <div id="sub-coran-lecture">
       <div class="screen-header">
         <div class="sec-label">CORAN COMPLET</div>
         <div class="screen-title">📖 القرآن الكريم</div>
@@ -513,6 +519,83 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div id="ayahs-loading" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Chargement...</div>
       </div>
     </div>
+      </div><!-- /sub-coran-lecture -->
+
+      <!-- MÉMORISATION -->
+      <div id="sub-coran-memorisation" style="display:none">
+        <div class="screen-header">
+          <div class="sec-label">MÉMORISATION</div>
+          <div class="screen-title">🧠 Hifz — حفظ</div>
+        </div>
+
+        <!-- Setup -->
+        <div id="mem-setup">
+          <div class="card" style="margin-bottom:12px">
+            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px">CHOISIR UNE SOURATE</div>
+            <select id="mem-surah-sel" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;font-family:'Cairo',sans-serif;outline:none;margin-bottom:10px">
+              <option value="">Sélectionner...</option>
+            </select>
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <div style="flex:1">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Verset début</div>
+                <input id="mem-from" type="number" min="1" value="1" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--white);font-size:13px;outline:none">
+              </div>
+              <div style="flex:1">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Verset fin</div>
+                <input id="mem-to" type="number" min="1" value="10" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--white);font-size:13px;outline:none">
+              </div>
+            </div>
+            <button onclick="startMemorisation()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:10px;border:none;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif">🚀 Commencer</button>
+          </div>
+
+          <!-- Statistiques -->
+          <div class="card">
+            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px">MES STATISTIQUES</div>
+            <div id="mem-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-total">0</div><div style="font-size:10px;color:var(--muted)">Versets</div></div>
+              <div><div style="font-size:22px;font-weight:900;color:#4ade80" id="stat-maitrise">0</div><div style="font-size:10px;color:var(--muted)">Maîtrisés</div></div>
+              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-streak">0</div><div style="font-size:10px;color:var(--muted)">🔥 Streak</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Session de révision -->
+        <div id="mem-session" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <button onclick="exitMemSession()" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--white);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px">← Quitter</button>
+            <div id="mem-progress" style="font-size:11px;color:var(--muted)">1 / 10</div>
+          </div>
+
+          <!-- Carte verset -->
+          <div class="card" style="text-align:center;padding:24px;margin-bottom:12px">
+            <div id="mem-surah-name" style="font-size:10px;color:var(--gold);letter-spacing:.1em;margin-bottom:16px"></div>
+            <div id="mem-ayah-ar" style="font-family:'Tajawal',sans-serif;font-size:22px;color:var(--white);direction:rtl;line-height:2;margin-bottom:16px"></div>
+            <div id="mem-ayah-num" style="font-size:11px;color:var(--muted);margin-bottom:16px"></div>
+            <div id="mem-ayah-reveal" style="display:none">
+              <div id="mem-ayah-ph" style="font-size:12px;color:rgba(201,168,76,.8);font-style:italic;margin-bottom:8px"></div>
+              <div id="mem-ayah-fr" style="font-size:12px;color:var(--muted);line-height:1.6"></div>
+            </div>
+          </div>
+
+          <!-- Boutons évaluation -->
+          <div id="mem-show-btn" style="text-align:center">
+            <button onclick="revealAyah()" style="width:100%;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:14px;border-radius:12px;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif">👁 Voir la translittération</button>
+          </div>
+          <div id="mem-eval-btns" style="display:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <button onclick="evalAyah(1)" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#ef4444;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😰<br>Raté</button>
+            <button onclick="evalAyah(3)" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😐<br>Difficile</button>
+            <button onclick="evalAyah(5)" style="background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#4ade80;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😊<br>Facile</button>
+          </div>
+        </div>
+
+        <!-- Session terminée -->
+        <div id="mem-done" style="display:none;text-align:center;padding:40px 20px">
+          <div style="font-size:48px;margin-bottom:16px">🎉</div>
+          <div style="font-family:'Cinzel',serif;font-size:20px;color:var(--gold);margin-bottom:8px">Session terminée !</div>
+          <div id="mem-done-stats" style="font-size:13px;color:var(--muted);margin-bottom:24px"></div>
+          <button onclick="exitMemSession()" style="background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px 24px;border-radius:10px;border:none;font-size:14px;cursor:pointer">Retour</button>
+        </div>
+      </div><!-- /sub-coran-memorisation -->
 
     <!-- PROFIL -->
     <div class="screen" id="screen-profil">
@@ -2318,6 +2401,180 @@ window.addEventListener('load', function(){
   setInterval(renderPrieresSuivi, 30000)
 })
 
+
+// ── MÉMORISATION CORAN (SRS) ─────────────────────────────────────────────────
+let memData = JSON.parse(localStorage.getItem('fadjr_mem') || '{}')
+// memData[key] = { ef: 2.5, interval: 1, reps: 0, nextReview: timestamp, lastScore: 0 }
+let memSession = []
+let memSessionIdx = 0
+let memStreak = parseInt(localStorage.getItem('fadjr_streak') || '0')
+let memLastDate = localStorage.getItem('fadjr_streak_date') || ''
+
+function saveMemData(){ localStorage.setItem('fadjr_mem', JSON.stringify(memData)) }
+
+function initMemorisation(){
+  // Populate surah selector
+  const sel = document.getElementById('mem-surah-sel')
+  if(!sel) return
+  SURAHS.forEach((s,i) => {
+    const opt = document.createElement('option')
+    opt.value = i+1
+    opt.textContent = `${i+1}. ${s.tname} — ${s.ename}`
+    sel.appendChild(opt)
+  })
+  sel.addEventListener('change', function(){
+    const s = SURAHS[this.value-1]
+    if(!s) return
+    document.getElementById('mem-to').value = Math.min(10, s.ayas)
+    document.getElementById('mem-to').max = s.ayas
+    document.getElementById('mem-from').max = s.ayas
+  })
+  updateMemStats()
+}
+
+function updateMemStats(){
+  const keys = Object.keys(memData)
+  const maitrise = keys.filter(k => memData[k].reps >= 3 && memData[k].ef >= 2.2).length
+  document.getElementById('stat-total').textContent = keys.length
+  document.getElementById('stat-maitrise').textContent = maitrise
+  // Streak
+  const today = new Date().toISOString().split('T')[0]
+  if(memLastDate === today){
+    document.getElementById('stat-streak').textContent = memStreak
+  } else {
+    document.getElementById('stat-streak').textContent = memStreak
+  }
+}
+
+async function startMemorisation(){
+  const surahNum = parseInt(document.getElementById('mem-surah-sel').value)
+  const from = parseInt(document.getElementById('mem-from').value)
+  const to = parseInt(document.getElementById('mem-to').value)
+  if(!surahNum || isNaN(from) || isNaN(to)) return
+  const surah = SURAHS[surahNum-1]
+
+  // Build session from versets
+  memSession = []
+  for(let v = from; v <= Math.min(to, surah.ayas); v++){
+    const key = `${surahNum}:${v}`
+    const card = memData[key] || { ef:2.5, interval:1, reps:0, nextReview:0, lastScore:0 }
+    const now = Date.now()
+    // Include if due or new
+    if(card.nextReview <= now || card.reps === 0){
+      memSession.push({ surahNum, surahName: surah.tname, verse: v, key, card })
+    }
+  }
+
+  // If nothing due, show all anyway
+  if(memSession.length === 0){
+    for(let v = from; v <= Math.min(to, surah.ayas); v++){
+      const key = `${surahNum}:${v}`
+      const card = memData[key] || { ef:2.5, interval:1, reps:0, nextReview:0, lastScore:0 }
+      memSession.push({ surahNum, surahName: surah.tname, verse: v, key, card })
+    }
+  }
+
+  // Shuffle
+  memSession.sort(() => Math.random() - 0.5)
+  memSessionIdx = 0
+
+  document.getElementById('mem-setup').style.display = 'none'
+  document.getElementById('mem-done').style.display = 'none'
+  document.getElementById('mem-session').style.display = 'block'
+  await loadMemCard()
+}
+
+async function loadMemCard(){
+  if(memSessionIdx >= memSession.length){
+    showMemDone()
+    return
+  }
+  const item = memSession[memSessionIdx]
+  document.getElementById('mem-progress').textContent = `${memSessionIdx+1} / ${memSession.length}`
+  document.getElementById('mem-surah-name').textContent = `${item.surahName} — Verset ${item.verse}`
+  document.getElementById('mem-ayah-num').textContent = `آية ${item.verse}`
+  document.getElementById('mem-ayah-ar').textContent = '⏳ Chargement...'
+  document.getElementById('mem-ayah-ph').textContent = ''
+  document.getElementById('mem-ayah-fr').textContent = ''
+  document.getElementById('mem-ayah-reveal').style.display = 'none'
+  document.getElementById('mem-show-btn').style.display = 'block'
+  document.getElementById('mem-eval-btns').style.display = 'none'
+
+  // Fetch verset from API
+  try {
+    const res = await fetch(`https://api.alquran.cloud/v1/ayah/${item.surahNum}:${item.verse}/editions/quran-uthmani,fr.hamidullah,en.transliteration`)
+    const data = await res.json()
+    if(data.code === 200){
+      document.getElementById('mem-ayah-ar').textContent = data.data[0].text
+      document.getElementById('mem-ayah-fr').textContent = data.data[1].text
+      document.getElementById('mem-ayah-ph').textContent = data.data[2].text
+    }
+  } catch(e){
+    document.getElementById('mem-ayah-ar').textContent = '(erreur de chargement)'
+  }
+}
+
+function revealAyah(){
+  document.getElementById('mem-ayah-reveal').style.display = 'block'
+  document.getElementById('mem-show-btn').style.display = 'none'
+  document.getElementById('mem-eval-btns').style.display = 'grid'
+}
+
+function evalAyah(score){
+  // SM-2 algorithm
+  const item = memSession[memSessionIdx]
+  let card = item.card
+  card.lastScore = score
+  if(score >= 3){
+    if(card.reps === 0) card.interval = 1
+    else if(card.reps === 1) card.interval = 6
+    else card.interval = Math.round(card.interval * card.ef)
+    card.reps++
+  } else {
+    card.reps = 0
+    card.interval = 1
+  }
+  card.ef = Math.max(1.3, card.ef + 0.1 - (5-score) * (0.08 + (5-score) * 0.02))
+  card.nextReview = Date.now() + card.interval * 86400000
+  memData[item.key] = card
+  saveMemData()
+
+  // Update streak
+  const today = new Date().toISOString().split('T')[0]
+  if(memLastDate !== today){
+    const yesterday = new Date(Date.now()-86400000).toISOString().split('T')[0]
+    memStreak = memLastDate === yesterday ? memStreak + 1 : 1
+    memLastDate = today
+    localStorage.setItem('fadjr_streak', memStreak)
+    localStorage.setItem('fadjr_streak_date', today)
+  }
+
+  memSessionIdx++
+  loadMemCard()
+}
+
+function showMemDone(){
+  document.getElementById('mem-session').style.display = 'none'
+  document.getElementById('mem-done').style.display = 'block'
+  const maitrise = memSession.filter(i => (memData[i.key]?.lastScore||0) >= 3).length
+  document.getElementById('mem-done-stats').textContent = `${maitrise} / ${memSession.length} versets réussis · Streak: ${memStreak} 🔥`
+  updateMemStats()
+}
+
+function exitMemSession(){
+  document.getElementById('mem-session').style.display = 'none'
+  document.getElementById('mem-done').style.display = 'none'
+  document.getElementById('mem-setup').style.display = 'block'
+  updateMemStats()
+}
+
+function setCoranTab(el, tab){
+  document.querySelectorAll('#screen-culture .subtab').forEach(b => b.classList.remove('active'))
+  el.classList.add('active')
+  document.getElementById('sub-coran-lecture').style.display = tab === 'lecture' ? 'block' : 'none'
+  document.getElementById('sub-coran-memorisation').style.display = tab === 'memorisation' ? 'block' : 'none'
+  if(tab === 'memorisation') initMemorisation()
+}
 </script>
 
 <!-- ONBOARDING -->
