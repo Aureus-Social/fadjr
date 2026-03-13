@@ -915,7 +915,7 @@ body.light .screen { background: transparent; }
             </div>
           </div>
 
-        <a class="dashboard-banner" href="https://fadjr.app/dashboard" target="_blank">
+        <a class="dashboard-banner" href="https://fadjr.app/dashboard" target="_blank" style="display:none">
           <div>
             <div class="db-title">📊 Dashboard Admin FADJR</div>
             <div class="db-sub">Accès complet · MRR · Partenaires · Pub</div>
@@ -2322,6 +2322,8 @@ async function initAuth(){
   })
 }
 
+const ADMIN_EMAILS = ['moussati.nourdin@gmail.com', 'salem@aureusia.com']
+
 function showUserPanel(user){
   loadMemDataCloud()
   document.getElementById('auth-panel').style.display = 'none'
@@ -2332,6 +2334,9 @@ function showUserPanel(user){
   document.getElementById('accueil-username').textContent = (meta?.name || user.email.split('@')[0]) + ' 👋'
   const h = new Date().getHours()
   document.getElementById('accueil-greeting').textContent = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir'
+  // Admin dashboard — visible only to admins
+  const dashBanner = document.querySelector('.dashboard-banner')
+  if(dashBanner) dashBanner.style.display = ADMIN_EMAILS.includes(user.email) ? 'flex' : 'none'
 }
 
 function showAuthPanel(){
