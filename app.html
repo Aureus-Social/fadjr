@@ -918,7 +918,9 @@ document.getElementById('today-date').textContent = now.toLocaleDateString('fr-B
 async function loadPrayers(){
   try{
     const d=now.getDate(),m=now.getMonth()+1,y=now.getFullYear()
-    const r=await fetch(`https://api.aladhan.com/v1/timings/${d}-${m}-${y}?latitude=50.8503&longitude=4.3517&method=3`)
+    const lat = localStorage.getItem('fadjr_lat') || '50.8503'
+    const lng = localStorage.getItem('fadjr_lng') || '4.3517'
+    const r=await fetch(`https://api.aladhan.com/v1/timings/${d}-${m}-${y}?latitude=${lat}&longitude=${lng}&method=3`)
     const data=await r.json()
     if(data.code===200){
       const t=data.data.timings
