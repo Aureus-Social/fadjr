@@ -354,7 +354,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
     <div id="post-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;padding:20px;overflow-y:auto">
       <div style="background:#13131F;border:1px solid var(--border);border-radius:16px;padding:20px;max-width:480px;margin:40px auto">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold)">Partager avec la communauté</div>
+          <div style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold)" id="label-partager-comm">Partager avec la communauté</div>
           <button onclick="closePostModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">×</button>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="post-cat-btns">
@@ -381,7 +381,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       </div>
       
       <div class="screen-header">
-        <div class="sec-label">PRIÈRE & SPIRITUALITÉ</div>
+        <div class="sec-label" id="label-priere-spiritualite">PRIÈRE & SPIRITUALITÉ</div>
         <div class="screen-title">☪ Bruxelles, Belgique</div>
       </div>
 
@@ -405,7 +405,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           </div>
         </div>
         <div id="qibla-deg-display" style="font-family:'Cinzel',serif;font-size:36px;color:var(--gold);font-weight:900;margin-top:12px">127°</div>
-        <div style="color:var(--white);font-size:15px;margin-top:4px">Direction de La Mecque</div>
+        <div style="color:var(--white);font-size:15px;margin-top:4px" id="label-direction-mecque">Direction de La Mecque</div>
         <div id="compass-status" style="color:var(--muted);font-size:11px;margin-top:4px">Activation boussole...</div>
         <button onclick="initCompass()" id="compass-btn" style="margin-top:10px;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:6px 14px;border-radius:8px;font-size:11px;cursor:pointer">🧭 Activer la boussole</button>
         <div class="card" style="margin-top:20px">
@@ -439,7 +439,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <div style="height:12px"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div>
-          <div style="font-size:9px;letter-spacing:.2em;color:var(--muted)">CARTE HALAL</div>
+          <div style="font-size:9px;letter-spacing:.2em;color:var(--muted)" id="label-carte-halal">CARTE HALAL</div>
           <div style="font-size:16px;font-weight:900" id="carte-city">Bruxelles</div>
         </div>
         <button onclick="locateMe()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif">📍 Me localiser</button>
@@ -473,7 +473,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
     <div class="screen" id="screen-dhikr">
       <div style="height:16px"></div>
       <div class="screen-header">
-        <div class="sec-label">DHIKR & TASBIH</div>
+        <div class="sec-label" id="label-dhikr-tasbih">DHIKR & TASBIH</div>
         <div class="screen-title">📿 Dhikr Numérique</div>
       </div>
 
@@ -502,7 +502,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       </div>
 
       <!-- Dhikr list -->
-      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">ADHKARS CLASSIQUES</div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px" id="label-adhkars">ADHKARS CLASSIQUES</div>
       <div id="dhikr-list" style="display:flex;flex-direction:column;gap:8px"></div>
 
       <!-- 99 Noms d'Allah -->
@@ -532,7 +532,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
       <div id="sub-coran-lecture">
       <div class="screen-header">
-        <div class="sec-label">CORAN COMPLET</div>
+        <div class="sec-label" id="label-coran-complet">CORAN COMPLET</div>
         <div class="screen-title">📖 القرآن الكريم</div>
       </div>
 
@@ -607,37 +607,37 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <!-- MÉMORISATION -->
       <div id="sub-coran-memorisation" style="display:none">
         <div class="screen-header">
-          <div class="sec-label">MÉMORISATION</div>
+          <div class="sec-label" id="label-memorisation-title">MÉMORISATION</div>
           <div class="screen-title">🧠 Hifz — حفظ</div>
         </div>
 
         <!-- Setup -->
         <div id="mem-setup">
           <div class="card" style="margin-bottom:12px">
-            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px">CHOISIR UNE SOURATE</div>
+            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px" id="label-choisir-sourate">CHOISIR UNE SOURATE</div>
             <select id="mem-surah-sel" style="width:100%;background:#1a1a2e;border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;font-family:'Cairo',sans-serif;outline:none;margin-bottom:10px;color-scheme:dark">
               <option value="">Sélectionner...</option>
             </select>
             <div style="display:flex;gap:8px;margin-bottom:10px">
               <div style="flex:1">
-                <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Verset début</div>
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px" id="label-verset-debut">Verset début</div>
                 <input id="mem-from" type="number" min="1" value="1" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--white);font-size:13px;outline:none">
               </div>
               <div style="flex:1">
-                <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Verset fin</div>
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px" id="label-verset-fin">Verset fin</div>
                 <input id="mem-to" type="number" min="1" value="10" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--white);font-size:13px;outline:none">
               </div>
             </div>
-            <button onclick="startMemorisation()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:10px;border:none;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif">🚀 Commencer</button>
+            <button onclick="startMemorisation()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:10px;border:none;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif" id="btn-commencer-mem">🚀 Commencer</button>
           </div>
 
           <!-- Statistiques -->
           <div class="card">
-            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px">MES STATISTIQUES</div>
+            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px" id="label-mes-stats">MES STATISTIQUES</div>
             <div id="mem-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
-              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-total">0</div><div style="font-size:10px;color:var(--muted)">Versets</div></div>
-              <div><div style="font-size:22px;font-weight:900;color:#4ade80" id="stat-maitrise">0</div><div style="font-size:10px;color:var(--muted)">Maîtrisés</div></div>
-              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-streak">0</div><div style="font-size:10px;color:var(--muted)">🔥 Streak</div></div>
+              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-total">0</div><div style="font-size:10px;color:var(--muted)" id="label-stat-versets">Versets</div></div>
+              <div><div style="font-size:22px;font-weight:900;color:#4ade80" id="stat-maitrise">0</div><div style="font-size:10px;color:var(--muted)" id="label-stat-maitrise">Maîtrisés</div></div>
+              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-streak">0</div><div style="font-size:10px;color:var(--muted)" id="label-stat-streak">🔥 Streak</div></div>
             </div>
           </div>
         </div>
@@ -665,9 +665,9 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
             <button onclick="revealAyah()" style="width:100%;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:14px;border-radius:12px;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif">👁 Voir la translittération</button>
           </div>
           <div id="mem-eval-btns" style="display:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <button onclick="evalAyah(1)" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#ef4444;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😰<br>Raté</button>
-            <button onclick="evalAyah(3)" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😐<br>Difficile</button>
-            <button onclick="evalAyah(5)" style="background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#4ade80;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😊<br>Facile</button>
+            <button onclick="evalAyah(1)" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#ef4444;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😰<br id="btn-rate">Raté</button>
+            <button onclick="evalAyah(3)" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😐<br id="btn-difficile">Difficile</button>
+            <button onclick="evalAyah(5)" style="background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#4ade80;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😊<br id="btn-facile">Facile</button>
           </div>
         </div>
 
@@ -676,7 +676,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           <div style="font-size:48px;margin-bottom:16px">🎉</div>
           <div style="font-family:'Cinzel',serif;font-size:20px;color:var(--gold);margin-bottom:8px">Session terminée !</div>
           <div id="mem-done-stats" style="font-size:13px;color:var(--muted);margin-bottom:24px"></div>
-          <button onclick="exitMemSession()" style="background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px 24px;border-radius:10px;border:none;font-size:14px;cursor:pointer">Retour</button>
+          <button onclick="exitMemSession()" style="background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px 24px;border-radius:10px;border:none;font-size:14px;cursor:pointer" id="btn-retour-coran">Retour</button>
         </div>
       </div><!-- /sub-coran-memorisation -->
 
@@ -689,23 +689,23 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div style="text-align:center;padding:20px 0 24px">
           <div style="font-size:48px;margin-bottom:12px">☪</div>
           <div style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);margin-bottom:6px">FADJR</div>
-          <div style="font-size:12px;color:var(--muted)">Connectez-vous pour sauvegarder vos préférences</div>
+          <div style="font-size:12px;color:var(--muted)" id="label-connect-save">Connectez-vous pour sauvegarder vos préférences</div>
         </div>
 
         <!-- Tabs login/register -->
         <div style="display:flex;border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden">
-          <button id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:10px;background:rgba(201,168,76,.1);border:none;color:var(--gold);font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Connexion</button>
+          <button id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:10px;background:rgba(201,168,76,.1);border:none;color:var(--gold);font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer" id="btn-connexion">Connexion</button>
           <button id="auth-tab-register" onclick="switchAuthTab('register')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer">Inscription</button>
         </div>
 
         <!-- Login form -->
         <div id="auth-login">
           <div style="margin-bottom:12px">
-            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">EMAIL</div>
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px" id="label-email">EMAIL</div>
             <input id="login-email" type="email" placeholder="votre@email.com" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
           </div>
           <div style="margin-bottom:16px">
-            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">MOT DE PASSE</div>
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px" id="label-motdepasse">MOT DE PASSE</div>
             <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
           </div>
           <button onclick="doLogin()" id="login-btn" style="width:100%;background:var(--gold);color:#07070F;padding:13px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif;transition:.2s">Se connecter</button>
@@ -715,7 +715,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <!-- Register form -->
         <div id="auth-register" style="display:none">
           <div style="margin-bottom:12px">
-            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">PRÉNOM</div>
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px" id="label-prenom">PRÉNOM</div>
             <input id="reg-name" type="text" placeholder="Votre prénom" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
           </div>
           <div style="margin-bottom:12px">
@@ -2940,8 +2940,18 @@ const APP_TRANSLATIONS = {
     lecture:'Lecture', memorisation:'Mémorisation',
     bonjour:'Assalamu Alaykoum', sloganSub:'Votre compagnon spirituel halal',
     versetJour:'✦ Verset du jour', hadithJour:'📜 Hadith du jour',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar dans',
-    bienvenue:'Bienvenue 👋',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar dans', bienvenue:'Bienvenue 👋',
+    priereSpirit:'PRIÈRE & SPIRITUALITÉ', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'CORAN COMPLET', carteHalal:'CARTE HALAL',
+    memorisationTitle:'MÉMORISATION', choisirSourate:'CHOISIR UNE SOURATE',
+    mesStats:'MES STATISTIQUES', directionMecque:'Direction de La Mecque',
+    retour:'Retour', versetDebut:'Verset début', versetFin:'Verset fin',
+    statVersets:'Versets', statMaitrise:'Maîtrisés', statStreak:'🔥 Streak',
+    commencer:'🚀 Commencer', partagerComm:'Partager avec la communauté',
+    email:'EMAIL', motdepasse:'MOT DE PASSE', prenom:'PRÉNOM', connexion:'Connexion',
+    connectSave:'Connectez-vous pour sauvegarder vos préférences',
+    adhkars:'ADHKARS CLASSIQUES', rate:'Raté', difficile:'Difficile', facile:'Facile',
+    reveler:'Révéler', reciter:'Réciter',
   },
   en: {
     accueil:'HOME', priere:'PRAYER', dhikr:'DHIKR', halal:'HALAL', coran:'QURAN', ramadan:'RAMADAN', profil:'PROFILE',
@@ -2951,8 +2961,18 @@ const APP_TRANSLATIONS = {
     lecture:'Reading', memorisation:'Memorization',
     bonjour:'Assalamu Alaykoum', sloganSub:'Your halal spiritual companion',
     versetJour:'✦ Verse of the day', hadithJour:'📜 Hadith of the day',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in',
-    bienvenue:'Welcome 👋',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in', bienvenue:'Welcome 👋',
+    priereSpirit:'PRAYER & SPIRITUALITY', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'COMPLETE QURAN', carteHalal:'HALAL MAP',
+    memorisationTitle:'MEMORIZATION', choisirSourate:'CHOOSE A SURAH',
+    mesStats:'MY STATISTICS', directionMecque:'Direction of Mecca',
+    retour:'Back', versetDebut:'Start verse', versetFin:'End verse',
+    statVersets:'Verses', statMaitrise:'Mastered', statStreak:'🔥 Streak',
+    commencer:'🚀 Start', partagerComm:'Share with the community',
+    email:'EMAIL', motdepasse:'PASSWORD', prenom:'FIRST NAME', connexion:'Login',
+    connectSave:'Login to save your preferences',
+    adhkars:'CLASSIC ADHKARS', rate:'Failed', difficile:'Hard', facile:'Easy',
+    reveler:'Reveal', reciter:'Recite',
   },
   ar: {
     accueil:'الرئيسية', priere:'الصلاة', dhikr:'الذكر', halal:'حلال', coran:'القرآن', ramadan:'رمضان', profil:'الملف',
@@ -2962,8 +2982,18 @@ const APP_TRANSLATIONS = {
     lecture:'قراءة', memorisation:'حفظ',
     bonjour:'السلام عليكم', sloganSub:'رفيقك الروحي الحلال',
     versetJour:'✦ آية اليوم', hadithJour:'📜 حديث اليوم',
-    ramadanLabel:'🌙 رمضان 1447', iftarDans:'الإفطار في',
-    bienvenue:'أهلاً وسهلاً 👋',
+    ramadanLabel:'🌙 رمضان 1447', iftarDans:'الإفطار في', bienvenue:'أهلاً وسهلاً 👋',
+    priereSpirit:'الصلاة والروحانية', dhikrTasbih:'الذكر والتسبيح',
+    coranComplet:'القرآن الكريم كاملاً', carteHalal:'خريطة الحلال',
+    memorisationTitle:'الحفظ', choisirSourate:'اختر السورة',
+    mesStats:'إحصائياتي', directionMecque:'اتجاه مكة المكرمة',
+    retour:'رجوع', versetDebut:'الآية الأولى', versetFin:'الآية الأخيرة',
+    statVersets:'الآيات', statMaitrise:'محفوظة', statStreak:'🔥 سلسلة',
+    commencer:'🚀 ابدأ', partagerComm:'شارك مع المجتمع',
+    email:'البريد الإلكتروني', motdepasse:'كلمة المرور', prenom:'الاسم الأول', connexion:'تسجيل الدخول',
+    connectSave:'سجّل دخولك لحفظ تفضيلاتك',
+    adhkars:'الأذكار الكلاسيكية', rate:'لم أتذكر', difficile:'صعب', facile:'سهل',
+    reveler:'كشف', reciter:'تلاوة',
   },
   tr: {
     accueil:'ANA SAYFA', priere:'NAMAZ', dhikr:'ZİKİR', halal:'HELAL', coran:"KUR'AN", ramadan:'RAMAZAN', profil:'PROFİL',
@@ -2973,8 +3003,18 @@ const APP_TRANSLATIONS = {
     lecture:'Okuma', memorisation:'Ezberleme',
     bonjour:'Esselamu Aleykum', sloganSub:'Helal manevi yoldaşınız',
     versetJour:'✦ Günün ayeti', hadithJour:'📜 Günün hadisi',
-    ramadanLabel:'🌙 RAMAZAN 1447', iftarDans:'İftara kalan',
-    bienvenue:'Hoş geldiniz 👋',
+    ramadanLabel:'🌙 RAMAZAN 1447', iftarDans:'İftara kalan', bienvenue:'Hoş geldiniz 👋',
+    priereSpirit:'NAMAZ & MANEVİYAT', dhikrTasbih:'ZİKİR & TESBİH',
+    coranComplet:"TAM KUR'AN", carteHalal:'HELAL HARİTA',
+    memorisationTitle:'EZBERLEME', choisirSourate:'SURE SEÇİN',
+    mesStats:'İSTATİSTİKLERİM', directionMecque:'Kabe Yönü',
+    retour:'Geri', versetDebut:'Başlangıç ayeti', versetFin:'Bitiş ayeti',
+    statVersets:'Ayet', statMaitrise:'Öğrenildi', statStreak:'🔥 Seri',
+    commencer:'🚀 Başla', partagerComm:'Toplulukla paylaş',
+    email:'E-POSTA', motdepasse:'ŞİFRE', prenom:'AD', connexion:'Giriş',
+    connectSave:'Tercihlerinizi kaydetmek için giriş yapın',
+    adhkars:'KLASİK ZİKİRLER', rate:'Hatırlamadım', difficile:'Zor', facile:'Kolay',
+    reveler:'Göster', reciter:'Oku',
   },
   es: {
     accueil:'INICIO', priere:'ORACIÓN', dhikr:'DHIKR', halal:'HALAL', coran:'CORÁN', ramadan:'RAMADÁN', profil:'PERFIL',
@@ -2984,8 +3024,18 @@ const APP_TRANSLATIONS = {
     lecture:'Lectura', memorisation:'Memorización',
     bonjour:'Assalamu Alaykoum', sloganSub:'Tu compañero espiritual halal',
     versetJour:'✦ Versículo del día', hadithJour:'📜 Hadith del día',
-    ramadanLabel:'🌙 RAMADÁN 1447', iftarDans:'Iftar en',
-    bienvenue:'Bienvenido 👋',
+    ramadanLabel:'🌙 RAMADÁN 1447', iftarDans:'Iftar en', bienvenue:'Bienvenido 👋',
+    priereSpirit:'ORACIÓN & ESPIRITUALIDAD', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'CORÁN COMPLETO', carteHalal:'MAPA HALAL',
+    memorisationTitle:'MEMORIZACIÓN', choisirSourate:'ELEGIR SURA',
+    mesStats:'MIS ESTADÍSTICAS', directionMecque:'Dirección de La Meca',
+    retour:'Volver', versetDebut:'Versículo inicio', versetFin:'Versículo fin',
+    statVersets:'Versículos', statMaitrise:'Dominados', statStreak:'🔥 Racha',
+    commencer:'🚀 Comenzar', partagerComm:'Compartir con la comunidad',
+    email:'EMAIL', motdepasse:'CONTRASEÑA', prenom:'NOMBRE', connexion:'Iniciar sesión',
+    connectSave:'Inicia sesión para guardar tus preferencias',
+    adhkars:'ADHKARS CLÁSICOS', rate:'Fallé', difficile:'Difícil', facile:'Fácil',
+    reveler:'Revelar', reciter:'Recitar',
   },
   nl: {
     accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
@@ -2995,8 +3045,18 @@ const APP_TRANSLATIONS = {
     lecture:'Lezen', memorisation:'Memorisatie',
     bonjour:'Assalamu Alaykoum', sloganSub:'Uw halal spirituele metgezel',
     versetJour:'✦ Vers van de dag', hadithJour:'📜 Hadith van de dag',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar over',
-    bienvenue:'Welkom 👋',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar over', bienvenue:'Welkom 👋',
+    priereSpirit:'GEBED & SPIRITUALITEIT', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'VOLLEDIGE KORAN', carteHalal:'HALAL KAART',
+    memorisationTitle:'MEMORISATIE', choisirSourate:'KIES EEN SOERA',
+    mesStats:'MIJN STATISTIEKEN', directionMecque:'Richting van Mekka',
+    retour:'Terug', versetDebut:'Beginvers', versetFin:'Eindvers',
+    statVersets:'Verzen', statMaitrise:'Beheerst', statStreak:'🔥 Reeks',
+    commencer:'🚀 Starten', partagerComm:'Delen met de gemeenschap',
+    email:'EMAIL', motdepasse:'WACHTWOORD', prenom:'VOORNAAM', connexion:'Inloggen',
+    connectSave:'Log in om uw voorkeuren op te slaan',
+    adhkars:'KLASSIEKE ADHKARS', rate:'Mislukt', difficile:'Moeilijk', facile:'Makkelijk',
+    reveler:'Onthullen', reciter:'Reciteren',
   },
   de: {
     accueil:'STARTSEITE', priere:'GEBET', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIL',
@@ -3006,8 +3066,18 @@ const APP_TRANSLATIONS = {
     lecture:'Lesen', memorisation:'Auswendiglernen',
     bonjour:'Assalamu Alaykoum', sloganSub:'Ihr halal spiritueller Begleiter',
     versetJour:'✦ Vers des Tages', hadithJour:'📜 Hadith des Tages',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in',
-    bienvenue:'Willkommen 👋',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in', bienvenue:'Willkommen 👋',
+    priereSpirit:'GEBET & SPIRITUALITÄT', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'VOLLSTÄNDIGER KORAN', carteHalal:'HALAL-KARTE',
+    memorisationTitle:'AUSWENDIGLERNEN', choisirSourate:'SURE WÄHLEN',
+    mesStats:'MEINE STATISTIKEN', directionMecque:'Richtung Mekka',
+    retour:'Zurück', versetDebut:'Startvers', versetFin:'Endvers',
+    statVersets:'Verse', statMaitrise:'Gelernt', statStreak:'🔥 Serie',
+    commencer:'🚀 Starten', partagerComm:'Mit der Gemeinschaft teilen',
+    email:'E-MAIL', motdepasse:'PASSWORT', prenom:'VORNAME', connexion:'Anmelden',
+    connectSave:'Melden Sie sich an, um Ihre Einstellungen zu speichern',
+    adhkars:'KLASSISCHE ADHKARS', rate:'Nicht gewusst', difficile:'Schwer', facile:'Leicht',
+    reveler:'Enthüllen', reciter:'Rezitieren',
   },
   pt: {
     accueil:'INÍCIO', priere:'ORAÇÃO', dhikr:'DHIKR', halal:'HALAL', coran:'ALCORÃO', ramadan:'RAMADÃO', profil:'PERFIL',
@@ -3017,8 +3087,18 @@ const APP_TRANSLATIONS = {
     lecture:'Leitura', memorisation:'Memorização',
     bonjour:'Assalamu Alaykoum', sloganSub:'O seu companheiro espiritual halal',
     versetJour:'✦ Versículo do dia', hadithJour:'📜 Hadith do dia',
-    ramadanLabel:'🌙 RAMADÃO 1447', iftarDans:'Iftar em',
-    bienvenue:'Bem-vindo 👋',
+    ramadanLabel:'🌙 RAMADÃO 1447', iftarDans:'Iftar em', bienvenue:'Bem-vindo 👋',
+    priereSpirit:'ORAÇÃO & ESPIRITUALIDADE', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'ALCORÃO COMPLETO', carteHalal:'MAPA HALAL',
+    memorisationTitle:'MEMORIZAÇÃO', choisirSourate:'ESCOLHER SURA',
+    mesStats:'MINHAS ESTATÍSTICAS', directionMecque:'Direção de Meca',
+    retour:'Voltar', versetDebut:'Versículo início', versetFin:'Versículo fim',
+    statVersets:'Versículos', statMaitrise:'Dominados', statStreak:'🔥 Sequência',
+    commencer:'🚀 Começar', partagerComm:'Partilhar com a comunidade',
+    email:'EMAIL', motdepasse:'SENHA', prenom:'NOME', connexion:'Entrar',
+    connectSave:'Faça login para guardar as suas preferências',
+    adhkars:'ADHKARS CLÁSSICOS', rate:'Errei', difficile:'Difícil', facile:'Fácil',
+    reveler:'Revelar', reciter:'Recitar',
   },
   id: {
     accueil:'BERANDA', priere:'SALAT', dhikr:'DZIKIR', halal:'HALAL', coran:'AL-QURAN', ramadan:'RAMADAN', profil:'PROFIL',
@@ -3028,8 +3108,18 @@ const APP_TRANSLATIONS = {
     lecture:'Membaca', memorisation:'Menghafal',
     bonjour:'Assalamu Alaykoum', sloganSub:'Teman spiritual halal Anda',
     versetJour:'✦ Ayat hari ini', hadithJour:'📜 Hadits hari ini',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Buka puasa dalam',
-    bienvenue:'Selamat datang 👋',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Buka puasa dalam', bienvenue:'Selamat datang 👋',
+    priereSpirit:'SALAT & SPIRITUALITAS', dhikrTasbih:'DZIKIR & TASBIH',
+    coranComplet:'AL-QURAN LENGKAP', carteHalal:'PETA HALAL',
+    memorisationTitle:'MENGHAFAL', choisirSourate:'PILIH SURAH',
+    mesStats:'STATISTIK SAYA', directionMecque:'Arah Kiblat',
+    retour:'Kembali', versetDebut:'Ayat awal', versetFin:'Ayat akhir',
+    statVersets:'Ayat', statMaitrise:'Dikuasai', statStreak:'🔥 Streak',
+    commencer:'🚀 Mulai', partagerComm:'Bagikan ke komunitas',
+    email:'EMAIL', motdepasse:'KATA SANDI', prenom:'NAMA DEPAN', connexion:'Masuk',
+    connectSave:'Masuk untuk menyimpan preferensi Anda',
+    adhkars:'DZIKIR KLASIK', rate:'Lupa', difficile:'Sulit', facile:'Mudah',
+    reveler:'Tampilkan', reciter:'Membaca',
   }
 }
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
@@ -3046,61 +3136,85 @@ function changeAppLang(lang){
 function applyAppLang(lang){
   const t = APP_TRANSLATIONS[lang] || APP_TRANSLATIONS.fr
   const isRTL = lang === 'ar'
-
-  // Direction RTL pour arabe
   document.body.style.direction = isRTL ? 'rtl' : 'ltr'
-  document.body.style.textAlign = isRTL ? 'right' : ''
 
-  // Tabbar labels
-  const tabs = ['accueil','priere','dhikr','halal','coran','ramadan','profil']
-  tabs.forEach(tab => {
+  // Tabbar
+  ;['accueil','priere','dhikr','halal','coran','ramadan','profil'].forEach(tab => {
     const el = document.querySelector(`#tab-${tab} .tab-label`)
     if(el && t[tab]) el.textContent = t[tab]
   })
 
-  // Header
+  // Map ID → translation key
+  const idMap = {
+    'label-verset-jour': 'versetJour',
+    'label-hadith-jour': 'hadithJour',
+    'label-ramadan': 'ramadanLabel',
+    'label-pres-de-vous': 'prixEtude',
+    'label-communaute': 'communaute',
+    'label-voir-tout': 'voirTout',
+    'label-priere-spiritualite': 'priereSpirit',
+    'label-dhikr-tasbih': 'dhikrTasbih',
+    'label-coran-complet': 'coranComplet',
+    'label-carte-halal': 'carteHalal',
+    'label-memorisation-title': 'memorisationTitle',
+    'label-choisir-sourate': 'choisirSourate',
+    'label-mes-stats': 'mesStats',
+    'label-direction-mecque': 'directionMecque',
+    'label-verset-debut': 'versetDebut',
+    'label-verset-fin': 'versetFin',
+    'label-stat-versets': 'statVersets',
+    'label-stat-maitrise': 'statMaitrise',
+    'label-stat-streak': 'statStreak',
+    'label-adhkars': 'adhkars',
+    'label-email': 'email',
+    'label-motdepasse': 'motdepasse',
+    'label-prenom': 'prenom',
+    'label-connect-save': 'connectSave',
+    'btn-retour-coran': 'retour',
+    'btn-connexion': 'connexion',
+    'btn-commencer-mem': 'commencer',
+    'btn-partager-comm': 'partagerComm',
+    'btn-rate': 'rate',
+    'btn-difficile': 'difficile',
+    'btn-facile': 'facile',
+  }
+  Object.entries(idMap).forEach(([id, key]) => {
+    const el = document.getElementById(id)
+    if(el && t[key]) el.textContent = t[key]
+  })
+
+  // Btn Révéler/Réciter (dynamically created, update if present)
+  ;['btn-reveler','btn-reciter'].forEach(id => {
+    const el = document.getElementById(id)
+    if(el) el.textContent = id === 'btn-reveler' ? t.reveler : t.reciter
+  })
+
+  // Next prayer label
   const npLabel = document.querySelector('.np-label')
   if(npLabel) npLabel.textContent = t.prochainePriere
 
-  // Accueil username
+  // Accueil username (if not set)
   const usernameEl = document.getElementById('accueil-username')
   if(usernameEl && !usernameEl.dataset.custom) usernameEl.textContent = t.bienvenue
-
-  // Labels statiques
-  const labelMap = {
-    'label-verset-jour': t.versetJour,
-    'label-hadith-jour': t.hadithJour,
-    'label-ramadan': t.ramadanLabel,
-    'label-pres-de-vous': t.prixEtude,
-    'label-communaute': t.communaute,
-    'label-voir-tout': t.voirTout,
-  }
-  Object.entries(labelMap).forEach(([id, txt]) => {
-    const el = document.getElementById(id)
-    if(el && txt) el.textContent = txt
-  })
 
   // Iftar banner
   const iftarEl = document.getElementById('label-iftar')
   if(iftarEl){
-    const currentTime = iftarEl.textContent.replace(/^[^\d:]+/, '')
-    iftarEl.textContent = t.iftarDans + ' ' + currentTime
+    const time = iftarEl.textContent.match(/[\d:]+/) || ['--:--']
+    iftarEl.textContent = t.iftarDans + ' ' + time[0]
   }
 
-  // Share button
+  // Share button communauté
   const shareBtn = document.querySelector('[onclick="showPostModal()"]')
   if(shareBtn) shareBtn.textContent = t.partager
-
-  // Coran tabs lecture/mémorisation
-  const coranTabs = document.querySelectorAll('.coran-tab-btn')
-  coranTabs.forEach(btn => {
-    if(btn.dataset.tab === 'lecture') btn.childNodes[btn.childNodes.length-1].textContent = ' ' + t.lecture
-    if(btn.dataset.tab === 'memorisation') btn.childNodes[btn.childNodes.length-1].textContent = ' ' + t.memorisation
-  })
 
   // Sync selector
   const sel = document.getElementById('app-lang-sel')
   if(sel) sel.value = lang
+
+  // Trans-sel default sync
+  const transSel = document.getElementById('trans-sel')
+  if(transSel && ['fr','en','ar','tr','es','de','pt','id'].includes(lang)) transSel.value = lang
 }
 
 // Init on load
