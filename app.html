@@ -492,6 +492,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
             <div id="reader-sub" style="font-size:10px;color:var(--muted)"></div>
           </div>
           <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+            <button id="tajweed-btn" onclick="toggleTajweed()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:5px 8px;border-radius:8px;cursor:pointer;font-size:10px;font-weight:700">🎨</button>
             <select id="reciter-sel" onchange="resetAudio()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:6px 8px;border-radius:8px;font-size:10px;font-family:'Cairo',sans-serif;max-width:130px">
               <option value="mishaari_raashid_al-3afaasee">Mishary Al-Afasy</option>
               <option value="abu_bakr_ash-shaatree">Abu Bakr Shatri</option>
@@ -516,7 +517,20 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           </div>
         </div>
         <div id="ayahs-container" style="display:flex;flex-direction:column;gap:16px;padding-bottom:20px"></div>
-        <div id="ayahs-loading" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Chargement...</div>
+        <!-- Tajweed legend -->
+      <div id="tajweed-legend" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:12px;font-size:10px">
+        <div style="color:var(--gold);letter-spacing:.1em;margin-bottom:8px">RÈGLES TAJWEED</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="color:#ef4444">● Ghunna</span>
+          <span style="color:#22c55e">● Ikhfa</span>
+          <span style="color:#3b82f6">● Idgham</span>
+          <span style="color:#eab308">● Qalqala</span>
+          <span style="color:#f97316">● Mad</span>
+          <span style="color:#a855f7">● Izhar</span>
+          <span style="color:#06b6d4">● Madd Lazim</span>
+        </div>
+      </div>
+      <div id="ayahs-loading" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Chargement...</div>
       </div>
     </div>
       </div><!-- /sub-coran-lecture -->
@@ -2574,6 +2588,67 @@ function setCoranTab(el, tab){
   document.getElementById('sub-coran-lecture').style.display = tab === 'lecture' ? 'block' : 'none'
   document.getElementById('sub-coran-memorisation').style.display = tab === 'memorisation' ? 'block' : 'none'
   if(tab === 'memorisation') initMemorisation()
+}
+
+// ── TAJWEED ───────────────────────────────────────────────────────────────────
+let tajweedEnabled = false
+
+function toggleTajweed(){
+  tajweedEnabled = !tajweedEnabled
+  const btn = document.getElementById('tajweed-btn')
+  const legend = document.getElementById('tajweed-legend')
+  if(btn) btn.style.background = tajweedEnabled ? 'rgba(201,168,76,.3)' : 'rgba(201,168,76,.1)'
+  if(legend) legend.style.display = tajweedEnabled ? 'block' : 'none'
+  // Re-render current ayahs
+  const container = document.getElementById('ayahs-container')
+  if(!container) return
+  const divs = container.querySelectorAll('[data-ar]')
+  divs.forEach(div => {
+    div.innerHTML = tajweedEnabled ? applyTajweed(div.getAttribute('data-ar')) : div.getAttribute('data-ar')
+  })
+}
+
+// Règles Tajweed — coloration des lettres et patterns
+function applyTajweed(text){
+  if(!text) return text
+  let t = text
+
+  // Qalqala letters — ق ط ب ج د (vibration) 🟡
+  t = t.replace(/([قطبجد])/g, '<span style="color:#eab308">$1</span>')
+
+  // Mad letters — prolongation 🟠 (ا و ي preceded by fatha/damma/kasra)
+  t = t.replace(/([َ][ا]|[ُ][و]|[ِ][ي])/g, '<span style="color:#f97316">$1</span>')
+
+  // Ghunna — nun and mim with shadda ّ 🔴
+  t = t.replace(/([نم][ّ])/g, '<span style="color:#ef4444">$1</span>')
+
+  // Idgham — nun sakin + waw, ya, nun, mim, ra, lam 🔵
+  t = t.replace(/(نْ\s*[وينملر])/g, '<span style="color:#3b82f6">$1</span>')
+  t = t.replace(/(ن[ْ]\s*[وينملر])/g, '<span style="color:#3b82f6">$1</span>')
+
+  // Ikhfa — nun sakin before certain letters 🟢
+  t = t.replace(/(نْ\s*[تثجدذزسشصضطظفقك])/g, '<span style="color:#22c55e">$1</span>')
+
+  // Madd Lazim — prolongation obligatoire 🔵
+  t = t.replace(/([اوي][ّ])/g, '<span style="color:#06b6d4">$1</span>')
+
+  // Izhar — nun sakin before throat letters 🟣
+  t = t.replace(/(نْ\s*[ءهعحغخ])/g, '<span style="color:#a855f7">$1</span>')
+
+  return t
+}
+
+// Override renderAyahs to store data-ar
+const _origRenderAyahs = renderAyahs
+function renderAyahs(ayahs){
+  document.getElementById('ayahs-loading').style.display = 'none'
+  document.getElementById('ayahs-container').innerHTML = ayahs.map(a => {
+    const arDisplay = tajweedEnabled ? applyTajweed(a.ar) : a.ar
+    return `<div style="border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:16px">
+      <div data-ar="${a.ar.replace(/"/g,'&quot;')}" style="text-align:right;font-family:'Tajawal',sans-serif;font-size:22px;line-height:1.8;color:var(--white);direction:rtl;margin-bottom:10px">${arDisplay} <span style="font-size:14px;color:var(--gold)">﴿${a.n}﴾</span></div>
+      ${a.tr ? `<div style="font-size:12px;color:var(--muted);line-height:1.7;font-style:italic">${a.tr}</div>` : ''}
+    </div>`
+  }).join('')
 }
 </script>
 
