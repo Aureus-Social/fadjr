@@ -1170,22 +1170,27 @@ function computeNext(){
     const [h,m]=p.time.split(':').map(Number)
     if(h*60+m>nowMin){
       nextP=p
+      window.nextPrayer = p
       const diff=h*60+m-nowMin
       document.getElementById('np-name').textContent=p.name
       document.getElementById('np-ar').textContent=p.ar
       document.getElementById('np-time').textContent=p.time
       document.getElementById('np-emoji').textContent=p.emoji
-      document.getElementById('np-countdown').textContent=`dans ${Math.floor(diff/60)}h${String(diff%60).padStart(2,'0')}`
+      document.getElementById('np-countdown').textContent=`${(APP_TRANSLATIONS[currentAppLang]||APP_TRANSLATIONS.fr).dans} ${Math.floor(diff/60)}h${String(diff%60).padStart(2,'0')}`
+      syncAccueilPrayer()
       return
     }
   }
   nextP=prayers[0]
+  window.nextPrayer = prayers[0]
   const fp = prayers[0]
   document.getElementById('np-name').textContent = fp?.name || 'Fajr'
   document.getElementById('np-ar').textContent = fp?.ar || 'الفجر'
   document.getElementById('np-time').textContent = fp?.time || '--:--'
   document.getElementById('np-emoji').textContent = fp?.emoji || '🌙'
-  document.getElementById('np-countdown').textContent = 'demain'
+  const _tDemain = {fr:'demain',en:'tomorrow',ar:'غداً',tr:'yarın',es:'mañana',nl:'morgen',de:'morgen',pt:'amanhã',id:'besok',it:'domani',zh:'明天'}
+  document.getElementById('np-countdown').textContent = _tDemain[currentAppLang] || 'demain'
+  syncAccueilPrayer()
 }
 
 function renderPrayers(){
@@ -3833,12 +3838,11 @@ function applyAppLang(lang){
   })
 
   // Next prayer label
-  const npLabel = document.querySelector('.np-label')
-  if(npLabel) npLabel.textContent = t.prochainePriere
+  document.querySelectorAll('.np-label').forEach(el => el.textContent = t.prochainePriere)
 
   // Accueil username (if not set)
   const usernameEl = document.getElementById('accueil-username')
-  if(usernameEl && !usernameEl.dataset.custom) usernameEl.textContent = t.bienvenue
+  if(usernameEl && !currentUser) usernameEl.textContent = t.bienvenue
 
   // Iftar banner
   const iftarEl = document.getElementById('label-iftar')
@@ -3863,9 +3867,15 @@ function applyAppLang(lang){
 // Init on load
 document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('fadjr_lang') || 'fr'
+  currentAppLang = saved
   const sel = document.getElementById('app-lang-sel')
   if(sel) sel.value = saved
-  setTimeout(() => applyAppLang(saved), 200)
+  // Apply immediately
+  applyAppLang(saved)
+  // Then retry after renders complete
+  setTimeout(() => applyAppLang(saved), 300)
+  setTimeout(() => applyAppLang(saved), 800)
+  setTimeout(() => applyAppLang(saved), 1500)
 })
 
 // ── ADHAN RÉCITATIONS ─────────────────────────────────────────────────────────
