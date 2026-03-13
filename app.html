@@ -3755,6 +3755,11 @@ let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
 function changeAppLang(lang){
   currentAppLang = lang
   localStorage.setItem('fadjr_lang', lang)
+  // Update hadith immediately with correct lang
+  const day = new Date().getDate()
+  const h = HADITHS[day % HADITHS.length]
+  const hadithEl = document.getElementById('hadith-text')
+  if(hadithEl) hadithEl.textContent = '« ' + (h[lang] || h['en'] || h['fr']) + ' »'
   applyAppLang(lang)
   // Also update quran translation default
   const transSel = document.getElementById('trans-sel')
