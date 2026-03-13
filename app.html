@@ -2110,71 +2110,54 @@ function showQuranHome(){
 }
 
 function resetAudio(){
-  const wasPlaying = currentAudio && !currentAudio.paused
   if(currentAudio){
     currentAudio.pause()
     currentAudio.src = ''
-    currentAudio.load()
     currentAudio = null
   }
   const btn = document.getElementById('audio-btn')
   if(btn) btn.textContent = '▶'
-  // Si audio était en train de jouer → relancer avec nouveau récitateur
-  if(wasPlaying && currentSurah){
-    setTimeout(() => toggleAudio(), 100)
-  }
 }
 function toggleAudio(){
   if(!currentSurah) return
   const btn = document.getElementById('audio-btn')
+  const reciter = document.getElementById('reciter-sel').value
+  const n = String(currentSurah.n).padStart(3,'0')
+
   if(currentAudio && !currentAudio.paused){
     currentAudio.pause()
     btn.textContent = '▶'
     return
   }
-  // iOS Safari: must call play() synchronously in user gesture handler
-  const n = String(currentSurah.n).padStart(3,'0')
-  const reciter = document.getElementById('reciter-sel').value
-  // Try multiple CDNs in order
-  const cdns = [
-    `https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`,
-    `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${currentSurah.n}.mp3`,
-    `https://everyayah.com/data/Alafasy_128kbps/${n}001.mp3`,
-  ]
-  if(!currentAudio || currentAudio._surah !== currentSurah.n){
-    currentAudio = new Audio(cdns[0])
+
+  // Créer nouveau audio si sourate OU récitateur a changé
+  if(!currentAudio || currentAudio._surah !== currentSurah.n || currentAudio._reciter !== reciter){
+    if(currentAudio){
+      currentAudio.pause()
+      currentAudio.src = ''
+    }
+    currentAudio = new Audio(`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`)
     currentAudio._surah = currentSurah.n
-    currentAudio._cdnIndex = 0
+    currentAudio._reciter = reciter
     currentAudio.preload = 'auto'
     currentAudio.onended = () => { btn.textContent = '▶' }
     currentAudio.onerror = () => {
-      // Try next CDN
-      currentAudio._cdnIndex = (currentAudio._cdnIndex || 0) + 1
-      if(currentAudio._cdnIndex < cdns.length){
-        currentAudio.src = cdns[currentAudio._cdnIndex]
+      // Fallback CDN
+      const fallback = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${currentSurah.n}.mp3`
+      if(currentAudio.src !== fallback){
+        currentAudio.src = fallback
         currentAudio.load()
         currentAudio.play().then(()=>{ btn.textContent = '⏸' }).catch(()=>{})
       } else {
         btn.textContent = '▶'
-        btn.title = 'Audio indisponible'
       }
     }
   }
+
   btn.textContent = '⏸'
-  // iOS Safari: use load() before play()
-  if(currentAudio._needsLoad){
-    currentAudio._needsLoad = false
-    currentAudio.load()
-  }
   currentAudio.play().catch(e => {
-    console.warn('play() error:', e.name, e.message)
+    console.warn('Audio error:', e.name)
     btn.textContent = '▶'
-    // Last resort: open in new tab
-    if(e.name === 'NotAllowedError' || e.name === 'NotSupportedError'){
-      const n = String(currentSurah.n).padStart(3,'0')
-      const reciter = document.getElementById('reciter-sel').value
-      window.open(`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`, '_blank')
-    }
   })
 }
 
