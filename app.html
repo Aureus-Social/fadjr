@@ -333,11 +333,11 @@ body.light .screen { background: transparent; }
         <div class="pilier-btn" style="border-top-color:#8E44AD" onclick="goTab('dhikr')">
           <div class="p-icon">📿</div><div class="p-label">DHIKR</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#2980B9" onclick="goTab('carte')">
+        <div class="pilier-btn" style="border-top-color:#2980B9" onclick="goTab('voyage')">
           <div class="p-icon">✈️</div><div class="p-label">VOYAGE</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#16A085" onclick="goTab('profil')">
-          <div class="p-icon">👤</div><div class="p-label">PROFIL</div>
+        <div class="pilier-btn" style="border-top-color:#27ae60" onclick="goTab('finance')">
+          <div class="p-icon">💰</div><div class="p-label">FINANCE</div>
         </div>
       </div>
 
@@ -727,52 +727,53 @@ body.light .screen { background: transparent; }
       <div style="background:linear-gradient(135deg,rgba(52,152,219,.15),rgba(201,168,76,.08));border:1px solid rgba(52,152,219,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
         <div style="font-size:10px;letter-spacing:.2em;color:#3498db;margin-bottom:6px">✈️ VOYAGE HALAL</div>
         <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">السفر الحلال</div>
-        <div style="font-size:11px;color:var(--muted)">Voyagez sereinement selon vos valeurs</div>
+        <div style="font-size:12px;color:var(--muted)">Voyagez en toute sérénité</div>
       </div>
 
-      <!-- Tips voyage -->
-      <div style="display:flex;flex-direction:column;gap:10px" id="voyage-tips"></div>
+      <!-- Visa Arabie Saoudite -->
+      <div style="background:var(--card);border:1px solid rgba(201,168,76,.3);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">🇸🇦 VISA ARABIE SAOUDITE — OMRA & HAJJ</div>
+        <div onclick="window.open('https://maps.google.com/?q=Chaussée+de+Louvain+Bruxelles','_blank')"
+          style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="font-size:14px;color:var(--white);font-weight:700;margin-bottom:4px">🏢 Bureau Visa Arabie Saoudite</div>
+              <div style="font-size:12px;color:var(--gold);margin-bottom:6px">Chaussée de Louvain, Bruxelles</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">📋 Visas Omra · Hajj · Tourisme</div>
+              <div style="font-size:11px;color:var(--muted)">📞 Rendez-vous obligatoire</div>
+            </div>
+            <span style="color:var(--gold);font-size:20px">📍</span>
+          </div>
+        </div>
+        <div style="background:rgba(201,168,76,.06);border-radius:10px;padding:12px;font-size:11px;color:var(--muted);line-height:1.7">
+          <div style="color:var(--gold);font-weight:700;margin-bottom:6px">📄 Documents requis :</div>
+          <div>• Passeport valide + 6 mois</div>
+          <div>• Photo d'identité fond blanc</div>
+          <div>• Formulaire de demande rempli</div>
+          <div>• Preuve de réservation (hôtel + vol)</div>
+          <div>• Pour Omra : attestation de mahram (femmes)</div>
+        </div>
+      </div>
 
-      <!-- Destinations populaires -->
-      <div style="font-size:10px;letter-spacing:.15em;color:var(--muted);margin:16px 0 10px">🌍 DESTINATIONS POPULAIRES</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="voyage-destinations"></div>
-      <!-- Legal footer -->
-      <div style="margin-top:20px;text-align:center;padding-bottom:20px">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Version 1.0 · FADJR © 2025</div>
-        <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
-          <a href="/privacy" target="_blank" style="color:var(--muted);font-size:10px;text-decoration:none">Politique de confidentialité</a>
-          <a href="/support" target="_blank" style="color:var(--muted);font-size:10px;text-decoration:none">Support</a>
-          <span onclick="window.open('mailto:contact@fadjr.app')" style="color:var(--muted);font-size:10px;cursor:pointer">Contact</span>
-        </div>
-      </div>
-      <!-- Destinations halal -->
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
-        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">🌍 DESTINATIONS POPULAIRES</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="destinations-halal">
-          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇲🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Maroc</div><div style="font-size:9px;color:var(--muted)">Casablanca · Fès · Marrakech</div></div>
-          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇹🇷</div><div style="font-size:12px;color:var(--white);font-weight:700">Turquie</div><div style="font-size:9px;color:var(--muted)">Istanbul · Ankara · Bursa</div></div>
-          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇸🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Arabie Saoudite</div><div style="font-size:9px;color:var(--muted)">Mecque · Médine · Riyad</div></div>
-          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇮🇩</div><div style="font-size:12px;color:var(--white);font-weight:700">Indonésie</div><div style="font-size:9px;color:var(--muted)">Bali · Jakarta · Lombok</div></div>
-          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇦🇪</div><div style="font-size:12px;color:var(--white);font-weight:700">Émirats</div><div style="font-size:9px;color:var(--muted)">Dubai · Abu Dhabi</div></div>
-          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇯🇵</div><div style="font-size:12px;color:var(--white);font-weight:700">Japon</div><div style="font-size:9px;color:var(--muted)">Tokyo · Osaka · Kyoto</div></div>
-        </div>
-      </div>
-      <!-- Tips voyage halal -->
+      <!-- Conseils voyage -->
       <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
         <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">💡 CONSEILS VOYAGE HALAL</div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🍽️ <strong>Restaurants halal</strong> — Utilisez l'onglet Halal Map pour trouver partout dans le monde</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🍽️ <strong>Restaurants halal</strong> — Utilisez l'onglet Halal Map partout dans le monde</div></div>
           <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🕌 <strong>Prières en voyage</strong> — Les horaires s'adaptent automatiquement à votre GPS</div></div>
-          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">✈️ <strong>Prière Qasr</strong> — Raccourcissement à 2 rakats autorisé si voyage &gt; 80km</div></div>
-          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🌙 <strong>Ramadan en voyage</strong> — Le jeûne peut être reporté pendant le voyage si difficile</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">✈️ <strong>Prière Qasr</strong> — Raccourcissement à 2 rakats si voyage &gt; 80km</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🌙 <strong>Ramadan en voyage</strong> — Le jeûne peut être reporté si le voyage est difficile</div></div>
         </div>
       </div>
-      <!-- Apps partenaires -->
+
+      <!-- Destinations -->
       <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
-        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">🔗 RESSOURCES</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Halal Advisor</div><div style="font-size:10px;color:var(--muted)">Guide voyage halal mondial</div></div><span style="color:var(--gold)">→</span></div>
-          <div onclick="window.open('https://www.halaltrip.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Halal Trip</div><div style="font-size:10px;color:var(--muted)">Hotels & forfaits halal</div></div><span style="color:var(--gold)">→</span></div>
+        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">🌍 DESTINATIONS POPULAIRES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px">🇸🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Arabie Saoudite</div><div style="font-size:9px;color:var(--muted)">Mecque · Médine</div></div>
+          <div style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px">🇲🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Maroc</div><div style="font-size:9px;color:var(--muted)">Fès · Marrakech</div></div>
+          <div style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px">🇹🇷</div><div style="font-size:12px;color:var(--white);font-weight:700">Turquie</div><div style="font-size:9px;color:var(--muted)">Istanbul · Bursa</div></div>
+          <div style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px">🇦🇪</div><div style="font-size:12px;color:var(--white);font-weight:700">Émirats</div><div style="font-size:9px;color:var(--muted)">Dubai · Abu Dhabi</div></div>
         </div>
       </div>
     </div>
