@@ -322,16 +322,12 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <button class="subtab" onclick="setPriereTab(this,'qibla')" id="pt-qibla">🧭 Qibla</button>
         <button class="subtab" onclick="setPriereTab(this,'douas')" id="pt-douas">🤲 Douas</button>
       </div>
-      <div id="pt-content-horaires" style="display:block">
+      
       <div class="screen-header">
         <div class="sec-label">PRIÈRE & SPIRITUALITÉ</div>
         <div class="screen-title">☪ Bruxelles, Belgique</div>
       </div>
-      <div class="subtabs">
-        <button class="subtab active" onclick="showSubtab('horaires',this)">🕐 Horaires</button>
-        <button class="subtab" onclick="showSubtab('qibla',this)">🧭 Qibla</button>
-        <button class="subtab" onclick="showSubtab('dhikr',this)">📿 Dhikr</button>
-      </div>
+
       <div id="sub-horaires">
         <div id="prayer-list"></div>
       </div>
@@ -1641,11 +1637,16 @@ function locateMe(){
 
 // ── PRIÈRE SUBTABS ────────────────────────────────────────────
 function setPriereTab(el, tab){
-  ['horaires','qibla','douas'].forEach(t=>{
-    const el2=document.getElementById('pt-content-'+t)
-    if(el2) el2.style.display = t===tab ? 'block' : 'none'
-  })
-  document.querySelectorAll('.subtab').forEach(b=>b.classList.remove('active'))
+  const mapping = {'horaires':'horaires','qibla':'qibla','douas':'dhikr'}
+  const target = mapping[tab] || tab
+  if(typeof showSubtab==='function') showSubtab(target, el)
+  else {
+    ['horaires','qibla','dhikr'].forEach(t=>{
+      const el2=document.getElementById('sub-'+t)
+      if(el2) el2.style.display = t===target ? 'block' : 'none'
+    })
+  }
+  document.querySelectorAll('#screen-priere .subtab').forEach(b=>b.classList.remove('active'))
   if(el) el.classList.add('active')
   if(tab==='qibla') updateQibla(50.8503, 4.3517)
   if(tab==='douas') renderDouas()
