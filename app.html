@@ -2419,15 +2419,15 @@ function initMemorisation(){
   SURAHS.forEach((s,i) => {
     const opt = document.createElement('option')
     opt.value = i+1
-    opt.textContent = `${i+1}. ${s.tname} — ${s.ename}`
+    opt.textContent = `${i+1}. ${s.fr} — ${s.ar}`
     sel.appendChild(opt)
   })
   sel.addEventListener('change', function(){
     const s = SURAHS[this.value-1]
     if(!s) return
-    document.getElementById('mem-to').value = Math.min(10, s.ayas)
-    document.getElementById('mem-to').max = s.ayas
-    document.getElementById('mem-from').max = s.ayas
+    document.getElementById('mem-to').value = Math.min(10, s.ayahs)
+    document.getElementById('mem-to').max = s.ayahs
+    document.getElementById('mem-from').max = s.ayahs
   })
   updateMemStats()
 }
@@ -2455,22 +2455,22 @@ async function startMemorisation(){
 
   // Build session from versets
   memSession = []
-  for(let v = from; v <= Math.min(to, surah.ayas); v++){
+  for(let v = from; v <= Math.min(to, surah.ayahs); v++){
     const key = `${surahNum}:${v}`
     const card = memData[key] || { ef:2.5, interval:1, reps:0, nextReview:0, lastScore:0 }
     const now = Date.now()
     // Include if due or new
     if(card.nextReview <= now || card.reps === 0){
-      memSession.push({ surahNum, surahName: surah.tname, verse: v, key, card })
+      memSession.push({ surahNum, surahName: surah.fr, verse: v, key, card })
     }
   }
 
   // If nothing due, show all anyway
   if(memSession.length === 0){
-    for(let v = from; v <= Math.min(to, surah.ayas); v++){
+    for(let v = from; v <= Math.min(to, surah.ayahs); v++){
       const key = `${surahNum}:${v}`
       const card = memData[key] || { ef:2.5, interval:1, reps:0, nextReview:0, lastScore:0 }
-      memSession.push({ surahNum, surahName: surah.tname, verse: v, key, card })
+      memSession.push({ surahNum, surahName: surah.fr, verse: v, key, card })
     }
   }
 
