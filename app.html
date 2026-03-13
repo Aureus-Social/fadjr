@@ -780,6 +780,22 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           </div>
         </div>
 
+          <!-- Sélecteur récitation Adhan -->
+          <div style="margin-top:12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px">
+            <div style="font-size:11px;color:var(--muted);letter-spacing:.1em;margin-bottom:10px">🎵 RÉCITATION DE L'ADHAN</div>
+            <select id="adhan-recitation-sel" onchange="changeAdhanRecitation(this.value)" style="width:100%;background:#13131F;border:1px solid var(--border);color:var(--white);padding:10px;border-radius:10px;font-size:13px;font-family:'Cairo',sans-serif;outline:none;color-scheme:dark">
+              <option value="makkah">🕋 Adhan Al-Haram (Mecque)</option>
+              <option value="madinah">🌙 Adhan Al-Madinah</option>
+              <option value="egypt">🇪🇬 Adhan Égypte (Al-Azhar)</option>
+              <option value="turkey">🇹🇷 Adhan Turquie (Diyanet)</option>
+              <option value="fajr">⭐ Adhan Fajr spécial</option>
+            </select>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+              <button onclick="previewAdhan()" style="background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;flex:1">▶ Écouter un extrait</button>
+              <button onclick="stopAdhanPreview()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer">■ Stop</button>
+            </div>
+          </div>
+
         <a class="dashboard-banner" href="https://fadjr.app/dashboard" target="_blank">
           <div>
             <div class="db-title">📊 Dashboard Admin FADJR</div>
@@ -1721,6 +1737,9 @@ function checkAdhanTime(){
           icon: '/favicon.ico'
         })
       }
+    }
+    if(nowMins === prayerMins){
+      playAdhan()
     }
   })
 }
@@ -3457,6 +3476,51 @@ document.addEventListener('DOMContentLoaded', () => {
   const sel = document.getElementById('app-lang-sel')
   if(sel) sel.value = saved
   if(saved !== 'fr') applyAppLang(saved)
+})
+
+// ── ADHAN RÉCITATIONS ─────────────────────────────────────────────────────────
+const ADHAN_URLS = {
+  makkah:  'https://www.islamcan.com/audio/adhan/azan1.mp3',
+  madinah: 'https://www.islamcan.com/audio/adhan/azan2.mp3',
+  egypt:   'https://www.islamcan.com/audio/adhan/azan3.mp3',
+  turkey:  'https://www.islamcan.com/audio/adhan/azan4.mp3',
+  fajr:    'https://www.islamcan.com/audio/adhan/azan6.mp3',
+}
+
+let currentAdhanRecitation = localStorage.getItem('fadjr_adhan_recitation') || 'makkah'
+let adhanPreviewAudio = null
+
+function changeAdhanRecitation(val){
+  currentAdhanRecitation = val
+  localStorage.setItem('fadjr_adhan_recitation', val)
+  stopAdhanPreview()
+}
+
+function previewAdhan(){
+  stopAdhanPreview()
+  const url = ADHAN_URLS[currentAdhanRecitation] || ADHAN_URLS.makkah
+  adhanPreviewAudio = new Audio(url)
+  adhanPreviewAudio.play().catch(e => console.warn('Adhan preview:', e))
+}
+
+function stopAdhanPreview(){
+  if(adhanPreviewAudio){
+    adhanPreviewAudio.pause()
+    adhanPreviewAudio.src = ''
+    adhanPreviewAudio = null
+  }
+}
+
+function playAdhan(){
+  const url = ADHAN_URLS[currentAdhanRecitation] || ADHAN_URLS.makkah
+  const audio = new Audio(url)
+  audio.play().catch(e => console.warn('Adhan play:', e))
+}
+
+// Init adhan selector
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('adhan-recitation-sel')
+  if(sel) sel.value = currentAdhanRecitation
 })
 </script>
 
