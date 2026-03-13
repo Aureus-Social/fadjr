@@ -2231,18 +2231,50 @@ function setCarteCity(el, city, lat, lng){
 
 function locateMe(){
   if(!navigator.geolocation){ alert('Géolocalisation non disponible'); return }
+  const btn = document.querySelector('[onclick="locateMe()"]')
+  if(btn) btn.textContent = '⏳ Localisation...'
   navigator.geolocation.getCurrentPosition(pos=>{
     const {latitude:lat, longitude:lng} = pos.coords
+    // Save for prayer times
+    localStorage.setItem('fadjr_lat', lat)
+    localStorage.setItem('fadjr_lng', lng)
+    // Update map
     const map = document.getElementById('halal-map')
     const d = 0.05
     if(map) map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-d}%2C${lat-d}%2C${lng+d}%2C${lat+d}&layer=mapnik&marker=${lat}%2C${lng}`
+    // Reverse geocode
     fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
       .then(r=>r.json()).then(d2=>{
-        const city = d2.address?.city || d2.address?.town || 'Votre ville'
-        document.getElementById('carte-city').textContent = city + ' 📍'
-        activeCarte = city
-      })
-  }, ()=>alert('Autorisation GPS refusée'))
+        const city = d2.address?.city || d2.address?.town || d2.address?.village || 'Ma position'
+        const cityName = city
+        document.getElementById('carte-city').textContent = cityName + ' 📍'
+        activeCarte = cityName
+        // Update user location display
+        const villeEl = document.getElementById('user-ville')
+        if(villeEl) villeEl.textContent = cityName
+        localStorage.setItem('fadjr_city', cityName)
+        // Reload commerces sorted by distance
+        sortCommercesByDistance(lat, lng)
+        if(btn) btn.textContent = '📍 Ma position'
+        // Reload prayer times with new coords
+        loadPrayers()
+      }).catch(()=>{ if(btn) btn.textContent = '📍 Me localiser' })
+  }, ()=>{
+    alert('Autorisation GPS refusée')
+    if(btn) btn.textContent = '📍 Me localiser'
+  })
+}
+
+function sortCommercesByDistance(lat, lng){
+  // Calculate distance for each commerce and re-render
+  COMMERCES.forEach(c => {
+    if(c.lat && c.lng){
+      const dlat = c.lat - lat
+      const dlng = c.lng - lng
+      c._dist = Math.round(Math.sqrt(dlat*dlat + dlng*dlng) * 111000)
+    }
+  })
+  renderCommerces()
 }
 
 // ── PRIÈRE SUBTABS ────────────────────────────────────────────
