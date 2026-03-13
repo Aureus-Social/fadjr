@@ -538,29 +538,34 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
             <div id="reader-title" style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold)"></div>
             <div id="reader-sub" style="font-size:10px;color:var(--muted)"></div>
           </div>
-          <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-            <button id="tajweed-btn" onclick="toggleTajweed()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:5px 8px;border-radius:8px;cursor:pointer;font-size:10px;font-weight:700">🎨</button>
-            <select id="reciter-sel" onchange="resetAudio()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:6px 8px;border-radius:8px;font-size:10px;font-family:'Cairo',sans-serif;max-width:130px">
-              <option value="128">Mishary Al-Afasy</option>
-              <option value="112">Abdullah Basfar</option>
-              <option value="5">Mahmoud Khalil Hussary</option>
-              <option value="129">Saad Al-Ghamdi</option>
-              <option value="abdurrahmaan_as-sudais">Abdurrahman Al-Sudais</option>
-              <option value="sahl_yaaseen">Sahl Yassin</option>
-              <option value="faariq_gay">Faaruq Gaay</option>
-              <option value="maher_al-muaiqly">Maher Al-Muaiqly</option>
-              <option value="hani_ar-rifai">Hani Ar-Rifai</option>
-              <option value="nasser_bin_ali_al-qahtani">Nasser Al-Qahtani</option>
-            </select>
-            <button id="audio-btn" onclick="toggleAudio()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px">▶</button>
-            <select id="trans-sel" onchange="reRenderAyahs()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:6px 10px;border-radius:8px;font-size:11px;font-family:'Cairo',sans-serif">
+          <div style="margin-left:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <!-- Ligne 1 : récitateur + play -->
+            <div style="display:flex;gap:5px;align-items:center">
+              <button id="tajweed-btn" onclick="toggleTajweed()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:5px 8px;border-radius:8px;cursor:pointer;font-size:10px;font-weight:700">🎨</button>
+              <select id="reciter-sel" onchange="resetAudio()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:5px 6px;border-radius:8px;font-size:10px;font-family:'Cairo',sans-serif;max-width:120px">
+                <option value="128">Mishary Al-Afasy</option>
+                <option value="112">Abdullah Basfar</option>
+                <option value="5">Mahmoud Khalil Hussary</option>
+                <option value="129">Saad Al-Ghamdi</option>
+                <option value="abdurrahmaan_as-sudais">Al-Sudais</option>
+                <option value="maher_al-muaiqly">Maher Al-Muaiqly</option>
+              </select>
+              <button id="audio-btn" onclick="toggleAudio()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px">▶</button>
+            </div>
+            <!-- Ligne 2 : langue traduction -->
+            <div style="display:flex;align-items:center;gap:5px">
+              <span style="font-size:10px;color:var(--muted)">Traduction :</span>
+              <select id="trans-sel" onchange="reRenderAyahs()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:5px 8px;border-radius:8px;font-size:11px;font-family:'Cairo',sans-serif">
               <option value="fr">🇫🇷 Français</option>
               <option value="en">🇬🇧 English</option>
-              <option value="ar">🇸🇦 عربي (تفسير)</option>
-              <option value="tr">🇹🇷 Türkçe</option>
-              <option value="ur">🇵🇰 اردو</option>
-              <option value="none">بدون ترجمة</option>
-            </select>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="ar">🇸🇦 Arabe (tafsir)</option>
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="ur">🇵🇰 اردو</option>
+                <option value="none">— Aucune —</option>
+              </select>
+            </div>
           </div>
         </div>
         <div id="ayahs-container" style="display:flex;flex-direction:column;gap:16px;padding-bottom:20px"></div>
