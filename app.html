@@ -228,6 +228,9 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           <option value="tr">🇹🇷 TR</option>
           <option value="es">🇪🇸 ES</option>
           <option value="nl">🇧🇪 NL</option>
+          <option value="de">🇩🇪 DE</option>
+          <option value="pt">🇵🇹 PT</option>
+          <option value="id">🇮🇩 ID</option>
         </select>
       </div>
     </div>
@@ -573,6 +576,10 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
               <option value="tr">🇹🇷 Türkçe</option>
               <option value="es">🇪🇸 Español</option>
               <option value="ur">🇵🇰 اردو</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="pt">🇵🇹 Português</option>
+              <option value="id">🇮🇩 Indonesia</option>
+              <option value="phonetic">🔤 Phonétique</option>
               <option value="none">— Aucune —</option>
               </select>
             </div>
@@ -1279,9 +1286,13 @@ async function loadAyahs(n){
       tr: 'tr.diyanet',
       es: 'es.asad',
       ur: 'ur.jalandhry',
+      de: 'de.bubenheim',
+      pt: 'pt.elhayek',
+      id: 'id.indonesian',
       none: null
     }
-    const edition = editions[lang]
+    const isPhonetic = lang === 'phonetic'
+    const edition = isPhonetic ? 'en.transliteration' : editions[lang]
     const [arRes, trRes] = await Promise.all([
       fetch(`https://api.alquran.cloud/v1/surah/${n}`),
       edition ? fetch(`https://api.alquran.cloud/v1/surah/${n}/${edition}`) : Promise.resolve(null)
@@ -1336,7 +1347,7 @@ function toggleAudio(){
     if(!currentAudio){
       const n = String(currentSurah.n).padStart(3,'0')
       const reciter = document.getElementById('reciter-sel').value
-      currentAudio = (()=>{ const a = new Audio(); a.crossOrigin='anonymous'; a.src=`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`; return a })()
+      currentAudio = new Audio(`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`)
       currentAudio.onended = () => { document.getElementById('audio-btn').textContent = '▶' }
     }
     const playPromise = currentAudio.play()
@@ -2719,11 +2730,15 @@ function applyTajweed(text){
 const _origRenderAyahs = renderAyahs
 function renderAyahs(ayahs){
   document.getElementById('ayahs-loading').style.display = 'none'
+  const isPhoneticMode = document.getElementById('trans-sel')?.value === 'phonetic'
   document.getElementById('ayahs-container').innerHTML = ayahs.map(a => {
     const arDisplay = tajweedEnabled ? applyTajweed(a.ar) : a.ar
+    const trStyle = isPhoneticMode
+      ? 'font-size:13px;color:#c9a84c;line-height:1.8;font-style:italic;font-family:serif'
+      : 'font-size:12px;color:var(--muted);line-height:1.7;font-style:italic'
     return `<div style="border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:16px">
       <div data-ar="${a.ar.replace(/"/g,'&quot;')}" style="text-align:right;font-family:'Tajawal',sans-serif;font-size:22px;line-height:1.8;color:var(--white);direction:rtl;margin-bottom:10px">${arDisplay} <span style="font-size:14px;color:var(--gold)">﴿${a.n}﴾</span></div>
-      ${a.tr ? `<div style="font-size:12px;color:var(--muted);line-height:1.7;font-style:italic">${a.tr}</div>` : ''}
+      ${a.tr ? `<div style="${trStyle}">${a.tr}</div>` : ''}
     </div>`
   }).join('')
 }
@@ -2982,6 +2997,39 @@ const APP_TRANSLATIONS = {
     versetJour:'✦ Vers van de dag', hadithJour:'📜 Hadith van de dag',
     ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar over',
     bienvenue:'Welkom 👋',
+  },
+  de: {
+    accueil:'STARTSEITE', priere:'GEBET', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIL',
+    prochainePriere:'NÄCHSTES GEBET', dans:'in',
+    partager:'+ Teilen', communaute:'👥 GEMEINSCHAFT',
+    prixEtude:'IN IHRER NÄHE', voirTout:'Alle sehen →',
+    lecture:'Lesen', memorisation:'Auswendiglernen',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Ihr halal spiritueller Begleiter',
+    versetJour:'✦ Vers des Tages', hadithJour:'📜 Hadith des Tages',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in',
+    bienvenue:'Willkommen 👋',
+  },
+  pt: {
+    accueil:'INÍCIO', priere:'ORAÇÃO', dhikr:'DHIKR', halal:'HALAL', coran:'ALCORÃO', ramadan:'RAMADÃO', profil:'PERFIL',
+    prochainePriere:'PRÓXIMA ORAÇÃO', dans:'em',
+    partager:'+ Compartilhar', communaute:'👥 COMUNIDADE',
+    prixEtude:'PERTO DE SI', voirTout:'Ver tudo →',
+    lecture:'Leitura', memorisation:'Memorização',
+    bonjour:'Assalamu Alaykoum', sloganSub:'O seu companheiro espiritual halal',
+    versetJour:'✦ Versículo do dia', hadithJour:'📜 Hadith do dia',
+    ramadanLabel:'🌙 RAMADÃO 1447', iftarDans:'Iftar em',
+    bienvenue:'Bem-vindo 👋',
+  },
+  id: {
+    accueil:'BERANDA', priere:'SALAT', dhikr:'DZIKIR', halal:'HALAL', coran:'AL-QURAN', ramadan:'RAMADAN', profil:'PROFIL',
+    prochainePriere:'SALAT BERIKUTNYA', dans:'dalam',
+    partager:'+ Bagikan', communaute:'👥 KOMUNITAS',
+    prixEtude:'DI SEKITAR ANDA', voirTout:'Lihat semua →',
+    lecture:'Membaca', memorisation:'Menghafal',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Teman spiritual halal Anda',
+    versetJour:'✦ Ayat hari ini', hadithJour:'📜 Hadits hari ini',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Buka puasa dalam',
+    bienvenue:'Selamat datang 👋',
   }
 }
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
