@@ -2110,6 +2110,7 @@ function showQuranHome(){
 }
 
 function resetAudio(){
+  const wasPlaying = currentAudio && !currentAudio.paused
   if(currentAudio){
     currentAudio.pause()
     currentAudio.src = ''
@@ -2118,6 +2119,10 @@ function resetAudio(){
   }
   const btn = document.getElementById('audio-btn')
   if(btn) btn.textContent = '▶'
+  // Si audio était en train de jouer → relancer avec nouveau récitateur
+  if(wasPlaying && currentSurah){
+    setTimeout(() => toggleAudio(), 100)
+  }
 }
 function toggleAudio(){
   if(!currentSurah) return
