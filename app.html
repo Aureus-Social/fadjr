@@ -1554,21 +1554,44 @@ if(adhanEnabled) startAdhanChecker()
 setInterval(syncAccueilPrayer, 10000)
 setTimeout(syncAccueilPrayer, 2000)
 
-// iOS Safari: délégation globale pour tous les éléments avec onclick
-document.addEventListener('touchend', function(e){
-  let el = e.target
-  // Remonter jusqu'à trouver un élément avec onclick
-  for(let i=0; i<5; i++){
-    if(!el) break
-    const fn = el.getAttribute && el.getAttribute('onclick')
-    if(fn){
+// iOS Safari fix DEFINITIF : câbler chaque bouton par ID
+function wireTabButtons(){
+  const tabs = [
+    ['tab-accueil', function(){ goTab('accueil') }],
+    ['tab-priere',  function(){ goTab('priere') }],
+    ['tab-dhikr',   function(){ goTab('dhikr') }],
+    ['tab-carte',   function(){ goTab('carte') }],
+    ['tab-culture', function(){ goTab('culture') }],
+    ['tab-ramadan', function(){ goTab('ramadan') }],
+    ['tab-profil',  function(){ goTab('profil') }],
+  ]
+  tabs.forEach(function(pair){
+    const btn = document.getElementById(pair[0])
+    if(!btn) return
+    // Supprimer onclick inline
+    btn.removeAttribute('onclick')
+    // click normal
+    btn.addEventListener('click', pair[1])
+    // touchend pour iOS
+    btn.addEventListener('touchend', function(e){
       e.preventDefault()
-      try{ eval(fn) }catch(ex){ console.log('onclick err:', ex) }
-      return
-    }
-    el = el.parentElement
-  }
-}, {passive:false})
+      e.stopPropagation()
+      pair[1]()
+    }, {passive:false})
+  })
+  // Câbler aussi les piliers accueil
+  document.querySelectorAll('.pilier-btn').forEach(function(btn){
+    const fn = btn.getAttribute('onclick')
+    if(!fn) return
+    btn.removeAttribute('onclick')
+    btn.addEventListener('click', function(){ try{eval(fn)}catch(ex){} })
+    btn.addEventListener('touchend', function(e){
+      e.preventDefault()
+      try{eval(fn)}catch(ex){}
+    }, {passive:false})
+  })
+}
+setTimeout(wireTabButtons, 100)
 
 
 // ── 99 NOMS D'ALLAH ───────────────────────────────────────────
