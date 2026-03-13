@@ -66,7 +66,7 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
 
 /* PILIERS GRID */
 .piliers { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
-.pilier-btn { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 8px; text-align:center; cursor:pointer; transition:.2s; border-top-width:2px; }
+.pilier-btn { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 8px; text-align:center; cursor:pointer; transition:.2s; border-top-width:2px; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
 .pilier-btn:hover { background:var(--card2); transform:translateY(-2px); }
 .pilier-btn .p-icon { font-size:24px; margin-bottom:6px; }
 .pilier-btn .p-label { font-size:9px; color:var(--white); font-weight:700; letter-spacing:1px; }
@@ -145,7 +145,7 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
 
 /* TAB BAR */
 #tabbar { display:flex; background:rgba(7,7,15,.98); border-top:1px solid var(--border); flex-shrink:0; padding:8px 0 12px; }
-.tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; border:none; background:none; position:relative; padding:4px 0; }
+.tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; border:none; background:none; position:relative; padding:4px 0; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
 .tab-indicator { position:absolute; top:-1px; left:25%; right:25%; height:2px; background:var(--gold); border-radius:99px; display:none; }
 .tab-btn.active .tab-indicator { display:block; }
 .tab-icon { font-size:20px; opacity:.4; transition:.2s; }
@@ -298,23 +298,23 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <!-- Piliers -->
       <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">EXPLORER</div>
       <div class="piliers">
-        <div class="pilier-btn" style="border-top-color:#C9A84C" onclick="goTab('priere')">
-          <div class="p-icon">🕌</div><div class="p-label">PRIÈRE</div>
+        <button class="pilier-btn" onclick="goTab('priere')" style="border-top-color:#C9A84C;font-family:'Cairo',sans-serif;border:none">
+          <div class="p-icon">🕌</button><div class="p-label">PRIÈRE</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#C0392B" onclick="goTab('carte')">
-          <div class="p-icon">🍽️</div><div class="p-label">HALAL</div>
+        <button class="pilier-btn" onclick="goTab('carte')" style="border-top-color:#C0392B;font-family:'Cairo',sans-serif;border:none">
+          <div class="p-icon">🍽️</button><div class="p-label">HALAL</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#7D5A3C" onclick="goTab('culture')">
-          <div class="p-icon">📖</div><div class="p-label">CORAN</div>
+        <button class="pilier-btn" onclick="goTab('culture')" style="border-top-color:#7D5A3C;font-family:'Cairo',sans-serif;border:none">
+          <div class="p-icon">📖</button><div class="p-label">CORAN</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#8E44AD" onclick="goTab('dhikr')">
-          <div class="p-icon">📿</div><div class="p-label">DHIKR</div>
+        <button class="pilier-btn" onclick="goTab('dhikr')" style="border-top-color:#8E44AD;font-family:'Cairo',sans-serif;border:none">
+          <div class="p-icon">📿</button><div class="p-label">DHIKR</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#2980B9" onclick="goTab('carte')">
-          <div class="p-icon">✈️</div><div class="p-label">VOYAGE</div>
+        <button class="pilier-btn" onclick="goTab('carte')" style="border-top-color:#2980B9;font-family:'Cairo',sans-serif;border:none">
+          <div class="p-icon">✈️</button><div class="p-label">VOYAGE</div>
         </div>
-        <div class="pilier-btn" style="border-top-color:#16A085" onclick="goTab('profil')">
-          <div class="p-icon">👤</div><div class="p-label">PROFIL</div>
+        <button class="pilier-btn" onclick="goTab('profil')" style="border-top-color:#16A085;font-family:'Cairo',sans-serif;border:none">
+          <div class="p-icon">👤</button><div class="p-label">PROFIL</div>
         </div>
       </div>
 
@@ -1553,6 +1553,15 @@ applyAdhan()
 if(adhanEnabled) startAdhanChecker()
 setInterval(syncAccueilPrayer, 10000)
 setTimeout(syncAccueilPrayer, 2000)
+
+// iOS Safari fix: wire all tab buttons via addEventListener
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('touchend', function(e){
+    e.preventDefault()
+    const onclick = this.getAttribute('onclick')
+    if(onclick) { try{ eval(onclick) }catch(ex){} }
+  }, {passive:false})
+})
 
 
 // ── 99 NOMS D'ALLAH ───────────────────────────────────────────
