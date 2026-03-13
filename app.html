@@ -3361,17 +3361,38 @@ function updateRamadanBanner(){
 }
 
 // ── DOUAS COMPLETS — ajout à l'onglet Prière/Douas ────────────
+const DOUA_CATS = {
+  matin:      { fr:'🌅 Matin', en:'🌅 Morning', ar:'🌅 صباح', tr:'🌅 Sabah', es:'🌅 Mañana', nl:'🌅 Ochtend', de:'🌅 Morgen', pt:'🌅 Manhã', id:'🌅 Pagi', it:'🌅 Mattina', zh:'🌅 早晨' },
+  soir:       { fr:'🌙 Soir', en:'🌙 Evening', ar:'🌙 مساء', tr:'🌙 Akşam', es:'🌙 Tarde', nl:'🌙 Avond', de:'🌙 Abend', pt:'🌙 Tarde', id:'🌙 Malam', it:'🌙 Sera', zh:'🌙 晚上' },
+  repas:      { fr:'🍽️ Repas', en:'🍽️ Meals', ar:'🍽️ الطعام', tr:'🍽️ Yemek', es:'🍽️ Comidas', nl:'🍽️ Maaltijden', de:'🍽️ Mahlzeiten', pt:'🍽️ Refeições', id:'🍽️ Makan', it:'🍽️ Pasti', zh:'🍽️ 餐前后' },
+  maison:     { fr:'🏠 Maison', en:'🏠 Home', ar:'🏠 المنزل', tr:'🏠 Ev', es:'🏠 Casa', nl:'🏠 Thuis', de:'🏠 Zuhause', pt:'🏠 Casa', id:'🏠 Rumah', it:'🏠 Casa', zh:'🏠 家' },
+  voyage:     { fr:'✈️ Voyage', en:'✈️ Travel', ar:'✈️ السفر', tr:'✈️ Seyahat', es:'✈️ Viaje', nl:'✈️ Reis', de:'✈️ Reise', pt:'✈️ Viagem', id:'✈️ Perjalanan', it:'✈️ Viaggio', zh:'✈️ 旅行' },
+  famille:    { fr:'👨‍👩‍👧 Famille', en:'👨‍👩‍👧 Family', ar:'👨‍👩‍👧 الأسرة', tr:'👨‍👩‍👧 Aile', es:'👨‍👩‍👧 Familia', nl:'👨‍👩‍👧 Familie', de:'👨‍👩‍👧 Familie', pt:'👨‍👩‍👧 Família', id:'👨‍👩‍👧 Keluarga', it:'👨‍👩‍👧 Famiglia', zh:'👨‍👩‍👧 家庭' },
+  sante:      { fr:'💚 Santé', en:'💚 Health', ar:'💚 الصحة', tr:'💚 Sağlık', es:'💚 Salud', nl:'💚 Gezondheid', de:'💚 Gesundheit', pt:'💚 Saúde', id:'💚 Kesehatan', it:'💚 Salute', zh:'💚 健康' },
+  pardon:     { fr:'🤲 Pardon', en:'🤲 Forgiveness', ar:'🤲 المغفرة', tr:'🤲 Af', es:'🤲 Perdón', nl:'🤲 Vergiffenis', de:'🤲 Vergebung', pt:'🤲 Perdão', id:'🤲 Ampunan', it:'🤲 Perdono', zh:'🤲 宽恕' },
+  travail:    { fr:'💼 Travail', en:'💼 Work', ar:'💼 العمل', tr:'💼 İş', es:'💼 Trabajo', nl:'💼 Werk', de:'💼 Arbeit', pt:'💼 Trabalho', id:'💼 Pekerjaan', it:'💼 Lavoro', zh:'💼 工作' },
+  ramadan:    { fr:'🌙 Ramadan', en:'🌙 Ramadan', ar:'🌙 رمضان', tr:'🌙 Ramazan', es:'🌙 Ramadán', nl:'🌙 Ramadan', de:'🌙 Ramadan', pt:'🌙 Ramadão', id:'🌙 Ramadan', it:'🌙 Ramadan', zh:'🌙 斋月' },
+  angoisse:   { fr:'💙 Angoisse', en:'💙 Anxiety', ar:'💙 القلق', tr:'💙 Kaygı', es:'💙 Angustia', nl:'💙 Angst', de:'💙 Angst', pt:'💙 Angústia', id:'💙 Kecemasan', it:'💙 Angoscia', zh:'💙 焦虑' },
+  protection: { fr:'🛡️ Protection', en:'🛡️ Protection', ar:'🛡️ الحماية', tr:'🛡️ Koruma', es:'🛡️ Protección', nl:'🛡️ Bescherming', de:'🛡️ Schutz', pt:'🛡️ Proteção', id:'🛡️ Perlindungan', it:'🛡️ Protezione', zh:'🛡️ 保护' },
+}
+
+function getCatLabel(cat){
+  const lang = currentAppLang || 'fr'
+  return DOUA_CATS[cat]?.[lang] || DOUA_CATS[cat]?.fr || '📿 '+cat
+}
+
 function renderDouasAll(){
   const el = document.getElementById('douas-list')
   if(!el) return
+  const lang = currentAppLang || 'fr'
   const allDouas = [...DOUAS, ...DOUAS_EXTRA]
   const cats = [...new Set(allDouas.map(d=>d.cat||'quotidien'))]
   el.innerHTML = cats.map(cat => {
     const items = allDouas.filter(d=>(d.cat||'quotidien')===cat)
     return '<div style="margin-bottom:16px">' +
-      '<div style="font-size:9px;letter-spacing:.15em;color:var(--gold);margin-bottom:8px;text-transform:uppercase">' + (cat==='matin'?'🌅 Matin':cat==='soir'?'🌙 Soir':cat==='repas'?'🍽️ Repas':cat==='voyage'?'✈️ Voyage':cat==='maison'?'🏠 Maison':cat==='sante'?'💚 Santé':cat==='pardon'?'🤲 Pardon':cat==='famille'?'👨‍👩‍👧 Famille':cat==='travail'?'💼 Travail':cat==='ramadan'?'🌙 Ramadan':cat==='angoisse'?'💙 Angoisse':cat==='protection'?'🛡️ Protection':'📿 '+cat) + '</div>' +
+      '<div style="font-size:9px;letter-spacing:.15em;color:var(--gold);margin-bottom:8px;text-transform:uppercase">' + getCatLabel(cat) + '</div>' +
       items.map(d => '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;margin-bottom:6px" ontouchstart="" onclick="this.querySelector(\'.dfr\').style.display=this.querySelector(\'.dfr\').style.display===\'none\'?\'block\':\'none\'">' +
-        '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">🤲 ' + d.titre + '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">🤲 ' + getDouaTitre(d.titre) + '</div>' +
         '<div style="font-family:Tajawal,sans-serif;font-size:15px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">' + d.ar + '</div>' +
         '<div style="font-size:11px;color:rgba(201,168,76,.75);font-style:italic;margin-top:6px;line-height:1.6">' + (d.ph||'') + '</div>' +
         '<div class="dfr" style="display:none;font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7;border-top:1px solid var(--border);padding-top:6px">' + d.fr + '</div>' +
@@ -4245,6 +4266,33 @@ function getAdhkarTrad(trad){
   const map = ADHKAR_TRAD[trad]
   if(!map) return trad
   return map[lang] || map['en'] || trad
+}
+
+// ── DOUA TRANSLATIONS ─────────────────────────────────────────────────────────
+const DOUA_TITRES = {
+  "Au réveil":                    { en:"Upon waking", ar:"عند الاستيقاظ", tr:"Uyanınca", es:"Al despertar", nl:"Bij het ontwaken", de:"Beim Aufwachen", pt:"Ao acordar", id:"Saat bangun tidur", it:"Al risveglio", zh:"醒来时" },
+  "Avant de dormir":              { en:"Before sleeping", ar:"قبل النوم", tr:"Uyumadan önce", es:"Antes de dormir", nl:"Voor het slapen", de:"Vor dem Schlafen", pt:"Antes de dormir", id:"Sebelum tidur", it:"Prima di dormire", zh:"睡前" },
+  "Avant de manger":              { en:"Before eating", ar:"قبل الأكل", tr:"Yemekten önce", es:"Antes de comer", nl:"Voor het eten", de:"Vor dem Essen", pt:"Antes de comer", id:"Sebelum makan", it:"Prima di mangiare", zh:"饭前" },
+  "Après avoir mangé":            { en:"After eating", ar:"بعد الأكل", tr:"Yemekten sonra", es:"Después de comer", nl:"Na het eten", de:"Nach dem Essen", pt:"Depois de comer", id:"Setelah makan", it:"Dopo aver mangiato", zh:"饭后" },
+  "En sortant de chez soi":       { en:"Leaving home", ar:"عند الخروج", tr:"Evden çıkarken", es:"Al salir de casa", nl:"Bij het verlaten", de:"Beim Verlassen", pt:"Ao sair de casa", id:"Saat keluar rumah", it:"Uscendo di casa", zh:"出门时" },
+  "En entrant chez soi":          { en:"Entering home", ar:"عند الدخول", tr:"Eve girerken", es:"Al entrar a casa", nl:"Bij het binnengaan", de:"Beim Eintreten", pt:"Ao entrar em casa", id:"Saat masuk rumah", it:"Entrando in casa", zh:"进门时" },
+  "Avant de prendre le volant":   { en:"Before driving", ar:"قبل القيادة", tr:"Araca binmeden", es:"Antes de conducir", nl:"Voor het rijden", de:"Vor dem Fahren", pt:"Antes de dirigir", id:"Sebelum berkendara", it:"Prima di guidare", zh:"开车前" },
+  "Doua pour les parents":        { en:"Dua for parents", ar:"دعاء للوالدين", tr:"Ebeveynler için dua", es:"Dua por los padres", nl:"Smeekgebed voor ouders", de:"Dua für die Eltern", pt:"Dua pelos pais", id:"Doa untuk orang tua", it:"Dua per i genitori", zh:"为父母祈祷" },
+  "Pour l'angoisse":              { en:"For anxiety", ar:"للقلق والضيق", tr:"Sıkıntı için", es:"Para la angustia", nl:"Voor angst", de:"Für Angst", pt:"Para a angústia", id:"Untuk kecemasan", it:"Per l'angoscia", zh:"焦虑时" },
+  "Pour la réussite":             { en:"For success", ar:"للنجاح", tr:"Başarı için", es:"Para el éxito", nl:"Voor succes", de:"Für Erfolg", pt:"Para o sucesso", id:"Untuk kesuksesan", it:"Per il successo", zh:"为成功祈祷" },
+  "Pour la protection":           { en:"For protection", ar:"للحماية", tr:"Koruma için", es:"Para la protección", nl:"Voor bescherming", de:"Für Schutz", pt:"Para a proteção", id:"Untuk perlindungan", it:"Per la protezione", zh:"为保护祈祷" },
+  "Avant de dormir (Ayat al-Kursi)": { en:"Before sleeping (Ayat al-Kursi)", ar:"قبل النوم (آية الكرسي)", tr:"Uyumadan (Ayetü'l-Kürsi)", es:"Antes de dormir (Ayat al-Kursi)", nl:"Voor het slapen (Ayat al-Kursi)", de:"Vor dem Schlafen (Ayat al-Kursi)", pt:"Antes de dormir (Ayat al-Kursi)", id:"Sebelum tidur (Ayat Kursi)", it:"Prima di dormire (Ayat al-Kursi)", zh:"睡前（库尔西经文）" },
+}
+
+function getDouaTitre(titre){
+  const lang = currentAppLang || 'fr'
+  if(lang === 'fr') return titre
+  return DOUA_TITRES[titre]?.[lang] || DOUA_TITRES[titre]?.['en'] || titre
+}
+
+function getDouaTrad(fr){
+  // For now return fr — future: add per-lang translations
+  return fr
 }
 </script>
 </body>
