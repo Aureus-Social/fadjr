@@ -2855,9 +2855,11 @@ async function loadMemDataCloud(){
 }
 
 function initMemorisation(){
-  // Populate surah selector
+  // Populate surah selector — always repopulate
   const sel = document.getElementById('mem-surah-sel')
   if(!sel) return
+  // Clear existing options except first placeholder
+  sel.innerHTML = '<option value="">— Sélectionner —</option>'
   SURAHS.forEach((s,i) => {
     const opt = document.createElement('option')
     opt.value = i+1
