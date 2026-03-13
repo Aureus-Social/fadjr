@@ -353,6 +353,10 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           <div style="font-size:12px;color:var(--muted)">jusqu'à la Kaaba</div>
         </div>
       </div>
+      <div id="sub-douas" style="display:none">
+        <div id="douas-list"></div>
+      </div>
+
       <div id="sub-dhikr" style="display:none">
         <div class="card" style="text-align:center;padding:20px;margin-bottom:16px">
           <div id="dhikr-ar" style="font-size:22px;color:var(--gold);margin-bottom:10px"></div>
@@ -1757,15 +1761,13 @@ function locateMe(){
 
 // ── PRIÈRE SUBTABS ────────────────────────────────────────────
 function setPriereTab(el, tab){
-  const mapping = {'horaires':'horaires','qibla':'qibla','douas':'dhikr'}
+  const mapping = {'horaires':'horaires','qibla':'qibla','douas':'douas'}
   const target = mapping[tab] || tab
-  if(typeof showSubtab==='function') showSubtab(target, el)
-  else {
-    ['horaires','qibla','dhikr'].forEach(t=>{
-      const el2=document.getElementById('sub-'+t)
-      if(el2) el2.style.display = t===target ? 'block' : 'none'
-    })
-  }
+  ;['horaires','qibla','douas','dhikr'].forEach(t=>{
+    const el2=document.getElementById('sub-'+t)
+    if(el2) el2.style.display = t===target ? 'block' : 'none'
+  })
+  if(target==='douas') renderDouasAll()
   document.querySelectorAll('#screen-priere .subtab').forEach(b=>b.classList.remove('active'))
   if(el) el.classList.add('active')
   if(tab==='qibla') updateQibla(50.8503, 4.3517)
