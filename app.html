@@ -250,6 +250,20 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div onclick="goTab('profil')" style="width:44px;height:44px;border-radius:50%;background:rgba(201,168,76,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer">☪</div>
       </div>
 
+      <!-- Ramadan 1447 Banner -->
+      <div id="ramadan-banner-accueil" style="background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.06));border:1px solid rgba(201,168,76,.4);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:none;cursor:pointer" onclick="goTab('ramadan')">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:9px;letter-spacing:.2em;color:rgba(201,168,76,.7)">🌙 RAMADAN 1447</div>
+            <div style="font-size:16px;font-weight:900;color:var(--gold);margin-top:2px" id="ram-banner-day">Jour — / 30</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px">📿</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:4px">Voir le suivi ›</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Verset du jour -->
       <div id="verset-card" style="background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.3);border-radius:14px;padding:18px;margin-bottom:14px">
         <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">✦ Verset du jour</div>
@@ -292,6 +306,15 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div style="text-align:right">
           <div style="font-size:20px;color:var(--gold);font-weight:700" id="acc-pray-time">--:--</div>
           <div style="font-size:10px;color:var(--muted)" id="acc-pray-cd">--</div>
+        </div>
+      </div>
+
+      <!-- Suivi Prières du jour -->
+      <div id="prayers-suivi" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:14px">
+        <!-- Rendered by renderPrieresSuivi() -->
+        <div style="font-size:9px;letter-spacing:.15em;color:var(--muted);margin-bottom:8px">PRIÈRES AUJOURD'HUI — <span style="color:var(--gold)" id="prayers-count">0/6</span></div>
+        <div style="display:flex;gap:6px" id="prayers-dots">
+          <!-- Rendered dynamically -->
         </div>
       </div>
 
@@ -444,6 +467,15 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <div style="margin-top:24px">
         <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:14px">🌟 LES 99 NOMS D'ALLAH — أسماء الله الحسنى</div>
         <div id="asma-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+      </div>
+
+      <!-- Bibliothèque de Douas Hisnul Muslim -->
+      <div style="margin-top:20px">
+        <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px;text-align:center">🤲 BIBLIOTHÈQUE DE DOUAS — HISNUL MUSLIM</div>
+        <!-- Category filters -->
+        <div id="douas-cat-row" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px"></div>
+        <!-- Douas list -->
+        <div id="douas-library-list" style="display:flex;flex-direction:column;gap:8px"></div>
       </div>
 
       <!-- Calendrier Hijri -->
@@ -928,7 +960,7 @@ function goTab(tab){
   if(tab==='carte'){renderFilters();renderAllCommerces()}
   if(tab==='culture'){if(typeof renderSurahList==='function')renderSurahList(SURAHS)}
   if(tab==='priere'){if(typeof renderPrayers==='function')renderPrayers();if(typeof renderDhikrCard==='function')renderDhikrCard()}
-  if(tab==='dhikr'){if(typeof renderDhikrChips==='function')renderDhikrChips();if(typeof renderAsma==='function')renderAsma()}
+  if(tab==='dhikr'){if(typeof renderDhikrChips==='function')renderDhikrChips();if(typeof renderAsma==='function')renderAsma();if(typeof renderDouasCats==='function'){renderDouasCats();renderDouasLibrary()}}
   if(tab==='accueil'){loadDailyContent();syncAccueilPrayer();updateRamadanBanner()}
   if(tab==='ramadan'){renderRamadan()}
 }
@@ -1549,6 +1581,8 @@ function syncAccueilPrayer(){
 initAuth()
 loadDailyContent()
 getUserLocation()
+renderPrieresSuivi()
+updateRamadanBanner()
 applyAdhan()
 if(adhanEnabled) startAdhanChecker()
 setInterval(syncAccueilPrayer, 10000)
@@ -1684,6 +1718,73 @@ function selectAsmaForTasbih(n){
 
 renderAsma()
 
+// ── BIBLIOTHÈQUE DE DOUAS ─────────────────────────────────
+const DOUAS_CATS = {
+  matin: '🌅 Matin',
+  soir: '🌙 Soir',
+  priere: '🕌 Prière',
+  coran: '📖 Coran',
+  quotidien: '🏠 Quotidien',
+  protection: '🛡️ Protection',
+  famille: '👨‍👩‍👧 Famille',
+  travail: '💼 Travail',
+  sante: '❤️ Santé',
+  pardon: '🤲 Pardon',
+  angoisse: '🌊 Angoisse',
+  repas: '🍽️ Repas',
+  voyage: '✈️ Voyage',
+  maison: '🏡 Maison',
+  mort: '🕊️ Décès',
+  ramadan: '🌙 Ramadan',
+}
+let activeDouaCat = 'matin'
+
+function renderDouasCats(){
+  const el = document.getElementById('douas-cat-row')
+  if(!el) return
+  el.innerHTML = Object.entries(DOUAS_CATS).map(([k,v]) =>
+    `<button onclick="setDouaCat('${k}')" style="flex-shrink:0;padding:6px 12px;border-radius:99px;border:1px solid ${activeDouaCat===k?'var(--gold)':'var(--border)'};background:${activeDouaCat===k?'rgba(201,168,76,.15)':'transparent'};color:${activeDouaCat===k?'var(--gold)':'var(--muted)'};font-size:11px;cursor:pointer;white-space:nowrap;font-family:'Cairo',sans-serif">${v}</button>`
+  ).join('')
+}
+
+function setDouaCat(cat){
+  activeDouaCat = cat
+  renderDouasCats()
+  renderDouasLibrary()
+}
+
+function renderDouasLibrary(){
+  const el = document.getElementById('douas-library-list')
+  if(!el) return
+  const filtered = DOUAS_EXTRA.filter(d => d.cat === activeDouaCat)
+  if(!filtered.length){
+    el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px">Aucune doua dans cette catégorie</div>'
+    return
+  }
+  el.innerHTML = filtered.map((d,i) =>
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer" onclick="this.querySelector('.dl-fr').style.display=this.querySelector('.dl-fr').style.display==='none'?'block':'none'">
+      <div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:8px">🤲 ${d.titre}</div>
+      <div style="font-family:'Tajawal',sans-serif;font-size:15px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">${d.ar}</div>
+      <div class="dl-fr" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.7;font-style:italic;border-top:1px solid var(--border);padding-top:8px">${d.fr}</div>
+      <div style="text-align:right;margin-top:6px">
+        <button onclick="event.stopPropagation();shareDua('${d.titre.replace(/'/g,'\'')}')" style="background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer">↗ Partager</button>
+      </div>
+    </div>`
+  ).join('')
+}
+
+function shareDua(titre){
+  const dua = DOUAS_EXTRA.find(d => d.titre === titre)
+  if(!dua) return
+  const text = dua.ar + '\n\n' + dua.fr + '\n\n📲 FADJR App — fadjr.app'
+  if(navigator.share) navigator.share({title: titre + ' — FADJR', text})
+  else navigator.clipboard.writeText(text).then(()=>showToast('✓ Doua copiée !'))
+}
+
+// Init Douas Library when dhikr tab loads
+renderDouasCats()
+renderDouasLibrary()
+
 
 // ── CARTE VILLES ──────────────────────────────────────────────
 
@@ -1789,7 +1890,19 @@ const DOUAS = [
 ]
 
 function renderDouas(){
-  renderDouasAll()
+  const el = document.getElementById('douas-list')
+  if(!el) return
+  const essential = DOUAS_EXTRA.filter(d => ['matin','soir','quotidien','protection'].includes(d.cat)).slice(0, 20)
+  el.innerHTML = '<div style="font-size:9px;letter-spacing:.15em;color:var(--muted);margin-bottom:10px">DOUAS — HISNUL MUSLIM</div>' +
+    essential.map(d =>
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;margin-bottom:8px" onclick="this.querySelector(\'.dlp-fr\').style.display=this.querySelector(\'.dlp-fr\').style.display===\'none\'?\'block\':\'none\'">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+        '<div style="font-size:10px;font-weight:700;color:var(--gold)">🤲 ' + d.titre + '</div>' +
+        '<div style="font-size:9px;color:var(--muted)">Tap ›</div>' +
+      '</div>' +
+      '<div style="font-family:Tajawal,sans-serif;font-size:15px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">' + d.ar + '</div>' +
+      '<div class="dlp-fr" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.7;font-style:italic;border-top:1px solid var(--border);padding-top:8px">' + d.fr + '</div>' +
+    '</div>').join('')
 }
 
 // ── ACCUEIL greeting update ────────────────────────────────────
@@ -1983,6 +2096,62 @@ const DOUAS_EXTRA = [
   { cat:"angoisse", titre:"Doua de Yunus (Jonas)", ar:"لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ", fr:"Il n'y a de dieu que Toi. Gloire à Toi! J'ai été vraiment du nombre des injustes." },
   { cat:"protection", titre:"Ayat al-Kursi", ar:"اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ", fr:"Allah — point de divinité à part Lui — le Vivant, Celui qui subsiste par lui-même. Ni somnolence ni sommeil ne Le saisissent." },
   { cat:"protection", titre:"Les 3 Quls (protection)", ar:"قُلْ هُوَ اللَّهُ أَحَدٌ · قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ · قُلْ أَعُوذُ بِرَبِّ النَّاسِ", fr:"Sourate Al-Ikhlas · Sourate Al-Falaq · Sourate An-Nas. À réciter 3 fois le matin et le soir." }
+  // ── HISNUL MUSLIM — DHIKR DU MATIN (Azkar as-Sabah)
+  { cat:"matin", titre:"Azkar du matin — Al-Fatiha & Al-Ikhlas", ar:"أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ ۝ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", fr:"Je cherche refuge en Allah contre le Shaïtan maudit. Au nom d'Allah le Tout Miséricordieux. (Puis réciter Al-Fatiha, Al-Ikhlas, Al-Falaq, An-Nas — 3 fois chacune)" },
+  { cat:"matin", titre:"Maître de la demande de pardon (Sayed Al-Istighfar)", ar:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي، فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", fr:"Ô Allah, Tu es mon Seigneur, il n'y a de divinité que Toi. Tu m'as créé et je suis Ton serviteur. Je respecte mon engagement et ma promesse envers Toi autant que je le peux. Je cherche refuge en Toi contre le mal de ce que j'ai commis. Je Te reconnais Tes bienfaits sur moi et je reconnais mes péchés, pardonne-moi car nul ne pardonne les péchés sauf Toi." },
+  { cat:"matin", titre:"Protection du matin — Bismillah (3×)", ar:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", fr:"Au nom d'Allah, avec Son nom rien ne peut nuire ni sur terre ni dans les cieux, Il est l'Audient le Savant. (3 fois — protection pour la journée entière)" },
+  { cat:"matin", titre:"Paroles du matin — Ayat al-Kursi", ar:"اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ", fr:"Allah — point de divinité à part Lui — le Vivant, Celui qui subsiste par Lui-même. Ni somnolence ni sommeil ne Le saisissent. À Lui appartient tout ce qui est dans les cieux et sur la terre. (Sourate Al-Baqara 2:255)" },
+  { cat:"matin", titre:"Satisfaction du matin (3×)", ar:"رَضِيتُ بِاللَّهِ رَبًّا، وَبِالإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا", fr:"Je suis satisfait d'Allah comme Seigneur, de l'Islam comme religion, et de Muhammad ﷺ comme Prophète. (3 fois — garantit le Paradis)" },
+  { cat:"matin", titre:"Dhikr du matin — 100 fois", ar:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", fr:"Gloire à Allah et louange à Lui. (100 fois le matin — efface les péchés même s'ils sont comme l'écume de la mer)" },
+  { cat:"matin", titre:"La meilleure formule (Bukhari)", ar:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", fr:"Il n'y a de dieu qu'Allah, Unique, sans associé. À Lui la royauté et la louange, Il est Puissant sur toute chose. (10 fois le matin — équivaut à affranchir 4 esclaves et protège jusqu'au soir)" },
+  // ── HISNUL MUSLIM — DHIKR DU SOIR (Azkar al-Masa')
+  { cat:"soir", titre:"Dhikr du soir — Ayat al-Kursi", ar:"اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ", fr:"Réciter Ayat al-Kursi le soir — protection jusqu'au matin, un ange gardien vous protège toute la nuit. (Bukhari)" },
+  { cat:"soir", titre:"Formule du soir (3×)", ar:"أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ", fr:"Nous voici au soir et la souveraineté appartient à Allah. Louange à Allah. Il n'y a de dieu qu'Allah, Unique, sans associé, à Lui la royauté..." },
+  { cat:"soir", titre:"Protection du soir — Kalimat (3×)", ar:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", fr:"Je cherche refuge dans les paroles parfaites d'Allah contre le mal de tout ce qu'Il a créé. (3 fois le soir — protection contre tout préjudice et empoisonnement)" },
+  // ── HISNUL MUSLIM — AVANT/APRÈS PRIÈRE
+  { cat:"priere", titre:"Formule après la prière — 33×33×34", ar:"سُبْحَانَ اللَّهِ ۝ الْحَمْدُ لِلَّهِ ۝ اللَّهُ أَكْبَرُ", fr:"Subhan Allah (33×) · Alhamdulillah (33×) · Allahu Akbar (34×) — puis La ilaha illallah... (après chaque prière obligatoire — efface les péchés)" },
+  { cat:"priere", titre:"Après la prière — Al-Mu'awwidhat (3×)", ar:"قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ", fr:"Réciter Al-Falaq et An-Nas 3 fois après Fajr et Maghrib — protection parfaite. (Abu Dawud, Tirmidhi)" },
+  { cat:"priere", titre:"Doua après la prière — Al-Fatiha", ar:"رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي ۚ رَبَّنَا وَتَقَبَّلْ دُعَاءِ", fr:"Seigneur, fais de moi quelqu'un qui accomplit la prière, ainsi que de ma descendance. Seigneur, exauce ma prière. (Ibrahim 14:40)" },
+  { cat:"priere", titre:"Tasbih de Fatima après la prière", ar:"فَاطِمَة: سُبْحَانَ اللَّهِ ۝ ثَلَاثًا وَثَلَاثِينَ ۝ الْحَمْدُ لِلَّهِ ۝ ثَلَاثًا وَثَلَاثِينَ ۝ اللَّهُ أَكْبَرُ ۝ أَرْبَعًا وَثَلَاثِينَ", fr:"Le Prophète ﷺ a enseigné à Fatima ce dhikr après chaque prière — Subhan Allah (33×), Alhamdulillah (33×), Allahu Akbar (34×) — meilleur que les biens de ce monde." },
+  // ── HISNUL MUSLIM — DOUAS CORANIQUES
+  { cat:"coran", titre:"Doua d'Ibrahim pour la connaissance", ar:"رَبِّ زِدْنِي عِلْمًا", fr:"Seigneur, accrois ma science. (Ta-Ha 20:114 — à dire souvent pour la connaissance)" },
+  { cat:"coran", titre:"Doua de Moïse (Musa) pour l'aide", ar:"رَبِّ اشْرَحْ لِي صَدْرِي ۝ وَيَسِّرْ لِي أَمْرِي ۝ وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي ۝ يَفْقَهُوا قَوْلِي", fr:"Seigneur, ouvre-moi la poitrine, facilite-moi mes affaires, délie le nœud de ma langue pour qu'ils comprennent mes paroles. (Ta-Ha 20:25-28)" },
+  { cat:"coran", titre:"Doua de Noé (Nuh) pour le pardon", ar:"رَّبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِمَن دَخَلَ بَيْتِيَ مُؤْمِنًا وَلِلْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ", fr:"Seigneur, pardonne-moi, à mes parents, à ceux qui entrent dans ma maison croyants, et aux croyants hommes et femmes. (Nuh 71:28)" },
+  { cat:"coran", titre:"Doua de Salomon (Souleiman)", ar:"رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ", fr:"Seigneur, inspire-moi à être reconnaissant de Ton bienfait dont Tu m'as comblé ainsi que mes parents, et à faire le bien qui Te plaît. (An-Naml 27:19)" },
+  { cat:"coran", titre:"Doua des croyants — Rabbana (sourate Baqara)", ar:"رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا", fr:"Seigneur, ne nous tiens pas rigueur si nous oublions ou commettons des erreurs. Seigneur, ne nous impose pas un fardeau comme Tu l'as imposé à ceux d'avant nous. (Al-Baqara 2:286)" },
+  { cat:"coran", titre:"Doua de la victoire", ar:"رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَثَبِّتْ أَقْدَامَنَا وَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ", fr:"Seigneur, déverse sur nous la patience, affermis nos pas, et donne-nous la victoire sur le peuple mécréant. (Al-Baqara 2:250)" },
+  { cat:"coran", titre:"Doua d'Adam (repentir)", ar:"رَبَّنَا ظَلَمْنَا أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ", fr:"Seigneur, nous avons fait du tort à nous-mêmes et si Tu ne nous pardonnes pas et ne nous fais pas miséricorde, nous serons du nombre des perdants. (Al-A'raf 7:23)" },
+  // ── HISNUL MUSLIM — SITUATIONS QUOTIDIENNES
+  { cat:"quotidien", titre:"En entrant à la mosquée", ar:"اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ", fr:"Ô Allah, ouvre-moi les portes de Ta miséricorde. (En entrant à la mosquée)" },
+  { cat:"quotidien", titre:"En sortant de la mosquée", ar:"اللَّهُمَّ إِنِّي أَسْأَلُكَ مِن فَضْلِكَ", fr:"Ô Allah, je Te demande Tes faveurs. (En sortant de la mosquée)" },
+  { cat:"quotidien", titre:"En portant un vêtement neuf", ar:"اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ", fr:"Ô Allah, à Toi la louange, Tu m'as vêtu de cela. (Doua en portant un vêtement neuf)" },
+  { cat:"quotidien", titre:"En entrant aux toilettes", ar:"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ", fr:"Ô Allah, je cherche refuge en Toi contre les diables mâles et femelles." },
+  { cat:"quotidien", titre:"En sortant des toilettes", ar:"غُفْرَانَكَ", fr:"Ton pardon (Ô Allah). (À dire en sortant des toilettes — Tirmidhi)" },
+  { cat:"quotidien", titre:"Avant les relations conjugales", ar:"بِسْمِ اللَّهِ، اللَّهُمَّ جَنِّبْنَا الشَّيْطَانَ وَجَنِّبِ الشَّيْطَانَ مَا رَزَقْتَنَا", fr:"Au nom d'Allah. Ô Allah, éloigne de nous le Shaïtan et éloigne le Shaïtan de ce que Tu nous accorderas comme enfants." },
+  { cat:"quotidien", titre:"En entrant au marché / commerce", ar:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لَا يَمُوتُ بِيَدِهِ الْخَيْرُ", fr:"Il n'y a de dieu qu'Allah, Unique, sans associé. À Lui la royauté et la louange. Il vivifie et fait mourir. Il est Vivant et ne meurt pas. En Sa main est le bien. (1 million de bonnes actions, 1 million de mauvaises effacées)" },
+  // ── HISNUL MUSLIM — DOUAS DE PROTECTION
+  { cat:"protection", titre:"Doua contre le mauvais oeil", ar:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ", fr:"Je cherche refuge dans les paroles parfaites d'Allah contre tout démon, tout venimeux, et contre tout mauvais œil. (Pour la protection des enfants)" },
+  { cat:"protection", titre:"Al-Mu'awwidhat du matin (3×)", ar:"قُلْ هُوَ اللَّهُ أَحَدٌ ۝ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ", fr:"Al-Ikhlas, Al-Falaq, An-Nas — chacune 3 fois le matin et le soir. Suffisent pour tout. (Abu Dawud)" },
+  { cat:"protection", titre:"Doua contre la sorcellerie", ar:"بِسْمِ اللَّهِ أَرْقِيكَ مِنْ كُلِّ شَيْءٍ يُؤْذِيكَ، مِنْ شَرِّ كُلِّ نَفْسٍ أَوْ عَيْنِ حَاسِدٍ، اللَّهُ يَشْفِيكَ", fr:"Au nom d'Allah, je te fais une ruqyah contre tout ce qui te nuit, contre le mal de toute âme ou d'un œil envieux. Allah te guérisse." },
+  { cat:"protection", titre:"Les 2 derniers versets d'Al-Baqara", ar:"آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ", fr:"Ces deux versets récités le soir suffisent (protection). Versets 285-286 de la Sourate Al-Baqara. (Bukhari — le Prophète ﷺ a dit: ils suffisent à celui qui les récite la nuit)" },
+  // ── HISNUL MUSLIM — DOUAS SPÉCIFIQUES
+  { cat:"famille", titre:"Pour les parents", ar:"رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا", fr:"Seigneur, aie pitié d'eux comme ils m'ont élevé tout petit. (Al-Isra 17:24 — à dire souvent pour ses parents)" },
+  { cat:"famille", titre:"Pour avoir un enfant pieux", ar:"رَبِّ هَبْ لِي مِن لَّدُنكَ ذُرِّيَّةً طَيِّبَةً ۖ إِنَّكَ سَمِيعُ الدُّعَاءِ", fr:"Seigneur, accorde-moi de Ta part une descendance vertueuse, Tu es vraiment l'Audient de la prière. (Al-Imran 3:38)" },
+  { cat:"famille", titre:"Pour la bonne entente dans la famille", ar:"رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا", fr:"Seigneur, accorde-nous en nos épouses et nos enfants la joie des yeux, et fais de nous un modèle pour les pieux. (Al-Furqan 25:74)" },
+  { cat:"famille", titre:"Pour les enfants (protection)", ar:"أُعِيذُكُمَا بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ", fr:"Je vous protège par les paroles parfaites d'Allah contre tout démon, tout venimeux et tout mauvais œil. (Le Prophète ﷺ disait cela pour Al-Hasan et Al-Husayn)" },
+  { cat:"travail", titre:"Doua pour le travail et la subsistance", ar:"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ", fr:"Ô Allah, je cherche refuge en Toi contre l'inquiétude et la tristesse, et je cherche refuge en Toi contre la faiblesse et la paresse..." },
+  { cat:"travail", titre:"Doua pour la bénédiction du travail", ar:"اللَّهُمَّ بَارِكْ لِي فِي رِزْقِي", fr:"Ô Allah, bénis ma subsistance. (Doua simple et puissante pour la baraka dans son travail et ses revenus)" },
+  { cat:"travail", titre:"Doua pour réussir un entretien / examen", ar:"رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي يَفْقَهُوا قَوْلِي", fr:"Seigneur, ouvre ma poitrine, facilite mes affaires, délie ma langue pour qu'ils comprennent mes paroles. (Doua de Musa — pour les examens et entretiens)" },
+  { cat:"mort", titre:"Doua en apprenant un décès", ar:"إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ", fr:"Nous appartenons à Allah et c'est à Lui que nous retournons. (À dire en apprenant une mauvaise nouvelle ou un décès — Al-Baqara 2:156)" },
+  { cat:"mort", titre:"Doua pour le défunt (lors de la Janaza)", ar:"اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ وَعَافِهِ وَاعْفُ عَنْهُ", fr:"Ô Allah, pardonne-lui, fais-lui miséricorde, préserve-le et passe sur ses fautes. (Prière mortuaire — Muslim)" },
+  { cat:"mort", titre:"Doua au cimetière", ar:"السَّلَامُ عَلَيْكُمْ أَهْلَ الدِّيَارِ مِنَ الْمُؤْمِنِينَ وَالْمُسْلِمِينَ وَإِنَّا إِن شَاءَ اللَّهُ بِكُمْ لَاحِقُونَ", fr:"Que la paix soit sur vous, gens de ces demeures parmi les croyants et les musulmans. Nous vous rejoindrons si Allah veut. (À dire au cimetière — Muslim)" },
+  // ── RAMADAN — Douas supplémentaires
+  { cat:"ramadan", titre:"Doua du brisement du jeûne (Iftar)", ar:"ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ", fr:"La soif est partie, les veines se sont désaltérées et la récompense est confirmée, si Allah le veut. (Abu Dawud — Doua à l'heure de l'Iftar)" },
+  { cat:"ramadan", titre:"Doua en offrant l'Iftar à quelqu'un", ar:"أَفْطَرَ عِنْدَكُمُ الصَّائِمُونَ وَأَكَلَ طَعَامَكُمُ الْأَبْرَارُ وَصَلَّتْ عَلَيْكُمُ الْمَلَائِكَةُ", fr:"Que les jeûneurs rompent leur jeûne chez vous, que les pieux mangent votre nourriture et que les anges prient sur vous. (Abu Dawud)" },
+  { cat:"ramadan", titre:"Doua des 10 dernières nuits", ar:"اللَّهُمَّ إِنَّكَ عَفُوٌّ كَرِيمٌ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي", fr:"Ô Allah, Tu es le Pardonneur Généreux, Tu aimes pardonner, alors pardonne-moi. (Aicha a demandé au Prophète ﷺ quelle doua faire à Laylat al-Qadr — Tirmidhi)" },
+  { cat:"ramadan", titre:"Doua pour Laylat al-Qadr (complète)", ar:"اللَّهُمَّ إِنَّكَ عَفُوٌّ كَرِيمٌ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي وَعَنْ وَالِدَيَّ وَعَنْ جَمِيعِ الْمُسْلِمِينَ", fr:"Ô Allah, Tu es le Pardonneur Généreux, Tu aimes pardonner, alors pardonne-moi, mes parents et tous les musulmans. (Version complète — à répéter intensément les nuits impaires)" },
+  { cat:"ramadan", titre:"Doua de la nuit (Qiyam al-Layl)", ar:"اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ نُورُ السَّمَاوَاتِ وَالْأَرْضِ وَمَن فِيهِنَّ", fr:"Ô Allah, à Toi la louange, Tu es la Lumière des cieux et de la terre et de tout ce qu'ils contiennent. (Doua du Prophète ﷺ lors du Qiyam — Bukhari)" },
+  { cat:"ramadan", titre:"Doua pour la fidyah et le Kaffarah", ar:"اللَّهُمَّ تَقَبَّلْ مِنِّي صِيَامِي وَقِيَامِي وَقِرَاءَتِي وَذِكْرِي", fr:"Ô Allah, accepte mon jeûne, ma prière nocturne, ma récitation et mon dhikr." }
 ]
 
 // ── DONNÉES RAMADAN 2026 ──────────────────────────────────────
@@ -2121,15 +2290,21 @@ function renderPrieresSuivi(){
   const today = new Date().toISOString().split('T')[0]
   const done = prieresSuivi[today] || {}
   const names = ['Fajr','Shuruk','Dhuhr','Asr','Maghrib','Icha']
-  const el = document.getElementById('prayers-suivi')
-  if(!el) return
+  const emojis = {Fajr:'🌙',Shuruk:'🌅',Dhuhr:'☀️',Asr:'🌤️',Maghrib:'🌇',Icha:'🌃'}
   const count = names.filter(n=>done[n]).length
-  el.innerHTML = '<div style="font-size:9px;letter-spacing:.15em;color:var(--muted);margin-bottom:8px">PRIERES AUJOURD&#39;HUI — <span style="color:var(--gold)">'+count+'/6</span></div>' +
-    '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-    names.map(n => '<div onclick="logPriere(\''+n+'\',event)" style="flex:1;min-width:44px;text-align:center;padding:8px 4px;border-radius:10px;background:'+(done[n]?'rgba(46,204,113,.15)':'rgba(255,255,255,.04)')+';border:1px solid '+(done[n]?'rgba(46,204,113,.35)':'var(--border)')+';cursor:pointer">' +
-      '<div style="font-size:10px;font-weight:700;color:'+(done[n]?'#2ECC71':'var(--muted)')+'">'+n+'</div>' +
-      '<div style="font-size:14px;margin-top:2px">'+(done[n]?'✓':'○')+'</div>' +
-    '</div>').join('') + '</div>'
+  // Update count
+  const countEl = document.getElementById('prayers-count')
+  if(countEl) countEl.textContent = count+'/6'
+  // Update dots
+  const dotsEl = document.getElementById('prayers-dots')
+  if(!dotsEl) return
+  dotsEl.innerHTML = names.map(n => {
+    const isDone = done[n]
+    return '<div onclick="logPriere(\'' + n + '\')" style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;background:'+(isDone?'rgba(46,204,113,.15)':'rgba(255,255,255,.03)')+';border:1px solid '+(isDone?'rgba(46,204,113,.4)':'var(--border)')+';cursor:pointer;transition:.2s">' +
+      '<div style="font-size:16px">' + (isDone ? '✓' : emojis[n]) + '</div>' +
+      '<div style="font-size:9px;margin-top:4px;color:'+(isDone?'#2ECC71':'var(--muted)')+'">' + n.toUpperCase() + '</div>' +
+    '</div>'
+  }).join('')
 }
 
 // Fix logPriere onclick
