@@ -1025,11 +1025,6 @@ body.light .screen { background: transparent; }
       <div class="tab-icon">🌙</div>
       <div class="tab-label">RAMADAN</div>
     </button>
-    <button class="tab-btn" onclick="goTab('finance',this)" id="tab-finance">
-      <div class="tab-indicator"></div>
-      <div class="tab-icon">💰</div>
-      <div class="tab-label">FINANCE</div>
-    </button>
     <button class="tab-btn" onclick="goTab('profil',this)" id="tab-profil">
       <div class="tab-indicator"></div>
       <div class="tab-icon">👤</div>
@@ -3774,7 +3769,7 @@ function applyAppLang(lang){
   if(hadithEl) hadithEl.textContent = '« ' + getHadithText(h) + ' »'
 
   // Tabbar
-  ;['accueil','priere','dhikr','halal','coran','ramadan','profil','finance'].forEach(tab => {
+  ;['accueil','priere','dhikr','halal','coran','ramadan','profil'].forEach(tab => {
     const el = document.querySelector(`#tab-${tab} .tab-label`)
     if(el && t[tab]) el.textContent = t[tab]
   })
