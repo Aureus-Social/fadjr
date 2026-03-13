@@ -1340,31 +1340,45 @@ function resetAudio(){
 }
 function toggleAudio(){
   if(!currentSurah) return
+  const btn = document.getElementById('audio-btn')
   if(currentAudio && !currentAudio.paused){
     currentAudio.pause()
-    document.getElementById('audio-btn').textContent = '▶'
-  } else {
-    if(!currentAudio){
-      const n = String(currentSurah.n).padStart(3,'0')
-      const reciter = document.getElementById('reciter-sel').value
-      currentAudio = new Audio(`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`)
-      currentAudio.onended = () => { document.getElementById('audio-btn').textContent = '▶' }
-    }
-    const playPromise = currentAudio.play()
-    if(playPromise !== undefined){
-      playPromise.then(() => {
-        document.getElementById('audio-btn').textContent = '⏸'
-      }).catch(e => {
-        console.error('Audio play failed:', e)
-        document.getElementById('audio-btn').textContent = '▶'
-        // iOS fallback: try loading again
+    btn.textContent = '▶'
+    return
+  }
+  // iOS Safari: must call play() synchronously in user gesture handler
+  const n = String(currentSurah.n).padStart(3,'0')
+  const reciter = document.getElementById('reciter-sel').value
+  // Try multiple CDNs in order
+  const cdns = [
+    `https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`,
+    `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${currentSurah.n}.mp3`,
+    `https://everyayah.com/data/Alafasy_128kbps/${n}001.mp3`,
+  ]
+  if(!currentAudio || currentAudio._surah !== currentSurah.n){
+    currentAudio = new Audio(cdns[0])
+    currentAudio._surah = currentSurah.n
+    currentAudio._cdnIndex = 0
+    currentAudio.preload = 'auto'
+    currentAudio.onended = () => { btn.textContent = '▶' }
+    currentAudio.onerror = () => {
+      // Try next CDN
+      currentAudio._cdnIndex = (currentAudio._cdnIndex || 0) + 1
+      if(currentAudio._cdnIndex < cdns.length){
+        currentAudio.src = cdns[currentAudio._cdnIndex]
         currentAudio.load()
-        currentAudio.play().catch(()=>{})
-      })
-    } else {
-      document.getElementById('audio-btn').textContent = '⏸'
+        currentAudio.play().then(()=>{ btn.textContent = '⏸' }).catch(()=>{})
+      } else {
+        btn.textContent = '▶'
+        btn.title = 'Audio indisponible'
+      }
     }
   }
+  btn.textContent = '⏸'
+  currentAudio.play().catch(e => {
+    console.warn('play() error:', e.name, e.message)
+    btn.textContent = '▶'
+  })
 }
 
 // Init surah list
