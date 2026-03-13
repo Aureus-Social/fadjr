@@ -1341,8 +1341,14 @@ function showQuranHome(){
 }
 
 function resetAudio(){
-  if(currentAudio){ currentAudio.pause(); currentAudio = null }
-  document.getElementById('audio-btn').textContent = '▶'
+  if(currentAudio){
+    currentAudio.pause()
+    currentAudio.src = ''
+    currentAudio.load()
+    currentAudio = null
+  }
+  const btn = document.getElementById('audio-btn')
+  if(btn) btn.textContent = '▶'
 }
 function toggleAudio(){
   if(!currentSurah) return
