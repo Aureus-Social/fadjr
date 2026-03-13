@@ -242,6 +242,8 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           <option value="de">Deutsch</option>
           <option value="pt">Português</option>
           <option value="id">Indonesia</option>
+          <option value="it">Italiano</option>
+          <option value="zh">中文</option>
         </select>
       </div>
     </div>
@@ -621,6 +623,8 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
               <option value="pt">🇵🇹 Português</option>
               <option value="id">🇮🇩 Indonesia</option>
               <option value="phonetic">🔤 Phonétique</option>
+              <option value="it">🇮🇹 Italiano</option>
+              <option value="zh">🇨🇳 中文</option>
               <option value="none">— Aucune —</option>
               </select>
             </div>
@@ -1506,6 +1510,8 @@ async function loadAyahs(n){
       de: 'de.bubenheim',
       pt: 'pt.elhayek',
       id: 'id.indonesian',
+      it: 'it.piccardo',
+      zh: 'zh.majian',
       none: null
     }
     const isPhonetic = lang === 'phonetic'
@@ -1872,7 +1878,7 @@ const VERSETS = [
 ]
 
 const HADITHS = [
-  { fr:"Les actions ne valent que par les intentions.", en:"Actions are judged by intentions.", ar:"إنما الأعمال بالنيات", tr:"Ameller niyetlere göredir.", es:"Las acciones valen por las intenciones.", source:"Bukhari & Muslim" },
+  { fr:"Les actions ne valent que par les intentions.", en:"Actions are judged by intentions.", ar:"إنما الأعمال بالنيات", tr:"Ameller niyetlere göredir.", es:"Las acciones valen por las intenciones.", it:"Le azioni valgono per le intenzioni.", zh:"行为以意图为准。", source:"Bukhari & Muslim" },
   { fr:"Le musulman est celui dont les musulmans sont à l'abri de sa langue et de sa main.", en:"A Muslim is one from whose tongue and hand other Muslims are safe.", ar:"المسلم من سلم المسلمون من لسانه ويده", tr:"Müslüman, elinden ve dilinden Müslümanların güvende olduğu kişidir.", es:"El musulmán es aquel de cuya lengua y mano los musulmanes están a salvo.", source:"Bukhari" },
   { fr:"La meilleure des personnes est celle qui est la plus utile aux autres.", en:"The best of people are those most beneficial to others.", ar:"خير الناس أنفعهم للناس", tr:"İnsanların en hayırlısı, insanlara en faydalı olanıdır.", es:"El mejor de los hombres es el más beneficioso para los demás.", source:"Tabarani" },
   { fr:"Souris à ton frère, c'est une aumône.", en:"Your smile for your brother is charity.", ar:"تبسمك في وجه أخيك صدقة", tr:"Kardeşine gülümsemen sadakadır.", es:"Tu sonrisa a tu hermano es una limosna.", source:"Tirmidhi" },
@@ -3596,6 +3602,66 @@ const APP_TRANSLATIONS = {
     desactive:'Desativado',
     compteCreé:'✅ Conta criada! Verifique seu e-mail e faça login.',
     explorer:'EXPLORAR',
+  },
+  it: {
+    accueil:'HOME', priere:'PREGHIERA', dhikr:'DHIKR', halal:'HALAL', coran:'CORANO', ramadan:'RAMADAN', profil:'PROFILO',
+    prochainePriere:'PROSSIMA PREGHIERA', dans:'tra',
+    partager:'+ Condividi', communaute:'👥 COMUNITÀ',
+    prixEtude:'VICINO A TE', voirTout:'Vedi tutto →',
+    lecture:'Lettura', memorisation:'Memorizzazione',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Il tuo compagno spirituale halal',
+    versetJour:'✦ Versetto del giorno', hadithJour:'📜 Hadith del giorno',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar tra', bienvenue:'Benvenuto 👋',
+    priereSpirit:'PREGHIERA & SPIRITUALITÀ', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'CORANO COMPLETO', carteHalal:'MAPPA HALAL',
+    memorisationTitle:'MEMORIZZAZIONE', choisirSourate:'SCEGLI UNA SURA',
+    mesStats:'LE MIE STATISTICHE', directionMecque:'Direzione della Mecca',
+    retour:'Indietro', versetDebut:'Versetto inizio', versetFin:'Versetto fine',
+    statVersets:'Versetti', statMaitrise:'Padroneggiati', statStreak:'🔥 Serie',
+    commencer:'🚀 Inizia', partagerComm:'Condividi con la comunità',
+    email:'EMAIL', motdepasse:'PASSWORD', prenom:'NOME', connexion:'Accedi',
+    connectSave:'Accedi per salvare le tue preferenze',
+    adhkars:'ADHKARS CLASSICI', rate:'Dimenticato', difficile:'Difficile', facile:'Facile',
+    reveler:'Rivela', reciter:'Recita', explorer:'ESPLORA',
+    continueAnon:'Continua senza account →', creerCompte:'Crea il mio account',
+    deconnexion:'Disconnetti', chargement:'Caricamento...', desactive:'Disattivato',
+    prieres:'PREGHIERE', kaaba:'verso la Kaaba', tajweedRules:'REGOLE TAJWEED',
+    sessionDone:'Sessione completata!', selectionner:'Seleziona...',
+    voirTranslit:'👁 Mostra traslitterazione', activerBoussole:'🧭 Attiva bussola',
+    dhikrNumerique:'📿 Dhikr Digitale', memorisationTab:'🧠 Memorizzazione',
+    retourGen:'← Indietro', postPensee:'💭 Pensiero', postVerset:'📖 Versetto',
+    postHadith:'📜 Hadith', postDoua:'🤲 Dua', compteCreé:'✅ Account creato!',
+    modeAffichage:'Modalità display', label_ramadan_title:'🌙 RAMADAN 1447',
+  },
+  zh: {
+    accueil:'首页', priere:'礼拜', dhikr:'念珠', halal:'清真', coran:'古兰经', ramadan:'斋月', profil:'个人',
+    prochainePriere:'下次礼拜', dans:'后',
+    partager:'+ 分享', communaute:'👥 社区',
+    prixEtude:'附近', voirTout:'查看全部 →',
+    lecture:'阅读', memorisation:'背诵',
+    bonjour:'السلام عليكم', sloganSub:'您的清真精神伴侣',
+    versetJour:'✦ 今日经文', hadithJour:'📜 今日圣训',
+    ramadanLabel:'🌙 斋月 1447', iftarDans:'开斋时间', bienvenue:'欢迎 👋',
+    priereSpirit:'礼拜与灵性', dhikrTasbih:'念珠与赞颂',
+    coranComplet:'完整古兰经', carteHalal:'清真地图',
+    memorisationTitle:'背诵', choisirSourate:'选择章节',
+    mesStats:'我的统计', directionMecque:'麦加方向',
+    retour:'返回', versetDebut:'开始节', versetFin:'结束节',
+    statVersets:'经文', statMaitrise:'已掌握', statStreak:'🔥 连续',
+    commencer:'🚀 开始', partagerComm:'与社区分享',
+    email:'邮箱', motdepasse:'密码', prenom:'姓名', connexion:'登录',
+    connectSave:'登录以保存您的偏好',
+    adhkars:'经典念珠', rate:'忘记', difficile:'困难', facile:'容易',
+    reveler:'显示', reciter:'朗读', explorer:'探索',
+    continueAnon:'无账户继续 →', creerCompte:'创建账户',
+    deconnexion:'退出', chargement:'加载中...', desactive:'已禁用',
+    prieres:'礼拜', kaaba:'朝向天房', tajweedRules:'诵读规则',
+    sessionDone:'会话完成！', selectionner:'选择...',
+    voirTranslit:'👁 显示音译', activerBoussole:'🧭 启动指南针',
+    dhikrNumerique:'📿 数字念珠', memorisationTab:'🧠 背诵',
+    retourGen:'← 返回', postPensee:'💭 思考', postVerset:'📖 经文',
+    postHadith:'📜 圣训', postDoua:'🤲 祈祷', compteCreé:'✅ 账户已创建！',
+    modeAffichage:'显示模式', label_ramadan_title:'🌙 斋月 1447',
   },
   id: {
     accueil:'BERANDA', priere:'SALAT', dhikr:'DZIKIR', halal:'HALAL', coran:'AL-QURAN', ramadan:'RAMADAN', profil:'PROFIL',
