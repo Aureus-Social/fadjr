@@ -245,7 +245,6 @@ body.light .screen { background: transparent; }
   <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:100" id="ob-nav">
     <button id="ob-skip" style="background:transparent;border:none;color:#555;font-size:15px;cursor:pointer;font-family:'Cairo',sans-serif;padding:14px 20px;-webkit-tap-highlight-color:transparent">Passer →</button>
     <button id="ob-next" style="background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.4);color:#C9A84C;padding:14px 28px;border-radius:10px;font-size:15px;cursor:pointer;font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent">Suivant ›</button>
-  </div>
 </div>
 
 <script>
@@ -787,6 +786,8 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
     </div>
 
+  </div><!-- end #content -->
+
   <div id="tabbar">
     <button class="tab-btn active" onclick="goTab('accueil',this)" id="tab-accueil">
       <div class="tab-indicator"></div>
@@ -823,8 +824,8 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <div class="tab-icon">👤</div>
       <div class="tab-label">PROFIL</div>
     </button>
-  </div>
 </div>
+</div><!-- end #app -->
 
 <script>
 // ── STARS ────────────────────────────────────────────────────
