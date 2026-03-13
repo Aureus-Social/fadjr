@@ -183,577 +183,902 @@ body.light {
 body.light #tabbar { background: rgba(245,240,232,.98); }
 body.light .screen { background: transparent; }
 </style>
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-<!-- ONBOARDING -->
-<div id="onboarding" style="position:fixed;inset:0;background:#07070F;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity .5s">
-  
-  <!-- Stars background -->
-  <canvas id="ob-stars" style="position:absolute;inset:0;pointer-events:none"></canvas>
-  
-  <!-- Slides -->
-  <div id="ob-slides" style="width:100%;max-width:360px;position:relative;z-index:1">
-    
-    <div class="ob-slide active" id="ob-0">
-      <div style="font-size:72px;text-align:center;margin-bottom:24px;animation:obFloat 3s ease-in-out infinite">☪</div>
-      <div style="font-family:'Cinzel',serif;font-size:36px;color:#C9A84C;text-align:center;letter-spacing:4px;margin-bottom:12px">FADJR</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.8">La super-app halal<br>pour ta communauté</div>
-      <div style="font-family:'Tajawal',sans-serif;font-size:20px;direction:rtl;text-align:center;color:#C9A84C;margin-top:20px;opacity:.7">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-    </div>
+<style>
+.ob-slide { animation: obFadeIn .4s ease }
+@keyframes obFadeIn { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
+@keyframes obFloat { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-12px) } }
+.ob-dot { width:8px;height:8px;border-radius:50%;background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.3);cursor:pointer;transition:.3s }
+.ob-dot.active { background:#C9A84C;width:24px;border-radius:4px }
+</style>
 
-    <div class="ob-slide" id="ob-1" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">🕌</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Prière & Qibla</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Horaires en temps réel selon ta position GPS.<br>Direction de la Qibla.<br>Rappels Adhan avant chaque prière.</div>
-      <div style="display:flex;justify-content:center;gap:16px;margin-top:24px">
-        <div style="text-align:center"><div style="font-size:28px">🌙</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">FAJR</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌅</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">SHURUK</div></div>
-        <div style="text-align:center"><div style="font-size:28px">☀️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">DHUHR</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌤️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ASR</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌇</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">MAGHRIB</div></div>
-        <div style="text-align:center"><div style="font-size:28px">🌃</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ICHA</div></div>
+<style>
+.screen { animation: screenIn .3s ease }
+@keyframes screenIn { from { opacity:0; transform:translateX(12px) } to { opacity:1; transform:translateX(0) } }
+.tab-btn { transition: all .2s ease }
+.tab-btn.active .tab-icon { transform: scale(1.15); display:block; transition:.2s }
+.pilier-btn { transition: transform .15s ease, box-shadow .15s ease }
+.pilier-btn:active { transform: scale(.94) }
+.card { transition: transform .15s ease }
+.card:active { transform: scale(.98) }
+</style>
+
+<style>
+.share-toast { position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(201,168,76,.95);color:#07070F;padding:10px 20px;border-radius:99px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:.3s;pointer-events:none;font-family:'Cairo',sans-serif }
+.share-toast.show { opacity:1 }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div id="app">
+  <!-- HEADER -->
+  <div id="header">
+    <div class="header-top">
+      <div>
+        <div class="logo-text">FADJR</div>
+        <div class="logo-sub">☪ BRUXELLES</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="header-date">
+          <span id="today-date"></span>
+          <span id="hijri-date" style="color:var(--gold);margin-top:2px">12 Ramadan 1447 H</span>
+        </div>
+        <!-- Sélecteur langue global -->
+        <select id="app-lang-sel" onchange="changeAppLang(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:2px 6px;border-radius:6px;font-size:10px;font-family:'Cairo',sans-serif;outline:none;cursor:pointer">
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+          <option value="tr">Türkçe</option>
+          <option value="es">Español</option>
+          <option value="nl">Nederlands</option>
+          <option value="de">Deutsch</option>
+          <option value="pt">Português</option>
+          <option value="id">Indonesia</option>
+          <option value="it">Italiano</option>
+          <option value="zh">中文</option>
+        </select>
       </div>
     </div>
-
-    <div class="ob-slide" id="ob-2" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">📖</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Coran Complet</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">114 sourates avec texte arabe.<br>5 traductions · 10 récitateurs audio.<br>99 noms d'Allah · Dhikr & Tasbih.</div>
-      <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:16px;margin-top:20px;text-align:center">
-        <div style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;color:#F0EAD8;line-height:1.8">إِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
-        <div style="font-size:11px;color:#888;margin-top:8px;font-style:italic">Certes avec la difficulté vient la facilité</div>
+    <div id="next-prayer">
+      <div>
+        <div class="np-label">PROCHAINE PRIÈRE</div>
+        <div class="np-name" id="np-name">Fajr</div>
+        <div class="np-ar" id="np-ar"></div>
       </div>
-    </div>
-
-    <div class="ob-slide" id="ob-3" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">🍽️</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Halal Near Me</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Restaurants, boucheries, mosquées<br>certifiés halal près de toi.<br>Bruxelles · Paris · Casablanca et plus.</div>
-      <div style="display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap">
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🍽️ Restaurants</span>
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🥩 Boucheries</span>
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">✈️ Voyages</span>
-        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">📚 Librairies</span>
+      <div>
+        <div class="np-time" id="np-time">--:--</div>
+        <div class="np-countdown" id="np-countdown"></div>
+        <div class="np-emoji" id="np-emoji">🕌</div>
       </div>
-    </div>
-
-    <div class="ob-slide" id="ob-4" style="display:none">
-      <div style="font-size:64px;text-align:center;margin-bottom:20px">🌟</div>
-      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">100% Gratuit</div>
-      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">FADJR est et restera gratuit<br>pour toute la communauté.<br>Données hébergées en Europe · RGPD.</div>
-      <button onclick="finishOnboarding()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#F0D080);color:#07070F;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;margin-top:28px;font-family:'Cairo',sans-serif;letter-spacing:.1em">COMMENCER ›</button>
     </div>
   </div>
 
-  <!-- Dots -->
-  <div id="ob-dots" style="display:flex;gap:8px;margin-top:32px;position:relative;z-index:1">
-    <div class="ob-dot active" onclick="goObSlide(0)"></div>
-    <div class="ob-dot" onclick="goObSlide(1)"></div>
-    <div class="ob-dot" onclick="goObSlide(2)"></div>
-    <div class="ob-dot" onclick="goObSlide(3)"></div>
-    <div class="ob-dot" onclick="goObSlide(4)"></div>
-  </div>
+  <!-- CONTENT -->
+  <div id="content">
 
-  <!-- Next / Skip -->
-  <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:1" id="ob-nav">
-    <button onclick="skipOnboarding()" id="ob-skip" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Passer →</button>
-    <button onclick="nextObSlide()" id="ob-next" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Suivant ›</button>
+    <!-- ACCUEIL -->
+    <div class="screen active" id="screen-accueil">
+      <div style="height:12px"></div>
+
+      <!-- Greeting + user -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div id="accueil-greeting" style="font-size:12px;color:var(--muted)">Bonjour</div>
+          <div id="accueil-username" style="font-size:20px;font-weight:900">Bienvenue 👋</div>
+        </div>
+        <div onclick="goTab('profil')" style="width:44px;height:44px;border-radius:50%;background:rgba(201,168,76,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer">☪</div>
+      </div>
+
+      <!-- Verset du jour -->
+      <div id="verset-card" style="background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.3);border-radius:14px;padding:18px;margin-bottom:14px">
+        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px" id="label-verset-jour">✦ Verset du jour</div>
+        <div id="verset-ar" style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;text-align:right;line-height:1.8;color:var(--white);margin-bottom:8px">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+        <div id="verset-fr" style="font-size:11px;color:var(--muted);line-height:1.7;font-style:italic">Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+          <div id="verset-ref" style="font-size:9px;color:rgba(201,168,76,.5);letter-spacing:.1em">Sourate 1 · Al-Fatiha · Verset 1</div>
+          <button onclick="shareVerset()" style="background:transparent;border:none;color:rgba(201,168,76,.5);font-size:16px;cursor:pointer;padding:0">↗</button>
+        </div>
+      </div>
+
+      <!-- Ramadan Banner (si Ramadan actif) -->
+      <div id="ram-banner" style="display:none;background:linear-gradient(135deg,rgba(142,68,173,.15),rgba(201,168,76,.08));border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:12px 16px;margin-bottom:14px;cursor:pointer" onclick="goTab('ramadan')">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:10px;color:rgba(201,168,76,.7);letter-spacing:.15em;margin-bottom:3px" id="label-ramadan">🌙 RAMADAN 1447</div>
+            <div style="font-size:13px;font-weight:700;color:var(--white)" id="ram-banner-text" id="label-iftar">Iftar dans --:--</div>
+          </div>
+          <div style="font-size:24px">🌙</div>
+        </div>
+      </div>
+
+      <!-- Hadith du jour -->
+      <div id="hadith-card" style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px" id="label-hadith-jour">📜 Hadith du jour</div>
+        <div id="hadith-text" style="font-size:12px;color:var(--white);line-height:1.8">« Le musulman est celui dont les musulmans sont à l'abri de sa langue et de sa main. »</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+          <div id="hadith-source" style="font-size:9px;color:var(--muted)"></div>
+          <button onclick="shareHadith()" style="background:transparent;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:0">↗</button>
+        </div>
+      </div>
+
+      <!-- Prochaine prière mini -->
+      <div onclick="goTab('priere')" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer">
+        <div style="font-size:28px" id="acc-pray-emoji">🕌</div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:.1em">PROCHAINE PRIÈRE</div>
+          <div style="font-size:16px;font-weight:900" id="acc-pray-name">—</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;color:var(--gold);font-weight:700" id="acc-pray-time">--:--</div>
+          <div style="font-size:10px;color:var(--muted)" id="acc-pray-cd">--</div>
+        </div>
+      </div>
+
+      <!-- Piliers -->
+      <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px" id="label-explorer">EXPLORER</div>
+      <div class="piliers">
+        <div class="pilier-btn" style="border-top-color:#C9A84C" onclick="goTab('priere')">
+          <div class="p-icon">🕌</div><div class="p-label">PRIÈRE</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#C0392B" onclick="goTab('carte')">
+          <div class="p-icon">🍽️</div><div class="p-label">HALAL</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#7D5A3C" onclick="goTab('culture')">
+          <div class="p-icon">📖</div><div class="p-label">CORAN</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#8E44AD" onclick="goTab('dhikr')">
+          <div class="p-icon">📿</div><div class="p-label">DHIKR</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#2980B9" onclick="goTab('carte')">
+          <div class="p-icon">✈️</div><div class="p-label">VOYAGE</div>
+        </div>
+        <div class="pilier-btn" style="border-top-color:#16A085" onclick="goTab('profil')">
+          <div class="p-icon">👤</div><div class="p-label">PROFIL</div>
+        </div>
+      </div>
+
+      <div class="row-between">
+        <div class="sec-label" style="margin:0" id="label-pres-de-vous">PRÈS DE VOUS</div>
+        <div class="see-all" onclick="goTab('carte')" id="label-voir-tout">Voir tout →</div>
+      </div>
+      <div id="accueil-commerces"></div>
+
+      <!-- COMMUNAUTÉ FEED -->
+      <div style="margin-top:24px">
+        <div class="row-between" style="margin-bottom:12px">
+          <div class="sec-label" style="margin:0" id="label-communaute">👥 COMMUNAUTÉ</div>
+          <button onclick="showPostModal()" style="background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:4px 10px;border-radius:8px;font-size:10px;cursor:pointer;font-weight:700">+ Partager</button>
+        </div>
+        <div id="community-feed" style="display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Chargement...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL NOUVEAU POST -->
+    <div id="post-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;padding:20px;overflow-y:auto">
+      <div style="background:#13131F;border:1px solid var(--border);border-radius:16px;padding:20px;max-width:480px;margin:40px auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold)" id="label-partager-comm">Partager avec la communauté</div>
+          <button onclick="closePostModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">×</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="post-cat-btns">
+          <button onclick="selectPostCat(this,'doua')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer" id="post-cat-doua">🤲 Doua</button>
+          <button onclick="selectPostCat(this,'verset')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer" id="post-cat-verset">📖 Verset</button>
+          <button onclick="selectPostCat(this,'pensee')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer" id="post-cat-pensee">💭 Pensée</button>
+          <button onclick="selectPostCat(this,'hadith')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer" id="post-cat-hadith">📜 Hadith</button>
+        </div>
+        <input id="post-pseudo" type="text" placeholder="Votre prénom (anonyme si vide)" maxlength="20"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;outline:none;margin-bottom:10px;font-family:'Cairo',sans-serif">
+        <textarea id="post-text" placeholder="Partagez une doua, un verset, une réflexion..." rows="4" maxlength="500"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;outline:none;resize:none;font-family:'Cairo',sans-serif;margin-bottom:12px"></textarea>
+        <button onclick="submitPost()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:10px;border:none;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif">Publier 🕊️</button>
+      </div>
+    </div>
+
+    <!-- PRIÈRE -->
+    <div class="screen" id="screen-priere">
+      <div style="height:12px"></div>
+      <div class="subtabs" style="margin-bottom:12px">
+        <button class="subtab active" onclick="setPriereTab(this,'horaires')" id="pt-horaires">🕌 Horaires</button>
+        <button class="subtab" onclick="setPriereTab(this,'qibla')" id="pt-qibla">🧭 Qibla</button>
+        <button class="subtab" onclick="setPriereTab(this,'douas')" id="pt-douas">🤲 Douas</button>
+      </div>
+      
+      <div class="screen-header">
+        <div class="sec-label" id="label-priere-spiritualite">PRIÈRE & SPIRITUALITÉ</div>
+        <div class="screen-title">☪ Bruxelles, Belgique</div>
+      </div>
+
+      <div id="sub-horaires">
+        <div id="prayer-list"></div>
+
+      <!-- ADHAN TOGGLE WIDGET -->
+      <div style="margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--white)">🔔 Adhan à voix haute</div>
+            <div id="adhan-status-priere" style="font-size:11px;color:var(--muted)">Désactivé</div>
+          </div>
+          <div id="adhan-toggle-priere" onclick="toggleAdhanPriere()" style="width:52px;height:28px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+            <div id="adhan-knob-priere" style="position:absolute;top:4px;left:4px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+          </div>
+        </div>
+        <select id="adhan-recitation-priere" onchange="changeAdhanRecitation(this.value)" style="width:100%;background:#13131F;border:1px solid var(--border);color:var(--white);padding:9px;border-radius:10px;font-size:12px;font-family:'Cairo',sans-serif;outline:none;color-scheme:dark;margin-bottom:10px">
+          <option value="makkah">🕋 Adhan Al-Haram (Mecque)</option>
+          <option value="madinah">🌙 Adhan Al-Madinah</option>
+          <option value="egypt">🇪🇬 Adhan Égypte (Al-Azhar)</option>
+          <option value="turkey">🇹🇷 Adhan Turquie (Diyanet)</option>
+          <option value="fajr">⭐ Adhan Fajr spécial</option>
+        </select>
+        <div style="display:flex;gap:8px">
+          <button onclick="previewAdhan()" style="flex:1;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:8px;border-radius:10px;font-size:12px;cursor:pointer">▶ Écouter</button>
+          <button onclick="stopAdhanPreview()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:10px;font-size:12px;cursor:pointer">■</button>
+        </div>
+      </div>
+      </div>
+      <div id="sub-qibla" style="display:none;text-align:center">
+        <!-- Boussole animée -->
+        <div style="position:relative;width:220px;height:220px;margin:0 auto">
+          <!-- Cercle boussole -->
+          <div id="compass-ring" style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(201,168,76,.3);background:#12122A;display:flex;align-items:center;justify-content:center;transition:transform .1s ease">
+            <!-- Points cardinaux -->
+            <div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--gold);font-weight:700">N</div>
+            <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted)">S</div>
+            <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">E</div>
+            <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted)">O</div>
+            <!-- Aiguille vers La Mecque -->
+            <div id="qibla-needle" style="position:absolute;width:4px;height:90px;bottom:50%;left:calc(50% - 2px);transform-origin:bottom center;border-radius:4px 4px 0 0;background:linear-gradient(to top,transparent,var(--gold));transition:transform .15s ease">
+              <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:18px">🕋</div>
+            </div>
+          </div>
+        </div>
+        <div id="qibla-deg-display" style="font-family:'Cinzel',serif;font-size:36px;color:var(--gold);font-weight:900;margin-top:12px">127°</div>
+        <div style="color:var(--white);font-size:15px;margin-top:4px" id="label-direction-mecque">Direction de La Mecque</div>
+        <div id="compass-status" style="color:var(--muted);font-size:11px;margin-top:4px">Activation boussole...</div>
+        <button onclick="initCompass()" id="compass-btn" style="margin-top:10px;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:6px 14px;border-radius:8px;font-size:11px;cursor:pointer" id="btn-activer-boussole">🧭 Activer la boussole</button>
+        <div class="card" style="margin-top:20px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">DISTANCE</div>
+          <div style="font-family:'Cinzel',serif;font-size:30px;color:var(--gold);font-weight:900">5 248 km</div>
+          <div style="font-size:12px;color:var(--muted)" id="label-kaaba">jusqu'à la Kaaba</div>
+        </div>
+      </div>
+      <div id="sub-douas" style="display:none">
+        <div id="douas-list"></div>
+      </div>
+
+      <div id="sub-dhikr" style="display:none">
+        <div class="card" style="text-align:center;padding:20px;margin-bottom:16px">
+          <div id="dhikr-ar" style="font-size:24px;color:var(--white);margin-bottom:8px;font-family:Tajawal,sans-serif;direction:rtl"></div>
+          <div id="dhikr-fr" style="font-size:16px;font-weight:700;color:rgba(201,168,76,.85);font-style:italic;margin-top:6px"></div>
+          <div id="dhikr-trad" style="font-size:12px;color:rgba(255,255,255,.6);margin-top:6px"></div>
+          <div id="dhikr-total" style="font-size:12px;color:var(--gold);margin-top:6px"></div>
+        </div>
+        <div class="dhikr-btn" id="dhikr-btn" onclick="incrementDhikr()">
+          <div class="dhikr-count" id="dhikr-count">0</div>
+          <div class="dhikr-sub" id="dhikr-sub">appuyer</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="dhikr-progress" style="width:0%"></div></div>
+        <div class="dhikr-chips" id="dhikr-chips"></div>
+      </div>
+    </div>
+
+    <!-- CARTE HALAL -->
+    <div class="screen" id="screen-carte">
+      <div style="height:12px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:9px;letter-spacing:.2em;color:var(--muted)" id="label-carte-halal">CARTE HALAL</div>
+          <div style="font-size:16px;font-weight:900" id="carte-city">Bruxelles</div>
+        </div>
+        <button onclick="locateMe()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif">📍 Me localiser</button>
+      </div>
+
+      <!-- Mini map -->
+      <div style="border-radius:12px;overflow:hidden;margin-bottom:12px;border:1px solid var(--border);position:relative">
+        <iframe id="halal-map" 
+          src="https://www.openstreetmap.org/export/embed.html?bbox=4.3017%2C50.8203%2C4.4017%2C50.8803&layer=mapnik&marker=50.8503%2C4.3517"
+          style="width:100%;height:180px;border:none;filter:invert(90%) hue-rotate(180deg)" 
+          loading="lazy"></iframe>
+        <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);padding:4px 8px;border-radius:6px;font-size:9px;color:var(--gold)">OpenStreetMap</div>
+      </div>
+
+      <!-- Ville selector -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px" class="filter-row">
+        <button onclick="setCarteCity(this,'Bruxelles',50.8503,4.3517)" class="filter-chip active" id="city-bxl">Bruxelles</button>
+        <button onclick="setCarteCity(this,'Paris',48.8566,2.3522)" class="filter-chip" id="city-par">Paris</button>
+        <button onclick="setCarteCity(this,'Casablanca',33.5731,-7.5898)" class="filter-chip" id="city-cas">Casablanca</button>
+        <button onclick="setCarteCity(this,'Anvers',51.2194,4.4025)" class="filter-chip" id="city-anv">Anvers</button>
+        <button onclick="setCarteCity(this,'Lyon',45.7640,4.8357)" class="filter-chip" id="city-lyo">Lyon</button>
+        <button onclick="setCarteCity(this,'Liège',50.6326,5.5797)" class="filter-chip" id="city-lie">Liège</button>
+      </div>
+
+      <input class="search-box" placeholder="🔍  Chercher un commerce halal..." oninput="filterCommerces(this.value)" id="search-input">
+      <div class="filter-row" id="filter-row"></div>
+      <div id="commerce-list"></div>
+    </div>
+
+    <!-- DHIKR -->
+    <div class="screen" id="screen-dhikr">
+      <div style="height:16px"></div>
+      <div class="screen-header">
+        <div class="sec-label" id="label-dhikr-tasbih">DHIKR & TASBIH</div>
+        <div class="screen-title" id="label-dhikr-numerique">📿 Dhikr Numérique</div>
+      </div>
+
+      <!-- Tasbih counter -->
+      <div style="text-align:center;padding:20px 0 10px">
+        <div id="tasbih-count" style="font-family:'Cinzel',serif;font-size:80px;font-weight:900;color:var(--gold);line-height:1;transition:.15s transform">0</div>
+        <div id="tasbih-target-label" style="font-size:11px;color:var(--muted);margin-top:6px">/ <span id="tasbih-target">33</span> · <span id="tasbih-round">Tour 1</span></div>
+        <div id="tasbih-name" style="font-family:'Cairo',sans-serif;font-size:18px;color:var(--white);margin-top:8px;font-weight:700">سُبْحَانَ اللَّه</div>
+        <div id="tasbih-fr" style="font-size:12px;color:var(--muted);margin-top:4px">Gloire à Allah</div>
+      </div>
+
+      <!-- Big tap button -->
+      <div style="display:flex;justify-content:center;margin:16px 0">
+        <button onclick="tapTasbih()" id="tasbih-btn" style="width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.05));border:2px solid var(--gold);cursor:pointer;font-size:36px;transition:.1s;box-shadow:0 0 30px rgba(201,168,76,.15)">📿</button>
+      </div>
+
+      <!-- Controls -->
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px">
+        <button onclick="resetTasbih()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Cairo',sans-serif">↺ Reset</button>
+        <select id="tasbih-target-sel" onchange="changeTasbihTarget()" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:8px 12px;border-radius:8px;font-size:12px;font-family:'Cairo',sans-serif">
+          <option value="33">33 fois</option>
+          <option value="99">99 fois</option>
+          <option value="100">100 fois</option>
+          <option value="1000">1000 fois</option>
+        </select>
+      </div>
+
+      <!-- Dhikr list -->
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px" id="label-adhkars">ADHKARS CLASSIQUES</div>
+      <div id="dhikr-list" style="display:flex;flex-direction:column;gap:8px"></div>
+
+      <!-- 99 Noms d'Allah -->
+      <div style="margin-top:24px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:14px">🌟 LES 99 NOMS D'ALLAH — أسماء الله الحسنى</div>
+        <div id="asma-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+      </div>
+
+      <!-- Calendrier Hijri -->
+      <div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:14px">📅 CALENDRIER HIJRI</div>
+        <div style="text-align:center;margin-bottom:16px">
+          <div id="hijri-date" style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);font-weight:700"></div>
+          <div id="hijri-gregorian" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+        </div>
+        <div id="hijri-events" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
+    <!-- CORAN -->
+    <div class="screen" id="screen-culture">
+      <div style="height:12px"></div>
+      <div class="subtabs" style="margin-bottom:12px">
+        <button class="subtab active" onclick="setCoranTab(this,'lecture')" id="ct-lecture">📖 Lecture</button>
+        <button class="subtab" onclick="setCoranTab(this,'memorisation')" id="ct-memorisation" id="label-memorisation-tab">🧠 Mémorisation</button>
+      </div>
+
+      <div id="sub-coran-lecture">
+      <div class="screen-header">
+        <div class="sec-label" id="label-coran-complet">CORAN COMPLET</div>
+        <div class="screen-title">📖 القرآن الكريم</div>
+      </div>
+
+      <!-- Search + surah list -->
+      <div id="quran-home">
+        <input id="quran-search" type="text" placeholder="🔍 Rechercher une sourate..."
+          oninput="filterSurahs(this.value)"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--white);font-size:13px;outline:none;font-family:'Cairo',sans-serif;margin-bottom:14px;">
+        <div id="surah-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+
+      <!-- Surah reader -->
+      <div id="quran-reader" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button onclick="showQuranHome()" style="background:rgba(201,168,76,.1);border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Cairo',sans-serif" id="btn-retour-gen">← Retour</button>
+          <div>
+            <div id="reader-title" style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold)"></div>
+            <div id="reader-sub" style="font-size:10px;color:var(--muted)"></div>
+          </div>
+          <div style="margin-left:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <!-- Ligne 1 : récitateur + play -->
+            <div style="display:flex;gap:5px;align-items:center">
+              <button id="tajweed-btn" onclick="toggleTajweed()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:5px 8px;border-radius:8px;cursor:pointer;font-size:10px;font-weight:700">🎨</button>
+              <select id="reciter-sel" onchange="resetAudio()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:5px 6px;border-radius:8px;font-size:10px;font-family:'Cairo',sans-serif;max-width:120px">
+                <option value="128">Mishary Al-Afasy</option>
+                <option value="112">Abdullah Basfar</option>
+                <option value="5">Mahmoud Khalil Hussary</option>
+                <option value="129">Saad Al-Ghamdi</option>
+                <option value="130">Abdurrahman Al-Sudais</option>
+                <option value="7">Maher Al-Muaiqly</option>
+                <option value="114">Nasser Al-Qatami</option>
+                <option value="118">Hani Ar-Rifai</option>
+                <option value="135">Yasser Al-Dosari</option>
+                <option value="109">Ibrahim Al-Akhdar</option>
+                <option value="10">Khalid Al-Qahtani</option>
+                <option value="137">Wadih Al-Yamani</option>
+              </select>
+              <button id="audio-btn" onclick="toggleAudio()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px">▶</button>
+            </div>
+            <!-- Ligne 2 : langue traduction -->
+            <div style="display:flex;align-items:center;gap:5px">
+              <span style="font-size:10px;color:var(--muted)">Traduction :</span>
+              <select id="trans-sel" onchange="reRenderAyahs()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:5px 8px;border-radius:8px;font-size:11px;font-family:'Cairo',sans-serif">
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="ar">🇸🇦 Arabe (tafsir)</option>
+              <option value="tr">🇹🇷 Türkçe</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="ur">🇵🇰 اردو</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="pt">🇵🇹 Português</option>
+              <option value="id">🇮🇩 Indonesia</option>
+              <option value="phonetic">🔤 Phonétique</option>
+              <option value="it">🇮🇹 Italiano</option>
+              <option value="zh">🇨🇳 中文</option>
+              <option value="none">— Aucune —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="ayahs-container" style="display:flex;flex-direction:column;gap:16px;padding-bottom:20px"></div>
+        <!-- Tajweed legend -->
+      <div id="tajweed-legend" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:12px;font-size:10px">
+        <div style="color:var(--gold);letter-spacing:.1em;margin-bottom:8px" id="label-tajweed-rules">RÈGLES TAJWEED</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="color:#ef4444">● Ghunna</span>
+          <span style="color:#22c55e">● Ikhfa</span>
+          <span style="color:#3b82f6">● Idgham</span>
+          <span style="color:#eab308">● Qalqala</span>
+          <span style="color:#f97316">● Mad</span>
+          <span style="color:#a855f7">● Izhar</span>
+          <span style="color:#06b6d4">● Madd Lazim</span>
+        </div>
+      </div>
+      <div id="ayahs-loading" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Chargement...</div>
+      </div>
+    </div>
+      </div><!-- /sub-coran-lecture -->
+
+      <!-- MÉMORISATION -->
+      <div id="sub-coran-memorisation" style="display:none">
+        <div class="screen-header">
+          <div class="sec-label" id="label-memorisation-title">MÉMORISATION</div>
+          <div class="screen-title">🧠 Hifz — حفظ</div>
+        </div>
+
+        <!-- Setup -->
+        <div id="mem-setup">
+          <div class="card" style="margin-bottom:12px">
+            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px" id="label-choisir-sourate">CHOISIR UNE SOURATE</div>
+            <select id="mem-surah-sel" style="width:100%;background:#1a1a2e;border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;font-family:'Cairo',sans-serif;outline:none;margin-bottom:10px;color-scheme:dark">
+              <option value="" id="label-selectionner">Sélectionner...</option>
+            </select>
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <div style="flex:1">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px" id="label-verset-debut">Verset début</div>
+                <input id="mem-from" type="number" min="1" value="1" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--white);font-size:13px;outline:none">
+              </div>
+              <div style="flex:1">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px" id="label-verset-fin">Verset fin</div>
+                <input id="mem-to" type="number" min="1" value="10" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--white);font-size:13px;outline:none">
+              </div>
+            </div>
+            <button onclick="startMemorisation()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:10px;border:none;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif" id="btn-commencer-mem">🚀 Commencer</button>
+          </div>
+
+          <!-- Statistiques -->
+          <div class="card">
+            <div style="font-size:11px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px" id="label-mes-stats">MES STATISTIQUES</div>
+            <div id="mem-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-total">0</div><div style="font-size:10px;color:var(--muted)" id="label-stat-versets">Versets</div></div>
+              <div><div style="font-size:22px;font-weight:900;color:#4ade80" id="stat-maitrise">0</div><div style="font-size:10px;color:var(--muted)" id="label-stat-maitrise">Maîtrisés</div></div>
+              <div><div style="font-size:22px;font-weight:900;color:var(--gold)" id="stat-streak">0</div><div style="font-size:10px;color:var(--muted)" id="label-stat-streak">🔥 Streak</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Session de révision -->
+        <div id="mem-session" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <button onclick="exitMemSession()" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--white);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px">← Quitter</button>
+            <div id="mem-progress" style="font-size:11px;color:var(--muted)">1 / 10</div>
+          </div>
+
+          <!-- Carte verset -->
+          <div class="card" style="text-align:center;padding:24px;margin-bottom:12px">
+            <div id="mem-surah-name" style="font-size:10px;color:var(--gold);letter-spacing:.1em;margin-bottom:16px"></div>
+            <div id="mem-ayah-ar" style="font-family:'Tajawal',sans-serif;font-size:22px;color:var(--white);direction:rtl;line-height:2;margin-bottom:16px"></div>
+            <div id="mem-ayah-num" style="font-size:11px;color:var(--muted);margin-bottom:16px"></div>
+            <div id="mem-ayah-reveal" style="display:none">
+              <div id="mem-ayah-ph" style="font-size:12px;color:rgba(201,168,76,.8);font-style:italic;margin-bottom:8px"></div>
+              <div id="mem-ayah-fr" style="font-size:12px;color:var(--muted);line-height:1.6"></div>
+            </div>
+          </div>
+
+          <!-- Boutons évaluation -->
+          <div id="mem-show-btn" style="text-align:center">
+            <button onclick="revealAyah()" style="width:100%;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:14px;border-radius:12px;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif" id="btn-voir-translit">👁 Voir la translittération</button>
+          </div>
+          <div id="mem-eval-btns" style="display:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <button onclick="evalAyah(1)" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#ef4444;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😰<br id="btn-rate">Raté</button>
+            <button onclick="evalAyah(3)" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😐<br id="btn-difficile">Difficile</button>
+            <button onclick="evalAyah(5)" style="background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#4ade80;padding:12px 8px;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">😊<br id="btn-facile">Facile</button>
+          </div>
+        </div>
+
+        <!-- Session terminée -->
+        <div id="mem-done" style="display:none;text-align:center;padding:40px 20px">
+          <div style="font-size:48px;margin-bottom:16px">🎉</div>
+          <div style="font-family:'Cinzel',serif;font-size:20px;color:var(--gold);margin-bottom:8px" id="label-session-done">Session terminée !</div>
+          <div id="mem-done-stats" style="font-size:13px;color:var(--muted);margin-bottom:24px"></div>
+          <button onclick="exitMemSession()" style="background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px 24px;border-radius:10px;border:none;font-size:14px;cursor:pointer" id="btn-retour-coran">Retour</button>
+        </div>
+      </div><!-- /sub-coran-memorisation -->
+
+    <!-- VOYAGE HALAL -->
+    <div class="screen" id="screen-voyage" style="display:none">
+      <div style="height:12px"></div>
+      <div style="background:linear-gradient(135deg,rgba(52,152,219,.15),rgba(201,168,76,.08));border:1px solid rgba(52,152,219,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.2em;color:#3498db;margin-bottom:6px">✈️ VOYAGE HALAL</div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">السفر الحلال</div>
+        <div style="font-size:11px;color:var(--muted)">Voyagez sereinement selon vos valeurs</div>
+      </div>
+
+      <!-- Tips voyage -->
+      <div style="display:flex;flex-direction:column;gap:10px" id="voyage-tips"></div>
+
+      <!-- Destinations populaires -->
+      <div style="font-size:10px;letter-spacing:.15em;color:var(--muted);margin:16px 0 10px">🌍 DESTINATIONS POPULAIRES</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="voyage-destinations"></div>
+      <!-- Legal footer -->
+      <div style="margin-top:20px;text-align:center;padding-bottom:20px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Version 1.0 · FADJR © 2025</div>
+        <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
+          <a href="/privacy" target="_blank" style="color:var(--muted);font-size:10px;text-decoration:none">Politique de confidentialité</a>
+          <a href="/support" target="_blank" style="color:var(--muted);font-size:10px;text-decoration:none">Support</a>
+          <span onclick="window.open('mailto:contact@fadjr.app')" style="color:var(--muted);font-size:10px;cursor:pointer">Contact</span>
+        </div>
+      </div>
+      <!-- Destinations halal -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">🌍 DESTINATIONS POPULAIRES</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="destinations-halal">
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇲🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Maroc</div><div style="font-size:9px;color:var(--muted)">Casablanca · Fès · Marrakech</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇹🇷</div><div style="font-size:12px;color:var(--white);font-weight:700">Turquie</div><div style="font-size:9px;color:var(--muted)">Istanbul · Ankara · Bursa</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇸🇦</div><div style="font-size:12px;color:var(--white);font-weight:700">Arabie Saoudite</div><div style="font-size:9px;color:var(--muted)">Mecque · Médine · Riyad</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇮🇩</div><div style="font-size:12px;color:var(--white);font-weight:700">Indonésie</div><div style="font-size:9px;color:var(--muted)">Bali · Jakarta · Lombok</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇦🇪</div><div style="font-size:12px;color:var(--white);font-weight:700">Émirats</div><div style="font-size:9px;color:var(--muted)">Dubai · Abu Dhabi</div></div>
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:12px;text-align:center;cursor:pointer"><div style="font-size:20px">🇯🇵</div><div style="font-size:12px;color:var(--white);font-weight:700">Japon</div><div style="font-size:9px;color:var(--muted)">Tokyo · Osaka · Kyoto</div></div>
+        </div>
+      </div>
+      <!-- Tips voyage halal -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">💡 CONSEILS VOYAGE HALAL</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🍽️ <strong>Restaurants halal</strong> — Utilisez l'onglet Halal Map pour trouver partout dans le monde</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🕌 <strong>Prières en voyage</strong> — Les horaires s'adaptent automatiquement à votre GPS</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">✈️ <strong>Prière Qasr</strong> — Raccourcissement à 2 rakats autorisé si voyage &gt; 80km</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--white)">🌙 <strong>Ramadan en voyage</strong> — Le jeûne peut être reporté pendant le voyage si difficile</div></div>
+        </div>
+      </div>
+      <!-- Apps partenaires -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
+        <div style="font-size:10px;letter-spacing:.15em;color:#3498db;margin-bottom:12px">🔗 RESSOURCES</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div onclick="window.open('https://halaladvisor.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Halal Advisor</div><div style="font-size:10px;color:var(--muted)">Guide voyage halal mondial</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.halaltrip.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Halal Trip</div><div style="font-size:10px;color:var(--muted)">Hotels & forfaits halal</div></div><span style="color:var(--gold)">→</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCE ISLAMIQUE -->
+    <div class="screen" id="screen-finance" style="display:none">
+      <div style="height:12px"></div>
+      <div style="background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(39,174,96,.08));border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.2em;color:var(--gold);margin-bottom:6px">💰 FINANCE ISLAMIQUE</div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">الاقتصاد الإسلامي</div>
+        <div style="font-size:11px;color:var(--muted)">Gérez vos finances selon les principes islamiques</div>
+      </div>
+
+      <!-- Calculateur Zakat -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">⚖️ CALCULATEUR ZAKAT</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Nisab actuel (or 85g) ≈ <span id="nisab-value" style="color:var(--gold)">chargement...</span></div>
+        <input id="zakat-input" type="number" placeholder="Votre épargne annuelle (€)" 
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;outline:none;margin-bottom:10px;font-family:'Cairo',sans-serif">
+        <button onclick="calculateZakat()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:10px;border-radius:10px;border:none;font-size:13px;cursor:pointer">Calculer ma Zakat</button>
+        <div id="zakat-result" style="margin-top:12px;display:none;text-align:center;background:rgba(201,168,76,.1);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:var(--muted)">Votre Zakat annuelle</div>
+          <div id="zakat-amount" style="font-size:32px;font-weight:900;color:var(--gold);font-family:'Cinzel',serif"></div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">soit 2.5% de votre épargne</div>
+        </div>
+      </div>
+
+      <!-- Concepts clés -->
+      <div style="font-size:10px;letter-spacing:.15em;color:var(--muted);margin-bottom:10px">📚 PRINCIPES ISLAMIQUES</div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="finance-cards-list"></div>
+    </div>
+
+    <!-- PROFIL -->
+    <div class="screen" id="screen-profil">
+      <div style="height:12px"></div>
+
+      <!-- AUTH PANEL (shown when not logged in) -->
+      <div id="auth-panel">
+        <div style="text-align:center;padding:20px 0 24px">
+          <div style="font-size:48px;margin-bottom:12px">☪</div>
+          <div style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);margin-bottom:6px">FADJR</div>
+          <div style="font-size:12px;color:var(--muted)" id="label-connect-save">Connectez-vous pour sauvegarder vos préférences</div>
+        </div>
+
+        <!-- Tabs login/register -->
+        <div style="display:flex;border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden">
+          <button id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:10px;background:rgba(201,168,76,.1);border:none;color:var(--gold);font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer" id="btn-connexion">Connexion</button>
+          <button id="auth-tab-register" onclick="switchAuthTab('register')" style="flex:1;padding:10px;background:transparent;border:none;color:var(--muted);font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer">Inscription</button>
+        </div>
+
+        <!-- Login form -->
+        <div id="auth-login">
+          <div style="margin-bottom:12px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px" id="label-email">EMAIL</div>
+            <input id="login-email" type="email" placeholder="votre@email.com" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <div style="margin-bottom:16px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px" id="label-motdepasse">MOT DE PASSE</div>
+            <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <button onclick="doLogin()" id="login-btn" style="width:100%;background:var(--gold);color:#07070F;padding:13px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif;transition:.2s">Se connecter</button>
+          <div id="login-error" style="display:none;margin-top:10px;font-size:11px;color:#E76F51;text-align:center"></div>
+        </div>
+
+        <!-- Register form -->
+        <div id="auth-register" style="display:none">
+          <div style="margin-bottom:12px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px" id="label-prenom">PRÉNOM</div>
+            <input id="reg-name" type="text" placeholder="Votre prénom" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">EMAIL</div>
+            <input id="reg-email" type="email" placeholder="votre@email.com" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <div style="margin-bottom:16px">
+            <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:6px">MOT DE PASSE</div>
+            <input id="reg-pass" type="password" placeholder="Min. 6 caractères" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);padding:12px 14px;color:var(--white);font-size:13px;border-radius:8px;outline:none;font-family:'Cairo',sans-serif">
+          </div>
+          <button onclick="doRegister()" id="reg-btn" style="width:100%;background:var(--gold);color:#07070F;padding:13px;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif" id="btn-creer-compte">Créer mon compte</button>
+          <div id="reg-error" style="display:none;margin-top:10px;font-size:11px;color:#E76F51;text-align:center"></div>
+          <div id="reg-success" style="display:none;margin-top:10px;font-size:11px;color:var(--green);text-align:center">✅ Compte créé ! Vérifiez votre email puis connectez-vous.</div>
+        </div>
+
+        <!-- Continuer sans compte -->
+        <div style="text-align:center;margin-top:16px">
+          <button onclick="skipAuth()" style="background:transparent;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif;text-decoration:underline" id="btn-continue-anon">Continuer sans compte →</button>
+        </div>
+      </div>
+
+      <!-- LOGGED IN PANEL -->
+      <div id="user-panel" style="display:none">
+        <div style="text-align:center;padding:0 0 20px">
+          <div style="width:72px;height:72px;border-radius:50%;background:rgba(201,168,76,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px">☪</div>
+          <div id="user-name-display" style="font-size:20px;font-weight:900">—</div>
+          <div id="user-email-display" style="color:var(--gold);font-size:12px;margin-top:4px">—</div>
+          <div style="color:var(--muted);font-size:11px;margin-top:2px">Membre FADJR</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-val" style="color:var(--gold)">5/5</div><div class="stat-label" id="label-prieres">PRIÈRES</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--blue)" id="user-favoris">0</div><div class="stat-label">FAVORIS</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--green)">🟢</div><div class="stat-label">ACTIF</div></div>
+        </div>
+
+        <!-- Mode toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="mode-icon" style="font-size:20px">🌙</span>
+            <div><div style="font-size:13px;font-weight:700" id="label-mode-affichage">Mode d'affichage</div><div id="mode-label" style="font-size:11px;color:var(--muted)">Sombre</div></div>
+          </div>
+          <div id="mode-toggle" onclick="toggleMode()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+            <div id="mode-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+          </div>
+        </div>
+
+        <!-- Adhan toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">🔔</span>
+            <div><div style="font-size:13px;font-weight:700">Rappels Adhan</div><div id="adhan-status" style="font-size:11px;color:var(--muted)">Désactivé</div></div>
+          </div>
+          <div id="adhan-toggle" onclick="toggleAdhan()" style="width:48px;height:26px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+            <div id="adhan-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+          </div>
+        </div>
+
+          <!-- Sélecteur récitation Adhan -->
+          <div style="margin-top:12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px">
+            <div style="font-size:11px;color:var(--muted);letter-spacing:.1em;margin-bottom:10px">🎵 RÉCITATION DE L'ADHAN</div>
+            <select id="adhan-recitation-sel" onchange="changeAdhanRecitation(this.value)" style="width:100%;background:#13131F;border:1px solid var(--border);color:var(--white);padding:10px;border-radius:10px;font-size:13px;font-family:'Cairo',sans-serif;outline:none;color-scheme:dark">
+              <option value="makkah">🕋 Adhan Al-Haram (Mecque)</option>
+              <option value="madinah">🌙 Adhan Al-Madinah</option>
+              <option value="egypt">🇪🇬 Adhan Égypte (Al-Azhar)</option>
+              <option value="turkey">🇹🇷 Adhan Turquie (Diyanet)</option>
+              <option value="fajr">⭐ Adhan Fajr spécial</option>
+            </select>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+              <button onclick="previewAdhan()" style="background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;flex:1">▶ Écouter un extrait</button>
+              <button onclick="stopAdhanPreview()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer">■ Stop</button>
+            </div>
+          </div>
+
+        <a class="dashboard-banner" href="https://fadjr.app/dashboard" target="_blank">
+          <div>
+            <div class="db-title">📊 Dashboard Admin FADJR</div>
+            <div class="db-sub">Accès complet · MRR · Partenaires · Pub</div>
+          </div>
+          <div class="db-arrow">→</div>
+        </a>
+
+        <div>
+          <div class="pref-row"><div class="pref-icon">📍</div><div style="flex:1"><div class="pref-label">Ville</div><div class="pref-val" id="user-ville">Bruxelles</div></div><div class="pref-arrow">›</div></div>
+          <div class="pref-row"><div class="pref-icon">📱</div><div style="flex:1"><div class="pref-label">Version</div><div class="pref-val">FADJR v2.0 · Sprint 2</div></div><div class="pref-arrow">›</div></div>
+        </div>
+
+        <button onclick="doLogout()" style="width:100%;background:rgba(231,111,81,.1);border:1px solid rgba(231,111,81,.3);color:#E76F51;padding:12px;border-radius:8px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;margin-top:16px" id="btn-deconnexion">Se déconnecter</button>
+      </div>
+    </div>
+    </div>
+
+      <!-- FINANCE ISLAMIQUE -->
+    <div class="screen" id="screen-finance" style="display:none">
+      <div style="height:12px"></div>
+      <div style="background:linear-gradient(135deg,rgba(39,174,96,.15),rgba(201,168,76,.08));border:1px solid rgba(39,174,96,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.2em;color:#27ae60;margin-bottom:6px">💰 FINANCE ISLAMIQUE</div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">التمويل الإسلامي</div>
+        <div style="font-size:12px;color:var(--muted)">Gérez vos finances selon la Charia</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">🧮 CALCULATEUR ZAKAT</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Nisab actuel (85g or) ≈ <span id="nisab-val">5 100 €</span></div>
+        <input id="zakat-wealth" type="number" placeholder="Votre épargne totale (€)" oninput="calcZakat()"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:14px;outline:none;margin-bottom:10px;font-family:'Cairo',sans-serif">
+        <div id="zakat-result" style="font-size:14px;color:var(--gold);text-align:center;font-weight:700;min-height:24px"></div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">📚 PRINCIPES CLÉS</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🚫 Riba (Intérêt)</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Tout intérêt fixe est interdit. Préférez les comptes islamiques sans intérêt.</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🤝 Moucharaka</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Partage des profits et pertes. Alternative halal à l'investissement classique.</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🏠 Murabaha</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Achat-revente à marge fixe. Alternative halal au crédit immobilier.</div></div>
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">📈 Sukuk</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Obligations islamiques adossées à des actifs réels.</div></div>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
+        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">🏦 SERVICES HALAL</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div onclick="window.open('https://www.nooraccount.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Noor Account 🇧🇪</div><div style="font-size:10px;color:var(--muted)">Compte courant halal en Belgique</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.albaraka.be','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Al Baraka Bank 🇧🇪</div><div style="font-size:10px;color:var(--muted)">Banque islamique en Belgique</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.wahed.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Wahed Invest 🌍</div><div style="font-size:10px;color:var(--muted)">Investissement halal global</div></div><span style="color:var(--gold)">→</span></div>
+          <div onclick="window.open('https://www.amundi-islamic.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Amundi Islamic</div><div style="font-size:10px;color:var(--muted)">Fonds d'investissement conformes</div></div><span style="color:var(--gold)">→</span></div>
+        </div>
+      </div>
+    </div>
+
+<!-- TAB BAR -->
+
+    <!-- RAMADAN -->
+    <div class="screen" id="screen-ramadan">
+      <div style="height:12px"></div>
+
+      <!-- Header gold -->
+      <div style="background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.35);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.25em;color:rgba(201,168,76,.7);margin-bottom:6px">RAMADAN 1447 H</div>
+        <div style="font-family:'Cinzel',serif;font-size:28px;color:#C9A84C;font-weight:900;margin-bottom:4px">🌙 رَمَضَان</div>
+        <div id="ram-day" style="font-size:13px;color:var(--muted)">Chargement...</div>
+      </div>
+
+      <!-- Suhoor / Iftar countdown -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:rgba(41,128,185,.1);border:1px solid rgba(41,128,185,.25);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:10px;color:rgba(41,128,185,.8);letter-spacing:.1em;margin-bottom:6px">🌅 SUHOOR</div>
+          <div id="ram-suhoor" style="font-size:22px;font-weight:900;color:#3498DB">--:--</div>
+          <div id="ram-suhoor-cd" style="font-size:10px;color:var(--muted);margin-top:4px">--</div>
+        </div>
+        <div style="background:rgba(230,126,34,.1);border:1px solid rgba(230,126,34,.25);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:10px;color:rgba(230,126,34,.8);letter-spacing:.1em;margin-bottom:6px">🌇 IFTAR</div>
+          <div id="ram-iftar" style="font-size:22px;font-weight:900;color:#E67E22">--:--</div>
+          <div id="ram-iftar-cd" style="font-size:10px;color:var(--muted);margin-top:4px">--</div>
+        </div>
+      </div>
+
+      <!-- Suivi jeûne -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:12px">SUIVI DU JEÛNE</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <button onclick="logJeune(1)" id="btn-jeune-ok" style="flex:1;padding:12px;border-radius:10px;border:2px solid rgba(46,204,113,.4);background:rgba(46,204,113,.08);color:#2ECC71;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif">✓ J'ai jeûné</button>
+          <button onclick="logJeune(0)" id="btn-jeune-no" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">✗ Pas jeûné</button>
+        </div>
+        <!-- Progress bar Ramadan -->
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:6px">
+          <span>Jours jeûnés</span>
+          <span id="ram-progress-label">0 / 30</span>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:99px;height:8px;overflow:hidden">
+          <div id="ram-progress-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#C9A84C,#F0D080);width:0%;transition:.5s"></div>
+        </div>
+        <!-- Calendrier jeûne -->
+        <div id="ram-calendar" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px"></div>
+      </div>
+
+      <!-- Douas Ramadan -->
+      <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px">🤲 DOUAS RAMADAN</div>
+      <div id="ram-douas-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+
+      <!-- Nuits spéciales -->
+      <div style="background:rgba(142,68,173,.08);border:1px solid rgba(142,68,173,.2);border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="font-size:10px;letter-spacing:.15em;color:rgba(142,68,173,.8);margin-bottom:12px">✨ NUITS SPÉCIALES</div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="ram-special-nights"></div>
+      </div>
+
+    </div>
+
+  <div id="tabbar">
+    <button class="tab-btn active" onclick="goTab('accueil',this)" id="tab-accueil">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🏠</div>
+      <div class="tab-label">ACCUEIL</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('priere',this)" id="tab-priere">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🕌</div>
+      <div class="tab-label">PRIÈRE</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('dhikr',this)" id="tab-dhikr">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">📿</div>
+      <div class="tab-label">DHIKR</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('carte',this)" id="tab-carte">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🗺️</div>
+      <div class="tab-label">HALAL</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('culture',this)" id="tab-culture">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">📖</div>
+      <div class="tab-label">CORAN</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('ramadan',this)" id="tab-ramadan">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🌙</div>
+      <div class="tab-label">RAMADAN</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('profil',this)" id="tab-profil">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">👤</div>
+      <div class="tab-label">PROFIL</div>
+    </button>
   </div>
 </div>
 
-<div class="share-toast" id="share-toast">✓ Copié !</div>
-
-  <!-- AUTH GATE MODAL -->
-  <div id="auth-gate-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">
-    <div style="background:#13131F;border:1px solid var(--gold);border-radius:20px;padding:24px;max-width:340px;width:100%;text-align:center">
-      <div style="font-size:32px;margin-bottom:12px">🔐</div>
-      <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:8px">Connexion requise</div>
-      <div id="auth-gate-reason" style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5">Créez un compte gratuit pour accéder à cette fonctionnalité</div>
-      <div style="font-size:11px;color:var(--muted);background:rgba(201,168,76,.08);border-radius:10px;padding:12px;margin-bottom:16px;text-align:left">
-        <div style="color:var(--gold);font-weight:700;margin-bottom:6px">✨ Avec un compte gratuit :</div>
-        <div>📊 Sync progression Hifz</div>
-        <div>🔖 Favoris mosquées & restaurants</div>
-        <div>👥 Communauté & partage</div>
-        <div>🔔 Préférences Adhan sauvegardées</div>
-      </div>
-      <button onclick="closeAuthGate(); goTab('profil')" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:12px;border:none;font-size:14px;cursor:pointer;margin-bottom:10px">Se connecter / S'inscrire</button>
-      <button onclick="closeAuthGate()" style="width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer">Continuer sans compte</button>
-    </div>
-  </div>
-
 <script>
-// ── EARLY DECLARATIONS (must be before all functions) ────────
-let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
-
-// ── LANGUE GLOBALE ────────────────────────────────────────────────────────────
-const APP_TRANSLATIONS = {
-  fr: {
-    accueil:'ACCUEIL', priere:'PRIÈRE', dhikr:'DHIKR', halal:'HALAL', coran:'CORAN', ramadan:'RAMADAN', profil:'PROFIL',
-    prochainePriere:'PROCHAINE PRIÈRE', dans:'dans',
-    partager:'+ Partager', communaute:'👥 COMMUNAUTÉ',
-    prixEtude:'PRÈS DE VOUS', voirTout:'Voir tout →',
-    lecture:'Lecture', memorisation:'Mémorisation',
-    bonjour:'Assalamu Alaykoum', sloganSub:'Votre compagnon spirituel halal',
-    versetJour:'✦ Verset du jour', hadithJour:'📜 Hadith du jour',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar dans', bienvenue:'Bienvenue 👋',
-    priereSpirit:'PRIÈRE & SPIRITUALITÉ', dhikrTasbih:'DHIKR & TASBIH',
-    coranComplet:'CORAN COMPLET', carteHalal:'CARTE HALAL',
-    memorisationTitle:'MÉMORISATION', choisirSourate:'CHOISIR UNE SOURATE',
-    mesStats:'MES STATISTIQUES', directionMecque:'Direction de La Mecque',
-    retour:'Retour', versetDebut:'Verset début', versetFin:'Verset fin',
-    statVersets:'Versets', statMaitrise:'Maîtrisés', statStreak:'🔥 Streak',
-    commencer:'🚀 Commencer', partagerComm:'Partager avec la communauté',
-    email:'EMAIL', motdepasse:'MOT DE PASSE', prenom:'PRÉNOM', connexion:'Connexion',
-    connectSave:'Connectez-vous pour sauvegarder vos préférences',
-    adhkars:'ADHKARS CLASSIQUES', rate:'Raté', difficile:'Difficile', facile:'Facile',
-    reveler:'Révéler', reciter:'Réciter',
-    continueAnon:'Continuer sans compte →',
-    creerCompte:'Créer mon compte',
-    deconnexion:'Se déconnecter',
-    modeAffichage:"Mode d'affichage",
-    prieres:'PRIÈRES',
-    kaaba:"jusqu'à la Kaaba",
-    tajweedRules:'RÈGLES TAJWEED',
-    sessionDone:'Session terminée !',
-    selectionner:'Sélectionner...',
-    voirTranslit:'👁 Voir la translittération',
-    activerBoussole:'🧭 Activer la boussole',
-    dhikrNumerique:'📿 Dhikr Numérique',
-    memorisationTab:'🧠 Mémorisation',
-    retourGen:'← Retour',
-    postPensee:'💭 Pensée',
-    postVerset:'📖 Verset',
-    postHadith:'📜 Hadith',
-    postDoua:'🤲 Doua',
-    chargement:'Chargement...',
-    desactive:'Désactivé',
-    compteCreé:'✅ Compte créé ! Vérifiez votre email puis connectez-vous.',
-    explorer:'EXPLORER',
-  },
-  en: {
-    accueil:'HOME', priere:'PRAYER', dhikr:'DHIKR', halal:'HALAL', coran:'QURAN', ramadan:'RAMADAN', profil:'PROFILE',
-    prochainePriere:'NEXT PRAYER', dans:'in',
-    partager:'+ Share', communaute:'👥 COMMUNITY',
-    prixEtude:'NEAR YOU', voirTout:'See all →',
-    lecture:'Reading', memorisation:'Memorization',
-    bonjour:'Assalamu Alaykoum', sloganSub:'Your halal spiritual companion',
-    versetJour:'✦ Verse of the day', hadithJour:'📜 Hadith of the day',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in', bienvenue:'Welcome 👋',
-    priereSpirit:'PRAYER & SPIRITUALITY', dhikrTasbih:'DHIKR & TASBIH',
-    coranComplet:'COMPLETE QURAN', carteHalal:'HALAL MAP',
-    memorisationTitle:'MEMORIZATION', choisirSourate:'CHOOSE A SURAH',
-    mesStats:'MY STATISTICS', directionMecque:'Direction of Mecca',
-    retour:'Back', versetDebut:'Start verse', versetFin:'End verse',
-    statVersets:'Verses', statMaitrise:'Mastered', statStreak:'🔥 Streak',
-    commencer:'🚀 Start', partagerComm:'Share with the community',
-    email:'EMAIL', motdepasse:'PASSWORD', prenom:'FIRST NAME', connexion:'Login',
-    connectSave:'Login to save your preferences',
-    adhkars:'CLASSIC ADHKARS', rate:'Failed', difficile:'Hard', facile:'Easy',
-    reveler:'Reveal', reciter:'Recite',
-    continueAnon:'Continue without account →',
-    creerCompte:'Create my account',
-    deconnexion:'Log out',
-    modeAffichage:'Display mode',
-    prieres:'PRAYERS',
-    kaaba:'towards the Kaaba',
-    tajweedRules:'TAJWEED RULES',
-    sessionDone:'Session complete!',
-    selectionner:'Select...',
-    voirTranslit:'👁 Show transliteration',
-    activerBoussole:'🧭 Activate compass',
-    dhikrNumerique:'📿 Digital Dhikr',
-    memorisationTab:'🧠 Memorization',
-    retourGen:'← Back',
-    postPensee:'💭 Thought',
-    postVerset:'📖 Verse',
-    postHadith:'📜 Hadith',
-    postDoua:'🤲 Dua',
-    chargement:'Loading...',
-    desactive:'Disabled',
-    compteCreé:'✅ Account created! Check your email then log in.',
-    explorer:'EXPLORE',
-  },
-  ar: {
-    accueil:'الرئيسية', priere:'الصلاة', dhikr:'الذكر', halal:'حلال', coran:'القرآن', ramadan:'رمضان', profil:'الملف',
-    prochainePriere:'الصلاة القادمة', dans:'في',
-    partager:'+ مشاركة', communaute:'👥 المجتمع',
-    prixEtude:'بالقرب منك', voirTout:'عرض الكل →',
-    lecture:'قراءة', memorisation:'حفظ',
-    bonjour:'السلام عليكم', sloganSub:'رفيقك الروحي الحلال',
-    versetJour:'✦ آية اليوم', hadithJour:'📜 حديث اليوم',
-    ramadanLabel:'🌙 رمضان 1447', iftarDans:'الإفطار في', bienvenue:'أهلاً وسهلاً 👋',
-    priereSpirit:'الصلاة والروحانية', dhikrTasbih:'الذكر والتسبيح',
-    coranComplet:'القرآن الكريم كاملاً', carteHalal:'خريطة الحلال',
-    memorisationTitle:'الحفظ', choisirSourate:'اختر السورة',
-    mesStats:'إحصائياتي', directionMecque:'اتجاه مكة المكرمة',
-    retour:'رجوع', versetDebut:'الآية الأولى', versetFin:'الآية الأخيرة',
-    statVersets:'الآيات', statMaitrise:'محفوظة', statStreak:'🔥 سلسلة',
-    commencer:'🚀 ابدأ', partagerComm:'شارك مع المجتمع',
-    email:'البريد الإلكتروني', motdepasse:'كلمة المرور', prenom:'الاسم الأول', connexion:'تسجيل الدخول',
-    connectSave:'سجّل دخولك لحفظ تفضيلاتك',
-    adhkars:'الأذكار الكلاسيكية', rate:'لم أتذكر', difficile:'صعب', facile:'سهل',
-    reveler:'كشف', reciter:'تلاوة',
-    continueAnon:'المتابعة بدون حساب →',
-    creerCompte:'إنشاء حسابي',
-    deconnexion:'تسجيل الخروج',
-    modeAffichage:'وضع العرض',
-    prieres:'الصلوات',
-    kaaba:'باتجاه الكعبة',
-    tajweedRules:'أحكام التجويد',
-    sessionDone:'!انتهت الجلسة',
-    selectionner:'اختر...',
-    voirTranslit:'👁 عرض النطق',
-    activerBoussole:'🧭 تفعيل البوصلة',
-    dhikrNumerique:'📿 العداد الرقمي',
-    memorisationTab:'🧠 الحفظ',
-    retourGen:'→ رجوع',
-    postPensee:'💭 تأمل',
-    postVerset:'📖 آية',
-    postHadith:'📜 حديث',
-    postDoua:'🤲 دعاء',
-    chargement:'جارٍ التحميل...',
-    desactive:'معطّل',
-    compteCreé:'✅ تم إنشاء الحساب! تحقق من بريدك ثم سجّل دخولك.',
-    explorer:'استكشاف',
-  },
-  tr: {
-    accueil:'ANA SAYFA', priere:'NAMAZ', dhikr:'ZİKİR', halal:'HELAL', coran:"KUR'AN", ramadan:'RAMAZAN', profil:'PROFİL',
-    prochainePriere:'SONRAKI NAMAZ', dans:'sonra',
-    partager:'+ Paylaş', communaute:'👥 TOPLULUK',
-    prixEtude:'YAKININIZDAKILER', voirTout:'Tümünü gör →',
-    lecture:'Okuma', memorisation:'Ezberleme',
-    bonjour:'Esselamu Aleykum', sloganSub:'Helal manevi yoldaşınız',
-    versetJour:'✦ Günün ayeti', hadithJour:'📜 Günün hadisi',
-    ramadanLabel:'🌙 RAMAZAN 1447', iftarDans:'İftara kalan', bienvenue:'Hoş geldiniz 👋',
-    priereSpirit:'NAMAZ & MANEVİYAT', dhikrTasbih:'ZİKİR & TESBİH',
-    coranComplet:"TAM KUR'AN", carteHalal:'HELAL HARİTA',
-    memorisationTitle:'EZBERLEME', choisirSourate:'SURE SEÇİN',
-    mesStats:'İSTATİSTİKLERİM', directionMecque:'Kabe Yönü',
-    retour:'Geri', versetDebut:'Başlangıç ayeti', versetFin:'Bitiş ayeti',
-    statVersets:'Ayet', statMaitrise:'Öğrenildi', statStreak:'🔥 Seri',
-    commencer:'🚀 Başla', partagerComm:'Toplulukla paylaş',
-    email:'E-POSTA', motdepasse:'ŞİFRE', prenom:'AD', connexion:'Giriş',
-    connectSave:'Tercihlerinizi kaydetmek için giriş yapın',
-    adhkars:'KLASİK ZİKİRLER', rate:'Hatırlamadım', difficile:'Zor', facile:'Kolay',
-    reveler:'Göster', reciter:'Oku',
-    continueAnon:'Hesapsız devam et →',
-    creerCompte:'Hesabımı oluştur',
-    deconnexion:'Çıkış yap',
-    modeAffichage:'Görüntü modu',
-    prieres:'NAMAZLAR',
-    kaaba:'Kabe yönünde',
-    tajweedRules:'TECVİD KURALLARI',
-    sessionDone:'Oturum tamamlandı!',
-    selectionner:'Seçin...',
-    voirTranslit:'👁 Okunuşu göster',
-    activerBoussole:'🧭 Pusulayı etkinleştir',
-    dhikrNumerique:'📿 Dijital Zikir',
-    memorisationTab:'🧠 Ezberleme',
-    retourGen:'← Geri',
-    postPensee:'💭 Düşünce',
-    postVerset:'📖 Ayet',
-    postHadith:'📜 Hadis',
-    postDoua:'🤲 Dua',
-    chargement:'Yükleniyor...',
-    desactive:'Devre dışı',
-    compteCreé:'✅ Hesap oluşturuldu! E-postanızı kontrol edip giriş yapın.',
-    explorer:'KEŞFET',
-  },
-  es: {
-    accueil:'INICIO', priere:'ORACIÓN', dhikr:'DHIKR', halal:'HALAL', coran:'CORÁN', ramadan:'RAMADÁN', profil:'PERFIL',
-    prochainePriere:'PRÓXIMA ORACIÓN', dans:'en',
-    partager:'+ Compartir', communaute:'👥 COMUNIDAD',
-    prixEtude:'CERCA DE TI', voirTout:'Ver todo →',
-    lecture:'Lectura', memorisation:'Memorización',
-    bonjour:'Assalamu Alaykoum', sloganSub:'Tu compañero espiritual halal',
-    versetJour:'✦ Versículo del día', hadithJour:'📜 Hadith del día',
-    ramadanLabel:'🌙 RAMADÁN 1447', iftarDans:'Iftar en', bienvenue:'Bienvenido 👋',
-    priereSpirit:'ORACIÓN & ESPIRITUALIDAD', dhikrTasbih:'DHIKR & TASBIH',
-    coranComplet:'CORÁN COMPLETO', carteHalal:'MAPA HALAL',
-    memorisationTitle:'MEMORIZACIÓN', choisirSourate:'ELEGIR SURA',
-    mesStats:'MIS ESTADÍSTICAS', directionMecque:'Dirección de La Meca',
-    retour:'Volver', versetDebut:'Versículo inicio', versetFin:'Versículo fin',
-    statVersets:'Versículos', statMaitrise:'Dominados', statStreak:'🔥 Racha',
-    commencer:'🚀 Comenzar', partagerComm:'Compartir con la comunidad',
-    email:'EMAIL', motdepasse:'CONTRASEÑA', prenom:'NOMBRE', connexion:'Iniciar sesión',
-    connectSave:'Inicia sesión para guardar tus preferencias',
-    adhkars:'ADHKARS CLÁSICOS', rate:'Fallé', difficile:'Difícil', facile:'Fácil',
-    reveler:'Revelar', reciter:'Recitar',
-    continueAnon:'Continuar sin cuenta →',
-    creerCompte:'Crear mi cuenta',
-    deconnexion:'Cerrar sesión',
-    modeAffichage:'Modo de visualización',
-    prieres:'ORACIONES',
-    kaaba:'hacia la Kaaba',
-    tajweedRules:'REGLAS TAJWEED',
-    sessionDone:'¡Sesión completada!',
-    selectionner:'Seleccionar...',
-    voirTranslit:'👁 Ver transliteración',
-    activerBoussole:'🧭 Activar brújula',
-    dhikrNumerique:'📿 Dhikr Digital',
-    memorisationTab:'🧠 Memorización',
-    retourGen:'← Volver',
-    postPensee:'💭 Reflexión',
-    postVerset:'📖 Versículo',
-    postHadith:'📜 Hadith',
-    postDoua:'🤲 Dua',
-    chargement:'Cargando...',
-    desactive:'Desactivado',
-    compteCreé:'✅ ¡Cuenta creada! Verifica tu correo y luego inicia sesión.',
-    explorer:'EXPLORAR',
-  },
-  nl: {
-    accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
-    prochainePriere:'VOLGEND GEBED', dans:'over',
-    partager:'+ Delen', communaute:'👥 GEMEENSCHAP',
-    prixEtude:'IN UW BUURT', voirTout:'Alles zien →',
-    lecture:'Lezen', memorisation:'Memorisatie',
-    bonjour:'Assalamu Alaykoum', sloganSub:'Uw halal spirituele metgezel',
-    versetJour:'✦ Vers van de dag', hadithJour:'📜 Hadith van de dag',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar over', bienvenue:'Welkom 👋',
-    priereSpirit:'GEBED & SPIRITUALITEIT', dhikrTasbih:'DHIKR & TASBIH',
-    coranComplet:'VOLLEDIGE KORAN', carteHalal:'HALAL KAART',
-    memorisationTitle:'MEMORISATIE', choisirSourate:'KIES EEN SOERA',
-    mesStats:'MIJN STATISTIEKEN', directionMecque:'Richting van Mekka',
-    retour:'Terug', versetDebut:'Beginvers', versetFin:'Eindvers',
-    statVersets:'Verzen', statMaitrise:'Beheerst', statStreak:'🔥 Reeks',
-    commencer:'🚀 Starten', partagerComm:'Delen met de gemeenschap',
-    email:'EMAIL', motdepasse:'WACHTWOORD', prenom:'VOORNAAM', connexion:'Inloggen',
-    connectSave:'Log in om uw voorkeuren op te slaan',
-    adhkars:'KLASSIEKE ADHKARS', rate:'Mislukt', difficile:'Moeilijk', facile:'Makkelijk',
-    reveler:'Onthullen', reciter:'Reciteren',
-    continueAnon:'Doorgaan zonder account →',
-    creerCompte:'Mijn account aanmaken',
-    deconnexion:'Uitloggen',
-    modeAffichage:'Weergavemodus',
-    prieres:'GEBEDEN',
-    kaaba:'richting de Kaaba',
-    tajweedRules:'TAJWEED REGELS',
-    sessionDone:'Sessie voltooid!',
-    selectionner:'Selecteren...',
-    voirTranslit:'👁 Toon transliteratie',
-    activerBoussole:'🧭 Kompas activeren',
-    dhikrNumerique:'📿 Digitale Dhikr',
-    memorisationTab:'🧠 Memorisatie',
-    retourGen:'← Terug',
-    postPensee:'💭 Gedachte',
-    postVerset:'📖 Vers',
-    postHadith:'📜 Hadith',
-    postDoua:'🤲 Smeekgebed',
-    chargement:'Laden...',
-    desactive:'Uitgeschakeld',
-    compteCreé:'✅ Account aangemaakt! Controleer uw e-mail en log in.',
-    explorer:'VERKENNEN',
-  },
-  de: {
-    accueil:'STARTSEITE', priere:'GEBET', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIL',
-    prochainePriere:'NÄCHSTES GEBET', dans:'in',
-    partager:'+ Teilen', communaute:'👥 GEMEINSCHAFT',
-    prixEtude:'IN IHRER NÄHE', voirTout:'Alle sehen →',
-    lecture:'Lesen', memorisation:'Auswendiglernen',
-    bonjour:'Assalamu Alaykoum', sloganSub:'Ihr halal spiritueller Begleiter',
-    versetJour:'✦ Vers des Tages', hadithJour:'📜 Hadith des Tages',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in', bienvenue:'Willkommen 👋',
-    priereSpirit:'GEBET & SPIRITUALITÄT', dhikrTasbih:'DHIKR & TASBIH',
-    coranComplet:'VOLLSTÄNDIGER KORAN', carteHalal:'HALAL-KARTE',
-    memorisationTitle:'AUSWENDIGLERNEN', choisirSourate:'SURE WÄHLEN',
-    mesStats:'MEINE STATISTIKEN', directionMecque:'Richtung Mekka',
-    retour:'Zurück', versetDebut:'Startvers', versetFin:'Endvers',
-    statVersets:'Verse', statMaitrise:'Gelernt', statStreak:'🔥 Serie',
-    commencer:'🚀 Starten', partagerComm:'Mit der Gemeinschaft teilen',
-    email:'E-MAIL', motdepasse:'PASSWORT', prenom:'VORNAME', connexion:'Anmelden',
-    connectSave:'Melden Sie sich an, um Ihre Einstellungen zu speichern',
-    adhkars:'KLASSISCHE ADHKARS', rate:'Nicht gewusst', difficile:'Schwer', facile:'Leicht',
-    reveler:'Enthüllen', reciter:'Rezitieren',
-    continueAnon:'Ohne Konto fortfahren →',
-    creerCompte:'Mein Konto erstellen',
-    deconnexion:'Abmelden',
-    modeAffichage:'Anzeigemodus',
-    prieres:'GEBETE',
-    kaaba:'Richtung Kaaba',
-    tajweedRules:'TAJWEED-REGELN',
-    sessionDone:'Sitzung abgeschlossen!',
-    selectionner:'Auswählen...',
-    voirTranslit:'👁 Transkription anzeigen',
-    activerBoussole:'🧭 Kompass aktivieren',
-    dhikrNumerique:'📿 Digitaler Dhikr',
-    memorisationTab:'🧠 Auswendiglernen',
-    retourGen:'← Zurück',
-    postPensee:'💭 Gedanke',
-    postVerset:'📖 Vers',
-    postHadith:'📜 Hadith',
-    postDoua:'🤲 Bittgebet',
-    chargement:'Laden...',
-    desactive:'Deaktiviert',
-    compteCreé:'✅ Konto erstellt! Überprüfen Sie Ihre E-Mail und melden Sie sich an.',
-    explorer:'ENTDECKEN',
-  },
-  pt: {
-    accueil:'INÍCIO', priere:'ORAÇÃO', dhikr:'DHIKR', halal:'HALAL', coran:'ALCORÃO', ramadan:'RAMADÃO', profil:'PERFIL',
-    prochainePriere:'PRÓXIMA ORAÇÃO', dans:'em',
-    partager:'+ Compartilhar', communaute:'👥 COMUNIDADE',
-    prixEtude:'PERTO DE SI', voirTout:'Ver tudo →',
-    lecture:'Leitura', memorisation:'Memorização',
-    bonjour:'Assalamu Alaykoum', sloganSub:'O seu companheiro espiritual halal',
-    versetJour:'✦ Versículo do dia', hadithJour:'📜 Hadith do dia',
-    ramadanLabel:'🌙 RAMADÃO 1447', iftarDans:'Iftar em', bienvenue:'Bem-vindo 👋',
-    priereSpirit:'ORAÇÃO & ESPIRITUALIDADE', dhikrTasbih:'DHIKR & TASBIH',
-    coranComplet:'ALCORÃO COMPLETO', carteHalal:'MAPA HALAL',
-    memorisationTitle:'MEMORIZAÇÃO', choisirSourate:'ESCOLHER SURA',
-    mesStats:'MINHAS ESTATÍSTICAS', directionMecque:'Direção de Meca',
-    retour:'Voltar', versetDebut:'Versículo início', versetFin:'Versículo fim',
-    statVersets:'Versículos', statMaitrise:'Dominados', statStreak:'🔥 Sequência',
-    commencer:'🚀 Começar', partagerComm:'Partilhar com a comunidade',
-    email:'EMAIL', motdepasse:'SENHA', prenom:'NOME', connexion:'Entrar',
-    connectSave:'Faça login para guardar as suas preferências',
-    adhkars:'ADHKARS CLÁSSICOS', rate:'Errei', difficile:'Difícil', facile:'Fácil',
-    reveler:'Revelar', reciter:'Recitar',
-    continueAnon:'Continuar sem conta →',
-    creerCompte:'Criar minha conta',
-    deconnexion:'Sair',
-    modeAffichage:'Modo de exibição',
-    prieres:'ORAÇÕES',
-    kaaba:'em direção à Kaaba',
-    tajweedRules:'REGRAS TAJWEED',
-    sessionDone:'Sessão concluída!',
-    selectionner:'Selecionar...',
-    voirTranslit:'👁 Ver transliteração',
-    activerBoussole:'🧭 Ativar bússola',
-    dhikrNumerique:'📿 Dhikr Digital',
-    memorisationTab:'🧠 Memorização',
-    retourGen:'← Voltar',
-    postPensee:'💭 Reflexão',
-    postVerset:'📖 Versículo',
-    postHadith:'📜 Hadith',
-    postDoua:'🤲 Dua',
-    chargement:'Carregando...',
-    desactive:'Desativado',
-    compteCreé:'✅ Conta criada! Verifique seu e-mail e faça login.',
-    explorer:'EXPLORAR',
-  },
-  it: {
-    accueil:'HOME', priere:'PREGHIERA', dhikr:'DHIKR', halal:'HALAL', coran:'CORANO', ramadan:'RAMADAN', profil:'PROFILO',
-    prochainePriere:'PROSSIMA PREGHIERA', dans:'tra',
-    partager:'+ Condividi', communaute:'👥 COMUNITÀ',
-    prixEtude:'VICINO A TE', voirTout:'Vedi tutto →',
-    lecture:'Lettura', memorisation:'Memorizzazione',
-    bonjour:'Assalamu Alaykoum', sloganSub:'Il tuo compagno spirituale halal',
-    versetJour:'✦ Versetto del giorno', hadithJour:'📜 Hadith del giorno',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar tra', bienvenue:'Benvenuto 👋',
-    priereSpirit:'PREGHIERA & SPIRITUALITÀ', dhikrTasbih:'DHIKR & TASBIH',
-    coranComplet:'CORANO COMPLETO', carteHalal:'MAPPA HALAL',
-    memorisationTitle:'MEMORIZZAZIONE', choisirSourate:'SCEGLI UNA SURA',
-    mesStats:'LE MIE STATISTICHE', directionMecque:'Direzione della Mecca',
-    retour:'Indietro', versetDebut:'Versetto inizio', versetFin:'Versetto fine',
-    statVersets:'Versetti', statMaitrise:'Padroneggiati', statStreak:'🔥 Serie',
-    commencer:'🚀 Inizia', partagerComm:'Condividi con la comunità',
-    email:'EMAIL', motdepasse:'PASSWORD', prenom:'NOME', connexion:'Accedi',
-    connectSave:'Accedi per salvare le tue preferenze',
-    adhkars:'ADHKARS CLASSICI', rate:'Dimenticato', difficile:'Difficile', facile:'Facile',
-    reveler:'Rivela', reciter:'Recita', explorer:'ESPLORA',
-    continueAnon:'Continua senza account →', creerCompte:'Crea il mio account',
-    deconnexion:'Disconnetti', chargement:'Caricamento...', desactive:'Disattivato',
-    prieres:'PREGHIERE', kaaba:'verso la Kaaba', tajweedRules:'REGOLE TAJWEED',
-    sessionDone:'Sessione completata!', selectionner:'Seleziona...',
-    voirTranslit:'👁 Mostra traslitterazione', activerBoussole:'🧭 Attiva bussola',
-    dhikrNumerique:'📿 Dhikr Digitale', memorisationTab:'🧠 Memorizzazione',
-    retourGen:'← Indietro', postPensee:'💭 Pensiero', postVerset:'📖 Versetto',
-    postHadith:'📜 Hadith', postDoua:'🤲 Dua', compteCreé:'✅ Account creato!',
-    modeAffichage:'Modalità display', label_ramadan_title:'🌙 RAMADAN 1447',
-  },
-  zh: {
-    accueil:'首页', priere:'礼拜', dhikr:'念珠', halal:'清真', coran:'古兰经', ramadan:'斋月', profil:'个人',
-    prochainePriere:'下次礼拜', dans:'后',
-    partager:'+ 分享', communaute:'👥 社区',
-    prixEtude:'附近', voirTout:'查看全部 →',
-    lecture:'阅读', memorisation:'背诵',
-    bonjour:'السلام عليكم', sloganSub:'您的清真精神伴侣',
-    versetJour:'✦ 今日经文', hadithJour:'📜 今日圣训',
-    ramadanLabel:'🌙 斋月 1447', iftarDans:'开斋时间', bienvenue:'欢迎 👋',
-    priereSpirit:'礼拜与灵性', dhikrTasbih:'念珠与赞颂',
-    coranComplet:'完整古兰经', carteHalal:'清真地图',
-    memorisationTitle:'背诵', choisirSourate:'选择章节',
-    mesStats:'我的统计', directionMecque:'麦加方向',
-    retour:'返回', versetDebut:'开始节', versetFin:'结束节',
-    statVersets:'经文', statMaitrise:'已掌握', statStreak:'🔥 连续',
-    commencer:'🚀 开始', partagerComm:'与社区分享',
-    email:'邮箱', motdepasse:'密码', prenom:'姓名', connexion:'登录',
-    connectSave:'登录以保存您的偏好',
-    adhkars:'经典念珠', rate:'忘记', difficile:'困难', facile:'容易',
-    reveler:'显示', reciter:'朗读', explorer:'探索',
-    continueAnon:'无账户继续 →', creerCompte:'创建账户',
-    deconnexion:'退出', chargement:'加载中...', desactive:'已禁用',
-    prieres:'礼拜', kaaba:'朝向天房', tajweedRules:'诵读规则',
-    sessionDone:'会话完成！', selectionner:'选择...',
-    voirTranslit:'👁 显示音译', activerBoussole:'🧭 启动指南针',
-    dhikrNumerique:'📿 数字念珠', memorisationTab:'🧠 背诵',
-    retourGen:'← 返回', postPensee:'💭 思考', postVerset:'📖 经文',
-    postHadith:'📜 圣训', postDoua:'🤲 祈祷', compteCreé:'✅ 账户已创建！',
-    modeAffichage:'显示模式', label_ramadan_title:'🌙 斋月 1447',
-  },
-  id: {
-    accueil:'BERANDA', priere:'SALAT', dhikr:'DZIKIR', halal:'HALAL', coran:'AL-QURAN', ramadan:'RAMADAN', profil:'PROFIL',
-    prochainePriere:'SALAT BERIKUTNYA', dans:'dalam',
-    partager:'+ Bagikan', communaute:'👥 KOMUNITAS',
-    prixEtude:'DI SEKITAR ANDA', voirTout:'Lihat semua →',
-    lecture:'Membaca', memorisation:'Menghafal',
-    bonjour:'Assalamu Alaykoum', sloganSub:'Teman spiritual halal Anda',
-    versetJour:'✦ Ayat hari ini', hadithJour:'📜 Hadits hari ini',
-    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Buka puasa dalam', bienvenue:'Selamat datang 👋',
-    priereSpirit:'SALAT & SPIRITUALITAS', dhikrTasbih:'DZIKIR & TASBIH',
-    coranComplet:'AL-QURAN LENGKAP', carteHalal:'PETA HALAL',
-    memorisationTitle:'MENGHAFAL', choisirSourate:'PILIH SURAH',
-    mesStats:'STATISTIK SAYA', directionMecque:'Arah Kiblat',
-    retour:'Kembali', versetDebut:'Ayat awal', versetFin:'Ayat akhir',
-    statVersets:'Ayat', statMaitrise:'Dikuasai', statStreak:'🔥 Streak',
-    commencer:'🚀 Mulai', partagerComm:'Bagikan ke komunitas',
-    email:'EMAIL', motdepasse:'KATA SANDI', prenom:'NAMA DEPAN', connexion:'Masuk',
-    connectSave:'Masuk untuk menyimpan preferensi Anda',
-    adhkars:'DZIKIR KLASIK', rate:'Lupa', difficile:'Sulit', facile:'Mudah',
-    reveler:'Tampilkan', reciter:'Membaca',
-    continueAnon:'Lanjutkan tanpa akun →',
-    creerCompte:'Buat akun saya',
-    deconnexion:'Keluar',
-    modeAffichage:'Mode tampilan',
-    prieres:'SALAT',
-    kaaba:'menuju Kakbah',
-    tajweedRules:'ATURAN TAJWID',
-    sessionDone:'Sesi selesai!',
-    selectionner:'Pilih...',
-    voirTranslit:'👁 Tampilkan transliterasi',
-    activerBoussole:'🧭 Aktifkan kompas',
-    dhikrNumerique:'📿 Dzikir Digital',
-    memorisationTab:'🧠 Menghafal',
-    retourGen:'← Kembali',
-    postPensee:'💭 Renungan',
-    postVerset:'📖 Ayat',
-    postHadith:'📜 Hadits',
-    postDoua:'🤲 Doa',
-    chargement:'Memuat...',
-    desactive:'Nonaktif',
-    compteCreé:'✅ Akun dibuat! Periksa email Anda lalu masuk.',
-    explorer:'JELAJAHI',
-  }
-}
-
-
 const SUPA_URL = "https://bpvrqphmxrnjrbjtaxuw.supabase.co"
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnJxcGhteHJuanJianRheHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTQ0MjMsImV4cCI6MjA4ODczMDQyM30.9WaS5gYPcB2d11S604xpu4hZmwtV55yDlxxgNUaZEwA"
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
 // ── STARS ────────────────────────────────────────────────────
-function initStars(){
-  const starsEl = document.getElementById('stars')
-  if(!starsEl) return
-  for(let i=0;i<60;i++){
-    const s=document.createElement('div')
-    s.className='star'
-    const sz=Math.random()*2+0.5
-    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`
-    starsEl.appendChild(s)
-  }
-}
+const starsEl = document.getElementById('stars')
+if(starsEl){for(let i=0;i<60;i++){
+  const s=document.createElement('div')
+  s.className='star'
+  const sz=Math.random()*2+0.5
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`
+  starsEl.appendChild(s)
+}}
 
 // ── DATA ─────────────────────────────────────────────────────
 const COMMERCES = [
@@ -804,11 +1129,12 @@ let obCurrent=0
 
 // ── DATE ─────────────────────────────────────────────────────
 const now=new Date()
-const todayDateEl = document.getElementById('today-date')
-if(todayDateEl) todayDateEl.textContent = now.toLocaleDateString('fr-BE',{weekday:'long',day:'numeric',month:'long'})
+const _td=document.getElementById('today-date');if(_td)_td.textContent=now.toLocaleDateString('fr-BE',{weekday:'long',day:'numeric',month:'long'})
 // Live clock update
 setInterval(() => {
+  const n = new Date()
   computeNext()
+  // Update countdown live
 }, 30000)
 
 // ── PRAYERS ──────────────────────────────────────────────────
@@ -846,11 +1172,11 @@ function computeNext(){
       nextP=p
       window.nextPrayer = p
       const diff=h*60+m-nowMin
-      const _n=document.getElementById('np-name'); if(_n) _n.textContent=p.name
-      const _a=document.getElementById('np-ar'); if(_a) _a.textContent=p.ar
-      const _t=document.getElementById('np-time'); if(_t) _t.textContent=p.time
-      const _e=document.getElementById('np-emoji'); if(_e) _e.textContent=p.emoji
-      const _cd=document.getElementById('np-countdown'); if(_cd) _cd.textContent=`${(APP_TRANSLATIONS[currentAppLang]||APP_TRANSLATIONS.fr).dans} ${Math.floor(diff/60)}h${String(diff%60).padStart(2,'0')}`
+      const _nn=document.getElementById('np-name');if(_nn)_nn.textContent=p.name
+      const _na=document.getElementById('np-ar');if(_na)_na.textContent=p.ar
+      const _nt=document.getElementById('np-time');if(_nt)_nt.textContent=p.time
+      const _ne=document.getElementById('np-emoji');if(_ne)_ne.textContent=p.emoji
+      document.getElementById('np-countdown').textContent=`${(APP_TRANSLATIONS[currentAppLang]||APP_TRANSLATIONS.fr).dans} ${Math.floor(diff/60)}h${String(diff%60).padStart(2,'0')}`
       syncAccueilPrayer()
       return
     }
@@ -858,10 +1184,10 @@ function computeNext(){
   nextP=prayers[0]
   window.nextPrayer = prayers[0]
   const fp = prayers[0]
-  const _fn=document.getElementById('np-name'); if(_fn) _fn.textContent=fp?.name||'Fajr'
-  const _fa=document.getElementById('np-ar'); if(_fa) _fa.textContent=fp?.ar||'الفجر'
-  const _ft=document.getElementById('np-time'); if(_ft) _ft.textContent=fp?.time||'--:--'
-  const _fe=document.getElementById('np-emoji'); if(_fe) _fe.textContent=fp?.emoji||'🌙'
+  const _fn=document.getElementById('np-name');if(_fn)_fn.textContent=fp?.name||'Fajr'
+  const _fa=document.getElementById('np-ar');if(_fa)_fa.textContent=fp?.ar||'الفجر'
+  const _ft=document.getElementById('np-time');if(_ft)_ft.textContent=fp?.time||'--:--'
+  const _fe=document.getElementById('np-emoji');if(_fe)_fe.textContent=fp?.emoji||'🌙'
   const _tDemain = {fr:'demain',en:'tomorrow',ar:'غداً',tr:'yarın',es:'mañana',nl:'morgen',de:'morgen',pt:'amanhã',id:'besok',it:'domani',zh:'明天'}
   document.getElementById('np-countdown').textContent = _tDemain[currentAppLang] || 'demain'
   syncAccueilPrayer()
@@ -945,7 +1271,7 @@ function commerceCard(c){
 }
 
 function renderAccueilCommerces(){
-  const acEl=document.getElementById('accueil-commerces'); if(acEl) acEl.innerHTML=COMMERCES.slice(0,3).map(commerceCard).join('')
+  const _ac=document.getElementById('accueil-commerces');if(_ac)_ac.innerHTML=COMMERCES.slice(0,3).map(commerceCard).join('')
 }
 
 function renderAllCommerces(search=''){
@@ -1016,7 +1342,7 @@ function showSubtab(id, btn){
 
 // ── INIT ─────────────────────────────────────────────────────
 loadPrayers()
-if(document.getElementById('accueil-commerces')) renderAccueilCommerces()
+renderAccueilCommerces()
 renderDhikrCard()
 renderDhikrChips()
 
@@ -2974,6 +3300,457 @@ function handleOrientation(e){
   if(ring) ring.style.transform = `rotate(${-heading}deg)`
 }
 
+// ── LANGUE GLOBALE ────────────────────────────────────────────────────────────
+const APP_TRANSLATIONS = {
+  fr: {
+    accueil:'ACCUEIL', priere:'PRIÈRE', dhikr:'DHIKR', halal:'HALAL', coran:'CORAN', ramadan:'RAMADAN', profil:'PROFIL',
+    prochainePriere:'PROCHAINE PRIÈRE', dans:'dans',
+    partager:'+ Partager', communaute:'👥 COMMUNAUTÉ',
+    prixEtude:'PRÈS DE VOUS', voirTout:'Voir tout →',
+    lecture:'Lecture', memorisation:'Mémorisation',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Votre compagnon spirituel halal',
+    versetJour:'✦ Verset du jour', hadithJour:'📜 Hadith du jour',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar dans', bienvenue:'Bienvenue 👋',
+    priereSpirit:'PRIÈRE & SPIRITUALITÉ', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'CORAN COMPLET', carteHalal:'CARTE HALAL',
+    memorisationTitle:'MÉMORISATION', choisirSourate:'CHOISIR UNE SOURATE',
+    mesStats:'MES STATISTIQUES', directionMecque:'Direction de La Mecque',
+    retour:'Retour', versetDebut:'Verset début', versetFin:'Verset fin',
+    statVersets:'Versets', statMaitrise:'Maîtrisés', statStreak:'🔥 Streak',
+    commencer:'🚀 Commencer', partagerComm:'Partager avec la communauté',
+    email:'EMAIL', motdepasse:'MOT DE PASSE', prenom:'PRÉNOM', connexion:'Connexion',
+    connectSave:'Connectez-vous pour sauvegarder vos préférences',
+    adhkars:'ADHKARS CLASSIQUES', rate:'Raté', difficile:'Difficile', facile:'Facile',
+    reveler:'Révéler', reciter:'Réciter',
+    continueAnon:'Continuer sans compte →',
+    creerCompte:'Créer mon compte',
+    deconnexion:'Se déconnecter',
+    modeAffichage:"Mode d'affichage",
+    prieres:'PRIÈRES',
+    kaaba:"jusqu'à la Kaaba",
+    tajweedRules:'RÈGLES TAJWEED',
+    sessionDone:'Session terminée !',
+    selectionner:'Sélectionner...',
+    voirTranslit:'👁 Voir la translittération',
+    activerBoussole:'🧭 Activer la boussole',
+    dhikrNumerique:'📿 Dhikr Numérique',
+    memorisationTab:'🧠 Mémorisation',
+    retourGen:'← Retour',
+    postPensee:'💭 Pensée',
+    postVerset:'📖 Verset',
+    postHadith:'📜 Hadith',
+    postDoua:'🤲 Doua',
+    chargement:'Chargement...',
+    desactive:'Désactivé',
+    compteCreé:'✅ Compte créé ! Vérifiez votre email puis connectez-vous.',
+    explorer:'EXPLORER',
+  },
+  en: {
+    accueil:'HOME', priere:'PRAYER', dhikr:'DHIKR', halal:'HALAL', coran:'QURAN', ramadan:'RAMADAN', profil:'PROFILE',
+    prochainePriere:'NEXT PRAYER', dans:'in',
+    partager:'+ Share', communaute:'👥 COMMUNITY',
+    prixEtude:'NEAR YOU', voirTout:'See all →',
+    lecture:'Reading', memorisation:'Memorization',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Your halal spiritual companion',
+    versetJour:'✦ Verse of the day', hadithJour:'📜 Hadith of the day',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in', bienvenue:'Welcome 👋',
+    priereSpirit:'PRAYER & SPIRITUALITY', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'COMPLETE QURAN', carteHalal:'HALAL MAP',
+    memorisationTitle:'MEMORIZATION', choisirSourate:'CHOOSE A SURAH',
+    mesStats:'MY STATISTICS', directionMecque:'Direction of Mecca',
+    retour:'Back', versetDebut:'Start verse', versetFin:'End verse',
+    statVersets:'Verses', statMaitrise:'Mastered', statStreak:'🔥 Streak',
+    commencer:'🚀 Start', partagerComm:'Share with the community',
+    email:'EMAIL', motdepasse:'PASSWORD', prenom:'FIRST NAME', connexion:'Login',
+    connectSave:'Login to save your preferences',
+    adhkars:'CLASSIC ADHKARS', rate:'Failed', difficile:'Hard', facile:'Easy',
+    reveler:'Reveal', reciter:'Recite',
+    continueAnon:'Continue without account →',
+    creerCompte:'Create my account',
+    deconnexion:'Log out',
+    modeAffichage:'Display mode',
+    prieres:'PRAYERS',
+    kaaba:'towards the Kaaba',
+    tajweedRules:'TAJWEED RULES',
+    sessionDone:'Session complete!',
+    selectionner:'Select...',
+    voirTranslit:'👁 Show transliteration',
+    activerBoussole:'🧭 Activate compass',
+    dhikrNumerique:'📿 Digital Dhikr',
+    memorisationTab:'🧠 Memorization',
+    retourGen:'← Back',
+    postPensee:'💭 Thought',
+    postVerset:'📖 Verse',
+    postHadith:'📜 Hadith',
+    postDoua:'🤲 Dua',
+    chargement:'Loading...',
+    desactive:'Disabled',
+    compteCreé:'✅ Account created! Check your email then log in.',
+    explorer:'EXPLORE',
+  },
+  ar: {
+    accueil:'الرئيسية', priere:'الصلاة', dhikr:'الذكر', halal:'حلال', coran:'القرآن', ramadan:'رمضان', profil:'الملف',
+    prochainePriere:'الصلاة القادمة', dans:'في',
+    partager:'+ مشاركة', communaute:'👥 المجتمع',
+    prixEtude:'بالقرب منك', voirTout:'عرض الكل →',
+    lecture:'قراءة', memorisation:'حفظ',
+    bonjour:'السلام عليكم', sloganSub:'رفيقك الروحي الحلال',
+    versetJour:'✦ آية اليوم', hadithJour:'📜 حديث اليوم',
+    ramadanLabel:'🌙 رمضان 1447', iftarDans:'الإفطار في', bienvenue:'أهلاً وسهلاً 👋',
+    priereSpirit:'الصلاة والروحانية', dhikrTasbih:'الذكر والتسبيح',
+    coranComplet:'القرآن الكريم كاملاً', carteHalal:'خريطة الحلال',
+    memorisationTitle:'الحفظ', choisirSourate:'اختر السورة',
+    mesStats:'إحصائياتي', directionMecque:'اتجاه مكة المكرمة',
+    retour:'رجوع', versetDebut:'الآية الأولى', versetFin:'الآية الأخيرة',
+    statVersets:'الآيات', statMaitrise:'محفوظة', statStreak:'🔥 سلسلة',
+    commencer:'🚀 ابدأ', partagerComm:'شارك مع المجتمع',
+    email:'البريد الإلكتروني', motdepasse:'كلمة المرور', prenom:'الاسم الأول', connexion:'تسجيل الدخول',
+    connectSave:'سجّل دخولك لحفظ تفضيلاتك',
+    adhkars:'الأذكار الكلاسيكية', rate:'لم أتذكر', difficile:'صعب', facile:'سهل',
+    reveler:'كشف', reciter:'تلاوة',
+    continueAnon:'المتابعة بدون حساب →',
+    creerCompte:'إنشاء حسابي',
+    deconnexion:'تسجيل الخروج',
+    modeAffichage:'وضع العرض',
+    prieres:'الصلوات',
+    kaaba:'باتجاه الكعبة',
+    tajweedRules:'أحكام التجويد',
+    sessionDone:'!انتهت الجلسة',
+    selectionner:'اختر...',
+    voirTranslit:'👁 عرض النطق',
+    activerBoussole:'🧭 تفعيل البوصلة',
+    dhikrNumerique:'📿 العداد الرقمي',
+    memorisationTab:'🧠 الحفظ',
+    retourGen:'→ رجوع',
+    postPensee:'💭 تأمل',
+    postVerset:'📖 آية',
+    postHadith:'📜 حديث',
+    postDoua:'🤲 دعاء',
+    chargement:'جارٍ التحميل...',
+    desactive:'معطّل',
+    compteCreé:'✅ تم إنشاء الحساب! تحقق من بريدك ثم سجّل دخولك.',
+    explorer:'استكشاف',
+  },
+  tr: {
+    accueil:'ANA SAYFA', priere:'NAMAZ', dhikr:'ZİKİR', halal:'HELAL', coran:"KUR'AN", ramadan:'RAMAZAN', profil:'PROFİL',
+    prochainePriere:'SONRAKI NAMAZ', dans:'sonra',
+    partager:'+ Paylaş', communaute:'👥 TOPLULUK',
+    prixEtude:'YAKININIZDAKILER', voirTout:'Tümünü gör →',
+    lecture:'Okuma', memorisation:'Ezberleme',
+    bonjour:'Esselamu Aleykum', sloganSub:'Helal manevi yoldaşınız',
+    versetJour:'✦ Günün ayeti', hadithJour:'📜 Günün hadisi',
+    ramadanLabel:'🌙 RAMAZAN 1447', iftarDans:'İftara kalan', bienvenue:'Hoş geldiniz 👋',
+    priereSpirit:'NAMAZ & MANEVİYAT', dhikrTasbih:'ZİKİR & TESBİH',
+    coranComplet:"TAM KUR'AN", carteHalal:'HELAL HARİTA',
+    memorisationTitle:'EZBERLEME', choisirSourate:'SURE SEÇİN',
+    mesStats:'İSTATİSTİKLERİM', directionMecque:'Kabe Yönü',
+    retour:'Geri', versetDebut:'Başlangıç ayeti', versetFin:'Bitiş ayeti',
+    statVersets:'Ayet', statMaitrise:'Öğrenildi', statStreak:'🔥 Seri',
+    commencer:'🚀 Başla', partagerComm:'Toplulukla paylaş',
+    email:'E-POSTA', motdepasse:'ŞİFRE', prenom:'AD', connexion:'Giriş',
+    connectSave:'Tercihlerinizi kaydetmek için giriş yapın',
+    adhkars:'KLASİK ZİKİRLER', rate:'Hatırlamadım', difficile:'Zor', facile:'Kolay',
+    reveler:'Göster', reciter:'Oku',
+    continueAnon:'Hesapsız devam et →',
+    creerCompte:'Hesabımı oluştur',
+    deconnexion:'Çıkış yap',
+    modeAffichage:'Görüntü modu',
+    prieres:'NAMAZLAR',
+    kaaba:'Kabe yönünde',
+    tajweedRules:'TECVİD KURALLARI',
+    sessionDone:'Oturum tamamlandı!',
+    selectionner:'Seçin...',
+    voirTranslit:'👁 Okunuşu göster',
+    activerBoussole:'🧭 Pusulayı etkinleştir',
+    dhikrNumerique:'📿 Dijital Zikir',
+    memorisationTab:'🧠 Ezberleme',
+    retourGen:'← Geri',
+    postPensee:'💭 Düşünce',
+    postVerset:'📖 Ayet',
+    postHadith:'📜 Hadis',
+    postDoua:'🤲 Dua',
+    chargement:'Yükleniyor...',
+    desactive:'Devre dışı',
+    compteCreé:'✅ Hesap oluşturuldu! E-postanızı kontrol edip giriş yapın.',
+    explorer:'KEŞFET',
+  },
+  es: {
+    accueil:'INICIO', priere:'ORACIÓN', dhikr:'DHIKR', halal:'HALAL', coran:'CORÁN', ramadan:'RAMADÁN', profil:'PERFIL',
+    prochainePriere:'PRÓXIMA ORACIÓN', dans:'en',
+    partager:'+ Compartir', communaute:'👥 COMUNIDAD',
+    prixEtude:'CERCA DE TI', voirTout:'Ver todo →',
+    lecture:'Lectura', memorisation:'Memorización',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Tu compañero espiritual halal',
+    versetJour:'✦ Versículo del día', hadithJour:'📜 Hadith del día',
+    ramadanLabel:'🌙 RAMADÁN 1447', iftarDans:'Iftar en', bienvenue:'Bienvenido 👋',
+    priereSpirit:'ORACIÓN & ESPIRITUALIDAD', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'CORÁN COMPLETO', carteHalal:'MAPA HALAL',
+    memorisationTitle:'MEMORIZACIÓN', choisirSourate:'ELEGIR SURA',
+    mesStats:'MIS ESTADÍSTICAS', directionMecque:'Dirección de La Meca',
+    retour:'Volver', versetDebut:'Versículo inicio', versetFin:'Versículo fin',
+    statVersets:'Versículos', statMaitrise:'Dominados', statStreak:'🔥 Racha',
+    commencer:'🚀 Comenzar', partagerComm:'Compartir con la comunidad',
+    email:'EMAIL', motdepasse:'CONTRASEÑA', prenom:'NOMBRE', connexion:'Iniciar sesión',
+    connectSave:'Inicia sesión para guardar tus preferencias',
+    adhkars:'ADHKARS CLÁSICOS', rate:'Fallé', difficile:'Difícil', facile:'Fácil',
+    reveler:'Revelar', reciter:'Recitar',
+    continueAnon:'Continuar sin cuenta →',
+    creerCompte:'Crear mi cuenta',
+    deconnexion:'Cerrar sesión',
+    modeAffichage:'Modo de visualización',
+    prieres:'ORACIONES',
+    kaaba:'hacia la Kaaba',
+    tajweedRules:'REGLAS TAJWEED',
+    sessionDone:'¡Sesión completada!',
+    selectionner:'Seleccionar...',
+    voirTranslit:'👁 Ver transliteración',
+    activerBoussole:'🧭 Activar brújula',
+    dhikrNumerique:'📿 Dhikr Digital',
+    memorisationTab:'🧠 Memorización',
+    retourGen:'← Volver',
+    postPensee:'💭 Reflexión',
+    postVerset:'📖 Versículo',
+    postHadith:'📜 Hadith',
+    postDoua:'🤲 Dua',
+    chargement:'Cargando...',
+    desactive:'Desactivado',
+    compteCreé:'✅ ¡Cuenta creada! Verifica tu correo y luego inicia sesión.',
+    explorer:'EXPLORAR',
+  },
+  nl: {
+    accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
+    prochainePriere:'VOLGEND GEBED', dans:'over',
+    partager:'+ Delen', communaute:'👥 GEMEENSCHAP',
+    prixEtude:'IN UW BUURT', voirTout:'Alles zien →',
+    lecture:'Lezen', memorisation:'Memorisatie',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Uw halal spirituele metgezel',
+    versetJour:'✦ Vers van de dag', hadithJour:'📜 Hadith van de dag',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar over', bienvenue:'Welkom 👋',
+    priereSpirit:'GEBED & SPIRITUALITEIT', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'VOLLEDIGE KORAN', carteHalal:'HALAL KAART',
+    memorisationTitle:'MEMORISATIE', choisirSourate:'KIES EEN SOERA',
+    mesStats:'MIJN STATISTIEKEN', directionMecque:'Richting van Mekka',
+    retour:'Terug', versetDebut:'Beginvers', versetFin:'Eindvers',
+    statVersets:'Verzen', statMaitrise:'Beheerst', statStreak:'🔥 Reeks',
+    commencer:'🚀 Starten', partagerComm:'Delen met de gemeenschap',
+    email:'EMAIL', motdepasse:'WACHTWOORD', prenom:'VOORNAAM', connexion:'Inloggen',
+    connectSave:'Log in om uw voorkeuren op te slaan',
+    adhkars:'KLASSIEKE ADHKARS', rate:'Mislukt', difficile:'Moeilijk', facile:'Makkelijk',
+    reveler:'Onthullen', reciter:'Reciteren',
+    continueAnon:'Doorgaan zonder account →',
+    creerCompte:'Mijn account aanmaken',
+    deconnexion:'Uitloggen',
+    modeAffichage:'Weergavemodus',
+    prieres:'GEBEDEN',
+    kaaba:'richting de Kaaba',
+    tajweedRules:'TAJWEED REGELS',
+    sessionDone:'Sessie voltooid!',
+    selectionner:'Selecteren...',
+    voirTranslit:'👁 Toon transliteratie',
+    activerBoussole:'🧭 Kompas activeren',
+    dhikrNumerique:'📿 Digitale Dhikr',
+    memorisationTab:'🧠 Memorisatie',
+    retourGen:'← Terug',
+    postPensee:'💭 Gedachte',
+    postVerset:'📖 Vers',
+    postHadith:'📜 Hadith',
+    postDoua:'🤲 Smeekgebed',
+    chargement:'Laden...',
+    desactive:'Uitgeschakeld',
+    compteCreé:'✅ Account aangemaakt! Controleer uw e-mail en log in.',
+    explorer:'VERKENNEN',
+  },
+  de: {
+    accueil:'STARTSEITE', priere:'GEBET', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIL',
+    prochainePriere:'NÄCHSTES GEBET', dans:'in',
+    partager:'+ Teilen', communaute:'👥 GEMEINSCHAFT',
+    prixEtude:'IN IHRER NÄHE', voirTout:'Alle sehen →',
+    lecture:'Lesen', memorisation:'Auswendiglernen',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Ihr halal spiritueller Begleiter',
+    versetJour:'✦ Vers des Tages', hadithJour:'📜 Hadith des Tages',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in', bienvenue:'Willkommen 👋',
+    priereSpirit:'GEBET & SPIRITUALITÄT', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'VOLLSTÄNDIGER KORAN', carteHalal:'HALAL-KARTE',
+    memorisationTitle:'AUSWENDIGLERNEN', choisirSourate:'SURE WÄHLEN',
+    mesStats:'MEINE STATISTIKEN', directionMecque:'Richtung Mekka',
+    retour:'Zurück', versetDebut:'Startvers', versetFin:'Endvers',
+    statVersets:'Verse', statMaitrise:'Gelernt', statStreak:'🔥 Serie',
+    commencer:'🚀 Starten', partagerComm:'Mit der Gemeinschaft teilen',
+    email:'E-MAIL', motdepasse:'PASSWORT', prenom:'VORNAME', connexion:'Anmelden',
+    connectSave:'Melden Sie sich an, um Ihre Einstellungen zu speichern',
+    adhkars:'KLASSISCHE ADHKARS', rate:'Nicht gewusst', difficile:'Schwer', facile:'Leicht',
+    reveler:'Enthüllen', reciter:'Rezitieren',
+    continueAnon:'Ohne Konto fortfahren →',
+    creerCompte:'Mein Konto erstellen',
+    deconnexion:'Abmelden',
+    modeAffichage:'Anzeigemodus',
+    prieres:'GEBETE',
+    kaaba:'Richtung Kaaba',
+    tajweedRules:'TAJWEED-REGELN',
+    sessionDone:'Sitzung abgeschlossen!',
+    selectionner:'Auswählen...',
+    voirTranslit:'👁 Transkription anzeigen',
+    activerBoussole:'🧭 Kompass aktivieren',
+    dhikrNumerique:'📿 Digitaler Dhikr',
+    memorisationTab:'🧠 Auswendiglernen',
+    retourGen:'← Zurück',
+    postPensee:'💭 Gedanke',
+    postVerset:'📖 Vers',
+    postHadith:'📜 Hadith',
+    postDoua:'🤲 Bittgebet',
+    chargement:'Laden...',
+    desactive:'Deaktiviert',
+    compteCreé:'✅ Konto erstellt! Überprüfen Sie Ihre E-Mail und melden Sie sich an.',
+    explorer:'ENTDECKEN',
+  },
+  pt: {
+    accueil:'INÍCIO', priere:'ORAÇÃO', dhikr:'DHIKR', halal:'HALAL', coran:'ALCORÃO', ramadan:'RAMADÃO', profil:'PERFIL',
+    prochainePriere:'PRÓXIMA ORAÇÃO', dans:'em',
+    partager:'+ Compartilhar', communaute:'👥 COMUNIDADE',
+    prixEtude:'PERTO DE SI', voirTout:'Ver tudo →',
+    lecture:'Leitura', memorisation:'Memorização',
+    bonjour:'Assalamu Alaykoum', sloganSub:'O seu companheiro espiritual halal',
+    versetJour:'✦ Versículo do dia', hadithJour:'📜 Hadith do dia',
+    ramadanLabel:'🌙 RAMADÃO 1447', iftarDans:'Iftar em', bienvenue:'Bem-vindo 👋',
+    priereSpirit:'ORAÇÃO & ESPIRITUALIDADE', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'ALCORÃO COMPLETO', carteHalal:'MAPA HALAL',
+    memorisationTitle:'MEMORIZAÇÃO', choisirSourate:'ESCOLHER SURA',
+    mesStats:'MINHAS ESTATÍSTICAS', directionMecque:'Direção de Meca',
+    retour:'Voltar', versetDebut:'Versículo início', versetFin:'Versículo fim',
+    statVersets:'Versículos', statMaitrise:'Dominados', statStreak:'🔥 Sequência',
+    commencer:'🚀 Começar', partagerComm:'Partilhar com a comunidade',
+    email:'EMAIL', motdepasse:'SENHA', prenom:'NOME', connexion:'Entrar',
+    connectSave:'Faça login para guardar as suas preferências',
+    adhkars:'ADHKARS CLÁSSICOS', rate:'Errei', difficile:'Difícil', facile:'Fácil',
+    reveler:'Revelar', reciter:'Recitar',
+    continueAnon:'Continuar sem conta →',
+    creerCompte:'Criar minha conta',
+    deconnexion:'Sair',
+    modeAffichage:'Modo de exibição',
+    prieres:'ORAÇÕES',
+    kaaba:'em direção à Kaaba',
+    tajweedRules:'REGRAS TAJWEED',
+    sessionDone:'Sessão concluída!',
+    selectionner:'Selecionar...',
+    voirTranslit:'👁 Ver transliteração',
+    activerBoussole:'🧭 Ativar bússola',
+    dhikrNumerique:'📿 Dhikr Digital',
+    memorisationTab:'🧠 Memorização',
+    retourGen:'← Voltar',
+    postPensee:'💭 Reflexão',
+    postVerset:'📖 Versículo',
+    postHadith:'📜 Hadith',
+    postDoua:'🤲 Dua',
+    chargement:'Carregando...',
+    desactive:'Desativado',
+    compteCreé:'✅ Conta criada! Verifique seu e-mail e faça login.',
+    explorer:'EXPLORAR',
+  },
+  it: {
+    accueil:'HOME', priere:'PREGHIERA', dhikr:'DHIKR', halal:'HALAL', coran:'CORANO', ramadan:'RAMADAN', profil:'PROFILO',
+    prochainePriere:'PROSSIMA PREGHIERA', dans:'tra',
+    partager:'+ Condividi', communaute:'👥 COMUNITÀ',
+    prixEtude:'VICINO A TE', voirTout:'Vedi tutto →',
+    lecture:'Lettura', memorisation:'Memorizzazione',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Il tuo compagno spirituale halal',
+    versetJour:'✦ Versetto del giorno', hadithJour:'📜 Hadith del giorno',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar tra', bienvenue:'Benvenuto 👋',
+    priereSpirit:'PREGHIERA & SPIRITUALITÀ', dhikrTasbih:'DHIKR & TASBIH',
+    coranComplet:'CORANO COMPLETO', carteHalal:'MAPPA HALAL',
+    memorisationTitle:'MEMORIZZAZIONE', choisirSourate:'SCEGLI UNA SURA',
+    mesStats:'LE MIE STATISTICHE', directionMecque:'Direzione della Mecca',
+    retour:'Indietro', versetDebut:'Versetto inizio', versetFin:'Versetto fine',
+    statVersets:'Versetti', statMaitrise:'Padroneggiati', statStreak:'🔥 Serie',
+    commencer:'🚀 Inizia', partagerComm:'Condividi con la comunità',
+    email:'EMAIL', motdepasse:'PASSWORD', prenom:'NOME', connexion:'Accedi',
+    connectSave:'Accedi per salvare le tue preferenze',
+    adhkars:'ADHKARS CLASSICI', rate:'Dimenticato', difficile:'Difficile', facile:'Facile',
+    reveler:'Rivela', reciter:'Recita', explorer:'ESPLORA',
+    continueAnon:'Continua senza account →', creerCompte:'Crea il mio account',
+    deconnexion:'Disconnetti', chargement:'Caricamento...', desactive:'Disattivato',
+    prieres:'PREGHIERE', kaaba:'verso la Kaaba', tajweedRules:'REGOLE TAJWEED',
+    sessionDone:'Sessione completata!', selectionner:'Seleziona...',
+    voirTranslit:'👁 Mostra traslitterazione', activerBoussole:'🧭 Attiva bussola',
+    dhikrNumerique:'📿 Dhikr Digitale', memorisationTab:'🧠 Memorizzazione',
+    retourGen:'← Indietro', postPensee:'💭 Pensiero', postVerset:'📖 Versetto',
+    postHadith:'📜 Hadith', postDoua:'🤲 Dua', compteCreé:'✅ Account creato!',
+    modeAffichage:'Modalità display', label_ramadan_title:'🌙 RAMADAN 1447',
+  },
+  zh: {
+    accueil:'首页', priere:'礼拜', dhikr:'念珠', halal:'清真', coran:'古兰经', ramadan:'斋月', profil:'个人',
+    prochainePriere:'下次礼拜', dans:'后',
+    partager:'+ 分享', communaute:'👥 社区',
+    prixEtude:'附近', voirTout:'查看全部 →',
+    lecture:'阅读', memorisation:'背诵',
+    bonjour:'السلام عليكم', sloganSub:'您的清真精神伴侣',
+    versetJour:'✦ 今日经文', hadithJour:'📜 今日圣训',
+    ramadanLabel:'🌙 斋月 1447', iftarDans:'开斋时间', bienvenue:'欢迎 👋',
+    priereSpirit:'礼拜与灵性', dhikrTasbih:'念珠与赞颂',
+    coranComplet:'完整古兰经', carteHalal:'清真地图',
+    memorisationTitle:'背诵', choisirSourate:'选择章节',
+    mesStats:'我的统计', directionMecque:'麦加方向',
+    retour:'返回', versetDebut:'开始节', versetFin:'结束节',
+    statVersets:'经文', statMaitrise:'已掌握', statStreak:'🔥 连续',
+    commencer:'🚀 开始', partagerComm:'与社区分享',
+    email:'邮箱', motdepasse:'密码', prenom:'姓名', connexion:'登录',
+    connectSave:'登录以保存您的偏好',
+    adhkars:'经典念珠', rate:'忘记', difficile:'困难', facile:'容易',
+    reveler:'显示', reciter:'朗读', explorer:'探索',
+    continueAnon:'无账户继续 →', creerCompte:'创建账户',
+    deconnexion:'退出', chargement:'加载中...', desactive:'已禁用',
+    prieres:'礼拜', kaaba:'朝向天房', tajweedRules:'诵读规则',
+    sessionDone:'会话完成！', selectionner:'选择...',
+    voirTranslit:'👁 显示音译', activerBoussole:'🧭 启动指南针',
+    dhikrNumerique:'📿 数字念珠', memorisationTab:'🧠 背诵',
+    retourGen:'← 返回', postPensee:'💭 思考', postVerset:'📖 经文',
+    postHadith:'📜 圣训', postDoua:'🤲 祈祷', compteCreé:'✅ 账户已创建！',
+    modeAffichage:'显示模式', label_ramadan_title:'🌙 斋月 1447',
+  },
+  id: {
+    accueil:'BERANDA', priere:'SALAT', dhikr:'DZIKIR', halal:'HALAL', coran:'AL-QURAN', ramadan:'RAMADAN', profil:'PROFIL',
+    prochainePriere:'SALAT BERIKUTNYA', dans:'dalam',
+    partager:'+ Bagikan', communaute:'👥 KOMUNITAS',
+    prixEtude:'DI SEKITAR ANDA', voirTout:'Lihat semua →',
+    lecture:'Membaca', memorisation:'Menghafal',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Teman spiritual halal Anda',
+    versetJour:'✦ Ayat hari ini', hadithJour:'📜 Hadits hari ini',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Buka puasa dalam', bienvenue:'Selamat datang 👋',
+    priereSpirit:'SALAT & SPIRITUALITAS', dhikrTasbih:'DZIKIR & TASBIH',
+    coranComplet:'AL-QURAN LENGKAP', carteHalal:'PETA HALAL',
+    memorisationTitle:'MENGHAFAL', choisirSourate:'PILIH SURAH',
+    mesStats:'STATISTIK SAYA', directionMecque:'Arah Kiblat',
+    retour:'Kembali', versetDebut:'Ayat awal', versetFin:'Ayat akhir',
+    statVersets:'Ayat', statMaitrise:'Dikuasai', statStreak:'🔥 Streak',
+    commencer:'🚀 Mulai', partagerComm:'Bagikan ke komunitas',
+    email:'EMAIL', motdepasse:'KATA SANDI', prenom:'NAMA DEPAN', connexion:'Masuk',
+    connectSave:'Masuk untuk menyimpan preferensi Anda',
+    adhkars:'DZIKIR KLASIK', rate:'Lupa', difficile:'Sulit', facile:'Mudah',
+    reveler:'Tampilkan', reciter:'Membaca',
+    continueAnon:'Lanjutkan tanpa akun →',
+    creerCompte:'Buat akun saya',
+    deconnexion:'Keluar',
+    modeAffichage:'Mode tampilan',
+    prieres:'SALAT',
+    kaaba:'menuju Kakbah',
+    tajweedRules:'ATURAN TAJWID',
+    sessionDone:'Sesi selesai!',
+    selectionner:'Pilih...',
+    voirTranslit:'👁 Tampilkan transliterasi',
+    activerBoussole:'🧭 Aktifkan kompas',
+    dhikrNumerique:'📿 Dzikir Digital',
+    memorisationTab:'🧠 Menghafal',
+    retourGen:'← Kembali',
+    postPensee:'💭 Renungan',
+    postVerset:'📖 Ayat',
+    postHadith:'📜 Hadits',
+    postDoua:'🤲 Doa',
+    chargement:'Memuat...',
+    desactive:'Nonaktif',
+    compteCreé:'✅ Akun dibuat! Periksa email Anda lalu masuk.',
+    explorer:'JELAJAHI',
+  }
+}
+let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
 
 function changeAppLang(lang){
   currentAppLang = lang
@@ -3370,5 +4147,101 @@ function getAdhkarTrad(trad){
   return map[lang] || map['en'] || trad
 }
 </script>
+
+<!-- ONBOARDING -->
+<div id="onboarding" style="position:fixed;inset:0;background:#07070F;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;transition:opacity .5s">
+  
+  <!-- Stars background -->
+  <canvas id="ob-stars" style="position:absolute;inset:0;pointer-events:none"></canvas>
+  
+  <!-- Slides -->
+  <div id="ob-slides" style="width:100%;max-width:360px;position:relative;z-index:1">
+    
+    <div class="ob-slide active" id="ob-0">
+      <div style="font-size:72px;text-align:center;margin-bottom:24px;animation:obFloat 3s ease-in-out infinite">☪</div>
+      <div style="font-family:'Cinzel',serif;font-size:36px;color:#C9A84C;text-align:center;letter-spacing:4px;margin-bottom:12px">FADJR</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.8">La super-app halal<br>pour ta communauté</div>
+      <div style="font-family:'Tajawal',sans-serif;font-size:20px;direction:rtl;text-align:center;color:#C9A84C;margin-top:20px;opacity:.7">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    </div>
+
+    <div class="ob-slide" id="ob-1" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🕌</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Prière & Qibla</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Horaires en temps réel selon ta position GPS.<br>Direction de la Qibla.<br>Rappels Adhan avant chaque prière.</div>
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:24px">
+        <div style="text-align:center"><div style="font-size:28px">🌙</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">FAJR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌅</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">SHURUK</div></div>
+        <div style="text-align:center"><div style="font-size:28px">☀️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">DHUHR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌤️</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ASR</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌇</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">MAGHRIB</div></div>
+        <div style="text-align:center"><div style="font-size:28px">🌃</div><div style="font-size:10px;color:#C9A84C;margin-top:4px">ICHA</div></div>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-2" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">📖</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Coran Complet</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">114 sourates avec texte arabe.<br>5 traductions · 10 récitateurs audio.<br>99 noms d'Allah · Dhikr & Tasbih.</div>
+      <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:16px;margin-top:20px;text-align:center">
+        <div style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;color:#F0EAD8;line-height:1.8">إِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
+        <div style="font-size:11px;color:#888;margin-top:8px;font-style:italic">Certes avec la difficulté vient la facilité</div>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-3" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🍽️</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">Halal Near Me</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">Restaurants, boucheries, mosquées<br>certifiés halal près de toi.<br>Bruxelles · Paris · Casablanca et plus.</div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap">
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🍽️ Restaurants</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">🥩 Boucheries</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">✈️ Voyages</span>
+        <span style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:6px 12px;border-radius:99px;font-size:11px;color:#C9A84C">📚 Librairies</span>
+      </div>
+    </div>
+
+    <div class="ob-slide" id="ob-4" style="display:none">
+      <div style="font-size:64px;text-align:center;margin-bottom:20px">🌟</div>
+      <div style="font-size:22px;font-weight:900;text-align:center;color:#F0EAD8;margin-bottom:10px">100% Gratuit</div>
+      <div style="font-size:13px;color:#888;text-align:center;line-height:1.9">FADJR est et restera gratuit<br>pour toute la communauté.<br>Données hébergées en Europe · RGPD.</div>
+      <button onclick="finishOnboarding()" style="width:100%;background:linear-gradient(135deg,#C9A84C,#F0D080);color:#07070F;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;margin-top:28px;font-family:'Cairo',sans-serif;letter-spacing:.1em">COMMENCER ›</button>
+    </div>
+  </div>
+
+  <!-- Dots -->
+  <div id="ob-dots" style="display:flex;gap:8px;margin-top:32px;position:relative;z-index:1">
+    <div class="ob-dot active" onclick="goObSlide(0)"></div>
+    <div class="ob-dot" onclick="goObSlide(1)"></div>
+    <div class="ob-dot" onclick="goObSlide(2)"></div>
+    <div class="ob-dot" onclick="goObSlide(3)"></div>
+    <div class="ob-dot" onclick="goObSlide(4)"></div>
+  </div>
+
+  <!-- Next / Skip -->
+  <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:1" id="ob-nav">
+    <button onclick="skipOnboarding()" id="ob-skip" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Passer →</button>
+    <button onclick="nextObSlide()" id="ob-next" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Suivant ›</button>
+  </div>
+</div>
+
+<div class="share-toast" id="share-toast">✓ Copié !</div>
+
+  <!-- AUTH GATE MODAL -->
+  <div id="auth-gate-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#13131F;border:1px solid var(--gold);border-radius:20px;padding:24px;max-width:340px;width:100%;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🔐</div>
+      <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:8px">Connexion requise</div>
+      <div id="auth-gate-reason" style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5">Créez un compte gratuit pour accéder à cette fonctionnalité</div>
+      <div style="font-size:11px;color:var(--muted);background:rgba(201,168,76,.08);border-radius:10px;padding:12px;margin-bottom:16px;text-align:left">
+        <div style="color:var(--gold);font-weight:700;margin-bottom:6px">✨ Avec un compte gratuit :</div>
+        <div>📊 Sync progression Hifz</div>
+        <div>🔖 Favoris mosquées & restaurants</div>
+        <div>👥 Communauté & partage</div>
+        <div>🔔 Préférences Adhan sauvegardées</div>
+      </div>
+      <button onclick="closeAuthGate(); goTab('profil')" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:12px;border:none;font-size:14px;cursor:pointer;margin-bottom:10px">Se connecter / S'inscrire</button>
+      <button onclick="closeAuthGate()" style="width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer">Continuer sans compte</button>
+    </div>
+  </div>
 </body>
 </html>
