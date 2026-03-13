@@ -250,7 +250,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
     <div id="next-prayer">
       <div>
         <div class="np-label">PROCHAINE PRIÈRE</div>
-        <div class="np-name" id="np-name">Chargement...</div>
+        <div class="np-name" id="np-name">Fajr</div>
         <div class="np-ar" id="np-ar"></div>
       </div>
       <div>
@@ -302,7 +302,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <!-- Hadith du jour -->
       <div id="hadith-card" style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
         <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px" id="label-hadith-jour">📜 Hadith du jour</div>
-        <div id="hadith-text" style="font-size:12px;color:var(--white);line-height:1.8">Chargement...</div>
+        <div id="hadith-text" style="font-size:12px;color:var(--white);line-height:1.8">« Le musulman est celui dont les musulmans sont à l'abri de sa langue et de sa main. »</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
           <div id="hadith-source" style="font-size:9px;color:var(--muted)"></div>
           <button onclick="shareHadith()" style="background:transparent;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:0">↗</button>
@@ -2037,8 +2037,8 @@ async function installPWA(){
 
 // Init all
 currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
+loadDailyContent()  // First — no waiting
 initAuth()
-loadDailyContent()
 getUserLocation()
 applyAdhan()
 if(adhanEnabled) startAdhanChecker()
