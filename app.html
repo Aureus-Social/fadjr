@@ -112,8 +112,8 @@ body { background:var(--bg); color:var(--white); font-family:'Cairo',sans-serif;
 .dhikr-chips { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .dhikr-chip { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; cursor:pointer; transition:.2s; }
 .dhikr-chip.active { border-color:var(--gold); background:var(--goldDim); }
-.dhikr-chip .dc-name { font-size:12px; font-weight:700; }
-.dhikr-chip .dc-count { font-size:10px; color:var(--muted); }
+.dhikr-chip .dc-name { font-size:12px; font-weight:700; color:var(--white); }
+.dhikr-chip .dc-count { font-size:10px; color:var(--gold); }
 .dhikr-chip.active .dc-name { color:var(--gold); }
 
 /* SEARCH */
@@ -359,9 +359,9 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
       <div id="sub-dhikr" style="display:none">
         <div class="card" style="text-align:center;padding:20px;margin-bottom:16px">
-          <div id="dhikr-ar" style="font-size:22px;color:var(--gold);margin-bottom:10px"></div>
-          <div id="dhikr-fr" style="font-size:17px;font-weight:700"></div>
-          <div id="dhikr-trad" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+          <div id="dhikr-ar" style="font-size:24px;color:var(--white);margin-bottom:8px;font-family:Tajawal,sans-serif;direction:rtl"></div>
+          <div id="dhikr-fr" style="font-size:16px;font-weight:700;color:rgba(201,168,76,.85);font-style:italic;margin-top:6px"></div>
+          <div id="dhikr-trad" style="font-size:12px;color:rgba(255,255,255,.6);margin-top:6px"></div>
           <div id="dhikr-total" style="font-size:12px;color:var(--gold);margin-top:6px"></div>
         </div>
         <div class="dhikr-btn" id="dhikr-btn" onclick="incrementDhikr()">
@@ -900,8 +900,8 @@ function renderCulture(){
 function renderDhikrChips(){
   document.getElementById('dhikr-chips').innerHTML=DHIKR_LIST.map((d,i)=>`
     <div class="dhikr-chip${dhikrIdx===i?' active':''}" onclick="setDhikr(${i})">
-      <div class="dc-name">${d.fr}</div>
-      <div class="dc-count">× ${d.count}</div>
+      <div class="dc-name" style="color:var(--white)">${d.fr}</div>
+      <div class="dc-count" style="color:var(--gold)">× ${d.count}</div>
     </div>`).join('')
 }
 function renderDhikrCard(){
