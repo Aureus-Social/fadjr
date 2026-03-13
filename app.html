@@ -846,11 +846,11 @@ function computeNext(){
       nextP=p
       window.nextPrayer = p
       const diff=h*60+m-nowMin
-      document.getElementById('np-name').textContent=p.name
-      document.getElementById('np-ar').textContent=p.ar
-      document.getElementById('np-time').textContent=p.time
-      document.getElementById('np-emoji').textContent=p.emoji
-      document.getElementById('np-countdown').textContent=`${(APP_TRANSLATIONS[currentAppLang]||APP_TRANSLATIONS.fr).dans} ${Math.floor(diff/60)}h${String(diff%60).padStart(2,'0')}`
+      const _n=document.getElementById('np-name'); if(_n) _n.textContent=p.name
+      const _a=document.getElementById('np-ar'); if(_a) _a.textContent=p.ar
+      const _t=document.getElementById('np-time'); if(_t) _t.textContent=p.time
+      const _e=document.getElementById('np-emoji'); if(_e) _e.textContent=p.emoji
+      const _cd=document.getElementById('np-countdown'); if(_cd) _cd.textContent=`${(APP_TRANSLATIONS[currentAppLang]||APP_TRANSLATIONS.fr).dans} ${Math.floor(diff/60)}h${String(diff%60).padStart(2,'0')}`
       syncAccueilPrayer()
       return
     }
@@ -858,10 +858,10 @@ function computeNext(){
   nextP=prayers[0]
   window.nextPrayer = prayers[0]
   const fp = prayers[0]
-  document.getElementById('np-name').textContent = fp?.name || 'Fajr'
-  document.getElementById('np-ar').textContent = fp?.ar || 'الفجر'
-  document.getElementById('np-time').textContent = fp?.time || '--:--'
-  document.getElementById('np-emoji').textContent = fp?.emoji || '🌙'
+  const _fn=document.getElementById('np-name'); if(_fn) _fn.textContent=fp?.name||'Fajr'
+  const _fa=document.getElementById('np-ar'); if(_fa) _fa.textContent=fp?.ar||'الفجر'
+  const _ft=document.getElementById('np-time'); if(_ft) _ft.textContent=fp?.time||'--:--'
+  const _fe=document.getElementById('np-emoji'); if(_fe) _fe.textContent=fp?.emoji||'🌙'
   const _tDemain = {fr:'demain',en:'tomorrow',ar:'غداً',tr:'yarın',es:'mañana',nl:'morgen',de:'morgen',pt:'amanhã',id:'besok',it:'domani',zh:'明天'}
   document.getElementById('np-countdown').textContent = _tDemain[currentAppLang] || 'demain'
   syncAccueilPrayer()
@@ -945,7 +945,7 @@ function commerceCard(c){
 }
 
 function renderAccueilCommerces(){
-  document.getElementById('accueil-commerces').innerHTML=COMMERCES.slice(0,3).map(commerceCard).join('')
+  const acEl=document.getElementById('accueil-commerces'); if(acEl) acEl.innerHTML=COMMERCES.slice(0,3).map(commerceCard).join('')
 }
 
 function renderAllCommerces(search=''){
@@ -1016,7 +1016,7 @@ function showSubtab(id, btn){
 
 // ── INIT ─────────────────────────────────────────────────────
 loadPrayers()
-renderAccueilCommerces()
+if(document.getElementById('accueil-commerces')) renderAccueilCommerces()
 renderDhikrCard()
 renderDhikrChips()
 
