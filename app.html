@@ -1956,6 +1956,18 @@ function initOnboarding(){
     const diff = touchStartX - e.changedTouches[0].clientX
     if(Math.abs(diff) > 50){ diff > 0 ? nextObSlide() : prevObSlide() }
   }, {passive:true})
+
+  // Wire buttons via JS (more reliable on iOS Safari than inline onclick)
+  const skipBtn = document.getElementById('ob-skip')
+  const nextBtn = document.getElementById('ob-next')
+  if(skipBtn) skipBtn.addEventListener('click', skipOnboarding)
+  if(nextBtn) nextBtn.addEventListener('click', nextObSlide)
+  // Also wire COMMENCER button
+  document.querySelectorAll('#onboarding button[onclick]').forEach(btn => {
+    const fn = btn.getAttribute('onclick')
+    btn.removeAttribute('onclick')
+    btn.addEventListener('click', () => { try{ eval(fn) }catch(e){} })
+  })
 }
 
 function goObSlide(n){
@@ -2381,7 +2393,7 @@ window.addEventListener('load', function(){
   <canvas id="ob-stars" style="position:absolute;inset:0;pointer-events:none"></canvas>
   
   <!-- Slides -->
-  <div id="ob-slides" style="width:100%;max-width:360px;position:relative;z-index:1">
+  <div id="ob-slides" style="width:100%;max-width:360px;position:relative;z-index:10">
     
     <div class="ob-slide active" id="ob-0">
       <div style="font-size:72px;text-align:center;margin-bottom:24px;animation:obFloat 3s ease-in-out infinite">☪</div>
@@ -2435,7 +2447,7 @@ window.addEventListener('load', function(){
   </div>
 
   <!-- Dots -->
-  <div id="ob-dots" style="display:flex;gap:8px;margin-top:32px;position:relative;z-index:1">
+  <div id="ob-dots" style="display:flex;gap:8px;margin-top:32px;position:relative;z-index:10">
     <div class="ob-dot active" onclick="goObSlide(0)"></div>
     <div class="ob-dot" onclick="goObSlide(1)"></div>
     <div class="ob-dot" onclick="goObSlide(2)"></div>
@@ -2444,9 +2456,9 @@ window.addEventListener('load', function(){
   </div>
 
   <!-- Next / Skip -->
-  <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:1" id="ob-nav">
-    <button onclick="skipOnboarding()" id="ob-skip" style="background:transparent;border:none;color:#555;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Passer →</button>
-    <button onclick="nextObSlide()" id="ob-next" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">Suivant ›</button>
+  <div style="display:flex;justify-content:space-between;width:100%;max-width:360px;margin-top:20px;position:relative;z-index:100" id="ob-nav">
+    <button id="ob-skip" style="background:transparent;border:none;color:#555;font-size:15px;cursor:pointer;font-family:'Cairo',sans-serif;padding:14px 20px;-webkit-tap-highlight-color:transparent">Passer →</button>
+    <button id="ob-next" style="background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.4);color:#C9A84C;padding:14px 28px;border-radius:10px;font-size:15px;cursor:pointer;font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent">Suivant ›</button>
   </div>
 </div>
 
