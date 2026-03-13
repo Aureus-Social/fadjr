@@ -1206,14 +1206,14 @@ applyMode()
 
 // ── DHIKR / TASBIH ────────────────────────────────────────────
 const ADHKARS = [
-  { ar:'سُبْحَانَ اللَّه',        fr:'Gloire à Allah',               target:33 },
-  { ar:'الحَمْدُ لِلَّه',          fr:'Louange à Allah',               target:33 },
-  { ar:'اللَّهُ أَكْبَر',          fr:'Allah est le plus Grand',       target:33 },
-  { ar:'لَا إِلَٰهَ إِلَّا اللَّه', fr:'Pas de divinité sauf Allah',   target:100 },
-  { ar:'أَسْتَغْفِرُ اللَّه',      fr:'Je demande pardon à Allah',    target:100 },
-  { ar:'صَلَّى اللَّه عَلَى مُحَمَّد', fr:'Que la paix soit sur Muhammad', target:100 },
-  { ar:'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّه', fr:"Il n'y a de force qu'en Allah", target:33 },
-  { ar:'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', fr:'Gloire et louange à Allah', target:100 },
+  { ar:'سُبْحَانَ اللَّه',        ph:'Subhâna-llâh',                 trad:'Gloire à Allah',               target:33 },
+  { ar:'الحَمْدُ لِلَّه',          ph:'Alhamdu-llâh',                  trad:'Louange à Allah',               target:33 },
+  { ar:'اللَّهُ أَكْبَر',          ph:'Allâhu akbar',                  trad:'Allah est le plus Grand',       target:33 },
+  { ar:'لَا إِلَٰهَ إِلَّا اللَّه', ph:"Lâ ilâha illâ-llâh",          trad:'Pas de divinité sauf Allah',    target:100 },
+  { ar:'أَسْتَغْفِرُ اللَّه',      ph:"Astaghfiru-llâh",               trad:'Je demande pardon à Allah',     target:100 },
+  { ar:'صَلَّى اللَّه عَلَى مُحَمَّد', ph:"Salla-llâhu 'alâ Muhammad", trad:'Que la paix soit sur Muhammad', target:100 },
+  { ar:'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّه', ph:"Lâ hawla wa lâ quwwata illâ billâh", trad:"Il n'y a de force qu'en Allah", target:33 },
+  { ar:'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', ph:"Subhâna-llâhi wa bihamdih", trad:'Gloire et louange à Allah',  target:100 },
 ]
 
 let tasbihCount = 0, tasbihRound = 1, tasbihTarget = 33, currentDhikrIdx = 0
@@ -1223,8 +1223,9 @@ function renderDhikrList(){
     <div onclick="selectDhikr(${i})" style="display:flex;align-items:center;gap:12px;background:${i===currentDhikrIdx?'rgba(201,168,76,.1)':'var(--card)'};border:1px solid ${i===currentDhikrIdx?'var(--gold)':'var(--border)'};border-radius:10px;padding:12px 14px;cursor:pointer;transition:.2s">
       <div style="font-size:24px">📿</div>
       <div style="flex:1">
-        <div style="font-family:'Cairo',sans-serif;font-size:16px;color:var(--gold);direction:rtl;text-align:right">${d.ar}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">${d.fr} · ${d.target}×</div>
+        <div style="font-family:'Cairo',sans-serif;font-size:16px;color:var(--white);direction:rtl;text-align:right">${d.ar}</div>
+        <div style="font-size:11px;color:rgba(201,168,76,.85);font-style:italic;margin-top:3px">${d.ph||d.fr}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">${d.trad||''} · ${d.target}×</div>
       </div>
       ${i===currentDhikrIdx ? '<div style="color:var(--gold);font-size:16px">●</div>' : ''}
     </div>`).join('')
