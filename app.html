@@ -261,6 +261,17 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         </div>
       </div>
 
+      <!-- Ramadan Banner (si Ramadan actif) -->
+      <div id="ram-banner" style="display:none;background:linear-gradient(135deg,rgba(142,68,173,.15),rgba(201,168,76,.08));border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:12px 16px;margin-bottom:14px;cursor:pointer" onclick="goTab('ramadan')">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:10px;color:rgba(201,168,76,.7);letter-spacing:.15em;margin-bottom:3px">🌙 RAMADAN 1447</div>
+            <div style="font-size:13px;font-weight:700;color:var(--white)" id="ram-banner-text">Iftar dans --:--</div>
+          </div>
+          <div style="font-size:24px">🌙</div>
+        </div>
+      </div>
+
       <!-- Hadith du jour -->
       <div id="hadith-card" style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
         <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">📜 Hadith du jour</div>
@@ -612,6 +623,63 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
     </div>
 
   <!-- TAB BAR -->
+
+    <!-- RAMADAN -->
+    <div class="screen" id="screen-ramadan">
+      <div style="height:12px"></div>
+
+      <!-- Header gold -->
+      <div style="background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.35);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center">
+        <div style="font-size:10px;letter-spacing:.25em;color:rgba(201,168,76,.7);margin-bottom:6px">RAMADAN 1447 H</div>
+        <div style="font-family:'Cinzel',serif;font-size:28px;color:#C9A84C;font-weight:900;margin-bottom:4px">🌙 رَمَضَان</div>
+        <div id="ram-day" style="font-size:13px;color:var(--muted)">Chargement...</div>
+      </div>
+
+      <!-- Suhoor / Iftar countdown -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:rgba(41,128,185,.1);border:1px solid rgba(41,128,185,.25);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:10px;color:rgba(41,128,185,.8);letter-spacing:.1em;margin-bottom:6px">🌅 SUHOOR</div>
+          <div id="ram-suhoor" style="font-size:22px;font-weight:900;color:#3498DB">--:--</div>
+          <div id="ram-suhoor-cd" style="font-size:10px;color:var(--muted);margin-top:4px">--</div>
+        </div>
+        <div style="background:rgba(230,126,34,.1);border:1px solid rgba(230,126,34,.25);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:10px;color:rgba(230,126,34,.8);letter-spacing:.1em;margin-bottom:6px">🌇 IFTAR</div>
+          <div id="ram-iftar" style="font-size:22px;font-weight:900;color:#E67E22">--:--</div>
+          <div id="ram-iftar-cd" style="font-size:10px;color:var(--muted);margin-top:4px">--</div>
+        </div>
+      </div>
+
+      <!-- Suivi jeûne -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:12px">SUIVI DU JEÛNE</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <button onclick="logJeune(1)" id="btn-jeune-ok" style="flex:1;padding:12px;border-radius:10px;border:2px solid rgba(46,204,113,.4);background:rgba(46,204,113,.08);color:#2ECC71;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif">✓ J'ai jeûné</button>
+          <button onclick="logJeune(0)" id="btn-jeune-no" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif">✗ Pas jeûné</button>
+        </div>
+        <!-- Progress bar Ramadan -->
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:6px">
+          <span>Jours jeûnés</span>
+          <span id="ram-progress-label">0 / 30</span>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:99px;height:8px;overflow:hidden">
+          <div id="ram-progress-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#C9A84C,#F0D080);width:0%;transition:.5s"></div>
+        </div>
+        <!-- Calendrier jeûne -->
+        <div id="ram-calendar" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px"></div>
+      </div>
+
+      <!-- Douas Ramadan -->
+      <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px">🤲 DOUAS RAMADAN</div>
+      <div id="ram-douas-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+
+      <!-- Nuits spéciales -->
+      <div style="background:rgba(142,68,173,.08);border:1px solid rgba(142,68,173,.2);border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="font-size:10px;letter-spacing:.15em;color:rgba(142,68,173,.8);margin-bottom:12px">✨ NUITS SPÉCIALES</div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="ram-special-nights"></div>
+      </div>
+
+    </div>
+
   <div id="tabbar">
     <button class="tab-btn active" onclick="goTab('accueil',this)" id="tab-accueil">
       <div class="tab-indicator"></div>
@@ -637,6 +705,11 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <div class="tab-indicator"></div>
       <div class="tab-icon">📖</div>
       <div class="tab-label">CORAN</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('ramadan',this)" id="tab-ramadan">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">🌙</div>
+      <div class="tab-label">RAMADAN</div>
     </button>
     <button class="tab-btn" onclick="goTab('profil',this)" id="tab-profil">
       <div class="tab-indicator"></div>
@@ -679,8 +752,15 @@ const COMMERCES = [
   // Anvers
   {id:16,nom:"Halal Market Antwerp",type:"Boucherie",adresse:"Borgerhout Turnhoutsebaan 45, Anvers",dist:"0.6 km",note:4.5,certif:"HBE",emoji:"🥩",color:"#C0392B",ouvert:true,spec:"Boucherie + épicerie halal, produits orientaux",ville:"Anvers"},
   {id:17,nom:"Omra Travel Antwerp",type:"Voyage",adresse:"Statiestraat 78, Anvers",dist:"1.2 km",note:4.8,certif:"FADJR",emoji:"✈️",color:"#2980B9",ouvert:true,spec:"Omra, Hajj, voyages Turquie, Egypte",ville:"Anvers"},
+  // Mosquées
+  {id:18,nom:"Mosquée Al-Khalil",type:"Mosquée",adresse:"Rue de Molenbeek 69, Molenbeek",dist:"0.9 km",note:4.9,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"Prières 5x/jour, Jumu'ah vendredi 13h30, cours arabe"},
+  {id:19,nom:"Grande Mosquée de Bruxelles",type:"Mosquée",adresse:"Parc du Cinquantenaire 1, Bruxelles",dist:"1.5 km",note:5.0,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"Grande Mosquée, conférences, bibliothèque islamique"},
+  {id:20,nom:"Mosquée Attadamoune",type:"Mosquée",adresse:"Rue de la Constitution 11, Saint-Gilles",dist:"0.8 km",note:4.7,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"Prières quotidiennes, Tarawih Ramadan, cours Coran"},
+  {id:21,nom:"Institut Islamique Anvers",type:"Mosquée",adresse:"Van Kerckhovenstraat 55, Anvers",dist:"1.1 km",note:4.8,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"Mosquée + école islamique, prières, halaqas",ville:"Anvers"},
+  {id:22,nom:"Mosquée Omar Ibn Al-Khattab",type:"Mosquée",adresse:"Rue de la Fontaine 34, Paris 20e",dist:"1.3 km",note:4.9,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"Prières, conférences islamiques, Jumu'ah",ville:"Paris"},
+  {id:23,nom:"Mosquée Hassan II",type:"Mosquée",adresse:"Boulevard de la Corniche, Casablanca",dist:"2.0 km",note:5.0,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"2e plus grande mosquée du monde, visites guidées",ville:"Casablanca"},
 ]
-const CATS = ["Tous","Restaurant","Boucherie","Librairie","Boutique","Parfumerie","Voyage","École","Finance"]
+const CATS = ["Tous","Restaurant","Boucherie","Mosquée","Librairie","Boutique","Parfumerie","Voyage","École","Finance"]
 const PRAYERS_AR = {Fajr:"الفجر",Sunrise:"الشروق",Dhuhr:"الظهر",Asr:"العصر",Maghrib:"المغرب",Isha:"العشاء"}
 const PRAYERS_EMOJI = {Fajr:"🌙",Sunrise:"🌅",Dhuhr:"☀️",Asr:"🌤️",Maghrib:"🌇",Isha:"🌃"}
 const DHIKR_LIST = [
@@ -849,7 +929,8 @@ function goTab(tab){
   if(tab==='culture'){if(typeof renderSurahList==='function')renderSurahList(SURAHS)}
   if(tab==='priere'){if(typeof renderPrayers==='function')renderPrayers();if(typeof renderDhikrCard==='function')renderDhikrCard()}
   if(tab==='dhikr'){if(typeof renderDhikrChips==='function')renderDhikrChips();if(typeof renderAsma==='function')renderAsma()}
-  if(tab==='accueil'){loadDailyContent();syncAccueilPrayer()}
+  if(tab==='accueil'){loadDailyContent();syncAccueilPrayer();updateRamadanBanner()}
+  if(tab==='ramadan'){renderRamadan()}
 }
 
 function showSubtab(id, btn){
@@ -1708,17 +1789,7 @@ const DOUAS = [
 ]
 
 function renderDouas(){
-  const el = document.getElementById('douas-list')
-  if(!el) return
-  el.innerHTML = DOUAS.map((d,i) => `
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer" onclick="this.querySelector('.doua-fr').style.display=this.querySelector('.doua-fr').style.display==='none'?'block':'none'">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.05em">🤲 ${d.titre}</div>
-        <div style="font-size:10px;color:var(--muted)">Appuyer pour trad.</div>
-      </div>
-      <div style="font-family:'Tajawal',sans-serif;font-size:16px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">${d.ar}</div>
-      <div class="doua-fr" style="display:none;font-size:11px;color:var(--muted);margin-top:10px;font-style:italic;line-height:1.7;border-top:1px solid var(--border);padding-top:10px">${d.fr}</div>
-    </div>`).join('')
+  renderDouasAll()
 }
 
 // ── ACCUEIL greeting update ────────────────────────────────────
@@ -1883,6 +1954,249 @@ function playAdhan(){
 const _origGoTab = window.goTab
 
 initOnboarding()
+
+// ── DOUAS HISNUL MUSLIM (étendu) ─────────────────────────────
+const DOUAS_EXTRA = [
+  { cat:"matin", titre:"Dhikr du matin — Sayyid al-Istighfar", ar:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ", fr:"Ô Allah, Tu es mon Seigneur, il n'y a de dieu que Toi. Tu m'as créé et je suis Ton serviteur." },
+  { cat:"matin", titre:"Protection du matin", ar:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ", fr:"Au nom d'Allah, avec Son nom, rien ne peut causer de préjudice ni sur terre ni dans le ciel." },
+  { cat:"soir", titre:"Dhikr du soir", ar:"أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ", fr:"Nous avons passé le soir et le soir appartient à Allah, et toute louange est due à Allah." },
+  { cat:"soir", titre:"Avant de quitter la maison", ar:"بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", fr:"Au nom d'Allah, je me remets à Allah, et il n'y a de force et de puissance qu'en Allah." },
+  { cat:"voyage", titre:"Doua du voyage", ar:"اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى", fr:"Ô Allah, nous Te demandons dans ce voyage la bonté et la piété." },
+  { cat:"voyage", titre:"En montant dans un véhicule", ar:"سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ", fr:"Gloire à Celui qui nous a soumis cela, alors que nous n'aurions pu en être capables." },
+  { cat:"repas", titre:"Après le repas", ar:"الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ", fr:"Louange à Allah qui nous a nourris et abreuvés et fait de nous des musulmans." },
+  { cat:"repas", titre:"En oubliant de dire Bismillah", ar:"بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ", fr:"Au nom d'Allah, au début et à la fin." },
+  { cat:"maison", titre:"En entrant chez soi", ar:"اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ الْمَوْلِجِ وَخَيْرَ الْمَخْرَجِ", fr:"Ô Allah, je Te demande la bonté de l'entrée et la bonté de la sortie." },
+  { cat:"maison", titre:"En quittant la maison", ar:"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ أَوْ أُضَلَّ", fr:"Ô Allah, je cherche refuge en Toi de m'égarer ou d'être égaré." },
+  { cat:"sante", titre:"Doua pour la santé", ar:"اللَّهُمَّ عَافِنِي فِي بَدَنِي اللَّهُمَّ عَافِنِي فِي سَمْعِي اللَّهُمَّ عَافِنِي فِي بَصَرِي", fr:"Ô Allah, accorde-moi la santé dans mon corps. Ô Allah, accorde-moi la santé dans mon ouïe. Ô Allah, accorde-moi la santé dans ma vue." },
+  { cat:"sante", titre:"Doua en cas de maladie", ar:"اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأْسَ وَاشْفِ أَنْتَ الشَّافِي", fr:"Ô Allah, Seigneur des hommes, fais disparaître le mal et guéris, Tu es le Guérisseur." },
+  { cat:"pardon", titre:"Istighfar", ar:"أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ", fr:"Je demande pardon à Allah le Très Grand, il n'y a de dieu que Lui, le Vivant, l'Éternel, et je me repens à Lui." },
+  { cat:"pardon", titre:"Doua de repentir", ar:"رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ", fr:"Ô mon Seigneur, pardonne-moi et accepte mon repentir. Tu es en vérité Celui qui accepte le repentir, le Miséricordieux." },
+  { cat:"famille", titre:"Pour les parents", ar:"رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا", fr:"Ô mon Seigneur, pardonne-moi ainsi qu'à mes parents, et fais-leur miséricorde comme ils m'ont élevé lorsque j'étais petit." },
+  { cat:"famille", titre:"Pour la famille", ar:"رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا", fr:"Notre Seigneur, fais que nos épouses et nos descendants soient pour nous une source de joie, et fais de nous un guide pour les pieux." },
+  { cat:"travail", titre:"Avant de commencer le travail", ar:"رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي", fr:"Ô mon Seigneur, dilate ma poitrine et facilite-moi ma tâche." },
+  { cat:"travail", titre:"Doua pour la réussite", ar:"اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا", fr:"Ô Allah, rien n'est facile sauf ce que Tu as rendu facile, et Tu peux rendre aisé ce qui est difficile si Tu le veux." },
+  { cat:"ramadan", titre:"En voyant le croissant de Ramadan", ar:"اللَّهُمَّ أَهِلَّهُ عَلَيْنَا بِالْأَمْنِ وَالْإِيمَانِ وَالسَّلَامَةِ وَالْإِسْلَامِ", fr:"Ô Allah, fais que ce croissant se lève sur nous avec sécurité, foi, sûreté et Islam." },
+  { cat:"ramadan", titre:"Doua de l'Iftar", ar:"اللَّهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَيْكَ تَوَكَّلْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ", fr:"Ô Allah, c'est pour Toi que j'ai jeûné, en Toi que j'ai cru, en Toi que je me suis confié, et c'est avec Ta subsistance que j'ai rompu le jeûne." },
+  { cat:"ramadan", titre:"Doua de la Nuit du Destin", ar:"اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي", fr:"Ô Allah, Tu es le Pardonneur, Tu aimes le pardon, alors pardonne-moi." },
+  { cat:"ramadan", titre:"Doua du Suhoor", ar:"نَوَيْتُ صَوْمَ غَدٍ عَنْ أَدَاءِ فَرْضِ رَمَضَانَ هَذِهِ السَّنَةِ لِلَّهِ تَعَالَى", fr:"J'ai l'intention de jeûner demain pour accomplir l'obligation du Ramadan de cette année, pour Allah le Très-Haut." },
+  { cat:"angoisse", titre:"En cas d'angoisse", ar:"لَا إِلَهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ لَا إِلَهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ", fr:"Il n'y a de dieu qu'Allah le Grand, le Longanime. Il n'y a de dieu qu'Allah le Seigneur du Trône immense." },
+  { cat:"angoisse", titre:"Doua de Yunus (Jonas)", ar:"لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ", fr:"Il n'y a de dieu que Toi. Gloire à Toi! J'ai été vraiment du nombre des injustes." },
+  { cat:"protection", titre:"Ayat al-Kursi", ar:"اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ", fr:"Allah — point de divinité à part Lui — le Vivant, Celui qui subsiste par lui-même. Ni somnolence ni sommeil ne Le saisissent." },
+  { cat:"protection", titre:"Les 3 Quls (protection)", ar:"قُلْ هُوَ اللَّهُ أَحَدٌ · قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ · قُلْ أَعُوذُ بِرَبِّ النَّاسِ", fr:"Sourate Al-Ikhlas · Sourate Al-Falaq · Sourate An-Nas. À réciter 3 fois le matin et le soir." }
+]
+
+// ── DONNÉES RAMADAN 2026 ──────────────────────────────────────
+const RAMADAN_START = new Date('2026-03-01') // 1er Ramadan 1447
+const RAMADAN_END = new Date('2026-03-30')   // 30 Ramadan 1447
+
+const NUITS_SPECIALES = [
+  { jour: 21, nom: "21ème nuit", desc: "Début des 10 dernières nuits — intensifier les adorations" },
+  { jour: 23, nom: "23ème nuit", desc: "Nuit spéciale — Laylat al-Qadr possible" },
+  { jour: 25, nom: "25ème nuit", desc: "Nuit spéciale — Laylat al-Qadr possible" },
+  { jour: 27, nom: "27ème nuit", desc: "Laylat al-Qadr selon la majorité des savants ✨" },
+  { jour: 29, nom: "29ème nuit", desc: "Dernière nuit impaire — Laylat al-Qadr possible" }
+]
+
+const DOUAS_RAMADAN = DOUAS_EXTRA.filter(d => d.cat === 'ramadan')
+
+// ── SUIVI JEÛNE ───────────────────────────────────────────────
+let jeuneSuivi = JSON.parse(localStorage.getItem('fadjr_jeune') || '{}')
+
+function getRamadanDay(){
+  const now = new Date()
+  const diff = Math.floor((now - RAMADAN_START) / (1000*60*60*24))
+  if(diff < 0 || diff >= 30) return null
+  return diff + 1
+}
+
+function logJeune(val){
+  const day = getRamadanDay()
+  if(!day) return
+  const key = 'ram_' + day
+  jeuneSuivi[key] = val
+  localStorage.setItem('fadjr_jeune', JSON.stringify(jeuneSuivi))
+  renderRamadan()
+  showToast(val ? '✓ Jeûne enregistré — Barakallahu fik !' : 'Jour enregistré')
+}
+
+function renderRamadan(){
+  const day = getRamadanDay()
+  const ramDayEl = document.getElementById('ram-day')
+  if(ramDayEl){
+    if(day) ramDayEl.textContent = 'Jour ' + day + ' sur 30 · Ramadan 1447'
+    else if(new Date() < RAMADAN_START) ramDayEl.textContent = 'Ramadan commence le 1er mars 2026'
+    else ramDayEl.textContent = 'Ramadan 1447 est terminé — Eid Mubarak !'
+  }
+
+  // Suhoor = Fajr, Iftar = Maghrib
+  if(prayers && prayers.length){
+    const fajr = prayers.find(p=>p.name==='Fajr')
+    const maghrib = prayers.find(p=>p.name==='Maghrib')
+    if(fajr){
+      document.getElementById('ram-suhoor').textContent = fajr.time
+      const now = new Date()
+      const [h,m] = fajr.time.split(':').map(Number)
+      const fajrDate = new Date(now); fajrDate.setHours(h,m,0)
+      if(fajrDate < now) fajrDate.setDate(fajrDate.getDate()+1)
+      const diff = fajrDate - now
+      const hLeft = Math.floor(diff/3600000)
+      const mLeft = Math.floor((diff%3600000)/60000)
+      document.getElementById('ram-suhoor-cd').textContent = hLeft>0 ? 'dans '+hLeft+'h'+mLeft+'m' : 'dans '+mLeft+' min'
+    }
+    if(maghrib){
+      document.getElementById('ram-iftar').textContent = maghrib.time
+      const now = new Date()
+      const [h,m] = maghrib.time.split(':').map(Number)
+      const maghDate = new Date(now); maghDate.setHours(h,m,0)
+      if(maghDate < now) maghDate.setDate(maghDate.getDate()+1)
+      const diff = maghDate - now
+      const hLeft = Math.floor(diff/3600000)
+      const mLeft = Math.floor((diff%3600000)/60000)
+      document.getElementById('ram-iftar-cd').textContent = hLeft>0 ? 'dans '+hLeft+'h'+mLeft+'m' : 'dans '+mLeft+' min'
+    }
+  }
+
+  // Progress jeûne
+  const total = Object.values(jeuneSuivi).filter(v=>v===1).length
+  const progEl = document.getElementById('ram-progress-bar')
+  const progLbl = document.getElementById('ram-progress-label')
+  if(progEl) progEl.style.width = (total/30*100) + '%'
+  if(progLbl) progLbl.textContent = total + ' / 30'
+
+  // Calendrier 30 jours
+  const calEl = document.getElementById('ram-calendar')
+  if(calEl){
+    let html = ''
+    for(let d=1;d<=30;d++){
+      const key = 'ram_'+d
+      const val = jeuneSuivi[key]
+      const isToday = d === day
+      const bg = val===1 ? 'rgba(46,204,113,.2)' : val===0 ? 'rgba(231,76,60,.15)' : isToday ? 'rgba(201,168,76,.15)' : 'rgba(255,255,255,.04)'
+      const border = isToday ? '1px solid rgba(201,168,76,.5)' : '1px solid rgba(255,255,255,.06)'
+      const color = val===1 ? '#2ECC71' : val===0 ? '#E74C3C' : isToday ? '#C9A84C' : 'var(--muted)'
+      const icon = val===1 ? '✓' : val===0 ? '✗' : d.toString()
+      html += '<div style="width:32px;height:32px;border-radius:8px;background:'+bg+';border:'+border+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+color+';cursor:pointer" onclick="if('+d+'===getRamadanDay())logJeune(1)">'+icon+'</div>'
+    }
+    calEl.innerHTML = html
+  }
+
+  // Douas Ramadan
+  const douasEl = document.getElementById('ram-douas-list')
+  if(douasEl){
+    douasEl.innerHTML = DOUAS_RAMADAN.map(d => '<div style="background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:14px;cursor:pointer" onclick="this.querySelector(\'.doua-fr-ram\').style.display=this.querySelector(\'.doua-fr-ram\').style.display===\'none\'?\'block\':\'none\'">' +
+      '<div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:8px">🤲 ' + d.titre + '</div>' +
+      '<div style="font-family:Tajawal,sans-serif;font-size:15px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">' + d.ar + '</div>' +
+      '<div class="doua-fr-ram" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.7;font-style:italic">' + d.fr + '</div>' +
+    '</div>').join('')
+  }
+
+  // Nuits spéciales
+  const nuitEl = document.getElementById('ram-special-nights')
+  if(nuitEl){
+    nuitEl.innerHTML = NUITS_SPECIALES.map(n => {
+      const isPast = day && n.jour < day
+      const isNow = day && n.jour === day
+      const col = isNow ? '#C9A84C' : isPast ? 'var(--muted)' : 'rgba(142,68,173,.9)'
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">' +
+        '<div style="width:32px;height:32px;border-radius:8px;background:rgba(142,68,173,.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+col+'">'+n.jour+'</div>' +
+        '<div><div style="font-size:12px;font-weight:700;color:'+col+'">'+n.nom+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">'+n.desc+'</div></div>' +
+      '</div>'
+    }).join('')
+  }
+}
+
+// ── SUIVI PRIÈRES QUOTIDIENNES ────────────────────────────────
+let prieresSuivi = JSON.parse(localStorage.getItem('fadjr_prieres_suivi') || '{}')
+
+function logPriere(nom){
+  const today = new Date().toISOString().split('T')[0]
+  if(!prieresSuivi[today]) prieresSuivi[today] = {}
+  prieresSuivi[today][nom] = !prieresSuivi[today][nom]
+  localStorage.setItem('fadjr_prieres_suivi', JSON.stringify(prieresSuivi))
+  renderPrieresSuivi()
+  showToast(prieresSuivi[today][nom] ? '✓ ' + nom + ' accomplie' : nom + ' décochée')
+}
+
+function renderPrieresSuivi(){
+  const today = new Date().toISOString().split('T')[0]
+  const done = prieresSuivi[today] || {}
+  const names = ['Fajr','Shuruk','Dhuhr','Asr','Maghrib','Icha']
+  const el = document.getElementById('prayers-suivi')
+  if(!el) return
+  const count = names.filter(n=>done[n]).length
+  el.innerHTML = '<div style="font-size:9px;letter-spacing:.15em;color:var(--muted);margin-bottom:8px">PRIERES AUJOURD&#39;HUI — <span style="color:var(--gold)">'+count+'/6</span></div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+    names.map(n => '<div onclick="logPriere(\''+n+'\',event)" style="flex:1;min-width:44px;text-align:center;padding:8px 4px;border-radius:10px;background:'+(done[n]?'rgba(46,204,113,.15)':'rgba(255,255,255,.04)')+';border:1px solid '+(done[n]?'rgba(46,204,113,.35)':'var(--border)')+';cursor:pointer">' +
+      '<div style="font-size:10px;font-weight:700;color:'+(done[n]?'#2ECC71':'var(--muted)')+'">'+n+'</div>' +
+      '<div style="font-size:14px;margin-top:2px">'+(done[n]?'✓':'○')+'</div>' +
+    '</div>').join('') + '</div>'
+}
+
+// Fix logPriere onclick
+function logPriere(nom, e){
+  if(e) e.stopPropagation()
+  const today = new Date().toISOString().split('T')[0]
+  if(!prieresSuivi[today]) prieresSuivi[today] = {}
+  prieresSuivi[today][nom] = !prieresSuivi[today][nom]
+  localStorage.setItem('fadjr_prieres_suivi', JSON.stringify(prieresSuivi))
+  renderPrieresSuivi()
+  showToast(prieresSuivi[today][nom] ? '✓ ' + nom + ' accomplie !' : nom + ' décochée')
+}
+
+
+// ── RAMADAN BANNER ────────────────────────────────────────────
+function updateRamadanBanner(){
+  const now = new Date()
+  const isRamadan = now >= RAMADAN_START && now <= RAMADAN_END
+  const banner = document.getElementById('ram-banner')
+  if(!banner) return
+  banner.style.display = isRamadan ? 'block' : 'none'
+  if(!isRamadan) return
+  // Find Maghrib for iftar
+  if(prayers && prayers.length){
+    const maghrib = prayers.find(p=>p.name==='Maghrib')
+    if(maghrib){
+      const [h,m] = maghrib.time.split(':').map(Number)
+      const iftarDate = new Date(now); iftarDate.setHours(h,m,0)
+      if(iftarDate < now) iftarDate.setDate(iftarDate.getDate()+1)
+      const diff = iftarDate - now
+      const hLeft = Math.floor(diff/3600000)
+      const mLeft = Math.floor((diff%3600000)/60000)
+      const txt = document.getElementById('ram-banner-text')
+      if(txt) txt.textContent = hLeft > 0 ? 'Iftar dans ' + hLeft + 'h ' + mLeft + 'min' : 'Iftar dans ' + mLeft + ' min'
+    }
+  }
+}
+
+// ── DOUAS COMPLETS — ajout à l'onglet Prière/Douas ────────────
+function renderDouasAll(){
+  const el = document.getElementById('douas-list')
+  if(!el) return
+  const allDouas = [...DOUAS, ...DOUAS_EXTRA]
+  const cats = [...new Set(allDouas.map(d=>d.cat||'quotidien'))]
+  el.innerHTML = cats.map(cat => {
+    const items = allDouas.filter(d=>(d.cat||'quotidien')===cat)
+    return '<div style="margin-bottom:16px">' +
+      '<div style="font-size:9px;letter-spacing:.15em;color:var(--gold);margin-bottom:8px;text-transform:uppercase">' + (cat==='matin'?'🌅 Matin':cat==='soir'?'🌙 Soir':cat==='repas'?'🍽️ Repas':cat==='voyage'?'✈️ Voyage':cat==='maison'?'🏠 Maison':cat==='sante'?'💚 Santé':cat==='pardon'?'🤲 Pardon':cat==='famille'?'👨‍👩‍👧 Famille':cat==='travail'?'💼 Travail':cat==='ramadan'?'🌙 Ramadan':cat==='angoisse'?'💙 Angoisse':cat==='protection'?'🛡️ Protection':'📿 '+cat) + '</div>' +
+      items.map(d => '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;margin-bottom:6px" onclick="this.querySelector(\'.dfr\').style.display=this.querySelector(\'.dfr\').style.display===\'none\'?\'block\':\'none\'">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">🤲 ' + d.titre + '</div>' +
+        '<div style="font-family:Tajawal,sans-serif;font-size:15px;direction:rtl;text-align:right;line-height:1.9;color:var(--white)">' + d.ar + '</div>' +
+        '<div class="dfr" style="display:none;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.7;font-style:italic">' + d.fr + '</div>' +
+      '</div>').join('') +
+    '</div>'
+  }).join('')
+}
+
+// ── INIT COMPLET ──────────────────────────────────────────────
+const _origInit = window.onload || function(){}
+window.addEventListener('load', function(){
+  renderPrieresSuivi()
+  updateRamadanBanner()
+  // Auto-refresh Ramadan banner every minute
+  setInterval(updateRamadanBanner, 60000)
+  setInterval(renderPrieresSuivi, 30000)
+})
+
 </script>
 
 <!-- ONBOARDING -->
