@@ -215,9 +215,19 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div class="logo-text">FADJR</div>
         <div class="logo-sub">☪ BRUXELLES</div>
       </div>
-      <div class="header-date">
-        <span id="today-date"></span>
-        <span style="color:var(--gold);margin-top:2px">12 Ramadan 1447 H</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="header-date">
+          <span id="today-date"></span>
+          <span id="hijri-date" style="color:var(--gold);margin-top:2px">12 Ramadan 1447 H</span>
+        </div>
+        <!-- Sélecteur langue global -->
+        <select id="app-lang-sel" onchange="changeAppLang(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:2px 6px;border-radius:6px;font-size:10px;font-family:'Cairo',sans-serif;outline:none;cursor:pointer">
+          <option value="fr">🇫🇷 FR</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="ar">🇸🇦 AR</option>
+          <option value="tr">🇹🇷 TR</option>
+          <option value="nl">🇧🇪 NL</option>
+        </select>
       </div>
     </div>
     <div id="next-prayer">
@@ -2903,6 +2913,102 @@ function handleOrientation(e){
   // Ring rotates opposite to show north
   if(ring) ring.style.transform = `rotate(${-heading}deg)`
 }
+
+// ── LANGUE GLOBALE ────────────────────────────────────────────────────────────
+const APP_TRANSLATIONS = {
+  fr: {
+    accueil:'ACCUEIL', priere:'PRIÈRE', dhikr:'DHIKR', halal:'HALAL', coran:'CORAN', ramadan:'RAMADAN', profil:'PROFIL',
+    prochainePriere:'PROCHAINE PRIÈRE', dans:'dans',
+    partager:'+ Partager', communaute:'👥 COMMUNAUTÉ',
+    prixEtude:'PRÈS DE VOUS', voirTout:'Voir tout →',
+    lecture:'Lecture', memorisation:'Mémorisation',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Votre compagnon spirituel halal',
+  },
+  en: {
+    accueil:'HOME', priere:'PRAYER', dhikr:'DHIKR', halal:'HALAL', coran:'QURAN', ramadan:'RAMADAN', profil:'PROFILE',
+    prochainePriere:'NEXT PRAYER', dans:'in',
+    partager:'+ Share', communaute:'👥 COMMUNITY',
+    prixEtude:'NEAR YOU', voirTout:'See all →',
+    lecture:'Reading', memorisation:'Memorization',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Your halal spiritual companion',
+  },
+  ar: {
+    accueil:'الرئيسية', priere:'الصلاة', dhikr:'الذكر', halal:'حلال', coran:'القرآن', ramadan:'رمضان', profil:'الملف',
+    prochainePriere:'الصلاة القادمة', dans:'في',
+    partager:'+ مشاركة', communaute:'👥 المجتمع',
+    prixEtude:'بالقرب منك', voirTout:'عرض الكل →',
+    lecture:'قراءة', memorisation:'حفظ',
+    bonjour:'السلام عليكم', sloganSub:'رفيقك الروحي الحلال',
+  },
+  tr: {
+    accueil:'ANA SAYFA', priere:'NAMAZ', dhikr:'ZİKİR', halal:'HELAL', coran:"KUR'AN", ramadan:'RAMAZAN', profil:'PROFİL',
+    prochainePriere:'SONRAKI NAMAZ', dans:'sonra',
+    partager:'+ Paylaş', communaute:'👥 TOPLULUK',
+    prixEtude:'YAKININIZDAKILER', voirTout:'Tümünü gör →',
+    lecture:'Okuma', memorisation:'Ezberleme',
+    bonjour:'Esselamu Aleykum', sloganSub:'Helal manevi yoldaşınız',
+  },
+  nl: {
+    accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
+    prochainePriere:'VOLGEND GEBED', dans:'over',
+    partager:'+ Delen', communaute:'👥 GEMEENSCHAP',
+    prixEtude:'IN UW BUURT', voirTout:'Alles zien →',
+    lecture:'Lezen', memorisation:'Memorisatie',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Uw halal spirituele metgezel',
+  }
+}
+
+let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
+
+function changeAppLang(lang){
+  currentAppLang = lang
+  localStorage.setItem('fadjr_lang', lang)
+  applyAppLang(lang)
+  // Also update quran translation default
+  const transSel = document.getElementById('trans-sel')
+  if(transSel && ['fr','en','ar','tr'].includes(lang)) transSel.value = lang
+}
+
+function applyAppLang(lang){
+  const t = APP_TRANSLATIONS[lang] || APP_TRANSLATIONS.fr
+  const isRTL = lang === 'ar'
+
+  // Direction RTL pour arabe
+  document.body.style.direction = isRTL ? 'rtl' : 'ltr'
+
+  // Tabbar labels
+  const tabs = ['accueil','priere','dhikr','halal','coran','ramadan','profil']
+  tabs.forEach(tab => {
+    const el = document.querySelector(`#tab-${tab} .tab-label`)
+    if(el && t[tab]) el.textContent = t[tab]
+  })
+
+  // Header next prayer label
+  const npLabel = document.querySelector('.np-label')
+  if(npLabel) npLabel.textContent = t.prochainePriere
+
+  // Communauté
+  const commTitle = document.querySelector('#community-feed')?.closest('div')?.querySelector('.sec-label')
+  // Share button
+  const shareBtn = document.querySelector('[onclick="showPostModal()"]')
+  if(shareBtn) shareBtn.textContent = t.partager
+
+  // Coran tabs
+  const lectureBtn = document.querySelector('[onclick*="setCoranTab"][onclick*="lecture"]')
+  const memBtn = document.querySelector('[onclick*="setCoranTab"][onclick*="memorisation"]')
+
+  // Sync selector
+  const sel = document.getElementById('app-lang-sel')
+  if(sel) sel.value = lang
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('fadjr_lang') || 'fr'
+  const sel = document.getElementById('app-lang-sel')
+  if(sel) sel.value = saved
+  if(saved !== 'fr') applyAppLang(saved)
+})
 </script>
 
 <!-- ONBOARDING -->
