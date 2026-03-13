@@ -323,6 +323,38 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
         <div class="see-all" onclick="goTab('carte')">Voir tout →</div>
       </div>
       <div id="accueil-commerces"></div>
+
+      <!-- COMMUNAUTÉ FEED -->
+      <div style="margin-top:24px">
+        <div class="row-between" style="margin-bottom:12px">
+          <div class="sec-label" style="margin:0">👥 COMMUNAUTÉ</div>
+          <button onclick="showPostModal()" style="background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:4px 10px;border-radius:8px;font-size:10px;cursor:pointer;font-weight:700">+ Partager</button>
+        </div>
+        <div id="community-feed" style="display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Chargement...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL NOUVEAU POST -->
+    <div id="post-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9000;padding:20px;overflow-y:auto">
+      <div style="background:#13131F;border:1px solid var(--border);border-radius:16px;padding:20px;max-width:480px;margin:40px auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold)">Partager avec la communauté</div>
+          <button onclick="closePostModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">×</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="post-cat-btns">
+          <button onclick="selectPostCat(this,'doua')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer">🤲 Doua</button>
+          <button onclick="selectPostCat(this,'verset')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer">📖 Verset</button>
+          <button onclick="selectPostCat(this,'pensee')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer">💭 Pensée</button>
+          <button onclick="selectPostCat(this,'hadith')" class="post-cat-btn" style="background:rgba(201,168,76,.1);border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer">📜 Hadith</button>
+        </div>
+        <input id="post-pseudo" type="text" placeholder="Votre prénom (anonyme si vide)" maxlength="20"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;outline:none;margin-bottom:10px;font-family:'Cairo',sans-serif">
+        <textarea id="post-text" placeholder="Partagez une doua, un verset, une réflexion..." rows="4" maxlength="500"
+          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:13px;outline:none;resize:none;font-family:'Cairo',sans-serif;margin-bottom:12px"></textarea>
+        <button onclick="submitPost()" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:10px;border:none;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif">Publier 🕊️</button>
+      </div>
     </div>
 
     <!-- PRIÈRE -->
@@ -494,10 +526,10 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
             <button id="tajweed-btn" onclick="toggleTajweed()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:5px 8px;border-radius:8px;cursor:pointer;font-size:10px;font-weight:700">🎨</button>
             <select id="reciter-sel" onchange="resetAudio()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:6px 8px;border-radius:8px;font-size:10px;font-family:'Cairo',sans-serif;max-width:130px">
-              <option value="mishaari_raashid_al-3afaasee">Mishary Al-Afasy</option>
-              <option value="abu_bakr_ash-shaatree">Abu Bakr Shatri</option>
-              <option value="mahmood_khaleel_al-husaree">Mahmoud Khalil Hussary</option>
-              <option value="sa3d_al-ghaamidi">Saad Al-Ghamdi</option>
+              <option value="128">Mishary Al-Afasy</option>
+              <option value="112">Abdullah Basfar</option>
+              <option value="5">Mahmoud Khalil Hussary</option>
+              <option value="129">Saad Al-Ghamdi</option>
               <option value="abdurrahmaan_as-sudais">Abdurrahman Al-Sudais</option>
               <option value="sahl_yaaseen">Sahl Yassin</option>
               <option value="faariq_gay">Faaruq Gaay</option>
@@ -1271,11 +1303,23 @@ function toggleAudio(){
     if(!currentAudio){
       const n = String(currentSurah.n).padStart(3,'0')
       const reciter = document.getElementById('reciter-sel').value
-      currentAudio = new Audio(`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`)
+      currentAudio = (()=>{ const a = new Audio(); a.crossOrigin='anonymous'; a.src=`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`; return a })()
       currentAudio.onended = () => { document.getElementById('audio-btn').textContent = '▶' }
     }
-    currentAudio.play()
-    document.getElementById('audio-btn').textContent = '⏸'
+    const playPromise = currentAudio.play()
+    if(playPromise !== undefined){
+      playPromise.then(() => {
+        document.getElementById('audio-btn').textContent = '⏸'
+      }).catch(e => {
+        console.error('Audio play failed:', e)
+        document.getElementById('audio-btn').textContent = '▶'
+        // iOS fallback: try loading again
+        currentAudio.load()
+        currentAudio.play().catch(()=>{})
+      })
+    } else {
+      document.getElementById('audio-btn').textContent = '⏸'
+    }
   }
 }
 
@@ -2650,6 +2694,127 @@ function renderAyahs(ayahs){
     </div>`
   }).join('')
 }
+
+// ── COMMUNAUTÉ ────────────────────────────────────────────────────────────────
+let postCat = 'pensee'
+
+async function loadCommunityFeed(){
+  const el = document.getElementById('community-feed')
+  if(!el) return
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/community_posts?order=created_at.desc&limit=20', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    })
+    if(!res.ok) throw new Error('fetch failed')
+    const posts = await res.json()
+    if(!posts.length){
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Soyez le premier à partager 🌟</div>'
+      return
+    }
+    el.innerHTML = posts.map(p => renderPost(p)).join('')
+  } catch(e){
+    el.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted);font-size:11px">Feed indisponible</div>'
+  }
+}
+
+function renderPost(p){
+  const cats = { doua:'🤲', verset:'📖', pensee:'💭', hadith:'📜' }
+  const icon = cats[p.cat] || '💬'
+  const time = timeAgo(p.created_at)
+  const liked = (JSON.parse(localStorage.getItem('fadjr_likes')||'[]')).includes(p.id)
+  return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:16px">${icon}</span>
+        <span style="font-size:11px;color:var(--gold);font-weight:700">${p.pseudo||'Anonyme'}</span>
+        <span style="font-size:9px;color:var(--muted);background:rgba(255,255,255,.04);padding:2px 6px;border-radius:6px">${p.cat||'pensée'}</span>
+      </div>
+      <span style="font-size:10px;color:var(--muted)">${time}</span>
+    </div>
+    <div style="font-size:13px;color:var(--white);line-height:1.7;margin-bottom:10px">${p.content}</div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <button onclick="likePost('${p.id}',this)" style="background:none;border:none;color:${liked?'#ef4444':'var(--muted)'};font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px">
+        ${liked?'❤️':'🤍'} <span id="likes-${p.id}">${p.likes||0}</span>
+      </button>
+    </div>
+  </div>`
+}
+
+function timeAgo(ts){
+  const diff = Date.now() - new Date(ts).getTime()
+  const m = Math.floor(diff/60000)
+  if(m < 1) return "À l'instant"
+  if(m < 60) return `il y a ${m}min`
+  const h = Math.floor(m/60)
+  if(h < 24) return `il y a ${h}h`
+  return `il y a ${Math.floor(h/24)}j`
+}
+
+async function likePost(id, btn){
+  const likes = JSON.parse(localStorage.getItem('fadjr_likes')||'[]')
+  if(likes.includes(id)) return
+  likes.push(id)
+  localStorage.setItem('fadjr_likes', JSON.stringify(likes))
+  // Update UI
+  btn.style.color = '#ef4444'
+  btn.innerHTML = '❤️ <span id="likes-' + id + '">' + (parseInt(document.getElementById('likes-'+id)?.textContent||0)+1) + '</span>'
+  // Update DB
+  try {
+    const curr = await fetch(SUPA_URL + '/rest/v1/community_posts?id=eq.' + id + '&select=likes', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    })
+    const data = await curr.json()
+    const newLikes = (data[0]?.likes||0) + 1
+    await fetch(SUPA_URL + '/rest/v1/community_posts?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ likes: newLikes })
+    })
+  } catch(e){}
+}
+
+function showPostModal(){
+  document.getElementById('post-modal').style.display = 'block'
+}
+function closePostModal(){
+  document.getElementById('post-modal').style.display = 'none'
+}
+function selectPostCat(btn, cat){
+  postCat = cat
+  document.querySelectorAll('.post-cat-btn').forEach(b => {
+    b.style.borderColor = 'var(--border)'
+    b.style.color = 'var(--muted)'
+  })
+  btn.style.borderColor = 'var(--gold)'
+  btn.style.color = 'var(--gold)'
+}
+
+async function submitPost(){
+  const text = document.getElementById('post-text').value.trim()
+  const pseudo = document.getElementById('post-pseudo').value.trim()
+  if(!text || text.length < 5) return
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/community_posts', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ content: text, pseudo: pseudo||'Anonyme', cat: postCat, likes: 0 })
+    })
+    if(res.ok || res.status === 201){
+      closePostModal()
+      document.getElementById('post-text').value = ''
+      document.getElementById('post-pseudo').value = ''
+      await loadCommunityFeed()
+    }
+  } catch(e){ console.error(e) }
+}
+
+// Load on startup
+setTimeout(loadCommunityFeed, 1500)
 </script>
 
 <!-- ONBOARDING -->
