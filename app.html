@@ -321,7 +321,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       </div>
 
       <!-- Piliers -->
-      <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">EXPLORER</div>
+      <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px" id="label-explorer">EXPLORER</div>
       <div class="piliers">
         <div class="pilier-btn" style="border-top-color:#C9A84C" onclick="goTab('priere')">
           <div class="p-icon">🕌</div><div class="p-label">PRIÈRE</div>
@@ -1157,6 +1157,7 @@ async function loadPrayers(){
   }
   computeNext()
   renderPrayers()
+  setTimeout(() => { if(currentAppLang !== 'fr') applyAppLang(currentAppLang) }, 50)
 }
 
 function computeNext(){
@@ -1892,8 +1893,9 @@ function loadDailyContent(){
   document.getElementById('verset-ar').textContent = v.ar
   document.getElementById('verset-fr').textContent = v.fr
   document.getElementById('verset-ref').textContent = v.ref
-  document.getElementById('hadith-text').textContent = "« " + h.text + " »"
-  document.getElementById('hadith-source').textContent = "— " + h.source
+  document.getElementById('hadith-text').textContent = '« ' + h.text + ' »'
+  document.getElementById('hadith-source').textContent = '— ' + h.source
+  setTimeout(() => { if(currentAppLang !== 'fr') applyAppLang(currentAppLang) }, 50)
 }
 
 // ── ADHAN NOTIFICATIONS ───────────────────────────────────────
@@ -3287,6 +3289,7 @@ const APP_TRANSLATIONS = {
     chargement:'Chargement...',
     desactive:'Désactivé',
     compteCreé:'✅ Compte créé ! Vérifiez votre email puis connectez-vous.',
+    explorer:'EXPLORER',
   },
   en: {
     accueil:'HOME', priere:'PRAYER', dhikr:'DHIKR', halal:'HALAL', coran:'QURAN', ramadan:'RAMADAN', profil:'PROFILE',
@@ -3329,6 +3332,7 @@ const APP_TRANSLATIONS = {
     chargement:'Loading...',
     desactive:'Disabled',
     compteCreé:'✅ Account created! Check your email then log in.',
+    explorer:'EXPLORE',
   },
   ar: {
     accueil:'الرئيسية', priere:'الصلاة', dhikr:'الذكر', halal:'حلال', coran:'القرآن', ramadan:'رمضان', profil:'الملف',
@@ -3371,6 +3375,7 @@ const APP_TRANSLATIONS = {
     chargement:'جارٍ التحميل...',
     desactive:'معطّل',
     compteCreé:'✅ تم إنشاء الحساب! تحقق من بريدك ثم سجّل دخولك.',
+    explorer:'استكشاف',
   },
   tr: {
     accueil:'ANA SAYFA', priere:'NAMAZ', dhikr:'ZİKİR', halal:'HELAL', coran:"KUR'AN", ramadan:'RAMAZAN', profil:'PROFİL',
@@ -3413,6 +3418,7 @@ const APP_TRANSLATIONS = {
     chargement:'Yükleniyor...',
     desactive:'Devre dışı',
     compteCreé:'✅ Hesap oluşturuldu! E-postanızı kontrol edip giriş yapın.',
+    explorer:'KEŞFET',
   },
   es: {
     accueil:'INICIO', priere:'ORACIÓN', dhikr:'DHIKR', halal:'HALAL', coran:'CORÁN', ramadan:'RAMADÁN', profil:'PERFIL',
@@ -3455,6 +3461,7 @@ const APP_TRANSLATIONS = {
     chargement:'Cargando...',
     desactive:'Desactivado',
     compteCreé:'✅ ¡Cuenta creada! Verifica tu correo y luego inicia sesión.',
+    explorer:'EXPLORAR',
   },
   nl: {
     accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
@@ -3497,6 +3504,7 @@ const APP_TRANSLATIONS = {
     chargement:'Laden...',
     desactive:'Uitgeschakeld',
     compteCreé:'✅ Account aangemaakt! Controleer uw e-mail en log in.',
+    explorer:'VERKENNEN',
   },
   de: {
     accueil:'STARTSEITE', priere:'GEBET', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIL',
@@ -3539,6 +3547,7 @@ const APP_TRANSLATIONS = {
     chargement:'Laden...',
     desactive:'Deaktiviert',
     compteCreé:'✅ Konto erstellt! Überprüfen Sie Ihre E-Mail und melden Sie sich an.',
+    explorer:'ENTDECKEN',
   },
   pt: {
     accueil:'INÍCIO', priere:'ORAÇÃO', dhikr:'DHIKR', halal:'HALAL', coran:'ALCORÃO', ramadan:'RAMADÃO', profil:'PERFIL',
@@ -3581,6 +3590,7 @@ const APP_TRANSLATIONS = {
     chargement:'Carregando...',
     desactive:'Desativado',
     compteCreé:'✅ Conta criada! Verifique seu e-mail e faça login.',
+    explorer:'EXPLORAR',
   },
   id: {
     accueil:'BERANDA', priere:'SALAT', dhikr:'DZIKIR', halal:'HALAL', coran:'AL-QURAN', ramadan:'RAMADAN', profil:'PROFIL',
@@ -3623,6 +3633,7 @@ const APP_TRANSLATIONS = {
     chargement:'Memuat...',
     desactive:'Nonaktif',
     compteCreé:'✅ Akun dibuat! Periksa email Anda lalu masuk.',
+    explorer:'JELAJAHI',
   }
 }
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
@@ -3649,6 +3660,7 @@ function applyAppLang(lang){
 
   // Map ID → translation key
   const idMap = {
+    'label-explorer': 'explorer',
     'label-verset-jour': 'versetJour',
     'label-hadith-jour': 'hadithJour',
     'label-ramadan': 'ramadanLabel',
@@ -3744,7 +3756,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('fadjr_lang') || 'fr'
   const sel = document.getElementById('app-lang-sel')
   if(sel) sel.value = saved
-  if(saved !== 'fr') applyAppLang(saved)
+  setTimeout(() => applyAppLang(saved), 200)
 })
 
 // ── ADHAN RÉCITATIONS ─────────────────────────────────────────────────────────
