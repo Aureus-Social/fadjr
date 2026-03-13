@@ -1157,7 +1157,7 @@ async function loadPrayers(){
   }
   computeNext()
   renderPrayers()
-  setTimeout(() => { if(currentAppLang !== 'fr') applyAppLang(currentAppLang) }, 50)
+  applyAppLang(currentAppLang || 'fr')
 }
 
 function computeNext(){
@@ -1872,19 +1872,24 @@ const VERSETS = [
 ]
 
 const HADITHS = [
-  { text:"Les actions ne valent que par les intentions.", source:"Bukhari & Muslim" },
-  { text:"Le musulman est celui dont les musulmans sont à l'abri de sa langue et de sa main.", source:"Bukhari" },
-  { text:"La meilleure des personnes est celle qui est la plus utile aux autres.", source:"Tabarani" },
-  { text:"Souris à ton frère, c'est une aumône.", source:"Tirmidhi" },
-  { text:"Cherche la connaissance, même en Chine.", source:"Ibn Abd Al-Barr" },
-  { text:"Le paradis est sous les pieds des mères.", source:"Ahmad & Nasa'i" },
-  { text:"Celui qui ne remercie pas les gens ne remercie pas Allah.", source:"Abu Dawud & Tirmidhi" },
-  { text:"Facilitez les choses aux gens et ne les compliquez pas.", source:"Bukhari" },
-  { text:"La force n'est pas dans la lutte physique, mais dans la maîtrise de soi en cas de colère.", source:"Bukhari" },
-  { text:"Nul d'entre vous n'est croyant tant qu'il n'aime pas pour son frère ce qu'il aime pour lui-même.", source:"Bukhari & Muslim" },
-  { text:"Le meilleur d'entre vous est celui qui a le meilleur caractère.", source:"Bukhari" },
-  { text:"Dis la vérité même si elle est amère.", source:"Ibn Hibban" },
+  { fr:"Les actions ne valent que par les intentions.", en:"Actions are judged by intentions.", ar:"إنما الأعمال بالنيات", tr:"Ameller niyetlere göredir.", es:"Las acciones valen por las intenciones.", source:"Bukhari & Muslim" },
+  { fr:"Le musulman est celui dont les musulmans sont à l'abri de sa langue et de sa main.", en:"A Muslim is one from whose tongue and hand other Muslims are safe.", ar:"المسلم من سلم المسلمون من لسانه ويده", tr:"Müslüman, elinden ve dilinden Müslümanların güvende olduğu kişidir.", es:"El musulmán es aquel de cuya lengua y mano los musulmanes están a salvo.", source:"Bukhari" },
+  { fr:"La meilleure des personnes est celle qui est la plus utile aux autres.", en:"The best of people are those most beneficial to others.", ar:"خير الناس أنفعهم للناس", tr:"İnsanların en hayırlısı, insanlara en faydalı olanıdır.", es:"El mejor de los hombres es el más beneficioso para los demás.", source:"Tabarani" },
+  { fr:"Souris à ton frère, c'est une aumône.", en:"Your smile for your brother is charity.", ar:"تبسمك في وجه أخيك صدقة", tr:"Kardeşine gülümsemen sadakadır.", es:"Tu sonrisa a tu hermano es una limosna.", source:"Tirmidhi" },
+  { fr:"Cherche la connaissance, même en Chine.", en:"Seek knowledge, even unto China.", ar:"اطلبوا العلم ولو في الصين", tr:"İlim Çin'de de olsa arayınız.", es:"Busca el conocimiento, aunque sea en China.", source:"Ibn Abd Al-Barr" },
+  { fr:"Le paradis est sous les pieds des mères.", en:"Paradise lies at the feet of mothers.", ar:"الجنة تحت أقدام الأمهات", tr:"Cennet, annelerin ayakları altındadır.", es:"El paraíso está bajo los pies de las madres.", source:"Nasai" },
+  { fr:"Nul d'entre vous ne croit vraiment tant qu'il n'aime pas pour son frère ce qu'il aime pour lui-même.", en:"None of you truly believes until he loves for his brother what he loves for himself.", ar:"لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه", tr:"Hiçbiriniz, kendisi için sevdiğini kardeşi için de sevmedikçe gerçek anlamda iman etmiş olmaz.", es:"Ninguno de vosotros cree verdaderamente hasta que ama para su hermano lo que ama para sí mismo.", source:"Bukhari & Muslim" },
+  { fr:"Facilite, ne complique pas. Réjouis, n'effraie pas.", en:"Make things easy, do not make them difficult. Spread glad tidings.", ar:"يسروا ولا تعسروا وبشروا ولا تنفروا", tr:"Kolaylaştırın, zorlaştırmayın. Müjdeleyin, nefret ettirmeyin.", es:"Facilitad, no compliquéis. Dad buenas noticias, no ahuyentéis.", source:"Bukhari" },
+  { fr:"Le fort n'est pas celui qui terrasse les autres. Le fort est celui qui se maîtrise dans la colère.", en:"The strong man is not the one who can overpower others. The strong man is the one who controls himself when angry.", ar:"ليس الشديد بالصرعة إنما الشديد الذي يملك نفسه عند الغضب", tr:"Güçlü kişi güreşte yenen değil, öfke anında kendine hâkim olandır.", es:"El fuerte no es el que derrota a los demás. El fuerte es el que se controla en la ira.", source:"Bukhari & Muslim" },
+  { fr:"Dis la vérité même si elle est amère.", en:"Speak the truth even if it is bitter.", ar:"قل الحق ولو كان مرا", tr:"Acı da olsa doğruyu söyle.", es:"Di la verdad aunque sea amarga.", source:"Ibn Hibban" },
+  { fr:"La générosité est proche de Allah, proche du Paradis, proche des hommes.", en:"Generosity is near to Allah, near to Paradise, near to people.", ar:"السخاء قريب من الله قريب من الجنة قريب من الناس", tr:"Cömertlik Allah'a yakındır, cennete yakındır, insanlara yakındır.", es:"La generosidad está cerca de Allah, cerca del Paraíso, cerca de la gente.", source:"Tirmidhi" },
+  { fr:"Celui qui croit en Allah et au Jour Dernier, qu'il honore son hôte.", en:"Whoever believes in Allah and the Last Day should honor his guest.", ar:"من كان يؤمن بالله واليوم الآخر فليكرم ضيفه", tr:"Allah'a ve ahiret gününe iman eden misafirine ikram etsin.", es:"Quien crea en Allah y en el Último Día, que honre a su huésped.", source:"Bukhari & Muslim" },
 ]
+
+function getHadithText(h){
+  const lang = currentAppLang || 'fr'
+  return h[lang] || h['en'] || h['fr'] || ''
+}
 
 function loadDailyContent(){
   const day = new Date().getDate()
@@ -1893,9 +1898,9 @@ function loadDailyContent(){
   document.getElementById('verset-ar').textContent = v.ar
   document.getElementById('verset-fr').textContent = v.fr
   document.getElementById('verset-ref').textContent = v.ref
-  document.getElementById('hadith-text').textContent = '« ' + h.text + ' »'
+  document.getElementById('hadith-text').textContent = '« ' + getHadithText(h) + ' »'
   document.getElementById('hadith-source').textContent = '— ' + h.source
-  setTimeout(() => { if(currentAppLang !== 'fr') applyAppLang(currentAppLang) }, 50)
+  applyAppLang(currentAppLang || 'fr')
 }
 
 // ── ADHAN NOTIFICATIONS ───────────────────────────────────────
