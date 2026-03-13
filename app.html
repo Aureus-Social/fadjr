@@ -226,6 +226,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
           <option value="en">🇬🇧 EN</option>
           <option value="ar">🇸🇦 AR</option>
           <option value="tr">🇹🇷 TR</option>
+          <option value="es">🇪🇸 ES</option>
           <option value="nl">🇧🇪 NL</option>
         </select>
       </div>
@@ -568,12 +569,11 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
               <select id="trans-sel" onchange="reRenderAyahs()" style="background:#13131F;border:1px solid var(--border);color:var(--white);padding:5px 8px;border-radius:8px;font-size:11px;font-family:'Cairo',sans-serif">
               <option value="fr">🇫🇷 Français</option>
               <option value="en">🇬🇧 English</option>
-                <option value="fr">🇫🇷 Français</option>
-                <option value="en">🇬🇧 English</option>
-                <option value="ar">🇸🇦 Arabe (tafsir)</option>
-                <option value="tr">🇹🇷 Türkçe</option>
-                <option value="ur">🇵🇰 اردو</option>
-                <option value="none">— Aucune —</option>
+              <option value="ar">🇸🇦 Arabe (tafsir)</option>
+              <option value="tr">🇹🇷 Türkçe</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="ur">🇵🇰 اردو</option>
+              <option value="none">— Aucune —</option>
               </select>
             </div>
           </div>
@@ -1277,6 +1277,7 @@ async function loadAyahs(n){
       en: 'en.sahih',
       ar: 'ar.muyassar',
       tr: 'tr.diyanet',
+      es: 'es.asad',
       ur: 'ur.jalandhry',
       none: null
     }
@@ -2947,6 +2948,14 @@ const APP_TRANSLATIONS = {
     prixEtude:'YAKININIZDAKILER', voirTout:'Tümünü gör →',
     lecture:'Okuma', memorisation:'Ezberleme',
     bonjour:'Esselamu Aleykum', sloganSub:'Helal manevi yoldaşınız',
+  },
+  es: {
+    accueil:'INICIO', priere:'ORACIÓN', dhikr:'DHIKR', halal:'HALAL', coran:'CORÁN', ramadan:'RAMADÁN', profil:'PERFIL',
+    prochainePriere:'PRÓXIMA ORACIÓN', dans:'en',
+    partager:'+ Compartir', communaute:'👥 COMUNIDAD',
+    prixEtude:'CERCA DE TI', voirTout:'Ver todo →',
+    lecture:'Lectura', memorisation:'Memorización',
+    bonjour:'Assalamu Alaykoum', sloganSub:'Tu compañero espiritual halal',
   },
   nl: {
     accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
