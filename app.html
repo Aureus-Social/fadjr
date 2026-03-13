@@ -263,7 +263,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
       <!-- Verset du jour -->
       <div id="verset-card" style="background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.3);border-radius:14px;padding:18px;margin-bottom:14px">
-        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">✦ Verset du jour</div>
+        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px" id="label-verset-jour">✦ Verset du jour</div>
         <div id="verset-ar" style="font-family:'Tajawal',sans-serif;font-size:18px;direction:rtl;text-align:right;line-height:1.8;color:var(--white);margin-bottom:8px">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
         <div id="verset-fr" style="font-size:11px;color:var(--muted);line-height:1.7;font-style:italic">Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
@@ -276,8 +276,8 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       <div id="ram-banner" style="display:none;background:linear-gradient(135deg,rgba(142,68,173,.15),rgba(201,168,76,.08));border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:12px 16px;margin-bottom:14px;cursor:pointer" onclick="goTab('ramadan')">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div>
-            <div style="font-size:10px;color:rgba(201,168,76,.7);letter-spacing:.15em;margin-bottom:3px">🌙 RAMADAN 1447</div>
-            <div style="font-size:13px;font-weight:700;color:var(--white)" id="ram-banner-text">Iftar dans --:--</div>
+            <div style="font-size:10px;color:rgba(201,168,76,.7);letter-spacing:.15em;margin-bottom:3px" id="label-ramadan">🌙 RAMADAN 1447</div>
+            <div style="font-size:13px;font-weight:700;color:var(--white)" id="ram-banner-text" id="label-iftar">Iftar dans --:--</div>
           </div>
           <div style="font-size:24px">🌙</div>
         </div>
@@ -285,7 +285,7 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
       <!-- Hadith du jour -->
       <div id="hadith-card" style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px">
-        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">📜 Hadith du jour</div>
+        <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px" id="label-hadith-jour">📜 Hadith du jour</div>
         <div id="hadith-text" style="font-size:12px;color:var(--white);line-height:1.8">Chargement...</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
           <div id="hadith-source" style="font-size:9px;color:var(--muted)"></div>
@@ -330,15 +330,15 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
       </div>
 
       <div class="row-between">
-        <div class="sec-label" style="margin:0">PRÈS DE VOUS</div>
-        <div class="see-all" onclick="goTab('carte')">Voir tout →</div>
+        <div class="sec-label" style="margin:0" id="label-pres-de-vous">PRÈS DE VOUS</div>
+        <div class="see-all" onclick="goTab('carte')" id="label-voir-tout">Voir tout →</div>
       </div>
       <div id="accueil-commerces"></div>
 
       <!-- COMMUNAUTÉ FEED -->
       <div style="margin-top:24px">
         <div class="row-between" style="margin-bottom:12px">
-          <div class="sec-label" style="margin:0">👥 COMMUNAUTÉ</div>
+          <div class="sec-label" style="margin:0" id="label-communaute">👥 COMMUNAUTÉ</div>
           <button onclick="showPostModal()" style="background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:4px 10px;border-radius:8px;font-size:10px;cursor:pointer;font-weight:700">+ Partager</button>
         </div>
         <div id="community-feed" style="display:flex;flex-direction:column;gap:10px">
@@ -2924,6 +2924,9 @@ const APP_TRANSLATIONS = {
     prixEtude:'PRÈS DE VOUS', voirTout:'Voir tout →',
     lecture:'Lecture', memorisation:'Mémorisation',
     bonjour:'Assalamu Alaykoum', sloganSub:'Votre compagnon spirituel halal',
+    versetJour:'✦ Verset du jour', hadithJour:'📜 Hadith du jour',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar dans',
+    bienvenue:'Bienvenue 👋',
   },
   en: {
     accueil:'HOME', priere:'PRAYER', dhikr:'DHIKR', halal:'HALAL', coran:'QURAN', ramadan:'RAMADAN', profil:'PROFILE',
@@ -2932,6 +2935,9 @@ const APP_TRANSLATIONS = {
     prixEtude:'NEAR YOU', voirTout:'See all →',
     lecture:'Reading', memorisation:'Memorization',
     bonjour:'Assalamu Alaykoum', sloganSub:'Your halal spiritual companion',
+    versetJour:'✦ Verse of the day', hadithJour:'📜 Hadith of the day',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar in',
+    bienvenue:'Welcome 👋',
   },
   ar: {
     accueil:'الرئيسية', priere:'الصلاة', dhikr:'الذكر', halal:'حلال', coran:'القرآن', ramadan:'رمضان', profil:'الملف',
@@ -2940,6 +2946,9 @@ const APP_TRANSLATIONS = {
     prixEtude:'بالقرب منك', voirTout:'عرض الكل →',
     lecture:'قراءة', memorisation:'حفظ',
     bonjour:'السلام عليكم', sloganSub:'رفيقك الروحي الحلال',
+    versetJour:'✦ آية اليوم', hadithJour:'📜 حديث اليوم',
+    ramadanLabel:'🌙 رمضان 1447', iftarDans:'الإفطار في',
+    bienvenue:'أهلاً وسهلاً 👋',
   },
   tr: {
     accueil:'ANA SAYFA', priere:'NAMAZ', dhikr:'ZİKİR', halal:'HELAL', coran:"KUR'AN", ramadan:'RAMAZAN', profil:'PROFİL',
@@ -2948,6 +2957,9 @@ const APP_TRANSLATIONS = {
     prixEtude:'YAKININIZDAKILER', voirTout:'Tümünü gör →',
     lecture:'Okuma', memorisation:'Ezberleme',
     bonjour:'Esselamu Aleykum', sloganSub:'Helal manevi yoldaşınız',
+    versetJour:'✦ Günün ayeti', hadithJour:'📜 Günün hadisi',
+    ramadanLabel:'🌙 RAMAZAN 1447', iftarDans:'İftara kalan',
+    bienvenue:'Hoş geldiniz 👋',
   },
   es: {
     accueil:'INICIO', priere:'ORACIÓN', dhikr:'DHIKR', halal:'HALAL', coran:'CORÁN', ramadan:'RAMADÁN', profil:'PERFIL',
@@ -2956,6 +2968,9 @@ const APP_TRANSLATIONS = {
     prixEtude:'CERCA DE TI', voirTout:'Ver todo →',
     lecture:'Lectura', memorisation:'Memorización',
     bonjour:'Assalamu Alaykoum', sloganSub:'Tu compañero espiritual halal',
+    versetJour:'✦ Versículo del día', hadithJour:'📜 Hadith del día',
+    ramadanLabel:'🌙 RAMADÁN 1447', iftarDans:'Iftar en',
+    bienvenue:'Bienvenido 👋',
   },
   nl: {
     accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
@@ -2964,9 +2979,11 @@ const APP_TRANSLATIONS = {
     prixEtude:'IN UW BUURT', voirTout:'Alles zien →',
     lecture:'Lezen', memorisation:'Memorisatie',
     bonjour:'Assalamu Alaykoum', sloganSub:'Uw halal spirituele metgezel',
+    versetJour:'✦ Vers van de dag', hadithJour:'📜 Hadith van de dag',
+    ramadanLabel:'🌙 RAMADAN 1447', iftarDans:'Iftar over',
+    bienvenue:'Welkom 👋',
   }
 }
-
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
 
 function changeAppLang(lang){
@@ -2984,6 +3001,7 @@ function applyAppLang(lang){
 
   // Direction RTL pour arabe
   document.body.style.direction = isRTL ? 'rtl' : 'ltr'
+  document.body.style.textAlign = isRTL ? 'right' : ''
 
   // Tabbar labels
   const tabs = ['accueil','priere','dhikr','halal','coran','ramadan','profil']
@@ -2992,19 +3010,45 @@ function applyAppLang(lang){
     if(el && t[tab]) el.textContent = t[tab]
   })
 
-  // Header next prayer label
+  // Header
   const npLabel = document.querySelector('.np-label')
   if(npLabel) npLabel.textContent = t.prochainePriere
 
-  // Communauté
-  const commTitle = document.querySelector('#community-feed')?.closest('div')?.querySelector('.sec-label')
+  // Accueil username
+  const usernameEl = document.getElementById('accueil-username')
+  if(usernameEl && !usernameEl.dataset.custom) usernameEl.textContent = t.bienvenue
+
+  // Labels statiques
+  const labelMap = {
+    'label-verset-jour': t.versetJour,
+    'label-hadith-jour': t.hadithJour,
+    'label-ramadan': t.ramadanLabel,
+    'label-pres-de-vous': t.prixEtude,
+    'label-communaute': t.communaute,
+    'label-voir-tout': t.voirTout,
+  }
+  Object.entries(labelMap).forEach(([id, txt]) => {
+    const el = document.getElementById(id)
+    if(el && txt) el.textContent = txt
+  })
+
+  // Iftar banner
+  const iftarEl = document.getElementById('label-iftar')
+  if(iftarEl){
+    const currentTime = iftarEl.textContent.replace(/^[^\d:]+/, '')
+    iftarEl.textContent = t.iftarDans + ' ' + currentTime
+  }
+
   // Share button
   const shareBtn = document.querySelector('[onclick="showPostModal()"]')
   if(shareBtn) shareBtn.textContent = t.partager
 
-  // Coran tabs
-  const lectureBtn = document.querySelector('[onclick*="setCoranTab"][onclick*="lecture"]')
-  const memBtn = document.querySelector('[onclick*="setCoranTab"][onclick*="memorisation"]')
+  // Coran tabs lecture/mémorisation
+  const coranTabs = document.querySelectorAll('.coran-tab-btn')
+  coranTabs.forEach(btn => {
+    if(btn.dataset.tab === 'lecture') btn.childNodes[btn.childNodes.length-1].textContent = ' ' + t.lecture
+    if(btn.dataset.tab === 'memorisation') btn.childNodes[btn.childNodes.length-1].textContent = ' ' + t.memorisation
+  })
 
   // Sync selector
   const sel = document.getElementById('app-lang-sel')
