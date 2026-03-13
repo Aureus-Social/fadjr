@@ -387,6 +387,30 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
 
       <div id="sub-horaires">
         <div id="prayer-list"></div>
+
+      <!-- ADHAN TOGGLE WIDGET -->
+      <div style="margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--white)">🔔 Adhan à voix haute</div>
+            <div id="adhan-status-priere" style="font-size:11px;color:var(--muted)">Désactivé</div>
+          </div>
+          <div id="adhan-toggle-priere" onclick="toggleAdhanPriere()" style="width:52px;height:28px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
+            <div id="adhan-knob-priere" style="position:absolute;top:4px;left:4px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+          </div>
+        </div>
+        <select id="adhan-recitation-priere" onchange="changeAdhanRecitation(this.value)" style="width:100%;background:#13131F;border:1px solid var(--border);color:var(--white);padding:9px;border-radius:10px;font-size:12px;font-family:'Cairo',sans-serif;outline:none;color-scheme:dark;margin-bottom:10px">
+          <option value="makkah">🕋 Adhan Al-Haram (Mecque)</option>
+          <option value="madinah">🌙 Adhan Al-Madinah</option>
+          <option value="egypt">🇪🇬 Adhan Égypte (Al-Azhar)</option>
+          <option value="turkey">🇹🇷 Adhan Turquie (Diyanet)</option>
+          <option value="fajr">⭐ Adhan Fajr spécial</option>
+        </select>
+        <div style="display:flex;gap:8px">
+          <button onclick="previewAdhan()" style="flex:1;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:8px;border-radius:10px;font-size:12px;cursor:pointer">▶ Écouter</button>
+          <button onclick="stopAdhanPreview()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:10px;font-size:12px;cursor:pointer">■</button>
+        </div>
+      </div>
       </div>
       <div id="sub-qibla" style="display:none;text-align:center">
         <!-- Boussole animée -->
@@ -3521,6 +3545,46 @@ function playAdhan(){
 document.addEventListener('DOMContentLoaded', () => {
   const sel = document.getElementById('adhan-recitation-sel')
   if(sel) sel.value = currentAdhanRecitation
+})
+
+// ── ADHAN TOGGLE PRIÈRE SCREEN ────────────────────────────────────────────────
+function toggleAdhanPriere(){
+  adhanEnabled = !adhanEnabled
+  localStorage.setItem('fadjr_adhan', adhanEnabled)
+  updateAdhanUI()
+  if(adhanEnabled) startAdhanChecker()
+  else if(adhanInterval){ clearInterval(adhanInterval); adhanInterval = null }
+}
+
+function updateAdhanUI(){
+  // Toggle in priere screen
+  const tog = document.getElementById('adhan-toggle-priere')
+  const knob = document.getElementById('adhan-knob-priere')
+  const status = document.getElementById('adhan-status-priere')
+  if(tog) tog.style.background = adhanEnabled ? 'var(--gold)' : 'var(--muted)'
+  if(knob) knob.style.left = adhanEnabled ? '28px' : '4px'
+  if(status){
+    const t = APP_TRANSLATIONS[currentAppLang] || APP_TRANSLATIONS.fr
+    status.textContent = adhanEnabled ? (t.desactive?.replace('Désactivé','Activé') || 'Activé') : (t.desactive || 'Désactivé')
+    status.style.color = adhanEnabled ? 'var(--gold)' : 'var(--muted)'
+  }
+  // Sync profil toggle too
+  const togProfil = document.getElementById('adhan-toggle')
+  const knobProfil = document.getElementById('adhan-knob')
+  if(togProfil) togProfil.style.background = adhanEnabled ? 'var(--gold)' : 'var(--muted)'
+  if(knobProfil) knobProfil.style.left = adhanEnabled ? '25px' : '3px'
+  const statusProfil = document.getElementById('adhan-status')
+  if(statusProfil) statusProfil.textContent = adhanEnabled ? 'Activé — rappel 5 min avant' : 'Désactivé'
+  // Sync recitation selector
+  const sel = document.getElementById('adhan-recitation-priere')
+  if(sel) sel.value = currentAdhanRecitation
+  const selProfil = document.getElementById('adhan-recitation-sel')
+  if(selProfil) selProfil.value = currentAdhanRecitation
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', () => {
+  updateAdhanUI()
 })
 </script>
 
