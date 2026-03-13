@@ -2868,6 +2868,7 @@ function timeAgo(ts){
 }
 
 async function likePost(id, btn){
+  if(!currentUser){ requireAuth(()=>{}, 'Connectez-vous pour liker les posts 👍'); return }
   const likes = JSON.parse(localStorage.getItem('fadjr_likes')||'[]')
   if(likes.includes(id)) return
   likes.push(id)
@@ -2891,7 +2892,9 @@ async function likePost(id, btn){
 }
 
 function showPostModal(){
-  document.getElementById('post-modal').style.display = 'block'
+  requireAuth(() => {
+    document.getElementById('post-modal').style.display = 'block'
+  }, 'Connectez-vous pour partager avec la communauté FADJR 👥')
 }
 function closePostModal(){
   document.getElementById('post-modal').style.display = 'none'
@@ -3586,6 +3589,21 @@ function updateAdhanUI(){
 document.addEventListener('DOMContentLoaded', () => {
   updateAdhanUI()
 })
+
+// ── AUTH GATE ─────────────────────────────────────────────────────────────────
+function requireAuth(callback, reason){
+  if(currentUser){ callback(); return }
+  // Show auth modal with reason
+  const modal = document.getElementById('auth-gate-modal')
+  const msg = document.getElementById('auth-gate-reason')
+  if(msg && reason) msg.textContent = reason
+  if(modal) modal.style.display = 'flex'
+  window._authCallback = callback
+}
+function closeAuthGate(){ 
+  const modal = document.getElementById('auth-gate-modal')
+  if(modal) modal.style.display = 'none'
+}
 </script>
 
 <!-- ONBOARDING -->
@@ -3665,5 +3683,23 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <div class="share-toast" id="share-toast">✓ Copié !</div>
+
+  <!-- AUTH GATE MODAL -->
+  <div id="auth-gate-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#13131F;border:1px solid var(--gold);border-radius:20px;padding:24px;max-width:340px;width:100%;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🔐</div>
+      <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:8px">Connexion requise</div>
+      <div id="auth-gate-reason" style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5">Créez un compte gratuit pour accéder à cette fonctionnalité</div>
+      <div style="font-size:11px;color:var(--muted);background:rgba(201,168,76,.08);border-radius:10px;padding:12px;margin-bottom:16px;text-align:left">
+        <div style="color:var(--gold);font-weight:700;margin-bottom:6px">✨ Avec un compte gratuit :</div>
+        <div>📊 Sync progression Hifz</div>
+        <div>🔖 Favoris mosquées & restaurants</div>
+        <div>👥 Communauté & partage</div>
+        <div>🔔 Préférences Adhan sauvegardées</div>
+      </div>
+      <button onclick="closeAuthGate(); goTab('profil')" style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:700;padding:12px;border-radius:12px;border:none;font-size:14px;cursor:pointer;margin-bottom:10px">Se connecter / S'inscrire</button>
+      <button onclick="closeAuthGate()" style="width:100%;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer">Continuer sans compte</button>
+    </div>
+  </div>
 </body>
 </html>
