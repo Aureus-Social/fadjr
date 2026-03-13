@@ -934,39 +934,7 @@ body.light .screen { background: transparent; }
     </div>
 
       <!-- FINANCE ISLAMIQUE -->
-    <div class="screen" id="screen-finance" style="display:none">
-      <div style="height:12px"></div>
-      <div style="background:linear-gradient(135deg,rgba(39,174,96,.15),rgba(201,168,76,.08));border:1px solid rgba(39,174,96,.3);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center">
-        <div style="font-size:10px;letter-spacing:.2em;color:#27ae60;margin-bottom:6px">💰 FINANCE ISLAMIQUE</div>
-        <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--white);margin-bottom:4px">التمويل الإسلامي</div>
-        <div style="font-size:12px;color:var(--muted)">Gérez vos finances selon la Charia</div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
-        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">🧮 CALCULATEUR ZAKAT</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Nisab actuel (85g or) ≈ <span id="nisab-val">5 100 €</span></div>
-        <input id="zakat-wealth" type="number" placeholder="Votre épargne totale (€)" oninput="calcZakat()"
-          style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--white);font-size:14px;outline:none;margin-bottom:10px;font-family:'Cairo',sans-serif">
-        <div id="zakat-result" style="font-size:14px;color:var(--gold);text-align:center;font-weight:700;min-height:24px"></div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
-        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">📚 PRINCIPES CLÉS</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🚫 Riba (Intérêt)</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Tout intérêt fixe est interdit. Préférez les comptes islamiques sans intérêt.</div></div>
-          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🤝 Moucharaka</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Partage des profits et pertes. Alternative halal à l'investissement classique.</div></div>
-          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">🏠 Murabaha</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Achat-revente à marge fixe. Alternative halal au crédit immobilier.</div></div>
-          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px"><div style="font-size:13px;color:var(--white);font-weight:700">📈 Sukuk</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Obligations islamiques adossées à des actifs réels.</div></div>
-        </div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px">
-        <div style="font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:12px">🏦 SERVICES HALAL</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div onclick="window.open('https://www.nooraccount.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Noor Account 🇧🇪</div><div style="font-size:10px;color:var(--muted)">Compte courant halal en Belgique</div></div><span style="color:var(--gold)">→</span></div>
-          <div onclick="window.open('https://www.albaraka.be','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Al Baraka Bank 🇧🇪</div><div style="font-size:10px;color:var(--muted)">Banque islamique en Belgique</div></div><span style="color:var(--gold)">→</span></div>
-          <div onclick="window.open('https://www.wahed.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Wahed Invest 🌍</div><div style="font-size:10px;color:var(--muted)">Investissement halal global</div></div><span style="color:var(--gold)">→</span></div>
-          <div onclick="window.open('https://www.amundi-islamic.com','_blank')" style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;color:var(--white)">Amundi Islamic</div><div style="font-size:10px;color:var(--muted)">Fonds d'investissement conformes</div></div><span style="color:var(--gold)">→</span></div>
-        </div>
-      </div>
-    </div>
+    
 
 <!-- TAB BAR -->
 
@@ -1056,6 +1024,11 @@ body.light .screen { background: transparent; }
       <div class="tab-indicator"></div>
       <div class="tab-icon">🌙</div>
       <div class="tab-label">RAMADAN</div>
+    </button>
+    <button class="tab-btn" onclick="goTab('finance',this)" id="tab-finance">
+      <div class="tab-indicator"></div>
+      <div class="tab-icon">💰</div>
+      <div class="tab-label">FINANCE</div>
     </button>
     <button class="tab-btn" onclick="goTab('profil',this)" id="tab-profil">
       <div class="tab-indicator"></div>
@@ -1866,21 +1839,26 @@ async function doLogout(){
 
 // ── VERSET DU JOUR ────────────────────────────────────────────
 const VERSETS = [
-  { ar:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", fr:"Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux", ref:"Al-Fatiha 1:1" },
-  { ar:"الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", fr:"Louange à Allah, Seigneur des mondes", ref:"Al-Fatiha 1:2" },
-  { ar:"وَمَا تَوَدُّوا مِنْ خَيْرٍ يَعْلَمْهُ اللَّهُ", fr:"Tout le bien que vous faites, Allah le sait", ref:"Al-Baqara 2:197" },
-  { ar:"إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", fr:"Certes, Allah est avec les patients", ref:"Al-Baqara 2:153" },
-  { ar:"وَاللَّهُ يَرْزُقُ مَن يَشَاءُ بِغَيْرِ حِسَابٍ", fr:"Allah accorde Ses largesses à qui Il veut, sans compter", ref:"Al-Baqara 2:212" },
-  { ar:"فَاذْكُرُونِي أَذْكُرْكُمْ", fr:"Souvenez-vous de Moi, Je Me souviendrai de vous", ref:"Al-Baqara 2:152" },
-  { ar:"وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ", fr:"Il est avec vous où que vous soyez", ref:"Al-Hadid 57:4" },
-  { ar:"إِنَّ مَعَ الْعُسْرِ يُسْرًا", fr:"Certes, avec la difficulté vient la facilité", ref:"Al-Inshirah 94:6" },
-  { ar:"وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا", fr:"Quiconque craint Allah, Il lui ménage une issue", ref:"At-Talaq 65:2" },
-  { ar:"حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", fr:"Allah nous suffit, et quel excellent Garant Il est !", ref:"Al-Imran 3:173" },
-  { ar:"لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", fr:"Allah n'impose à personne une charge supérieure à ses capacités", ref:"Al-Baqara 2:286" },
-  { ar:"وَاصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ", fr:"Sois patient, car Allah ne laisse pas perdre la récompense des bienfaisants", ref:"Hud 11:115" },
-  { ar:"قُلْ هُوَ اللَّهُ أَحَدٌ", fr:"Dis : Il est Allah, Unique", ref:"Al-Ikhlas 112:1" },
-  { ar:"وَبَشِّرِ الصَّابِرِينَ", fr:"Et annonce la bonne nouvelle aux endurants", ref:"Al-Baqara 2:155" },
+  { ar:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", fr:"Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux", en:"In the name of Allah, the Most Gracious, the Most Merciful", ref:"Al-Fatiha 1:1" },
+  { ar:"الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", fr:"Louange à Allah, Seigneur des mondes", en:"All praise is due to Allah, Lord of all the worlds", ref:"Al-Fatiha 1:2" },
+  { ar:"وَبَشِّرِ الصَّابِرِينَ", fr:"Et annonce la bonne nouvelle aux endurants", en:"And give good news to the patient", ref:"Al-Baqara 2:155" },
+  { ar:"إِنَّ مَعَ الْعُسْرِ يُسْرًا", fr:"Certes, avec la difficulté vient la facilité", en:"Verily, with hardship comes ease", ref:"Al-Inshirah 94:6" },
+  { ar:"وَقُل رَّبِّ زِدْنِي عِلْمًا", fr:"Dis : Seigneur, accroît mes connaissances", en:"Say: My Lord, increase me in knowledge", ref:"Ta-Ha 20:114" },
+  { ar:"فَاذْكُرُونِي أَذْكُرْكُمْ", fr:"Souvenez-vous de Moi, Je Me souviendrai de vous", en:"Remember Me, I will remember you", ref:"Al-Baqara 2:152" },
+  { ar:"وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ", fr:"Il est avec vous où que vous soyez", en:"He is with you wherever you are", ref:"Al-Hadid 57:4" },
+  { ar:"إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", fr:"Allah est avec les patients", en:"Indeed, Allah is with the patient", ref:"Al-Baqara 2:153" },
+  { ar:"وَتَوَكَّلْ عَلَى اللَّهِ", fr:"Et place ta confiance en Allah", en:"And put your trust in Allah", ref:"Al-Ahzab 33:3" },
+  { ar:"لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", fr:"Allah n'impose à aucune âme une charge supérieure à ses capacités", en:"Allah does not burden a soul beyond that it can bear", ref:"Al-Baqara 2:286" },
+  { ar:"وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ", fr:"Quand Mes serviteurs t'interrogent sur Moi, Je suis tout proche", en:"When My servants ask about Me, I am near", ref:"Al-Baqara 2:186" },
+  { ar:"حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", fr:"Allah nous suffit, Il est le meilleur garant", en:"Allah is sufficient for us; He is the best Disposer of affairs", ref:"Al-Imran 3:173" },
+  { ar:"فَإِنَّ مَعَ الْعُسْرِ يُسْرًا", fr:"Car avec la difficulté vient la facilité", en:"For indeed, with hardship comes ease", ref:"Al-Inshirah 94:5" },
+  { ar:"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً", fr:"Notre Seigneur, accorde-nous le bien en ce monde et le bien dans l'au-delà", en:"Our Lord, give us good in this world and good in the Hereafter", ref:"Al-Baqara 2:201" },
 ]
+
+function getVersetTrad(v){
+  const lang = currentAppLang || 'fr'
+  return v[lang] || v['en'] || v['fr'] || ''
+}
 
 const HADITHS = [
   { fr:"Les actions ne valent que par les intentions.", en:"Actions are judged by intentions.", ar:"إنما الأعمال بالنيات", tr:"Ameller niyetlere göredir.", es:"Las acciones valen por las intenciones.", it:"Le azioni valgono per le intenzioni.", zh:"行为以意图为准。", nl:"Daden worden beoordeeld naar hun intenties.", de:"Taten werden nach ihren Absichten beurteilt.", pt:"As ações são julgadas pelas intenções.", id:"Sesungguhnya amal tergantung niatnya.", source:"Bukhari & Muslim" },
@@ -1912,7 +1890,7 @@ function loadDailyContent(){
   const v = VERSETS[day % VERSETS.length]
   const h = HADITHS[day % HADITHS.length]
   document.getElementById('verset-ar').textContent = v.ar
-  document.getElementById('verset-fr').textContent = v.fr
+  const vEl=document.getElementById('verset-fr'); if(vEl) vEl.textContent = getVersetTrad(v)
   document.getElementById('verset-ref').textContent = v.ref
   document.getElementById('hadith-text').textContent = '« ' + getHadithText(h) + ' »'
   document.getElementById('hadith-source').textContent = '— ' + h.source
@@ -3344,6 +3322,7 @@ const APP_TRANSLATIONS = {
     desactive:'Désactivé',
     compteCreé:'✅ Compte créé ! Vérifiez votre email puis connectez-vous.',
     explorer:'EXPLORER',
+    finance:'FINANCE',
   },
   en: {
     accueil:'HOME', priere:'PRAYER', dhikr:'DHIKR', halal:'HALAL', coran:'QURAN', ramadan:'RAMADAN', profil:'PROFILE',
@@ -3387,6 +3366,7 @@ const APP_TRANSLATIONS = {
     desactive:'Disabled',
     compteCreé:'✅ Account created! Check your email then log in.',
     explorer:'EXPLORE',
+    finance:'FINANCE',
   },
   ar: {
     accueil:'الرئيسية', priere:'الصلاة', dhikr:'الذكر', halal:'حلال', coran:'القرآن', ramadan:'رمضان', profil:'الملف',
@@ -3430,6 +3410,7 @@ const APP_TRANSLATIONS = {
     desactive:'معطّل',
     compteCreé:'✅ تم إنشاء الحساب! تحقق من بريدك ثم سجّل دخولك.',
     explorer:'استكشاف',
+    finance:'مالية',
   },
   tr: {
     accueil:'ANA SAYFA', priere:'NAMAZ', dhikr:'ZİKİR', halal:'HELAL', coran:"KUR'AN", ramadan:'RAMAZAN', profil:'PROFİL',
@@ -3473,6 +3454,7 @@ const APP_TRANSLATIONS = {
     desactive:'Devre dışı',
     compteCreé:'✅ Hesap oluşturuldu! E-postanızı kontrol edip giriş yapın.',
     explorer:'KEŞFET',
+    finance:'FİNANS',
   },
   es: {
     accueil:'INICIO', priere:'ORACIÓN', dhikr:'DHIKR', halal:'HALAL', coran:'CORÁN', ramadan:'RAMADÁN', profil:'PERFIL',
@@ -3516,6 +3498,7 @@ const APP_TRANSLATIONS = {
     desactive:'Desactivado',
     compteCreé:'✅ ¡Cuenta creada! Verifica tu correo y luego inicia sesión.',
     explorer:'EXPLORAR',
+    finance:'FINANZAS',
   },
   nl: {
     accueil:'HOME', priere:'GEBED', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIEL',
@@ -3559,6 +3542,7 @@ const APP_TRANSLATIONS = {
     desactive:'Uitgeschakeld',
     compteCreé:'✅ Account aangemaakt! Controleer uw e-mail en log in.',
     explorer:'VERKENNEN',
+    finance:'FINANCIËN',
   },
   de: {
     accueil:'STARTSEITE', priere:'GEBET', dhikr:'DHIKR', halal:'HALAL', coran:'KORAN', ramadan:'RAMADAN', profil:'PROFIL',
@@ -3602,6 +3586,7 @@ const APP_TRANSLATIONS = {
     desactive:'Deaktiviert',
     compteCreé:'✅ Konto erstellt! Überprüfen Sie Ihre E-Mail und melden Sie sich an.',
     explorer:'ENTDECKEN',
+    finance:'FINANZEN',
   },
   pt: {
     accueil:'INÍCIO', priere:'ORAÇÃO', dhikr:'DHIKR', halal:'HALAL', coran:'ALCORÃO', ramadan:'RAMADÃO', profil:'PERFIL',
@@ -3645,6 +3630,7 @@ const APP_TRANSLATIONS = {
     desactive:'Desativado',
     compteCreé:'✅ Conta criada! Verifique seu e-mail e faça login.',
     explorer:'EXPLORAR',
+    finance:'FINANÇAS',
   },
   it: {
     accueil:'HOME', priere:'PREGHIERA', dhikr:'DHIKR', halal:'HALAL', coran:'CORANO', ramadan:'RAMADAN', profil:'PROFILO',
@@ -3675,6 +3661,7 @@ const APP_TRANSLATIONS = {
     retourGen:'← Indietro', postPensee:'💭 Pensiero', postVerset:'📖 Versetto',
     postHadith:'📜 Hadith', postDoua:'🤲 Dua', compteCreé:'✅ Account creato!',
     modeAffichage:'Modalità display', label_ramadan_title:'🌙 RAMADAN 1447',
+    finance:'FINANZA',
   },
   zh: {
     accueil:'首页', priere:'礼拜', dhikr:'念珠', halal:'清真', coran:'古兰经', ramadan:'斋月', profil:'个人',
@@ -3705,6 +3692,7 @@ const APP_TRANSLATIONS = {
     retourGen:'← 返回', postPensee:'💭 思考', postVerset:'📖 经文',
     postHadith:'📜 圣训', postDoua:'🤲 祈祷', compteCreé:'✅ 账户已创建！',
     modeAffichage:'显示模式', label_ramadan_title:'🌙 斋月 1447',
+    finance:'金融',
   },
   id: {
     accueil:'BERANDA', priere:'SALAT', dhikr:'DZIKIR', halal:'HALAL', coran:'AL-QURAN', ramadan:'RAMADAN', profil:'PROFIL',
@@ -3748,6 +3736,7 @@ const APP_TRANSLATIONS = {
     desactive:'Nonaktif',
     compteCreé:'✅ Akun dibuat! Periksa email Anda lalu masuk.',
     explorer:'JELAJAHI',
+    finance:'KEUANGAN',
   }
 }
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
@@ -3758,6 +3747,10 @@ function changeAppLang(lang){
   // Update hadith immediately with correct lang
   const day = new Date().getDate()
   const h = HADITHS[day % HADITHS.length]
+  const day2 = new Date().getDate()
+  const v2 = VERSETS[day2 % VERSETS.length]
+  const vEl2 = document.getElementById('verset-fr')
+  if(vEl2) vEl2.textContent = getVersetTrad(v2)
   const hadithEl = document.getElementById('hadith-text')
   if(hadithEl) hadithEl.textContent = '« ' + (h[lang] || h['en'] || h['fr']) + ' »'
   applyAppLang(lang)
@@ -3773,11 +3766,15 @@ function applyAppLang(lang){
   // Re-render daily content with new lang
   const day = new Date().getDate()
   const h = HADITHS[day % HADITHS.length]
+  const day2 = new Date().getDate()
+  const v2 = VERSETS[day2 % VERSETS.length]
+  const vEl2 = document.getElementById('verset-fr')
+  if(vEl2) vEl2.textContent = getVersetTrad(v2)
   const hadithEl = document.getElementById('hadith-text')
   if(hadithEl) hadithEl.textContent = '« ' + getHadithText(h) + ' »'
 
   // Tabbar
-  ;['accueil','priere','dhikr','halal','coran','ramadan','profil'].forEach(tab => {
+  ;['accueil','priere','dhikr','halal','coran','ramadan','profil','finance'].forEach(tab => {
     const el = document.querySelector(`#tab-${tab} .tab-label`)
     if(el && t[tab]) el.textContent = t[tab]
   })
@@ -4129,14 +4126,14 @@ function calcZakat(){
 
 // ── ADHKAR TRANSLATIONS ───────────────────────────────────────
 const ADHKAR_TRAD = {
-  "Gloire à Allah":                { en:"Glory to Allah",           ar:"سبحان الله",           tr:"Allahi tesbih ederim",      es:"Gloria a Allah",         de:"Gepriesen sei Allah",        nl:"Glorie aan Allah" },
-  "Louange à Allah":               { en:"Praise be to Allah",        ar:"الحمد لله",             tr:"Allaha hamdolsun",           es:"Alabado sea Allah",      de:"Lob sei Allah",              nl:"Lof zij Allah" },
-  "Allah est le plus Grand":       { en:"Allah is the Greatest",     ar:"الله أكبر",             tr:"Allah en buyuktur",          es:"Allah es el más Grande", de:"Allah ist der Größte",       nl:"Allah is de Grootste" },
-  "Pas de divinité sauf Allah":    { en:"There is no god but Allah", ar:"لا إله إلا الله",       tr:"Allahtan baska ilah yoktur", es:"No hay dios sino Allah", de:"Kein Gott außer Allah",      nl:"Geen god dan Allah" },
-  "Je demande pardon à Allah":     { en:"I seek forgiveness",        ar:"أستغفر الله",           tr:"Allahtan af dilerim",        es:"Pido perdón a Allah",    de:"Ich bitte um Vergebung",     nl:"Ik vraag om vergiffenis" },
-  "Que la paix soit sur Muhammad": { en:"Peace be upon Muhammad",    ar:"صلى الله على محمد",     tr:"Muhammada selam olsun",      es:"Paz con Muhammad",       de:"Frieden mit Muhammad",       nl:"Vrede met Muhammad" },
-  "Pas de force sauf par Allah":   { en:"No power except with Allah",ar:"لا حول ولا قوة إلا بالله", tr:"Guc yalniz Allahtadir",  es:"No hay fuerza sino con Allah", de:"Keine Kraft außer Allah", nl:"Geen kracht dan Allah" },
-  "Ô Allah, bénis Muhammad":       { en:"O Allah, bless Muhammad",   ar:"اللهم صل على محمد",     tr:"Allahim Muhammede salat et", es:"Oh Allah, bendice a Muhammad", de:"O Allah, segne Muhammad", nl:"O Allah, zegen Muhammad" },
+  "Gloire à Allah":                { en:"Glory to Allah", ar:"سبحان الله", tr:"Allahi tesbih ederim", es:"Gloria a Allah", de:"Gepriesen sei Allah", nl:"Glorie aan Allah", pt:"Glória a Allah", it:"Gloria ad Allah", id:"Maha Suci Allah", zh:"赞颂真主" },
+  "Louange à Allah":               { en:"Praise be to Allah", ar:"الحمد لله", tr:"Allaha hamdolsun", es:"Alabado sea Allah", de:"Lob sei Allah", nl:"Lof zij Allah", pt:"Louvado seja Allah", it:"Lode ad Allah", id:"Segala puji bagi Allah", zh:"赞美真主" },
+  "Allah est le plus Grand":       { en:"Allah is the Greatest", ar:"الله أكبر", tr:"Allah en buyuktur", es:"Allah es el más Grande", de:"Allah ist der Größte", nl:"Allah is de Grootste", pt:"Allah é o Maior", it:"Allah è il più Grande", id:"Allah Maha Besar", zh:"真主至大" },
+  "Pas de divinité sauf Allah":    { en:"There is no god but Allah", ar:"لا إله إلا الله", tr:"Allahtan baska ilah yoktur", es:"No hay dios sino Allah", de:"Kein Gott außer Allah", nl:"Geen god dan Allah", pt:"Não há deus senão Allah", it:"Non c'è dio all'infuori di Allah", id:"Tidak ada tuhan selain Allah", zh:"万物非主，唯有真主" },
+  "Je demande pardon à Allah":     { en:"I seek forgiveness from Allah", ar:"أستغفر الله", tr:"Allahtan af dilerim", es:"Pido perdón a Allah", de:"Ich bitte Allah um Vergebung", nl:"Ik vraag Allah om vergiffenis", pt:"Peço perdão a Allah", it:"Chiedo perdono ad Allah", id:"Aku memohon ampun kepada Allah", zh:"我向真主求恕" },
+  "Que la paix soit sur Muhammad": { en:"Peace be upon Muhammad", ar:"صلى الله على محمد", tr:"Muhammada selam olsun", es:"Paz con Muhammad", de:"Frieden mit Muhammad", nl:"Vrede met Muhammad", pt:"Paz seja com Muhammad", it:"La pace sia con Muhammad", id:"Semoga Allah bershalawat atas Muhammad", zh:"愿主赐福穆罕默德" },
+  "Pas de force sauf par Allah":   { en:"No power except with Allah", ar:"لا حول ولا قوة إلا بالله", tr:"Guc yalniz Allahtadir", es:"No hay fuerza sino con Allah", de:"Keine Kraft außer Allah", nl:"Geen kracht dan Allah", pt:"Não há poder senão com Allah", it:"Nessuna forza se non con Allah", id:"Tiada daya dan kekuatan kecuali dengan Allah", zh:"无能为力，唯仗真主" },
+  "Ô Allah, bénis Muhammad":       { en:"O Allah, bless Muhammad", ar:"اللهم صل على محمد", tr:"Allahim Muhammede salat et", es:"Oh Allah, bendice a Muhammad", de:"O Allah, segne Muhammad", nl:"O Allah, zegen Muhammad", pt:"Ó Allah, abençoa Muhammad", it:"O Allah, benedici Muhammad", id:"Ya Allah, limpahkanlah shalawat atas Muhammad", zh:"求真主赐福穆罕默德" },
 }
 
 function getAdhkarTrad(trad){
