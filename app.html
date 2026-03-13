@@ -1047,18 +1047,43 @@ function renderPrayers(){
   const el=document.getElementById('prayer-list')
   el.innerHTML=prayers.map(p=>{
     const isNext=nextP&&nextP.name===p.name
+    const pKey = p.name.toLowerCase()
+    const adhanOn = getPrayerAdhan(pKey)
+    const adhanColor = adhanOn ? 'var(--gold)' : 'rgba(255,255,255,.2)'
     return `<div class="prayer-item${isNext?' next':''}">
       <div class="prayer-emoji">${p.emoji}</div>
       <div style="flex:1">
         <div class="prayer-name">${p.name}</div>
         <div class="prayer-ar">${p.ar}</div>
       </div>
-      <div>
-        <div class="prayer-time">${p.time}</div>
-        ${isNext?'<div style="color:var(--green);font-size:9px;text-align:right;margin-top:2px">● prochaine</div>':''}
+      <div style="display:flex;align-items:center;gap:10px">
+        <button onclick="togglePrayerAdhan('${pKey}',this)" title="Adhan pour ${p.name}"
+          style="background:none;border:none;font-size:18px;cursor:pointer;opacity:${adhanOn?1:.35};transition:.2s;padding:4px">🔔</button>
+        <div>
+          <div class="prayer-time">${p.time}</div>
+          ${isNext?'<div style="color:var(--green);font-size:9px;text-align:right;margin-top:2px">● prochaine</div>':''}
+        </div>
       </div>
     </div>`
   }).join('')
+}
+
+function getPrayerAdhan(pKey){
+  const saved = JSON.parse(localStorage.getItem('fadjr_prayer_adhans') || '{}')
+  // Default: all enabled except sunrise
+  if(pKey === 'sunrise') return false
+  return saved[pKey] !== false
+}
+
+function togglePrayerAdhan(pKey, btn){
+  const saved = JSON.parse(localStorage.getItem('fadjr_prayer_adhans') || '{}')
+  const current = getPrayerAdhan(pKey)
+  saved[pKey] = !current
+  localStorage.setItem('fadjr_prayer_adhans', JSON.stringify(saved))
+  btn.style.opacity = !current ? '1' : '0.35'
+  // Show mini feedback
+  btn.textContent = !current ? '🔔' : '🔕'
+  setTimeout(() => { btn.textContent = '🔔' }, 1000)
 }
 
 // ── COMMERCES ────────────────────────────────────────────────
@@ -1763,7 +1788,8 @@ function checkAdhanTime(){
       }
     }
     if(nowMins === prayerMins){
-      playAdhan()
+      const pKey = p.name.toLowerCase()
+      if(getPrayerAdhan(pKey)) playAdhan()
     }
   })
 }
