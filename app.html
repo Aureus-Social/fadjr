@@ -2036,6 +2036,7 @@ async function installPWA(){
 }
 
 // Init all
+currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
 initAuth()
 loadDailyContent()
 getUserLocation()
@@ -3754,6 +3755,11 @@ function applyAppLang(lang){
   const t = APP_TRANSLATIONS[lang] || APP_TRANSLATIONS.fr
   const isRTL = lang === 'ar'
   document.body.style.direction = isRTL ? 'rtl' : 'ltr'
+  // Re-render daily content with new lang
+  const day = new Date().getDate()
+  const h = HADITHS[day % HADITHS.length]
+  const hadithEl = document.getElementById('hadith-text')
+  if(hadithEl) hadithEl.textContent = '« ' + getHadithText(h) + ' »'
 
   // Tabbar
   ;['accueil','priere','dhikr','halal','coran','ramadan','profil'].forEach(tab => {
