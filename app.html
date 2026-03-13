@@ -1877,9 +1877,9 @@ function initOnboarding(){
   }
   // Swipe support
   let touchStartX = 0
-  const ob = document.getElementById('onboarding')
-  if(!ob) return
-  ob.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX }, {passive:true})
+  const obEl = document.getElementById('onboarding')
+  if(!obEl) return
+  obEl.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX }, {passive:true})
   ob.addEventListener('touchend', e=>{
     const diff = touchStartX - e.changedTouches[0].clientX
     if(Math.abs(diff) > 50){ diff > 0 ? nextObSlide() : prevObSlide() }
@@ -1909,9 +1909,9 @@ function prevObSlide(){
 
 function finishOnboarding(){
   localStorage.setItem('fadjr_ob_done', '1')
-  const ob = document.getElementById('onboarding')
-  ob.style.opacity = '0'
-  setTimeout(()=>{ ob.style.display='none' }, 500)
+  const obF = document.getElementById('onboarding')
+  obF.style.opacity = '0'
+  setTimeout(()=>{ obF.style.display='none' }, 500)
 }
 function skipOnboarding(){ finishOnboarding() }
 
