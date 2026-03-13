@@ -1292,7 +1292,7 @@ function renderDhikrCard(){
   const d=DHIKR_LIST[dhikrIdx]
   document.getElementById('dhikr-ar').textContent=d.ar
   document.getElementById('dhikr-fr').textContent=d.fr
-  document.getElementById('dhikr-trad').textContent=d.trad
+  document.getElementById('dhikr-trad').textContent=getAdhkarTrad(d.trad)
   document.getElementById('dhikr-total').textContent=`× ${d.count}`
   document.getElementById('dhikr-count').textContent=dhikrCount
   document.getElementById('dhikr-sub').textContent=`sur ${d.count}`
@@ -1657,7 +1657,7 @@ function renderDhikrList(){
       <div style="flex:1">
         <div style="font-family:'Cairo',sans-serif;font-size:16px;color:var(--white);direction:rtl;text-align:right">${d.ar}</div>
         <div style="font-size:11px;color:rgba(201,168,76,.85);font-style:italic;margin-top:3px">${d.ph||d.fr}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">${d.trad||''} · ${d.target}×</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">${getAdhkarTrad(d.trad)||''} · ${d.target}×</div>
       </div>
       ${i===currentDhikrIdx ? '<div style="color:var(--gold);font-size:16px">●</div>' : ''}
     </div>`).join('')
@@ -3984,6 +3984,26 @@ function calcZakat(){
     el.style.color = 'var(--gold)'
     el.textContent = `Votre Zakat : ${zakat.toLocaleString('fr', {maximumFractionDigits:2})} € (2,5%)`
   }
+}
+
+// ── ADHKAR TRANSLATIONS ───────────────────────────────────────
+const ADHKAR_TRAD = {
+  "Gloire à Allah":                { en:"Glory to Allah",           ar:"سبحان الله",           tr:"Allahi tesbih ederim",      es:"Gloria a Allah",         de:"Gepriesen sei Allah",        nl:"Glorie aan Allah" },
+  "Louange à Allah":               { en:"Praise be to Allah",        ar:"الحمد لله",             tr:"Allaha hamdolsun",           es:"Alabado sea Allah",      de:"Lob sei Allah",              nl:"Lof zij Allah" },
+  "Allah est le plus Grand":       { en:"Allah is the Greatest",     ar:"الله أكبر",             tr:"Allah en buyuktur",          es:"Allah es el más Grande", de:"Allah ist der Größte",       nl:"Allah is de Grootste" },
+  "Pas de divinité sauf Allah":    { en:"There is no god but Allah", ar:"لا إله إلا الله",       tr:"Allahtan baska ilah yoktur", es:"No hay dios sino Allah", de:"Kein Gott außer Allah",      nl:"Geen god dan Allah" },
+  "Je demande pardon à Allah":     { en:"I seek forgiveness",        ar:"أستغفر الله",           tr:"Allahtan af dilerim",        es:"Pido perdón a Allah",    de:"Ich bitte um Vergebung",     nl:"Ik vraag om vergiffenis" },
+  "Que la paix soit sur Muhammad": { en:"Peace be upon Muhammad",    ar:"صلى الله على محمد",     tr:"Muhammada selam olsun",      es:"Paz con Muhammad",       de:"Frieden mit Muhammad",       nl:"Vrede met Muhammad" },
+  "Pas de force sauf par Allah":   { en:"No power except with Allah",ar:"لا حول ولا قوة إلا بالله", tr:"Guc yalniz Allahtadir",  es:"No hay fuerza sino con Allah", de:"Keine Kraft außer Allah", nl:"Geen kracht dan Allah" },
+  "Ô Allah, bénis Muhammad":       { en:"O Allah, bless Muhammad",   ar:"اللهم صل على محمد",     tr:"Allahim Muhammede salat et", es:"Oh Allah, bendice a Muhammad", de:"O Allah, segne Muhammad", nl:"O Allah, zegen Muhammad" },
+}
+
+function getAdhkarTrad(trad){
+  const lang = currentAppLang || 'fr'
+  if(lang === 'fr') return trad
+  const map = ADHKAR_TRAD[trad]
+  if(!map) return trad
+  return map[lang] || map['en'] || trad
 }
 </script>
 
