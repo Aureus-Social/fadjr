@@ -183,7 +183,25 @@ body.light {
 body.light #tabbar { background: rgba(245,240,232,.98); }
 body.light .screen { background: transparent; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Load Supabase with multiple CDN fallbacks
+(function(){
+  const cdns = [
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
+    'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js',
+    'https://esm.sh/@supabase/supabase-js@2/dist/umd/supabase.min.js'
+  ]
+  let idx = 0
+  function tryLoad(){
+    if(idx >= cdns.length){ window._supabaseLoadFailed = true; return }
+    const s = document.createElement('script')
+    s.src = cdns[idx++]
+    s.onerror = tryLoad
+    document.head.appendChild(s)
+  }
+  tryLoad()
+})()
+</script>
 
 
 <style>
@@ -1734,7 +1752,9 @@ const SURAHS = [
 
 const SUPA_URL = "https://bpvrqphmxrnjrbjtaxuw.supabase.co"
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnJxcGhteHJuanJianRheHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTQ0MjMsImV4cCI6MjA4ODczMDQyM30.9WaS5gYPcB2d11S604xpu4hZmwtV55yDlxxgNUaZEwA"
-const supa = supabase.createClient(SUPA_URL, SUPA_KEY)
+const supa = (typeof supabase !== 'undefined') 
+  ? supabase.createClient(SUPA_URL, SUPA_KEY)
+  : { auth: { onAuthStateChange:()=>{}, getSession:()=>Promise.resolve({data:{session:null}}), signInWithPassword:()=>Promise.resolve({error:{message:'Offline mode'}}), signOut:()=>Promise.resolve({}) }, from:()=>({ select:()=>({ eq:()=>({ single:()=>Promise.resolve({data:null,error:null}), maybeSingle:()=>Promise.resolve({data:null,error:null}) }) }), upsert:()=>Promise.resolve({error:null}), insert:()=>Promise.resolve({error:null}), update:()=>Promise.resolve({error:null}) }) }
 
 // ── STARS ────────────────────────────────────────────────────
 const starsEl = document.getElementById('stars')
