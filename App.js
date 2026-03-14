@@ -1,9 +1,25 @@
-import { useState, useEffect } from "react"
+import 'react-native-url-polyfill/auto'
+import { useState, useEffect, createContext, useContext } from "react"
 import {
   StyleSheet, Text, View, TouchableOpacity, ScrollView,
-  StatusBar, TextInput, ActivityIndicator, Dimensions, FlatList
+  StatusBar, TextInput, ActivityIndicator, Dimensions, FlatList,
+  KeyboardAvoidingView, Platform, Alert
 } from "react-native"
+import { createClient } from '@supabase/supabase-js'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
+// ─── Supabase ────────────────────────────────────────────────────────────────
+const supabase = createClient(
+  'https://bpvrqphmxrnjrbjtaxuw.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnJxcGhteHJuanJianRheHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTQ0MjMsImV4cCI6MjA4ODczMDQyM30.9WaS5gYPcB2d11S604xpu4hZmwtV55yDlxxgNUaZEwA',
+  { auth: { storage: AsyncStorage, autoRefreshToken: true, persistSession: true } }
+)
+
+// ─── Auth Context ─────────────────────────────────────────────────────────────
+const AuthContext = createContext(null)
+const useAuth = () => useContext(AuthContext)
+
+// ─── Design System ────────────────────────────────────────────────────────────
 const C = {
   bg:"#0A0A14", card:"#12121E", card2:"#1A1A2E",
   gold:"#C9A84C", goldL:"#F0D080", white:"#F0EAD8",
@@ -13,6 +29,7 @@ const C = {
 }
 const { width: W } = Dimensions.get("window")
 
+// ─── Data ─────────────────────────────────────────────────────────────────────
 const COMMERCES = [
   { id:1, nom:"Le Sultane", type:"Restaurant", adresse:"Chaussee de Wavre 142, Ixelles", distance:"0.3 km", note:4.8, certif:"HBE", emoji:"🍽️", color:"#C9A84C", ouvert:true, spec:"Cuisine orientale, tagine, couscous" },
   { id:2, nom:"Boucherie Al Madina", type:"Boucherie", adresse:"Rue Molenbeek 67, Molenbeek", distance:"0.7 km", note:4.6, certif:"AVS", emoji:"🥩", color:"#E74C3C", ouvert:true, spec:"Agneau, veau, poulet, merguez" },
@@ -33,6 +50,103 @@ const DHIKR = [
 const PRAYER_AR = ["Al-Fajr","Ash-Shurouq","Adh-Dhuhr","Al-Asr","Al-Maghrib","Al-Icha"]
 const PRAYER_EMOJI = ["🌙","🌅","☀️","🌤️","🌇","🌃"]
 
+// ─── Écran Auth ───────────────────────────────────────────────────────────────
+function EcranAuth() {
+  const [mode, setMode] = useState("login")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [nom, setNom] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleLogin = async () => {
+    if (!email || !password) { setError("Email et mot de passe requis"); return }
+    setLoading(true); setError("")
+    const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+    setLoading(false)
+    if (err) setError(err.message === "Invalid login credentials" ? "Email ou mot de passe incorrect" : err.message)
+  }
+
+  const handleSignup = async () => {
+    if (!email || !password || !nom) { setError("Tous les champs sont requis"); return }
+    if (password.length < 6) { setError("Mot de passe minimum 6 caracteres"); return }
+    setLoading(true); setError("")
+    const { error: err } = await supabase.auth.signUp({
+      email: email.trim(), password,
+      options: { data: { full_name: nom.trim() } }
+    })
+    setLoading(false)
+    if (err) setError(err.message)
+    else Alert.alert("Compte cree !", "Verifiez votre email pour confirmer votre compte.")
+  }
+
+  const handleGuestLogin = async () => {
+    setLoading(true); setError("")
+    const { error: err } = await supabase.auth.signInAnonymously()
+    setLoading(false)
+    if (err) setError(err.message)
+  }
+
+  return (
+    <KeyboardAvoidingView style={{ flex:1, backgroundColor:C.bg }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <StatusBar barStyle="light-content" backgroundColor={C.bg} />
+      <ScrollView contentContainerStyle={{ flexGrow:1, justifyContent:"center", padding:24 }} keyboardShouldPersistTaps="handled">
+        <View style={{ alignItems:"center", marginBottom:40 }}>
+          <Text style={{ color:C.gold, fontSize:42, fontWeight:"900", letterSpacing:6 }}>FADJR</Text>
+          <Text style={{ color:C.muted, fontSize:13, letterSpacing:2, marginTop:4 }}>LA SUPER-APP HALAL</Text>
+        </View>
+        <View style={{ flexDirection:"row", backgroundColor:C.card, borderRadius:12, marginBottom:24, padding:4 }}>
+          {[["login","Connexion"],["signup","Inscription"]].map(([m, label]) => (
+            <TouchableOpacity key={m} onPress={() => { setMode(m); setError("") }}
+              style={{ flex:1, paddingVertical:10, borderRadius:9, alignItems:"center",
+                backgroundColor:mode===m ? "rgba(201,168,76,.15)" : "transparent",
+                borderWidth:mode===m ? 1 : 0, borderColor:C.border }}>
+              <Text style={{ color:mode===m ? C.gold : C.muted, fontSize:13, fontWeight:mode===m ? "700" : "400" }}>{label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={{ gap:12 }}>
+          {mode === "signup" && (
+            <TextInput value={nom} onChangeText={setNom} placeholder="Prenom" placeholderTextColor={C.muted}
+              style={styles.input} autoCapitalize="words" />
+          )}
+          <TextInput value={email} onChangeText={setEmail} placeholder="Email" placeholderTextColor={C.muted}
+            style={styles.input} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+          <TextInput value={password} onChangeText={setPassword} placeholder="Mot de passe" placeholderTextColor={C.muted}
+            style={styles.input} secureTextEntry />
+        </View>
+        {!!error && (
+          <View style={{ marginTop:12, padding:12, backgroundColor:"rgba(231,76,60,.12)", borderRadius:10, borderWidth:1, borderColor:"rgba(231,76,60,.3)" }}>
+            <Text style={{ color:C.red, fontSize:13 }}>{error}</Text>
+          </View>
+        )}
+        <TouchableOpacity onPress={mode === "login" ? handleLogin : handleSignup} disabled={loading}
+          style={{ marginTop:20, backgroundColor:C.gold, borderRadius:12, paddingVertical:15, alignItems:"center" }}>
+          {loading
+            ? <ActivityIndicator color="#0A0A14" />
+            : <Text style={{ color:"#0A0A14", fontSize:15, fontWeight:"900", letterSpacing:1 }}>
+                {mode === "login" ? "SE CONNECTER" : "CREER MON COMPTE"}
+              </Text>
+          }
+        </TouchableOpacity>
+        <View style={{ flexDirection:"row", alignItems:"center", marginVertical:20, gap:12 }}>
+          <View style={{ flex:1, height:1, backgroundColor:C.border }} />
+          <Text style={{ color:C.muted, fontSize:12 }}>ou</Text>
+          <View style={{ flex:1, height:1, backgroundColor:C.border }} />
+        </View>
+        <TouchableOpacity onPress={handleGuestLogin} disabled={loading}
+          style={{ borderWidth:1, borderColor:C.border, borderRadius:12, paddingVertical:13, alignItems:"center", backgroundColor:C.card }}>
+          <Text style={{ color:C.muted, fontSize:13 }}>Continuer sans compte</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.muted, fontSize:11, textAlign:"center", marginTop:20, lineHeight:16 }}>
+          En continuant, vous acceptez nos conditions d'utilisation.
+        </Text>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  )
+}
+
+// ─── Écran Accueil ────────────────────────────────────────────────────────────
 function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab }) {
   const now = new Date()
   const h = now.getHours()
@@ -110,6 +224,7 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab }) {
   )
 }
 
+// ─── Écran Prière ─────────────────────────────────────────────────────────────
 function EcranPriere({ prayers, city, loading, nextPrayer }) {
   const [subTab, setSubTab] = useState("horaires")
   const [dhikrIdx, setDhikrIdx] = useState(0)
@@ -199,6 +314,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer }) {
   )
 }
 
+// ─── Écran Carte ──────────────────────────────────────────────────────────────
 function EcranCarte() {
   const [cat, setCat] = useState("Tous")
   const [search, setSearch] = useState("")
@@ -264,15 +380,32 @@ function EcranCarte() {
   )
 }
 
+// ─── Écran Profil ─────────────────────────────────────────────────────────────
 function EcranProfil() {
+  const { user, isAnonymous } = useAuth()
+  const [loggingOut, setLoggingOut] = useState(false)
+  const displayName = user?.user_metadata?.full_name || (isAnonymous ? "Visiteur" : user?.email?.split("@")[0] || "Utilisateur")
+  const displayEmail = isAnonymous ? "Compte invite" : (user?.email || "")
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    await supabase.auth.signOut()
+    setLoggingOut(false)
+  }
+
   return (
     <ScrollView style={{ flex:1 }} showsVerticalScrollIndicator={false}>
       <View style={[styles.screenHeader, { alignItems:"center" }]}>
         <View style={{ width:80, height:80, borderRadius:40, backgroundColor:"#C9A84C", alignItems:"center", justifyContent:"center" }}>
-          <Text style={{ fontSize:34 }}>☪</Text>
+          <Text style={{ fontSize:34 }}>{isAnonymous ? "👤" : "☪"}</Text>
         </View>
-        <Text style={{ color:"#F0EAD8", fontSize:20, fontWeight:"900", marginTop:14 }}>Nourdin</Text>
-        <Text style={{ color:"#C9A84C", fontSize:13, marginTop:2 }}>Bruxelles, Belgique</Text>
+        <Text style={{ color:"#F0EAD8", fontSize:20, fontWeight:"900", marginTop:14 }}>{displayName}</Text>
+        <Text style={{ color:"#C9A84C", fontSize:13, marginTop:2 }}>{displayEmail}</Text>
+        {isAnonymous && (
+          <View style={{ marginTop:12, paddingHorizontal:14, paddingVertical:6, backgroundColor:"rgba(201,168,76,.1)", borderRadius:99, borderWidth:1, borderColor:C.border }}>
+            <Text style={{ color:C.muted, fontSize:11 }}>Mode invite — creez un compte pour sauvegarder</Text>
+          </View>
+        )}
         <View style={{ flexDirection:"row", gap:10, marginTop:20, width:"100%" }}>
           {[["3/5","Prieres","#C9A84C"],["7","Favoris","#3498DB"],["12","Avis","#2ECC71"]].map(([v,l,col]) => (
             <View key={l} style={[styles.card, { flex:1, alignItems:"center", paddingVertical:14 }]}>
@@ -283,7 +416,7 @@ function EcranProfil() {
         </View>
       </View>
       <View style={{ padding:16 }}>
-        {[["Ville","Bruxelles 50.850N 4.352E"],["Version","FADJR v1.0 Sprint 1 MVP"],["Email","nourdin@fadjr.app"],["A propos","Super-app halal francophone"]].map(([label,desc],i) => (
+        {[["Ville","Bruxelles 50.850N 4.352E"],["Version","FADJR v1.0 Sprint 5"],["Email",displayEmail],["A propos","Super-app halal francophone"]].map(([label,desc],i) => (
           <View key={i} style={{ flexDirection:"row", alignItems:"center", gap:14, paddingVertical:14, borderBottomWidth:1, borderBottomColor:"rgba(201,168,76,0.15)" }}>
             <View style={{ flex:1 }}>
               <Text style={{ color:"#F0EAD8", fontSize:14, fontWeight:"600" }}>{label}</Text>
@@ -292,51 +425,38 @@ function EcranProfil() {
             <Text style={{ color:"#5A5A7A", fontSize:18 }}>›</Text>
           </View>
         ))}
+        {isAnonymous && (
+          <TouchableOpacity onPress={() => supabase.auth.signOut()}
+            style={{ marginTop:20, borderWidth:1, borderColor:C.gold, borderRadius:12, paddingVertical:13, alignItems:"center" }}>
+            <Text style={{ color:C.gold, fontSize:14, fontWeight:"700" }}>Creer un compte →</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity onPress={handleLogout} disabled={loggingOut}
+          style={{ marginTop:isAnonymous ? 12 : 24, backgroundColor:"rgba(231,76,60,.1)", borderWidth:1, borderColor:"rgba(231,76,60,.3)", borderRadius:12, paddingVertical:13, alignItems:"center" }}>
+          {loggingOut ? <ActivityIndicator color={C.red} size="small" /> : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>Se deconnecter</Text>}
+        </TouchableOpacity>
       </View>
     </ScrollView>
   )
 }
 
+// ─── App Root ─────────────────────────────────────────────────────────────────
 export default function App() {
+  const [session, setSession] = useState(undefined)
   const [tab, setTab] = useState("accueil")
   const [prayers, setPrayers] = useState([])
-  const [city, setCity] = useState("Bruxelles")
+  const [city] = useState("Bruxelles")
   const [loading, setLoading] = useState(true)
   const [nextPrayer, setNextPrayer] = useState(null)
   const [timeToNext, setTimeToNext] = useState("")
 
   useEffect(() => {
-    const fetchPrayers = async (lat = 50.8503, lng = 4.3517) => {
-      try {
-        const today = new Date()
-        const res = await fetch(`https://api.aladhan.com/v1/timings/${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}?latitude=${lat}&longitude=${lng}&method=3`)
-        const data = await res.json()
-        if (data.code === 200) {
-          const t = data.data.timings
-          const list = [
-            { name:"Fajr",    ar:PRAYER_AR[0], time:t.Fajr,    emoji:PRAYER_EMOJI[0] },
-            { name:"Sunrise", ar:PRAYER_AR[1], time:t.Sunrise,  emoji:PRAYER_EMOJI[1] },
-            { name:"Dhuhr",   ar:PRAYER_AR[2], time:t.Dhuhr,   emoji:PRAYER_EMOJI[2] },
-            { name:"Asr",     ar:PRAYER_AR[3], time:t.Asr,     emoji:PRAYER_EMOJI[3] },
-            { name:"Maghrib", ar:PRAYER_AR[4], time:t.Maghrib,  emoji:PRAYER_EMOJI[4] },
-            { name:"Isha",    ar:PRAYER_AR[5], time:t.Isha,    emoji:PRAYER_EMOJI[5] },
-          ]
-          setPrayers(list)
-          computeNext(list)
-        }
-      } catch(e) {
-        const fallback = [
-          { name:"Fajr", ar:PRAYER_AR[0], time:"05:42", emoji:PRAYER_EMOJI[0] },
-          { name:"Sunrise", ar:PRAYER_AR[1], time:"07:18", emoji:PRAYER_EMOJI[1] },
-          { name:"Dhuhr", ar:PRAYER_AR[2], time:"13:12", emoji:PRAYER_EMOJI[2] },
-          { name:"Asr", ar:PRAYER_AR[3], time:"16:35", emoji:PRAYER_EMOJI[3] },
-          { name:"Maghrib", ar:PRAYER_AR[4], time:"19:48", emoji:PRAYER_EMOJI[4] },
-          { name:"Isha", ar:PRAYER_AR[5], time:"21:22", emoji:PRAYER_EMOJI[5] },
-        ]
-        setPrayers(fallback)
-        computeNext(fallback)
-      } finally { setLoading(false) }
-    }
+    supabase.auth.getSession().then(({ data: { session: s } }) => setSession(s ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => setSession(s ?? null))
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
     const computeNext = (list) => {
       const now = new Date()
       const nowMin = now.getHours()*60 + now.getMinutes()
@@ -349,44 +469,91 @@ export default function App() {
           return
         }
       }
-      setNextPrayer(list[0])
-      setTimeToNext("demain")
+      setNextPrayer(list[0]); setTimeToNext("demain")
+    }
+    const fetchPrayers = async () => {
+      try {
+        const today = new Date()
+        const res = await fetch(`https://api.aladhan.com/v1/timings/${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}?latitude=50.8503&longitude=4.3517&method=3`)
+        const data = await res.json()
+        if (data.code === 200) {
+          const t = data.data.timings
+          const list = [
+            { name:"Fajr", ar:PRAYER_AR[0], time:t.Fajr, emoji:PRAYER_EMOJI[0] },
+            { name:"Sunrise", ar:PRAYER_AR[1], time:t.Sunrise, emoji:PRAYER_EMOJI[1] },
+            { name:"Dhuhr", ar:PRAYER_AR[2], time:t.Dhuhr, emoji:PRAYER_EMOJI[2] },
+            { name:"Asr", ar:PRAYER_AR[3], time:t.Asr, emoji:PRAYER_EMOJI[3] },
+            { name:"Maghrib", ar:PRAYER_AR[4], time:t.Maghrib, emoji:PRAYER_EMOJI[4] },
+            { name:"Isha", ar:PRAYER_AR[5], time:t.Isha, emoji:PRAYER_EMOJI[5] },
+          ]
+          setPrayers(list); computeNext(list)
+        }
+      } catch {
+        const fallback = [
+          { name:"Fajr", ar:PRAYER_AR[0], time:"05:42", emoji:PRAYER_EMOJI[0] },
+          { name:"Sunrise", ar:PRAYER_AR[1], time:"07:18", emoji:PRAYER_EMOJI[1] },
+          { name:"Dhuhr", ar:PRAYER_AR[2], time:"13:12", emoji:PRAYER_EMOJI[2] },
+          { name:"Asr", ar:PRAYER_AR[3], time:"16:35", emoji:PRAYER_EMOJI[3] },
+          { name:"Maghrib", ar:PRAYER_AR[4], time:"19:48", emoji:PRAYER_EMOJI[4] },
+          { name:"Isha", ar:PRAYER_AR[5], time:"21:22", emoji:PRAYER_EMOJI[5] },
+        ]
+        setPrayers(fallback); computeNext(fallback)
+      } finally { setLoading(false) }
     }
     fetchPrayers()
   }, [])
 
+  if (session === undefined) {
+    return (
+      <View style={{ flex:1, backgroundColor:C.bg, alignItems:"center", justifyContent:"center" }}>
+        <Text style={{ color:C.gold, fontSize:36, fontWeight:"900", letterSpacing:6 }}>FADJR</Text>
+        <ActivityIndicator color={C.gold} style={{ marginTop:24 }} />
+      </View>
+    )
+  }
+
+  const isAnonymous = session?.user?.is_anonymous === true
+  const authValue = { user: session?.user ?? null, isAnonymous }
+
+  if (!session) {
+    return <AuthContext.Provider value={authValue}><EcranAuth /></AuthContext.Provider>
+  }
+
   const NAV = [
     { id:"accueil", icon:"🏠", label:"Accueil" },
-    { id:"priere",  icon:"🕌", label:"Priere" },
-    { id:"carte",   icon:"🗺️", label:"Halal" },
+    { id:"priere", icon:"🕌", label:"Priere" },
+    { id:"carte", icon:"🗺️", label:"Halal" },
     { id:"culture", icon:"📚", label:"Culture" },
-    { id:"profil",  icon:"👤", label:"Profil" },
+    { id:"profil", icon:"👤", label:"Profil" },
   ]
 
   return (
-    <View style={{ flex:1, backgroundColor:"#0A0A14" }}>
-      <StatusBar barStyle="light-content" backgroundColor="#0A0A14" />
-      <View style={{ flex:1 }}>
-        {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} />}
-        {tab==="priere"  && <EcranPriere  prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} />}
-        {tab==="carte"   && <EcranCarte />}
-        {(tab==="culture"||tab==="finance"||tab==="voyage") && <EcranProfil />}
-        {tab==="profil"  && <EcranProfil />}
+    <AuthContext.Provider value={authValue}>
+      <View style={{ flex:1, backgroundColor:"#0A0A14" }}>
+        <StatusBar barStyle="light-content" backgroundColor="#0A0A14" />
+        <View style={{ flex:1 }}>
+          {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} />}
+          {tab==="priere" && <EcranPriere prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} />}
+          {tab==="carte" && <EcranCarte />}
+          {(tab==="culture"||tab==="finance"||tab==="voyage") && <EcranProfil />}
+          {tab==="profil" && <EcranProfil />}
+        </View>
+        <View style={styles.tabBar}>
+          {NAV.map(n => (
+            <TouchableOpacity key={n.id} onPress={() => setTab(n.id)} style={styles.tabItem}>
+              {tab===n.id && <View style={{ position:"absolute", top:-1, left:"25%", right:"25%", height:2, backgroundColor:"#C9A84C", borderRadius:99 }} />}
+              <Text style={{ fontSize:22, opacity:tab===n.id ? 1 : 0.4 }}>{n.icon}</Text>
+              <Text style={{ color:tab===n.id ? "#C9A84C" : "#5A5A7A", fontSize:9, marginTop:2, fontWeight:tab===n.id?"700":"400" }}>{n.label.toUpperCase()}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
-      <View style={styles.tabBar}>
-        {NAV.map(n => (
-          <TouchableOpacity key={n.id} onPress={() => setTab(n.id)} style={styles.tabItem}>
-            {tab===n.id && <View style={{ position:"absolute", top:-1, left:"25%", right:"25%", height:2, backgroundColor:"#C9A84C", borderRadius:99 }} />}
-            <Text style={{ fontSize:22, opacity:tab===n.id ? 1 : 0.4 }}>{n.icon}</Text>
-            <Text style={{ color:tab===n.id ? "#C9A84C" : "#5A5A7A", fontSize:9, marginTop:2, fontWeight:tab===n.id?"700":"400" }}>{n.label.toUpperCase()}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+    </AuthContext.Provider>
   )
 }
 
 const styles = StyleSheet.create({
+  input: { backgroundColor:"#12121E", borderWidth:1, borderColor:"rgba(201,168,76,0.15)", borderRadius:12, padding:14, color:"#F0EAD8", fontSize:14 },
   heroHeader: { backgroundColor:"#0D0D20", padding:20, paddingTop:50, borderBottomWidth:1, borderBottomColor:"rgba(201,168,76,0.15)" },
   nextPrayerCard: { backgroundColor:"#1A1A35", borderWidth:1, borderColor:"rgba(201,168,76,.3)", borderLeftWidth:4, borderLeftColor:"#C9A84C", borderRadius:14, padding:16, flexDirection:"row", justifyContent:"space-between", alignItems:"center" },
   screenHeader: { backgroundColor:"#0D0D20", padding:20, paddingTop:50, borderBottomWidth:1, borderBottomColor:"rgba(201,168,76,0.15)" },
