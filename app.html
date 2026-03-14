@@ -2181,44 +2181,50 @@ function resetAudio(){
 function toggleAudio(){
   if(!currentSurah) return
   const btn = document.getElementById('audio-btn')
-  const reciter = document.getElementById('reciter-sel').value
-  const n = String(currentSurah.n).padStart(3,'0')
+  const reciterVal = document.getElementById('reciter-sel')?.value || '128'
+  const surahNum = currentSurah.n
 
   if(currentAudio && !currentAudio.paused){
     currentAudio.pause()
-    btn.textContent = '▶'
+    if(btn) btn.textContent = '▶'
     return
   }
 
-  // Créer nouveau audio si sourate OU récitateur a changé
-  if(!currentAudio || currentAudio._surah !== currentSurah.n || currentAudio._reciter !== reciter){
-    if(currentAudio){
-      currentAudio.pause()
-      currentAudio.src = ''
+  // mp3quran.net reciters map (very reliable, CORS-friendly)
+  const reciters = {
+    '128': {server:'server8', path:'afs'},    // Mishary Al-Afasy
+    '112': {server:'server8', path:'Basfar'},  // Abdullah Basfar
+    '5':   {server:'server8', path:'Husry'},   // Hussary
+    '129': {server:'server8', path:'Ghamdi'},  // Saad Al-Ghamdi
+    '130': {server:'server14', path:'Sudais'}, // Al-Sudais
+    '7':   {server:'server8', path:'Maher'},   // Maher Al-Muaiqly
+  }
+  const r = reciters[reciterVal] || reciters['128']
+  const surahStr = String(surahNum).padStart(3,'0')
+  const url = `https://${r.server}.mp3quran.net/${r.path}/${surahStr}.mp3`
+
+  if(!currentAudio || currentAudio._surah !== surahNum || currentAudio._reciter !== reciterVal){
+    const audioEl = document.getElementById('global-audio')
+    if(audioEl){
+      currentAudio = audioEl
+    } else {
+      currentAudio = new Audio()
     }
-    currentAudio = document.getElementById('global-audio') || new Audio()
-    currentAudio.src = `https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`
-    currentAudio._surah = currentSurah.n
-    currentAudio._reciter = reciter
-    currentAudio.preload = 'auto'
-    currentAudio.onended = () => { btn.textContent = '▶' }
+    currentAudio.src = url
+    currentAudio._surah = surahNum
+    currentAudio._reciter = reciterVal
+    currentAudio.onended = () => { if(btn) btn.textContent = '▶' }
     currentAudio.onerror = () => {
-      // Fallback CDN
-      const fallback = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${currentSurah.n}.mp3`
-      if(currentAudio.src !== fallback){
-        currentAudio.src = fallback
-        currentAudio.load()
-        currentAudio.play().then(()=>{ btn.textContent = '⏸' }).catch(()=>{})
-      } else {
-        btn.textContent = '▶'
-      }
+      console.warn('Audio failed:', url)
+      if(btn) btn.textContent = '▶'
     }
   }
 
-  btn.textContent = '⏸'
-  currentAudio.play().catch(e => {
-    console.warn('Audio error:', e.name)
-    btn.textContent = '▶'
+  if(btn) btn.textContent = '⏸'
+  const p = currentAudio.play()
+  if(p) p.catch(e => {
+    console.warn('Play error:', e.name, e.message)
+    if(btn) btn.textContent = '▶'
   })
 }
 
