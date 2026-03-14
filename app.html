@@ -1135,6 +1135,8 @@ body.light .screen { background: transparent; }
 <script>
 // ─── HOIST: must be declared before any function uses them ───
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
+let memData = JSON.parse(localStorage.getItem('fadjr_mem') || '{}')
+let memSession = []
 
 const ADHKARS = [
   { ar:'سُبْحَانَ اللَّه',        ph:'Subhâna-llâh',                 trad:'Gloire à Allah',               target:33 },
@@ -2586,7 +2588,18 @@ async function installPWA(){
 currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
 loadDailyContent()  // First — no waiting
 loadPrayers()       // Load prayer times immediately
-initStars()
+// Stars init inline
+;(function(){
+  const starsEl = document.getElementById('stars')
+  if(!starsEl) return
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div')
+    s.className='star'
+    const sz=Math.random()*2+0.5
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`
+    starsEl.appendChild(s)
+  }
+})()
 initAuth()
 getUserLocation()
 applyAdhan()
@@ -3413,9 +3426,7 @@ window.addEventListener('load', function(){
 
 
 // ── MÉMORISATION CORAN (SRS) ─────────────────────────────────────────────────
-let memData = JSON.parse(localStorage.getItem('fadjr_mem') || '{}')
 // memData[key] = { ef: 2.5, interval: 1, reps: 0, nextReview: timestamp, lastScore: 0 }
-let memSession = []
 let memSessionIdx = 0
 let memStreak = parseInt(localStorage.getItem('fadjr_streak') || '0')
 let memLastDate = localStorage.getItem('fadjr_streak_date') || ''
