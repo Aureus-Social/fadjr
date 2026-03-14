@@ -2112,7 +2112,7 @@ async function openSurah(n){
   if(!currentUser){
     surahOpenCount++
     localStorage.setItem('fadjr_surah_count', surahOpenCount)
-    if(surahOpenCount > 3){
+    if(surahOpenCount > 15){
       showGateModal('tout le Coran — 114 sourates')
       return
     }
@@ -4529,7 +4529,7 @@ function checkGate(feature, action){
   if(feature === 'coran'){
     surahOpenCount++
     localStorage.setItem('fadjr_surah_count', surahOpenCount)
-    if(surahOpenCount > 3){
+    if(surahOpenCount > 15){
       showGateModal('tout le Coran (114 sourates)')
       return
     }
