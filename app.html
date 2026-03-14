@@ -238,8 +238,6 @@ body.light .screen { background: transparent; }
 <body>
 
 <div id="stars"></div>
-<audio id="global-audio" preload="none" playsinline></audio>
-<audio id="adhan-audio-el" preload="none" playsinline></audio>
 
 <div id="app">
   <!-- HEADER -->
@@ -2179,52 +2177,40 @@ function resetAudio(){
   if(btn) btn.textContent = '▶'
 }
 function toggleAudio(){
-  if(!currentSurah) return
+  if(!currentSurah){ alert('Sélectionnez une sourate'); return }
   const btn = document.getElementById('audio-btn')
-  const reciterVal = document.getElementById('reciter-sel')?.value || '128'
-  const surahNum = currentSurah.n
 
+  // Stop if playing
   if(currentAudio && !currentAudio.paused){
     currentAudio.pause()
     if(btn) btn.textContent = '▶'
     return
   }
 
-  // mp3quran.net reciters map (very reliable, CORS-friendly)
-  const reciters = {
-    '128': {server:'server8', path:'afs'},    // Mishary Al-Afasy
-    '112': {server:'server8', path:'Basfar'},  // Abdullah Basfar
-    '5':   {server:'server8', path:'Husry'},   // Hussary
-    '129': {server:'server8', path:'Ghamdi'},  // Saad Al-Ghamdi
-    '130': {server:'server14', path:'Sudais'}, // Al-Sudais
-    '7':   {server:'server8', path:'Maher'},   // Maher Al-Muaiqly
-  }
-  const r = reciters[reciterVal] || reciters['128']
-  const surahStr = String(surahNum).padStart(3,'0')
-  const url = `https://${r.server}.mp3quran.net/${r.path}/${surahStr}.mp3`
+  const reciterVal = document.getElementById('reciter-sel')?.value || '128'
+  const surahStr = String(currentSurah.n).padStart(3,'0')
 
-  if(!currentAudio || currentAudio._surah !== surahNum || currentAudio._reciter !== reciterVal){
-    const audioEl = document.getElementById('global-audio')
-    if(audioEl){
-      currentAudio = audioEl
-    } else {
-      currentAudio = new Audio()
-    }
-    currentAudio.src = url
-    currentAudio._surah = surahNum
-    currentAudio._reciter = reciterVal
-    currentAudio.onended = () => { if(btn) btn.textContent = '▶' }
-    currentAudio.onerror = () => {
-      console.warn('Audio failed:', url)
-      if(btn) btn.textContent = '▶'
-    }
+  // Use mp3quran.net - most reliable
+  const paths = {'128':'afs','112':'Basfar','5':'Husry','129':'Ghamdi','130':'Sudais','7':'Maher','114':'Nasser_alqatami','118':'hani_rifai','135':'yasser_ad-dussary','109':'Ibrahim_Akhdar','10':'Khalid_Qhtani','137':'Wadih_Yamani'}
+  const p = paths[reciterVal] || 'afs'
+  const server = ['5','109','10','137'].includes(reciterVal) ? 'server14' : 'server8'
+  const url = `https://${server}.mp3quran.net/${p}/${surahStr}.mp3`
+
+  // Always create fresh Audio object
+  if(currentAudio){ currentAudio.pause(); currentAudio.src = '' }
+  currentAudio = new Audio(url)
+  currentAudio.onended = () => { if(btn) btn.textContent = '▶' }
+  currentAudio.onerror = () => {
+    if(btn) btn.textContent = '▶'
+    // Fallback: open directly
+    window.open(url, '_blank')
   }
 
   if(btn) btn.textContent = '⏸'
-  const p = currentAudio.play()
-  if(p) p.catch(e => {
-    console.warn('Play error:', e.name, e.message)
+  currentAudio.play().catch(e => {
+    console.warn('play failed:', e)
     if(btn) btn.textContent = '▶'
+    window.open(url, '_blank')
   })
 }
 
