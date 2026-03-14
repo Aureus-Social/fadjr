@@ -2054,7 +2054,7 @@ function goTab(tab){
     if(memBtn) memBtn.onclick = startMemorisation
   }
   if(tab==='priere'){if(typeof renderPrayers==='function')renderPrayers();if(typeof renderDhikrCard==='function')renderDhikrCard()}
-  if(tab==='dhikr'){if(typeof renderDhikrChips==='function')renderDhikrChips();if(typeof renderAsma==='function')renderAsma()}
+  if(tab==='dhikr'){if(typeof renderDhikrCard==='function')renderDhikrCard();if(typeof renderDhikrChips==='function')renderDhikrChips();if(typeof renderAsma==='function')renderAsma()}
   if(tab==='accueil'){loadDailyContent();syncAccueilPrayer();updateRamadanBanner()}
   if(tab==='ramadan'){renderRamadan()}
 }
@@ -4098,11 +4098,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── ADHAN RÉCITATIONS ─────────────────────────────────────────────────────────
 const ADHAN_URLS = {
-  makkah:  'https://download.quranicaudio.com/audio/azan/makkah.mp3',
-  madinah: 'https://download.quranicaudio.com/audio/azan/madinah.mp3',
-  egypt:   'https://download.quranicaudio.com/audio/azan/egypt.mp3',
-  turkey:  'https://download.quranicaudio.com/audio/azan/turkey.mp3',
-  fajr:    'https://download.quranicaudio.com/audio/azan/fajr.mp3',
+  makkah:  'https://www.islamicfinder.org/prayer-times/adhans/makkah.mp3',
+  madinah: 'https://www.islamicfinder.org/prayer-times/adhans/madina.mp3',
+  egypt:   'https://www.islamicfinder.org/prayer-times/adhans/egypt.mp3',
+  turkey:  'https://www.islamicfinder.org/prayer-times/adhans/turkey.mp3',
+  fajr:    'https://www.islamicfinder.org/prayer-times/adhans/fajr.mp3',
 }
 
 let currentAdhanRecitation = localStorage.getItem('fadjr_adhan_recitation') || 'makkah'
@@ -4117,10 +4117,11 @@ function changeAdhanRecitation(val){
 function previewAdhan(){
   stopAdhanPreview()
   const url = ADHAN_URLS[currentAdhanRecitation] || ADHAN_URLS.makkah
-  adhanPreviewAudio = document.getElementById('adhan-audio-el') || new Audio()
-  adhanPreviewAudio.src = url
-  adhanPreviewAudio.load()
-  adhanPreviewAudio.play().catch(e => console.warn('Adhan preview:', e))
+  adhanPreviewAudio = new Audio(url)
+  adhanPreviewAudio.play().catch(e => {
+    console.warn('Adhan preview failed:', e)
+    window.open(url, '_blank')
+  })
 }
 
 function stopAdhanPreview(){
