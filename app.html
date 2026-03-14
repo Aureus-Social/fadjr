@@ -238,6 +238,8 @@ body.light .screen { background: transparent; }
 <body>
 
 <div id="stars"></div>
+<audio id="global-audio" preload="none" playsinline></audio>
+<audio id="adhan-audio-el" preload="none" playsinline></audio>
 
 <div id="app">
   <!-- HEADER -->
@@ -968,7 +970,7 @@ body.light .screen { background: transparent; }
 <!-- TAB BAR -->
 
     <!-- RAMADAN -->
-    <div class="screen" id="screen-ramadan">
+    <div class="screen" id="screen-ramadan" style="overflow-y:auto">
       <div style="height:12px"></div>
 
       <!-- Header gold -->
@@ -2194,7 +2196,8 @@ function toggleAudio(){
       currentAudio.pause()
       currentAudio.src = ''
     }
-    currentAudio = new Audio(`https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`)
+    currentAudio = document.getElementById('global-audio') || new Audio()
+    currentAudio.src = `https://download.quranicaudio.com/quran/${reciter}/${n}.mp3`
     currentAudio._surah = currentSurah.n
     currentAudio._reciter = reciter
     currentAudio.preload = 'auto'
@@ -4091,11 +4094,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── ADHAN RÉCITATIONS ─────────────────────────────────────────────────────────
 const ADHAN_URLS = {
-  makkah:  'https://www.islamcan.com/audio/adhan/azan1.mp3',
-  madinah: 'https://www.islamcan.com/audio/adhan/azan2.mp3',
-  egypt:   'https://www.islamcan.com/audio/adhan/azan3.mp3',
-  turkey:  'https://www.islamcan.com/audio/adhan/azan4.mp3',
-  fajr:    'https://www.islamcan.com/audio/adhan/azan6.mp3',
+  makkah:  'https://download.quranicaudio.com/audio/azan/makkah.mp3',
+  madinah: 'https://download.quranicaudio.com/audio/azan/madinah.mp3',
+  egypt:   'https://download.quranicaudio.com/audio/azan/egypt.mp3',
+  turkey:  'https://download.quranicaudio.com/audio/azan/turkey.mp3',
+  fajr:    'https://download.quranicaudio.com/audio/azan/fajr.mp3',
 }
 
 let currentAdhanRecitation = localStorage.getItem('fadjr_adhan_recitation') || 'makkah'
@@ -4110,7 +4113,9 @@ function changeAdhanRecitation(val){
 function previewAdhan(){
   stopAdhanPreview()
   const url = ADHAN_URLS[currentAdhanRecitation] || ADHAN_URLS.makkah
-  adhanPreviewAudio = new Audio(url)
+  adhanPreviewAudio = document.getElementById('adhan-audio-el') || new Audio()
+  adhanPreviewAudio.src = url
+  adhanPreviewAudio.load()
   adhanPreviewAudio.play().catch(e => console.warn('Adhan preview:', e))
 }
 
