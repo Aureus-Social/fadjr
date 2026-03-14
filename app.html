@@ -6,6 +6,13 @@
 <title>FADJR — Super App Halal</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#C9A84C">
+  <meta name="description" content="FADJR — Super App Halal. Horaires prière, Coran complet, Dhikr, Carte Halal, Boussole Qibla, Mémorisation Coran. 11 langues.">
+  <meta name="keywords" content="islam, muslim, prayer, quran, halal, dhikr, qibla, ramadan, coran, priere, mosquee">
+  <meta property="og:title" content="FADJR — Super App Halal">
+  <meta property="og:description" content="Horaires prière GPS, Coran complet, Dhikr, Carte Halal, Boussole Qibla. 11 langues.">
+  <meta property="og:image" content="https://fadjr.app/icon.png">
+  <meta property="og:url" content="https://fadjr.app">
+  <meta name="twitter:card" content="summary_large_image">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FADJR">
@@ -1796,14 +1803,32 @@ const COMMERCES = [
   {id:22,nom:"Mosquée Omar Ibn Al-Khattab",type:"Mosquée",adresse:"Rue de la Fontaine 34, Paris 20e",dist:"1.3 km",note:4.9,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"Prières, conférences islamiques, Jumu'ah",ville:"Paris"},
   {id:23,nom:"Mosquée Hassan II",type:"Mosquée",adresse:"Boulevard de la Corniche, Casablanca",dist:"2.0 km",note:5.0,certif:"FADJR",emoji:"🕌",color:"#1ABC9C",ouvert:true,spec:"2e plus grande mosquée du monde, visites guidées",ville:"Casablanca"},
 ]
-const CATS = ["Tous","Restaurant","Boucherie","Mosquée","Librairie","Boutique","Parfumerie","Voyage","École","Finance"]
+const CATS_FR = ["Tous","Restaurant","Boucherie","Mosquée","Librairie","Boutique","Parfumerie","Voyage","École","Finance"]
+const CATS_TRANS = {
+  "Tous":       {en:"All",ar:"الكل",tr:"Hepsi",es:"Todos",nl:"Alle",de:"Alle",pt:"Todos",id:"Semua",it:"Tutti",zh:"全部"},
+  "Restaurant": {en:"Restaurant",ar:"مطعم",tr:"Restoran",es:"Restaurante",nl:"Restaurant",de:"Restaurant",pt:"Restaurante",id:"Restoran",it:"Ristorante",zh:"餐厅"},
+  "Boucherie":  {en:"Butcher",ar:"ملحمة",tr:"Kasap",es:"Carnicería",nl:"Slagerij",de:"Metzgerei",pt:"Açougue",id:"Penjual daging",it:"Macelleria",zh:"肉店"},
+  "Mosquée":    {en:"Mosque",ar:"مسجد",tr:"Cami",es:"Mezquita",nl:"Moskee",de:"Moschee",pt:"Mesquita",id:"Masjid",it:"Moschea",zh:"清真寺"},
+  "Librairie":  {en:"Bookstore",ar:"مكتبة",tr:"Kitapçı",es:"Librería",nl:"Boekhandel",de:"Buchhandlung",pt:"Livraria",id:"Toko buku",it:"Libreria",zh:"书店"},
+  "Boutique":   {en:"Shop",ar:"محل",tr:"Mağaza",es:"Tienda",nl:"Winkel",de:"Laden",pt:"Loja",id:"Toko",it:"Negozio",zh:"商店"},
+  "Parfumerie": {en:"Perfumery",ar:"عطارة",tr:"Parfümeri",es:"Perfumería",nl:"Parfumerie",de:"Parfümerie",pt:"Perfumaria",id:"Parfum",it:"Profumeria",zh:"香水店"},
+  "Voyage":     {en:"Travel",ar:"سفر",tr:"Seyahat",es:"Viaje",nl:"Reizen",de:"Reisen",pt:"Viagem",id:"Perjalanan",it:"Viaggio",zh:"旅行"},
+  "École":      {en:"School",ar:"مدرسة",tr:"Okul",es:"Escuela",nl:"School",de:"Schule",pt:"Escola",id:"Sekolah",it:"Scuola",zh:"学校"},
+  "Finance":    {en:"Finance",ar:"مالية",tr:"Finans",es:"Finanzas",nl:"Financiën",de:"Finanzen",pt:"Finanças",id:"Keuangan",it:"Finanza",zh:"金融"},
+}
+function getCatTrans(cat){
+  const lang = currentAppLang || 'fr'
+  if(lang === 'fr') return cat
+  return CATS_TRANS[cat]?.[lang] || cat
+}
+const CATS = CATS_FR
 const PRAYERS_AR = {Fajr:"الفجر",Sunrise:"الشروق",Dhuhr:"الظهر",Asr:"العصر",Maghrib:"المغرب",Isha:"العشاء"}
 const PRAYERS_EMOJI = {Fajr:"🌙",Sunrise:"🌅",Dhuhr:"☀️",Asr:"🌤️",Maghrib:"🌇",Isha:"🌃"}
 const DHIKR_LIST = [
   {ar:"سُبْحَانَ اللَّهِ",fr:"Subhan Allah",trad:"Gloire à Allah",count:33},
   {ar:"الْحَمْدُ لِلَّهِ",fr:"Alhamdulillah",trad:"Louange à Allah",count:33},
-  {ar:"اللَّهُ أَكْبَرُ",fr:"Allahu Akbar",trad:"Allah est le Plus Grand",count:34},
-  {ar:"لَا إِلَٰهَ إِلَّا اللَّهُ",fr:"La ilaha illallah",trad:"Nulle divinité sauf Allah",count:100},
+  {ar:"اللَّهُ أَكْبَرُ",fr:"Allahu Akbar",trad:"Allah est le plus Grand",count:34},
+  {ar:"لَا إِلَٰهَ إِلَّا اللَّهُ",fr:"La ilaha illallah",trad:"Pas de divinité sauf Allah",count:100},
 ]
 
 // ── STATE ─────────────────────────────────────────────────────
@@ -1966,7 +1991,7 @@ function renderAllCommerces(search=''){
 }
 
 function renderFilters(){
-  document.getElementById('filter-row').innerHTML=CATS.map(c=>`<button class="filter-chip${activeCat===c?' active':''}" onclick="setFilter('${c}')">${c}</button>`).join('')
+  document.getElementById('filter-row').innerHTML=CATS.map(c=>`<button class="filter-chip${activeCat===c?' active':''}" onclick="setFilter('${c}')">${getCatTrans(c)}</button>`).join('')
 }
 
 function setFilter(cat){ activeCat=cat; renderFilters(); renderAllCommerces(document.getElementById('search-input')?.value||'') }
@@ -1980,18 +2005,20 @@ function renderCulture(){
 function renderDhikrChips(){
   document.getElementById('dhikr-chips').innerHTML=DHIKR_LIST.map((d,i)=>`
     <div class="dhikr-chip${dhikrIdx===i?' active':''}" ontouchstart="" onclick="setDhikr(${i})">
-      <div class="dc-name" style="color:var(--white)">${d.fr}</div>
+      <div class="dc-name" style="color:var(--white)">${getAdhkarTrad(d.trad)}</div>
       <div class="dc-count" style="color:var(--gold)">× ${d.count}</div>
     </div>`).join('')
 }
 function renderDhikrCard(){
   const d=DHIKR_LIST[dhikrIdx]
   document.getElementById('dhikr-ar').textContent=d.ar
-  document.getElementById('dhikr-fr').textContent=d.fr
+  document.getElementById('dhikr-fr').textContent=d.fr  // phonetic — always Latin
   document.getElementById('dhikr-trad').textContent=getAdhkarTrad(d.trad)
   document.getElementById('dhikr-total').textContent=`× ${d.count}`
   document.getElementById('dhikr-count').textContent=dhikrCount
-  document.getElementById('dhikr-sub').textContent=`sur ${d.count}`
+  const _t = APP_TRANSLATIONS[currentAppLang]||APP_TRANSLATIONS.fr
+  const surWord = {fr:'sur',en:'of',ar:'من',tr:'/',es:'de',nl:'van',de:'von',pt:'de',id:'dari',it:'di',zh:'/'} [currentAppLang] || 'sur'
+  document.getElementById('dhikr-sub').textContent=`${surWord} ${d.count}`
   document.getElementById('dhikr-progress').style.width=`${Math.min(dhikrCount/d.count*100,100)}%`
   const done=dhikrCount>=d.count
   document.getElementById('dhikr-btn').style.borderColor=done?'var(--green)':'var(--gold)'
@@ -2110,7 +2137,7 @@ async function loadAyahs(n){
     quranCache[cacheKey] = ayahs
     renderAyahs(ayahs)
   } catch(e) {
-    document.getElementById('ayahs-loading').textContent = 'Erreur de chargement. Vérifiez votre connexion.'
+    document.getElementById('ayahs-loading').textContent = currentAppLang==='fr'?'Erreur de chargement.':currentAppLang==='ar'?'خطأ في التحميل':currentAppLang==='en'?'Loading error. Check connection.':'Loading error.'
   }
 }
 
@@ -2939,7 +2966,20 @@ function renderDouas(){
 // ── ACCUEIL greeting update ────────────────────────────────────
 function updateGreeting(){
   const h = new Date().getHours()
-  const greeting = h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir'
+  const greetings = {
+    fr: h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir',
+    en: h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening',
+    ar: h < 5 ? 'ليلة طيبة' : h < 12 ? 'صباح الخير' : h < 18 ? 'مساء الخير' : 'مساء النور',
+    tr: h < 5 ? 'İyi geceler' : h < 12 ? 'Günaydın' : h < 18 ? 'İyi öğleden sonralar' : 'İyi akşamlar',
+    es: h < 5 ? 'Buenas noches' : h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches',
+    nl: h < 5 ? 'Goedenacht' : h < 12 ? 'Goedemorgen' : h < 18 ? 'Goedemiddag' : 'Goedenavond',
+    de: h < 5 ? 'Gute Nacht' : h < 12 ? 'Guten Morgen' : h < 18 ? 'Guten Tag' : 'Guten Abend',
+    pt: h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite',
+    id: h < 5 ? 'Selamat malam' : h < 12 ? 'Selamat pagi' : h < 18 ? 'Selamat siang' : 'Selamat malam',
+    it: h < 5 ? 'Buonanotte' : h < 12 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera',
+    zh: h < 5 ? '晚安' : h < 12 ? '早上好' : h < 18 ? '下午好' : '晚上好',
+  }
+  const greeting = greetings[currentAppLang] || greetings.fr
   const el = document.getElementById('accueil-greeting')
   if(el) el.textContent = greeting
   // Update username if not logged in
@@ -3915,6 +3955,10 @@ function changeAppLang(lang){
 }
 
 function applyAppLang(lang){
+  // Re-render dhikr chips with new language
+  if(typeof renderDhikrChips === 'function') renderDhikrChips()
+  if(typeof renderDhikrCard === 'function') renderDhikrCard()
+  if(typeof renderFilters === 'function') renderFilters()
   const t = APP_TRANSLATIONS[lang] || APP_TRANSLATIONS.fr
   const isRTL = lang === 'ar'
   document.body.style.direction = isRTL ? 'rtl' : 'ltr'
