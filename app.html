@@ -429,9 +429,11 @@ body.light .screen { background: transparent; }
             <div style="font-size:13px;font-weight:700;color:var(--white)">🔔 Adhan à voix haute</div>
             <div id="adhan-status-priere" style="font-size:11px;color:var(--muted)">Désactivé</div>
           </div>
-          <div id="adhan-toggle-priere" ontouchstart="" onclick="toggleAdhanPriere()" style="width:52px;height:28px;background:var(--muted);border-radius:99px;cursor:pointer;position:relative;transition:.3s">
-            <div id="adhan-knob-priere" style="position:absolute;top:4px;left:4px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
-          </div>
+          <button onclick="toggleAdhanPriere()" style="background:none;border:none;padding:0;cursor:pointer">
+            <div id="adhan-toggle-priere" style="width:52px;height:28px;background:var(--muted);border-radius:99px;position:relative;transition:.3s">
+              <div id="adhan-knob-priere" style="position:absolute;top:4px;left:4px;width:20px;height:20px;background:white;border-radius:50%;transition:.3s"></div>
+            </div>
+          </button>
         </div>
         <select id="adhan-recitation-priere" onchange="changeAdhanRecitation(this.value)" style="width:100%;background:#13131F;border:1px solid var(--border);color:var(--white);padding:9px;border-radius:10px;font-size:12px;font-family:'Cairo',sans-serif;outline:none;color-scheme:dark;margin-bottom:10px">
           <option value="makkah">🕋 Adhan Al-Haram (Mecque)</option>
@@ -441,7 +443,7 @@ body.light .screen { background: transparent; }
           <option value="fajr">⭐ Adhan Fajr spécial</option>
         </select>
         <div style="display:flex;gap:8px">
-          <button onclick="previewAdhan()" style="flex:1;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:8px;border-radius:10px;font-size:12px;cursor:pointer">▶ Écouter</button>
+          <button onclick="previewAdhan()" style="flex:1;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold);padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:700">▶ Écouter</button>
           <button onclick="stopAdhanPreview()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:10px;font-size:12px;cursor:pointer">■</button>
         </div>
       </div>
