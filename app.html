@@ -4120,10 +4120,7 @@ function previewAdhan(){
   stopAdhanPreview()
   const url = ADHAN_URLS[currentAdhanRecitation] || ADHAN_URLS.makkah
   adhanPreviewAudio = new Audio(url)
-  adhanPreviewAudio.play().catch(e => {
-    console.warn('Adhan preview failed:', e)
-    window.open(url, '_blank')
-  })
+  adhanPreviewAudio.play().catch(e => console.warn('Adhan preview:', e.name))
 }
 
 function stopAdhanPreview(){
