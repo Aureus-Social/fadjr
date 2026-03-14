@@ -656,6 +656,10 @@ body.light .screen { background: transparent; }
         </div>
         <div id="ayahs-container" style="display:flex;flex-direction:column;gap:16px;padding-bottom:20px"></div>
         <!-- Tajweed legend -->
+      <!-- Native audio player for Android -->
+      <audio id="native-audio-player" controls controlsList="nodownload"
+        style="width:100%;margin-bottom:12px;border-radius:10px;display:none;accent-color:#C9A84C">
+      </audio>
       <div id="tajweed-legend" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:12px;font-size:10px">
         <div style="color:var(--gold);letter-spacing:.1em;margin-bottom:8px" id="label-tajweed-rules">RÈGLES TAJWEED</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
@@ -2206,11 +2210,19 @@ function toggleAudio(){
     window.open(url, '_blank')
   }
 
+  // Also set native HTML5 player (for Android WebView)
+  const nativePlayer = document.getElementById('native-audio-player')
+  if(nativePlayer){
+    nativePlayer.src = url
+    nativePlayer.style.display = 'block'
+  }
+
   if(btn) btn.textContent = '⏸'
   currentAudio.play().catch(e => {
     console.warn('play failed:', e)
     if(btn) btn.textContent = '▶'
-    window.open(url, '_blank')
+    // Show native player as fallback
+    if(nativePlayer) nativePlayer.style.display = 'block'
   })
 }
 
