@@ -1167,6 +1167,9 @@ body.light .screen { background: transparent; }
 <script>
 // ─── HOIST: must be declared before any function uses them ───
 let currentAppLang = localStorage.getItem('fadjr_lang') || 'fr'
+let currentSurah = null
+let currentAudio = null
+let quranCache = {}
 let memData = JSON.parse(localStorage.getItem('fadjr_mem') || '{}')
 let memSession = []
 
@@ -2073,9 +2076,6 @@ renderDhikrChips()
 
 // ── CORAN ─────────────────────────────────────────────────────
 
-let currentSurah = null
-let currentAudio = null
-let quranCache = {}
 
 function renderSurahList(list){
   const sl = document.getElementById('surah-list')
