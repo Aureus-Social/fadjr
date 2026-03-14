@@ -500,7 +500,10 @@ body.light .screen { background: transparent; }
           <div style="font-size:9px;letter-spacing:.2em;color:var(--muted)" id="label-carte-halal">CARTE HALAL</div>
           <div style="font-size:16px;font-weight:900" id="carte-city">Bruxelles</div>
         </div>
-        <button onclick="locateMe()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif">📍 Me localiser</button>
+        <div style="display:flex;gap:6px">
+          <button onclick="locateMe()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:8px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif">📍 Me localiser</button>
+          <button onclick="searchNearMe()" style="background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);color:#27ae60;padding:8px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif">🔍 Chercher</button>
+        </div>
       </div>
 
       <!-- Mini map -->
@@ -2870,6 +2873,8 @@ function locateMe(){
         if(btn) btn.textContent = '📍 Ma position'
         // Reload prayer times with new coords
         loadPrayers()
+        // Search real halal places via OSM
+        searchHalalOSM(lat, lng, 3000)
       }).catch(()=>{ if(btn) btn.textContent = '📍 Me localiser' })
   }, ()=>{
     alert('Autorisation GPS refusée')
@@ -4368,6 +4373,85 @@ function getDouaTitre(titre){
 function getDouaTrad(fr){
   // For now return fr — future: add per-lang translations
   return fr
+}
+
+// ── OPENSTREETMAP HALAL SEARCH ────────────────────────────────
+let osmResults = []
+let osmLoading = false
+
+async function searchHalalOSM(lat, lng, radius=2000){
+  if(osmLoading) return
+  osmLoading = true
+  const listEl = document.getElementById('commerce-list')
+  if(listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">🔍 Recherche en cours...</div>'
+  
+  // Overpass API query for halal restaurants/shops near location
+  const query = `[out:json][timeout:15];
+(
+  node["amenity"="restaurant"]["cuisine"~"halal|kebab|turkish|lebanese|moroccan|arabic",i](around:${radius},${lat},${lng});
+  node["amenity"="fast_food"]["cuisine"~"halal|kebab|turkish|lebanese|moroccan|arabic",i](around:${radius},${lat},${lng});
+  node["shop"~"butcher|supermarket"]["halal"="yes"](around:${radius},${lat},${lng});
+  node["amenity"="place_of_worship"]["religion"="muslim"](around:${radius},${lat},${lng});
+)`+ `;out body 30;`
+
+  try {
+    const res = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: query,
+      headers: {'Content-Type': 'text/plain'}
+    })
+    const data = await res.json()
+    osmResults = data.elements.map(e => ({
+      id: 'osm_' + e.id,
+      nom: e.tags.name || e.tags['name:fr'] || e.tags['name:en'] || 'Sans nom',
+      type: e.tags.amenity === 'place_of_worship' ? 'Mosquée' : 
+            e.tags.shop === 'butcher' ? 'Boucherie' : 'Restaurant',
+      adresse: [e.tags['addr:street'], e.tags['addr:housenumber'], e.tags['addr:city']].filter(Boolean).join(' ') || '',
+      dist: calcDist(lat, lng, e.lat, e.lon),
+      note: 0,
+      certif: 'OSM',
+      emoji: e.tags.amenity === 'place_of_worship' ? '🕌' : e.tags.shop === 'butcher' ? '🥩' : '🍽️',
+      color: e.tags.amenity === 'place_of_worship' ? '#C9A84C' : e.tags.shop === 'butcher' ? '#C0392B' : '#27ae60',
+      ouvert: true,
+      spec: e.tags.cuisine || e.tags.description || '',
+      lat: e.lat, lng: e.lon,
+      phone: e.tags.phone || e.tags['contact:phone'] || '',
+      website: e.tags.website || e.tags['contact:website'] || ''
+    })).filter(e => e.nom !== 'Sans nom' || e.adresse)
+    .sort((a,b) => a.dist - b.dist)
+    
+    renderOSMResults()
+  } catch(err) {
+    console.warn('OSM error:', err)
+    if(listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Résultats locaux uniquement</div>'
+    renderAllCommerces()
+  }
+  osmLoading = false
+}
+
+function calcDist(lat1, lng1, lat2, lng2){
+  const R = 6371000
+  const dLat = (lat2-lat1) * Math.PI/180
+  const dLng = (lng2-lng1) * Math.PI/180
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))
+}
+
+function renderOSMResults(){
+  const listEl = document.getElementById('commerce-list')
+  if(!listEl) return
+  const combined = [...osmResults].slice(0, 30)
+  if(!combined.length){
+    listEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Aucun résultat trouvé</div>'
+    return
+  }
+  listEl.innerHTML = combined.map(c => commerceCard(c)).join('')
+}
+
+function searchNearMe(){
+  const lat = parseFloat(localStorage.getItem('fadjr_lat') || '50.8503')
+  const lng = parseFloat(localStorage.getItem('fadjr_lng') || '4.3517')
+  searchHalalOSM(lat, lng, 3000)
 }
 </script>
 </body>
