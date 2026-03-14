@@ -283,6 +283,12 @@ body.light .screen { background: transparent; }
   </div>
 
   <!-- CONTENT -->
+
+  <!-- Gate Banner -->
+  <div id="gate-banner" style="display:none;background:linear-gradient(90deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-bottom:1px solid rgba(201,168,76,.25);padding:10px 16px;text-align:center;cursor:pointer" onclick="goTab('profil')">
+    <span style="font-size:12px;color:var(--gold);font-weight:700">🔓 Connecte-toi gratuitement</span>
+    <span style="font-size:11px;color:var(--muted);margin-left:6px">pour profiter de toute l'app sans limite →</span>
+  </div>
   <div id="content">
 
     <!-- ACCUEIL -->
@@ -1999,7 +2005,10 @@ function renderAccueilCommerces(){
 
 function renderAllCommerces(search=''){
   const filtered=COMMERCES.filter(c=>(activeCat==='Tous'||c.type===activeCat)&&(!c.ville||c.ville===activeCarte||activeCarte==='Bruxelles'&&!c.ville)&&(c.nom.toLowerCase().includes(search.toLowerCase())||c.spec.toLowerCase().includes(search.toLowerCase())))
-  document.getElementById('commerce-list').innerHTML=filtered.map(commerceCard).join('')||'<div style="text-align:center;color:var(--muted);padding:40px">Aucun résultat</div>'
+  const filteredLimited = currentUser ? filtered : filtered.slice(0, 5)
+  let html = filteredLimited.map(commerceCard).join('')
+  if(!currentUser && filtered.length > 5) html += `<div onclick="goTab('profil')" ontouchstart="" style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);border-radius:12px;padding:14px;text-align:center;cursor:pointer;margin-top:8px"><div style="color:var(--gold);font-weight:700;font-size:13px">🔓 +${filtered.length-5} résultats masqués</div><div style="color:var(--muted);font-size:11px;margin-top:4px">Connecte-toi gratuitement pour tout voir</div></div>`
+  document.getElementById('commerce-list').innerHTML=html||'<div style="text-align:center;color:var(--muted);padding:40px">Aucun résultat</div>'
 }
 
 function renderFilters(){
@@ -2100,6 +2109,14 @@ function filterSurahs(q){
 }
 
 async function openSurah(n){
+  if(!currentUser){
+    surahOpenCount++
+    localStorage.setItem('fadjr_surah_count', surahOpenCount)
+    if(surahOpenCount > 3){
+      showGateModal('tout le Coran — 114 sourates')
+      return
+    }
+  }
   currentSurah = SURAHS.find(s => s.n === n)
   document.getElementById('quran-home').style.display = 'none'
   document.getElementById('quran-reader').style.display = 'block'
@@ -2380,6 +2397,9 @@ async function initAuth(){
 const ADMIN_EMAILS = ['moussati.nourdin@gmail.com', 'info@aureus-ia.com']
 
 function showUserPanel(user){
+  const b = document.getElementById('gate-banner')
+  if(b) b.style.display = 'none'
+  resetGateCounter()
   loadMemDataCloud().catch(()=>{}) // async, non-blocking
   document.getElementById('auth-panel').style.display = 'none'
   document.getElementById('user-panel').style.display = 'block'
@@ -2666,6 +2686,12 @@ renderDhikrCard()
 if(document.getElementById('accueil-commerces')) renderAccueilCommerces()
 if(adhanEnabled) startAdhanChecker()
 setInterval(syncAccueilPrayer, 10000)
+setTimeout(()=>{
+  if(!currentUser){
+    const b = document.getElementById('gate-banner')
+    if(b) b.style.display = 'block'
+  }
+}, 10000)
 setTimeout(syncAccueilPrayer, 2000)
 
 // iOS Safari fix DEFINITIF : câbler chaque bouton par ID
@@ -4461,6 +4487,59 @@ function searchNearMe(){
   const lat = parseFloat(localStorage.getItem('fadjr_lat') || '50.8503')
   const lng = parseFloat(localStorage.getItem('fadjr_lng') || '4.3517')
   searchHalalOSM(lat, lng, 3000)
+}
+
+// ── GATE SYSTEM ─────────────────────────────────────────────────
+let surahOpenCount = parseInt(localStorage.getItem('fadjr_surah_count') || '0')
+
+function showGateModal(feature){
+  const lang = currentAppLang || 'fr'
+  const msgs = {
+    fr: { title: '🔓 Connexion gratuite', body: `Connecte-toi gratuitement pour accéder à ${feature} et profiter de toute l'application sans limite.`, btn: 'Se connecter' },
+    en: { title: '🔓 Free account', body: `Sign in for free to access ${feature} and enjoy the full app with no limits.`, btn: 'Sign in' },
+    ar: { title: '🔓 حساب مجاني', body: `سجّل الدخول مجاناً للوصول إلى ${feature} والاستمتاع بالتطبيق كاملاً.`, btn: 'تسجيل الدخول' },
+  }
+  const m = msgs[lang] || msgs.fr
+  
+  // Remove existing modal
+  document.getElementById('gate-modal')?.remove()
+  
+  const modal = document.createElement('div')
+  modal.id = 'gate-modal'
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:20px'
+  modal.innerHTML = `
+    <div style="background:#0D0D1F;border:1px solid rgba(201,168,76,.4);border-radius:20px 20px 16px 16px;padding:28px 24px;width:100%;max-width:400px;text-align:center">
+      <div style="font-size:22px;font-weight:900;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:10px">${m.title}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:20px">${m.body}</div>
+      <button onclick="document.getElementById('gate-modal').remove();goTab('profil')" 
+        style="width:100%;background:var(--gold);color:#0a0a0f;font-weight:800;padding:14px;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-family:'Cairo',sans-serif;margin-bottom:10px">
+        ${m.btn} →
+      </button>
+      <button onclick="document.getElementById('gate-modal').remove()"
+        style="width:100%;background:transparent;color:var(--muted);border:none;padding:8px;cursor:pointer;font-size:12px">
+        Continuer sans compte
+      </button>
+    </div>`
+  document.body.appendChild(modal)
+}
+
+function checkGate(feature, action){
+  if(currentUser) { action(); return }
+  
+  if(feature === 'coran'){
+    surahOpenCount++
+    localStorage.setItem('fadjr_surah_count', surahOpenCount)
+    if(surahOpenCount > 3){
+      showGateModal('tout le Coran (114 sourates)')
+      return
+    }
+  }
+  action()
+}
+
+function resetGateCounter(){
+  surahOpenCount = 0
+  localStorage.removeItem('fadjr_surah_count')
 }
 </script>
 </body>
