@@ -2214,10 +2214,23 @@ function toggleAudio(){
   const surahStr = String(currentSurah.n).padStart(3,'0')
 
   // Use mp3quran.net - most reliable
-  const paths = {'128':'afs','112':'Basfar','5':'Husry','129':'Ghamdi','130':'Sudais','7':'Maher','114':'Nasser_alqatami','118':'hani_rifai','135':'yasser_ad-dussary','109':'Ibrahim_Akhdar','10':'Khalid_Qhtani','137':'Wadih_Yamani'}
-  const p = paths[reciterVal] || 'afs'
-  const server = ['5','109','10','137'].includes(reciterVal) ? 'server14' : 'server8'
-  const url = `https://${server}.mp3quran.net/${p}/${surahStr}.mp3`
+  // islamic.network CDN — reliable, CORS-friendly
+  const recitersNet = {
+    '128': 'ar.alafasy',
+    '112': 'ar.abdullahbasfar', 
+    '5':   'ar.husary',
+    '129': 'ar.saoodshuraym',
+    '130': 'ar.abdurrahmaansudais',
+    '7':   'ar.mahermuaiqly',
+    '114': 'ar.nasserAlqatami',
+    '118': 'ar.hanirifai',
+    '135': 'ar.yassereladany',
+    '109': 'ar.ibrahimakhbar',
+    '10':  'ar.khalifatunaija',
+    '137': 'ar.minshawi'
+  }
+  const edition = recitersNet[reciterVal] || 'ar.alafasy'
+  const url = `https://cdn.islamic.network/quran/audio-surah/128/${edition}/${currentSurah.n}.mp3`
 
   // Always create fresh Audio object
   if(currentAudio){ currentAudio.pause(); currentAudio.src = '' }
