@@ -1,4 +1,3 @@
-import 'react-native-url-polyfill/auto'
 import { useState, useEffect, createContext, useContext } from "react"
 import {
   StyleSheet, Text, View, TouchableOpacity, ScrollView,
