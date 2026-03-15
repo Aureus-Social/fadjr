@@ -146,7 +146,7 @@ function EcranAuth() {
 }
 
 // ─── Écran Accueil ────────────────────────────────────────────────────────────
-function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab }) {
+function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate }) {
   const now = new Date()
   const h = now.getHours()
   const greeting = h < 12 ? "Sabah al-khayr" : h < 18 ? "Assalamu alaykum" : "Masa al-khayr"
@@ -161,20 +161,20 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab }) {
           </View>
           <View style={{ alignItems:"flex-end" }}>
             <Text style={{ color:"#5A5A7A", fontSize:11 }}>{now.toLocaleDateString("fr-BE",{weekday:"long",day:"numeric",month:"long"})}</Text>
-            <Text style={{ color:"#C9A84C", fontSize:12, marginTop:3 }}>12 Ramadan 1447 H</Text>
+            <Text style={{ color:"#C9A84C", fontSize:12, marginTop:3 }}>{hijriDate || "..."}</Text>
           </View>
         </View>
         {nextPrayer && (
           <View style={styles.nextPrayerCard}>
             <View>
               <Text style={{ color:"#5A5A7A", fontSize:10, letterSpacing:2, marginBottom:4 }}>PROCHAINE PRIERE</Text>
-              <Text style={{ color:"#C9A84C", fontSize:24, fontWeight:"900" }}>{nextPrayer.name}</Text>
-              <Text style={{ color:"#F0EAD8", fontSize:13, opacity:.6 }}>{nextPrayer.ar}</Text>
+              <Text style={{ color:"#C9A84C", fontSize:24, fontWeight:"900" }}>{nextPrayer?.name}</Text>
+              <Text style={{ color:"#F0EAD8", fontSize:13, opacity:.6 }}>{nextPrayer?.ar}</Text>
             </View>
             <View style={{ alignItems:"flex-end" }}>
-              <Text style={{ color:"#F0EAD8", fontSize:30, fontWeight:"900" }}>{nextPrayer.time}</Text>
+              <Text style={{ color:"#F0EAD8", fontSize:30, fontWeight:"900" }}>{nextPrayer?.time}</Text>
               <Text style={{ color:"#2ECC71", fontSize:12, marginTop:4 }}>dans {timeToNext}</Text>
-              <Text style={{ fontSize:20, marginTop:4 }}>{nextPrayer.emoji}</Text>
+              <Text style={{ fontSize:20, marginTop:4 }}>{nextPrayer?.emoji}</Text>
             </View>
           </View>
         )}
@@ -249,8 +249,8 @@ function EcranPriere({ prayers, city, loading, nextPrayer }) {
             <ActivityIndicator color="#C9A84C" size="large" />
             <Text style={{ color:"#5A5A7A", marginTop:16 }}>Chargement Aladhan API...</Text>
           </View>
-        ) : prayers.map((p,i) => {
-          const isNext = nextPrayer && nextPrayer.name === p.name
+        ) : (prayers || []).map((p,i) => {
+          const isNext = nextPrayer && nextPrayer?.name === p.name
           return (
             <View key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10,
               borderLeftWidth:4, borderLeftColor:isNext ? "#C9A84C" : "transparent",
@@ -379,7 +379,129 @@ function EcranCarte() {
   )
 }
 
-// ─── Écran Profil ─────────────────────────────────────────────────────────────
+// ─── Écran Culture ────────────────────────────────────────────────────────────
+function EcranCulture() {
+  const CULTURE_ITEMS = [
+    { emoji:"📖", titre:"Coran", desc:"Lecture et écoute du Saint Coran", color:"#C9A84C" },
+    { emoji:"🎓", titre:"Tajwid", desc:"Apprendre la récitation correcte", color:"#2ECC71" },
+    { emoji:"📚", titre:"Hadith", desc:"Les paroles du Prophète ﷺ", color:"#8B5E3C" },
+    { emoji:"🕌", titre:"Fiqh", desc:"Jurisprudence islamique pratique", color:"#3498DB" },
+    { emoji:"🌟", titre:"Sira", desc:"La biographie du Prophète ﷺ", color:"#9B59B6" },
+    { emoji:"🖋️", titre:"Arabe", desc:"Apprendre la langue du Coran", color:"#1ABC9C" },
+  ]
+  return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <Text style={styles.sectionLabel}>CULTURE ISLAMIQUE</Text>
+        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>📚 Apprendre & Grandir</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <View style={{ flexDirection:"row", flexWrap:"wrap", gap:10 }}>
+          {CULTURE_ITEMS.map((item, i) => (
+            <TouchableOpacity key={i} style={[styles.card, { width:(W-42)/2, alignItems:"center", paddingVertical:20, borderTopWidth:3, borderTopColor:item.color }]}>
+              <Text style={{ fontSize:32 }}>{item.emoji}</Text>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"800", marginTop:8, textAlign:"center" }}>{item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:11, marginTop:4, textAlign:"center", lineHeight:15 }}>{item.desc}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={[styles.card, { marginTop:16, flexDirection:"row", alignItems:"center", gap:14 }]}>
+          <Text style={{ fontSize:28 }}>🕋</Text>
+          <View style={{ flex:1 }}>
+            <Text style={{ color:C.gold, fontSize:14, fontWeight:"800" }}>Prochainement</Text>
+            <Text style={{ color:C.muted, fontSize:12, marginTop:2 }}>Cours en ligne, quiz interactifs et bien plus</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  )
+}
+
+// ─── Écran Finance ────────────────────────────────────────────────────────────
+function EcranFinance() {
+  const FINANCE_ITEMS = [
+    { emoji:"🏦", titre:"Banque islamique", desc:"Comptes sans intérêts ribawi", color:"#C9A84C", tag:"Halal" },
+    { emoji:"🛡️", titre:"Takaful", desc:"Assurance islamique solidaire", color:"#2ECC71", tag:"Halal" },
+    { emoji:"📈", titre:"Investissement", desc:"Actions et fonds conformes charia", color:"#3498DB", tag:"Halal" },
+    { emoji:"🏠", titre:"Immobilier", desc:"Financement halal sans intérêts", color:"#9B59B6", tag:"Halal" },
+    { emoji:"💰", titre:"Zakat", desc:"Calculer et payer votre zakat", color:"#E74C3C", tag:"Obligatoire" },
+    { emoji:"🤝", titre:"Qard Hasan", desc:"Prêt sans intérêts entre musulmans", color:"#1ABC9C", tag:"Sunnah" },
+  ]
+  return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <Text style={styles.sectionLabel}>FINANCE ISLAMIQUE</Text>
+        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>🏦 Argent Halal</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        {FINANCE_ITEMS.map((item, i) => (
+          <TouchableOpacity key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10 }]}>
+            <View style={{ width:52, height:52, borderRadius:12, backgroundColor:item.color+"18", alignItems:"center", justifyContent:"center" }}>
+              <Text style={{ fontSize:24 }}>{item.emoji}</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <View style={{ flexDirection:"row", alignItems:"center", gap:8 }}>
+                <Text style={{ color:C.white, fontSize:15, fontWeight:"700" }}>{item.titre}</Text>
+                <View style={{ backgroundColor:item.color+"25", borderRadius:99, paddingHorizontal:8, paddingVertical:2 }}>
+                  <Text style={{ color:item.color, fontSize:9, fontWeight:"800" }}>{item.tag}</Text>
+                </View>
+              </View>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{item.desc}</Text>
+            </View>
+            <Text style={{ color:C.muted, fontSize:18 }}>›</Text>
+          </TouchableOpacity>
+        ))}
+        <View style={[styles.card, { marginTop:6, alignItems:"center", paddingVertical:20, borderColor:C.border }]}>
+          <Text style={{ fontSize:28 }}>📊</Text>
+          <Text style={{ color:C.gold, fontSize:14, fontWeight:"800", marginTop:8 }}>Calculateur Zakat</Text>
+          <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Bientôt disponible</Text>
+        </View>
+      </ScrollView>
+    </View>
+  )
+}
+
+// ─── Écran Voyage ─────────────────────────────────────────────────────────────
+function EcranVoyage() {
+  const DESTINATIONS = [
+    { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacrée", color:"#C9A84C" },
+    { emoji:"🕌", ville:"Médine", pays:"Arabie Saoudite", desc:"La ville du Prophète ﷺ", color:"#2ECC71" },
+    { emoji:"🌙", ville:"Istanbul", pays:"Turquie", desc:"Cité des mosquées et de l'histoire", color:"#3498DB" },
+    { emoji:"🌴", ville:"Marrakech", pays:"Maroc", desc:"Joyau de l'Islam africain", color:"#E74C3C" },
+    { emoji:"🏛️", ville:"Jérusalem", pays:"Palestine", desc:"Al-Quds, 3ème lieu saint", color:"#9B59B6" },
+    { emoji:"🌊", ville:"Dubaï", pays:"Émirats", desc:"Modernité et tradition halal", color:"#1ABC9C" },
+  ]
+  return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <Text style={styles.sectionLabel}>VOYAGES HALAL</Text>
+        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>✈️ Destinations</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <View style={[styles.card, { flexDirection:"row", alignItems:"center", gap:12, marginBottom:16, borderColor:"rgba(201,168,76,.4)" }]}>
+          <Text style={{ fontSize:24 }}>🕋</Text>
+          <View style={{ flex:1 }}>
+            <Text style={{ color:C.gold, fontSize:13, fontWeight:"800" }}>Omra & Hajj — Partenaires agréés</Text>
+            <Text style={{ color:C.muted, fontSize:11, marginTop:2 }}>Réservez via nos agences certifiées halal</Text>
+          </View>
+        </View>
+        {DESTINATIONS.map((dest, i) => (
+          <TouchableOpacity key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10, borderLeftWidth:3, borderLeftColor:dest.color }]}>
+            <Text style={{ fontSize:32 }}>{dest.emoji}</Text>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.white, fontSize:15, fontWeight:"800" }}>{dest.ville}</Text>
+              <Text style={{ color:dest.color, fontSize:11, fontWeight:"600" }}>{dest.pays}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{dest.desc}</Text>
+            </View>
+            <Text style={{ color:C.muted, fontSize:18 }}>›</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  )
+}
+
+
 function EcranProfil() {
   const { user, isAnonymous } = useAuth()
   const [loggingOut, setLoggingOut] = useState(false)
@@ -448,6 +570,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [nextPrayer, setNextPrayer] = useState(null)
   const [timeToNext, setTimeToNext] = useState("")
+  const [hijriDate, setHijriDate] = useState("")
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => setSession(s ?? null))
@@ -477,6 +600,8 @@ export default function App() {
         const data = await res.json()
         if (data.code === 200) {
           const t = data.data.timings
+          const h = data.data.date?.hijri
+          if (h) setHijriDate(`${h.day} ${h.month?.en} ${h.year} H`)
           const list = [
             { name:"Fajr", ar:PRAYER_AR[0], time:t.Fajr, emoji:PRAYER_EMOJI[0] },
             { name:"Sunrise", ar:PRAYER_AR[1], time:t.Sunrise, emoji:PRAYER_EMOJI[1] },
@@ -531,10 +656,12 @@ export default function App() {
       <View style={{ flex:1, backgroundColor:"#0A0A14" }}>
         <StatusBar barStyle="light-content" backgroundColor="#0A0A14" />
         <View style={{ flex:1 }}>
-          {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} />}
+          {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} hijriDate={hijriDate} />}
           {tab==="priere" && <EcranPriere prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} />}
           {tab==="carte" && <EcranCarte />}
-          {(tab==="culture"||tab==="finance"||tab==="voyage") && <EcranProfil />}
+          {tab==="culture" && <EcranCulture />}
+          {tab==="finance" && <EcranFinance />}
+          {tab==="voyage" && <EcranVoyage />}
           {tab==="profil" && <EcranProfil />}
         </View>
         <View style={styles.tabBar}>
