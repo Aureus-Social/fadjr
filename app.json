@@ -3,19 +3,17 @@
     "name": "FADJR",
     "slug": "fadjr",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0A0A14"
+      "backgroundColor": "#07070F"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.fadjr",
-      "buildNumber": "1"
+      "bundleIdentifier": "app.fadjr"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,12 +23,8 @@
       "package": "app.fadjr",
       "versionCode": 1
     },
-    "extra": {
-      "eas": {
-        "projectId": "cec4b75a-6131-4e4a-9cd3-ac64b91bb67f"
-      }
-    },
-    "newArchEnabled": false,
-    "owner": "fadjr"
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
   }
 }
