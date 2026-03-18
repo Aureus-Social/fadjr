@@ -1,11 +1,23 @@
-import { useState, useEffect, createContext, useContext } from "react"
+import 'react-native-url-polyfill/auto'
+import { useState, useEffect, useRef, createContext, useContext, useCallback } from "react"
 import {
   StyleSheet, Text, View, TouchableOpacity, ScrollView,
   StatusBar, TextInput, ActivityIndicator, Dimensions, FlatList,
-  KeyboardAvoidingView, Platform, Alert
+  KeyboardAvoidingView, Platform, Alert, Switch
 } from "react-native"
 import { createClient } from '@supabase/supabase-js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as Notifications from 'expo-notifications'
+import * as Device from 'expo-device'
+
+// ─── Notifications handler (foreground) ──────────────────────────────────────
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+})
 
 // ─── Supabase ────────────────────────────────────────────────────────────────
 const supabase = createClient(
@@ -14,7 +26,7 @@ const supabase = createClient(
   { auth: { storage: AsyncStorage, autoRefreshToken: true, persistSession: true } }
 )
 
-// ─── Auth Context ─────────────────────────────────────────────────────────────
+// ─── Auth + Profile Context ───────────────────────────────────────────────────
 const AuthContext = createContext(null)
 const useAuth = () => useContext(AuthContext)
 
@@ -28,7 +40,10 @@ const C = {
 }
 const { width: W } = Dimensions.get("window")
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Helpers date ─────────────────────────────────────────────────────────────
+const todayKey = () => new Date().toISOString().slice(0, 10)
+
+// ─── Data statique ────────────────────────────────────────────────────────────
 const COMMERCES = [
   { id:1, nom:"Le Sultane", type:"Restaurant", adresse:"Chaussee de Wavre 142, Ixelles", distance:"0.3 km", note:4.8, certif:"HBE", emoji:"🍽️", color:"#C9A84C", ouvert:true, spec:"Cuisine orientale, tagine, couscous" },
   { id:2, nom:"Boucherie Al Madina", type:"Boucherie", adresse:"Rue Molenbeek 67, Molenbeek", distance:"0.7 km", note:4.6, certif:"AVS", emoji:"🥩", color:"#E74C3C", ouvert:true, spec:"Agneau, veau, poulet, merguez" },
@@ -46,8 +61,86 @@ const DHIKR = [
   { ar:"Allahu Akbar", fr:"Allahu Akbar", trad:"Allah est le Plus Grand", count:34 },
   { ar:"La ilaha illallah", fr:"La ilaha illallah", trad:"Nulle divinite sauf Allah", count:100 },
 ]
+const PRAYER_NAMES = ["Fajr","Sunrise","Dhuhr","Asr","Maghrib","Isha"]
 const PRAYER_AR = ["Al-Fajr","Ash-Shurouq","Adh-Dhuhr","Al-Asr","Al-Maghrib","Al-Icha"]
 const PRAYER_EMOJI = ["🌙","🌅","☀️","🌤️","🌇","🌃"]
+// Prières notifiables (sans Sunrise)
+const NOTIF_PRAYERS = ["Fajr","Dhuhr","Asr","Maghrib","Isha"]
+
+// ─── Notifications helpers ────────────────────────────────────────────────────
+async function requestNotifPermission() {
+  if (!Device.isDevice) return false
+  const { status: existing } = await Notifications.getPermissionsAsync()
+  if (existing === 'granted') return true
+  const { status } = await Notifications.requestPermissionsAsync()
+  return status === 'granted'
+}
+
+async function schedulePrayerNotifications(prayers) {
+  await Notifications.cancelAllScheduledNotificationsAsync()
+  const granted = await requestNotifPermission()
+  if (!granted) return false
+
+  const now = new Date()
+  let scheduled = 0
+
+  for (const p of prayers) {
+    if (!NOTIF_PRAYERS.includes(p.name)) continue
+    const [h, m] = p.time.split(":").map(Number)
+    const trigger = new Date()
+    trigger.setHours(h, m, 0, 0)
+    if (trigger <= now) continue // déjà passée aujourd'hui
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `${p.emoji} ${p.name} — il est l'heure`,
+        body: `${p.ar} · ${p.time}`,
+        sound: true,
+        data: { prayer: p.name },
+      },
+      trigger: { date: trigger },
+    })
+    scheduled++
+  }
+  return scheduled
+}
+
+// ─── Supabase Profile helpers ─────────────────────────────────────────────────
+async function upsertProfile(userId, data) {
+  const { error } = await supabase
+    .from('profiles')
+    .upsert({ user_id: userId, ...data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+  if (error) console.warn('upsertProfile:', error.message)
+}
+
+async function fetchProfile(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+  if (error && error.code !== 'PGRST116') console.warn('fetchProfile:', error.message)
+  return data
+}
+
+async function savePrayerTracked(userId, prayers_today) {
+  const key = todayKey()
+  const { error } = await supabase
+    .from('prayer_tracker')
+    .upsert({ user_id: userId, date: key, prayers: prayers_today, updated_at: new Date().toISOString() }, { onConflict: 'user_id,date' })
+  if (error) console.warn('savePrayerTracked:', error.message)
+}
+
+async function fetchPrayerTracked(userId) {
+  const key = todayKey()
+  const { data } = await supabase
+    .from('prayer_tracker')
+    .select('prayers')
+    .eq('user_id', userId)
+    .eq('date', key)
+    .single()
+  return data?.prayers || {}
+}
 
 // ─── Écran Auth ───────────────────────────────────────────────────────────────
 function EcranAuth() {
@@ -155,25 +248,25 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
       <View style={styles.heroHeader}>
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"flex-start", marginBottom:20 }}>
           <View>
-            <Text style={{ color:"#5A5A7A", fontSize:13, marginBottom:4 }}>{greeting}</Text>
-            <Text style={{ color:"#C9A84C", fontSize:26, fontWeight:"900", letterSpacing:3 }}>FADJR</Text>
-            <Text style={{ color:"#C9A84C", fontSize:11, letterSpacing:2, opacity:.7 }}>☪ {city}</Text>
+            <Text style={{ color:C.muted, fontSize:13, marginBottom:4 }}>{greeting}</Text>
+            <Text style={{ color:C.gold, fontSize:26, fontWeight:"900", letterSpacing:3 }}>FADJR</Text>
+            <Text style={{ color:C.gold, fontSize:11, letterSpacing:2, opacity:.7 }}>☪ {city}</Text>
           </View>
           <View style={{ alignItems:"flex-end" }}>
-            <Text style={{ color:"#5A5A7A", fontSize:11 }}>{now.toLocaleDateString("fr-BE",{weekday:"long",day:"numeric",month:"long"})}</Text>
-            <Text style={{ color:"#C9A84C", fontSize:12, marginTop:3 }}>{hijriDate || "..."}</Text>
+            <Text style={{ color:C.muted, fontSize:11 }}>{now.toLocaleDateString("fr-BE",{weekday:"long",day:"numeric",month:"long"})}</Text>
+            <Text style={{ color:C.gold, fontSize:12, marginTop:3 }}>{hijriDate || "..."}</Text>
           </View>
         </View>
         {nextPrayer && (
           <View style={styles.nextPrayerCard}>
             <View>
-              <Text style={{ color:"#5A5A7A", fontSize:10, letterSpacing:2, marginBottom:4 }}>PROCHAINE PRIERE</Text>
-              <Text style={{ color:"#C9A84C", fontSize:24, fontWeight:"900" }}>{nextPrayer?.name}</Text>
-              <Text style={{ color:"#F0EAD8", fontSize:13, opacity:.6 }}>{nextPrayer?.ar}</Text>
+              <Text style={{ color:C.muted, fontSize:10, letterSpacing:2, marginBottom:4 }}>PROCHAINE PRIERE</Text>
+              <Text style={{ color:C.gold, fontSize:24, fontWeight:"900" }}>{nextPrayer?.name}</Text>
+              <Text style={{ color:C.white, fontSize:13, opacity:.6 }}>{nextPrayer?.ar}</Text>
             </View>
             <View style={{ alignItems:"flex-end" }}>
-              <Text style={{ color:"#F0EAD8", fontSize:30, fontWeight:"900" }}>{nextPrayer?.time}</Text>
-              <Text style={{ color:"#2ECC71", fontSize:12, marginTop:4 }}>dans {timeToNext}</Text>
+              <Text style={{ color:C.white, fontSize:30, fontWeight:"900" }}>{nextPrayer?.time}</Text>
+              <Text style={{ color:C.green, fontSize:12, marginTop:4 }}>dans {timeToNext}</Text>
               <Text style={{ fontSize:20, marginTop:4 }}>{nextPrayer?.emoji}</Text>
             </View>
           </View>
@@ -183,24 +276,24 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
         <Text style={styles.sectionLabel}>EXPLORER</Text>
         <View style={{ flexDirection:"row", flexWrap:"wrap", gap:10, marginBottom:24 }}>
           {[
-            { icon:"🕌", label:"Priere", color:"#C9A84C", tab:"priere" },
-            { icon:"🍽️", label:"Halal", color:"#E74C3C", tab:"carte" },
-            { icon:"📚", label:"Culture", color:"#8B5E3C", tab:"culture" },
-            { icon:"🏦", label:"Finance", color:"#9B59B6", tab:"finance" },
-            { icon:"✈️", label:"Voyage", color:"#3498DB", tab:"voyage" },
-            { icon:"👥", label:"Communaute", color:"#1ABC9C", tab:"profil" },
+            { icon:"🕌", label:"Priere", color:C.gold, tab:"priere" },
+            { icon:"🍽️", label:"Halal", color:C.red, tab:"carte" },
+            { icon:"📚", label:"Culture", color:C.brown, tab:"culture" },
+            { icon:"🏦", label:"Finance", color:C.purple, tab:"finance" },
+            { icon:"✈️", label:"Voyage", color:C.blue, tab:"voyage" },
+            { icon:"👥", label:"Communaute", color:C.teal, tab:"profil" },
           ].map(p => (
             <TouchableOpacity key={p.tab} onPress={() => setTab(p.tab)}
               style={[styles.pilierBtn, { borderTopColor:p.color, borderTopWidth:2, width:(W-48)/3 }]}>
               <Text style={{ fontSize:26 }}>{p.icon}</Text>
-              <Text style={{ color:"#F0EAD8", fontSize:10, fontWeight:"700", letterSpacing:1, marginTop:4 }}>{p.label}</Text>
+              <Text style={{ color:C.white, fontSize:10, fontWeight:"700", letterSpacing:1, marginTop:4 }}>{p.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
           <Text style={styles.sectionLabel}>PRES DE VOUS</Text>
           <TouchableOpacity onPress={() => setTab("carte")}>
-            <Text style={{ color:"#C9A84C", fontSize:12 }}>Voir tout →</Text>
+            <Text style={{ color:C.gold, fontSize:12 }}>Voir tout →</Text>
           </TouchableOpacity>
         </View>
         {COMMERCES.slice(0,3).map(c => (
@@ -210,11 +303,11 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
             </View>
             <View style={{ flex:1 }}>
               <View style={{ flexDirection:"row", justifyContent:"space-between" }}>
-                <Text style={{ color:"#F0EAD8", fontSize:14, fontWeight:"700" }}>{c.nom}</Text>
-                <Text style={{ color:"#5A5A7A", fontSize:11 }}>{c.distance}</Text>
+                <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{c.nom}</Text>
+                <Text style={{ color:C.muted, fontSize:11 }}>{c.distance}</Text>
               </View>
-              <Text style={{ color:"#C9A84C", fontSize:11 }}>{"★".repeat(Math.floor(c.note))} {c.note}</Text>
-              <Text style={{ color:"#5A5A7A", fontSize:11, marginTop:2 }}>{c.spec.substring(0,38)}...</Text>
+              <Text style={{ color:C.gold, fontSize:11 }}>{"★".repeat(Math.floor(c.note))} {c.note}</Text>
+              <Text style={{ color:C.muted, fontSize:11, marginTop:2 }}>{c.spec.substring(0,38)}...</Text>
             </View>
           </View>
         ))}
@@ -224,85 +317,132 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
 }
 
 // ─── Écran Prière ─────────────────────────────────────────────────────────────
-function EcranPriere({ prayers, city, loading, nextPrayer }) {
+function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onTogglePrayed }) {
   const [subTab, setSubTab] = useState("horaires")
   const [dhikrIdx, setDhikrIdx] = useState(0)
   const [dhikrCount, setDhikrCount] = useState(0)
   const d = DHIKR[dhikrIdx]
+
+  const prayedCount = Object.values(prayedToday).filter(Boolean).length
+
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
         <Text style={styles.sectionLabel}>PRIERE & SPIRITUALITE</Text>
-        <Text style={{ color:"#C9A84C", fontSize:18, fontWeight:"900" }}>☪ {city}</Text>
+        <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center" }}>
+          <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>☪ {city}</Text>
+          {/* Compteur journalier */}
+          <View style={{ flexDirection:"row", gap:4 }}>
+            {NOTIF_PRAYERS.map((name, i) => (
+              <View key={i} style={{
+                width:8, height:8, borderRadius:4,
+                backgroundColor: prayedToday[name] ? C.green : "rgba(255,255,255,.1)"
+              }} />
+            ))}
+            <Text style={{ color:C.gold, fontSize:11, marginLeft:6, fontWeight:"700" }}>{prayedCount}/5</Text>
+          </View>
+        </View>
         <View style={{ flexDirection:"row", gap:8, marginTop:12 }}>
-          {[["horaires","Horaires"],["qibla","Qibla"],["dhikr","Dhikr"]].map(([key,label]) => (
+          {[["horaires","Horaires"],["tracker","Tracker"],["dhikr","Dhikr"]].map(([key,label]) => (
             <TouchableOpacity key={key} onPress={() => setSubTab(key)}
               style={[styles.subTabBtn, subTab===key && styles.subTabActive]}>
-              <Text style={{ color:subTab===key ? "#C9A84C" : "#5A5A7A", fontSize:12, fontWeight:subTab===key?"700":"400" }}>{label}</Text>
+              <Text style={{ color:subTab===key ? C.gold : C.muted, fontSize:12, fontWeight:subTab===key?"700":"400" }}>{label}</Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+
+        {/* ── Horaires ── */}
         {subTab==="horaires" && (loading ? (
           <View style={{ alignItems:"center", paddingTop:60 }}>
-            <ActivityIndicator color="#C9A84C" size="large" />
-            <Text style={{ color:"#5A5A7A", marginTop:16 }}>Chargement Aladhan API...</Text>
+            <ActivityIndicator color={C.gold} size="large" />
+            <Text style={{ color:C.muted, marginTop:16 }}>Chargement Aladhan API...</Text>
           </View>
         ) : (prayers || []).map((p,i) => {
-          const isNext = nextPrayer && nextPrayer?.name === p.name
+          const isNext = nextPrayer?.name === p.name
+          const isPrayed = prayedToday[p.name]
           return (
-            <View key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10,
-              borderLeftWidth:4, borderLeftColor:isNext ? "#C9A84C" : "transparent",
-              backgroundColor:isNext ? "#1C1C35" : "#12121E" }]}>
-              <Text style={{ fontSize:28, width:36, textAlign:"center" }}>{p.emoji}</Text>
+            <TouchableOpacity key={i} onPress={() => onTogglePrayed(p.name)}
+              style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10,
+                borderLeftWidth:4,
+                borderLeftColor: isPrayed ? C.green : isNext ? C.gold : "transparent",
+                backgroundColor: isPrayed ? "rgba(46,204,113,.06)" : isNext ? "#1C1C35" : C.card }]}>
+              <Text style={{ fontSize:28, width:36, textAlign:"center" }}>{isPrayed ? "✅" : p.emoji}</Text>
               <View style={{ flex:1 }}>
-                <Text style={{ color:isNext ? "#C9A84C" : "#F0EAD8", fontSize:16, fontWeight:"700" }}>{p.name}</Text>
-                <Text style={{ color:"#5A5A7A", fontSize:13 }}>{p.ar}</Text>
+                <Text style={{ color: isPrayed ? C.green : isNext ? C.gold : C.white, fontSize:16, fontWeight:"700" }}>{p.name}</Text>
+                <Text style={{ color:C.muted, fontSize:13 }}>{p.ar}</Text>
               </View>
               <View style={{ alignItems:"flex-end" }}>
-                <Text style={{ color:isNext ? "#C9A84C" : "#F0EAD8", fontSize:22, fontWeight:"900" }}>{p.time}</Text>
-                {isNext && <Text style={{ color:"#2ECC71", fontSize:10, marginTop:2 }}>prochaine</Text>}
+                <Text style={{ color: isPrayed ? C.green : isNext ? C.gold : C.white, fontSize:22, fontWeight:"900" }}>{p.time}</Text>
+                {isPrayed && <Text style={{ color:C.green, fontSize:10, marginTop:2 }}>accomplie</Text>}
+                {!isPrayed && isNext && <Text style={{ color:C.gold, fontSize:10, marginTop:2 }}>prochaine</Text>}
               </View>
-            </View>
+            </TouchableOpacity>
           )
         }))}
-        {subTab==="qibla" && (
-          <View style={{ alignItems:"center", paddingTop:20 }}>
-            <View style={{ width:200, height:200, borderRadius:100, borderWidth:2, borderColor:"rgba(201,168,76,.3)", backgroundColor:"#1A1A30", alignItems:"center", justifyContent:"center" }}>
-              <Text style={{ fontSize:32 }}>🕋</Text>
+
+        {/* ── Tracker journalier ── */}
+        {subTab==="tracker" && (
+          <View>
+            <View style={[styles.card, { alignItems:"center", paddingVertical:24, marginBottom:16 }]}>
+              <Text style={{ color:C.muted, fontSize:11, letterSpacing:2, marginBottom:8 }}>PRIÈRES DU JOUR</Text>
+              <Text style={{ color: prayedCount === 5 ? C.green : C.gold, fontSize:52, fontWeight:"900" }}>
+                {prayedCount}<Text style={{ fontSize:28, color:C.muted }}>/5</Text>
+              </Text>
+              {prayedCount === 5 && <Text style={{ color:C.green, fontSize:14, marginTop:8 }}>MashAllah — journée complète 🎉</Text>}
+              {prayedCount === 0 && <Text style={{ color:C.muted, fontSize:13, marginTop:8 }}>Que ta journée commence avec Fajr</Text>}
             </View>
-            <Text style={{ color:"#C9A84C", fontSize:40, fontWeight:"900", marginTop:20 }}>127°</Text>
-            <Text style={{ color:"#F0EAD8", fontSize:16 }}>Direction de La Mecque</Text>
-            <Text style={{ color:"#5A5A7A", fontSize:13, marginTop:4 }}>depuis Bruxelles, Belgique</Text>
-            <View style={[styles.card, { marginTop:20, width:"100%", alignItems:"center" }]}>
-              <Text style={{ color:"#C9A84C", fontSize:28, fontWeight:"900" }}>5 248 km</Text>
-              <Text style={{ color:"#5A5A7A", fontSize:12 }}>jusqu a la Kaaba</Text>
-            </View>
+            {NOTIF_PRAYERS.map((name, i) => {
+              const p = prayers.find(pr => pr.name === name)
+              const done = prayedToday[name]
+              return (
+                <TouchableOpacity key={name} onPress={() => onTogglePrayed(name)}
+                  style={[styles.card, { flexDirection:"row", alignItems:"center", gap:16, marginBottom:10,
+                    backgroundColor: done ? "rgba(46,204,113,.08)" : C.card,
+                    borderColor: done ? "rgba(46,204,113,.3)" : C.border }]}>
+                  <View style={{ width:44, height:44, borderRadius:22, backgroundColor: done ? "rgba(46,204,113,.15)" : "rgba(255,255,255,.05)", alignItems:"center", justifyContent:"center" }}>
+                    <Text style={{ fontSize:20 }}>{done ? "✅" : (p?.emoji || "🕌")}</Text>
+                  </View>
+                  <View style={{ flex:1 }}>
+                    <Text style={{ color: done ? C.green : C.white, fontSize:16, fontWeight:"700" }}>{name}</Text>
+                    <Text style={{ color:C.muted, fontSize:12 }}>{p?.time || "--:--"}</Text>
+                  </View>
+                  <View style={{ width:28, height:28, borderRadius:14, borderWidth:2,
+                    borderColor: done ? C.green : C.muted,
+                    backgroundColor: done ? C.green : "transparent",
+                    alignItems:"center", justifyContent:"center" }}>
+                    {done && <Text style={{ color:"#fff", fontSize:14, fontWeight:"900" }}>✓</Text>}
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
           </View>
         )}
+
+        {/* ── Dhikr ── */}
         {subTab==="dhikr" && (
           <View style={{ alignItems:"center" }}>
             <View style={[styles.card, { width:"100%", alignItems:"center", paddingVertical:24, marginBottom:20 }]}>
-              <Text style={{ fontSize:22, color:"#C9A84C", marginBottom:12, textAlign:"center" }}>{d.ar}</Text>
-              <Text style={{ color:"#F0EAD8", fontSize:18, fontWeight:"700" }}>{d.fr}</Text>
-              <Text style={{ color:"#5A5A7A", fontSize:13, marginTop:4 }}>{d.trad}</Text>
-              <Text style={{ color:"#C9A84C", fontSize:12, marginTop:8 }}>x {d.count}</Text>
+              <Text style={{ fontSize:22, color:C.gold, marginBottom:12, textAlign:"center" }}>{d.ar}</Text>
+              <Text style={{ color:C.white, fontSize:18, fontWeight:"700" }}>{d.fr}</Text>
+              <Text style={{ color:C.muted, fontSize:13, marginTop:4 }}>{d.trad}</Text>
+              <Text style={{ color:C.gold, fontSize:12, marginTop:8 }}>x {d.count}</Text>
             </View>
             <TouchableOpacity onPress={() => setDhikrCount(c => c >= d.count ? 0 : c+1)}
-              style={{ width:140, height:140, borderRadius:70, backgroundColor:"#12121E", borderWidth:3, borderColor:dhikrCount >= d.count ? "#2ECC71" : "#C9A84C", alignItems:"center", justifyContent:"center", marginVertical:10 }}>
-              <Text style={{ color:dhikrCount >= d.count ? "#2ECC71" : "#C9A84C", fontSize:44, fontWeight:"900" }}>{dhikrCount}</Text>
-              <Text style={{ color:"#5A5A7A", fontSize:12 }}>sur {d.count}</Text>
+              style={{ width:140, height:140, borderRadius:70, backgroundColor:C.card, borderWidth:3, borderColor:dhikrCount >= d.count ? C.green : C.gold, alignItems:"center", justifyContent:"center", marginVertical:10 }}>
+              <Text style={{ color:dhikrCount >= d.count ? C.green : C.gold, fontSize:44, fontWeight:"900" }}>{dhikrCount}</Text>
+              <Text style={{ color:C.muted, fontSize:12 }}>sur {d.count}</Text>
             </TouchableOpacity>
             <View style={{ width:"100%", height:6, backgroundColor:"rgba(255,255,255,.06)", borderRadius:99, overflow:"hidden", marginTop:10 }}>
-              <View style={{ width:`${Math.min((dhikrCount/d.count)*100,100)}%`, height:"100%", backgroundColor:"#C9A84C", borderRadius:99 }} />
+              <View style={{ width:`${Math.min((dhikrCount/d.count)*100,100)}%`, height:"100%", backgroundColor:C.gold, borderRadius:99 }} />
             </View>
             <View style={{ flexDirection:"row", flexWrap:"wrap", gap:8, marginTop:20, width:"100%" }}>
               {DHIKR.map((dh,i) => (
                 <TouchableOpacity key={i} onPress={() => { setDhikrIdx(i); setDhikrCount(0) }}
-                  style={[styles.card, { width:"48%", padding:10, borderColor:dhikrIdx===i ? "#C9A84C" : "rgba(201,168,76,0.15)" }]}>
-                  <Text style={{ color:dhikrIdx===i ? "#C9A84C" : "#F0EAD8", fontSize:12, fontWeight:"700" }}>{dh.fr}</Text>
-                  <Text style={{ color:"#5A5A7A", fontSize:10 }}>x {dh.count}</Text>
+                  style={[styles.card, { width:"48%", padding:10, borderColor:dhikrIdx===i ? C.gold : C.border }]}>
+                  <Text style={{ color:dhikrIdx===i ? C.gold : C.white, fontSize:12, fontWeight:"700" }}>{dh.fr}</Text>
+                  <Text style={{ color:C.muted, fontSize:10 }}>x {dh.count}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -327,13 +467,13 @@ function EcranCarte() {
       <View style={styles.screenHeader}>
         <Text style={styles.sectionLabel}>CARTE HALAL BRUXELLES</Text>
         <TextInput value={search} onChangeText={setSearch} placeholder="Chercher un commerce halal..."
-          placeholderTextColor="#5A5A7A"
-          style={{ backgroundColor:"#12121E", borderWidth:1, borderColor:"rgba(201,168,76,0.15)", borderRadius:10, padding:11, color:"#F0EAD8", fontSize:13, marginTop:8 }} />
+          placeholderTextColor={C.muted}
+          style={{ backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:11, color:C.white, fontSize:13, marginTop:8 }} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:10 }}>
           {CATEGORIES.map(c => (
             <TouchableOpacity key={c} onPress={() => setCat(c)}
-              style={{ paddingHorizontal:14, paddingVertical:6, borderRadius:99, borderWidth:1, borderColor:cat===c ? "#C9A84C" : "rgba(201,168,76,0.15)", backgroundColor:cat===c ? "rgba(201,168,76,.15)" : "#12121E", marginRight:6 }}>
-              <Text style={{ color:cat===c ? "#C9A84C" : "#5A5A7A", fontSize:12, fontWeight:cat===c?"700":"400" }}>{c}</Text>
+              style={{ paddingHorizontal:14, paddingVertical:6, borderRadius:99, borderWidth:1, borderColor:cat===c ? C.gold : C.border, backgroundColor:cat===c ? "rgba(201,168,76,.15)" : C.card, marginRight:6 }}>
+              <Text style={{ color:cat===c ? C.gold : C.muted, fontSize:12, fontWeight:cat===c?"700":"400" }}>{c}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -341,29 +481,29 @@ function EcranCarte() {
       <FlatList data={filtered} keyExtractor={c => String(c.id)} contentContainerStyle={{ padding:16 }} showsVerticalScrollIndicator={false}
         renderItem={({ item:c }) => (
           <TouchableOpacity onPress={() => setSelected(selected?.id===c.id ? null : c)}
-            style={[styles.card, { marginBottom:10, borderColor:selected?.id===c.id ? c.color : "rgba(201,168,76,0.15)", backgroundColor:selected?.id===c.id ? "#1C1C35" : "#12121E" }]}>
+            style={[styles.card, { marginBottom:10, borderColor:selected?.id===c.id ? c.color : C.border, backgroundColor:selected?.id===c.id ? "#1C1C35" : C.card }]}>
             <View style={{ flexDirection:"row", alignItems:"flex-start", gap:14 }}>
               <View style={{ width:52, height:52, borderRadius:12, backgroundColor:c.color+"18", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                 <Text style={{ fontSize:24 }}>{c.emoji}</Text>
               </View>
               <View style={{ flex:1 }}>
                 <View style={{ flexDirection:"row", justifyContent:"space-between", marginBottom:4 }}>
-                  <Text style={{ color:selected?.id===c.id ? c.color : "#F0EAD8", fontSize:15, fontWeight:"700", flex:1 }}>{c.nom}</Text>
-                  <Text style={{ color:"#5A5A7A", fontSize:11, marginLeft:8 }}>{c.distance}</Text>
+                  <Text style={{ color:selected?.id===c.id ? c.color : C.white, fontSize:15, fontWeight:"700", flex:1 }}>{c.nom}</Text>
+                  <Text style={{ color:C.muted, fontSize:11, marginLeft:8 }}>{c.distance}</Text>
                 </View>
-                <Text style={{ color:"#C9A84C", fontSize:11 }}>{"★".repeat(Math.floor(c.note))} {c.note}</Text>
-                <Text style={{ color:"#5A5A7A", fontSize:11, marginTop:3 }}>{c.adresse}</Text>
+                <Text style={{ color:C.gold, fontSize:11 }}>{"★".repeat(Math.floor(c.note))} {c.note}</Text>
+                <Text style={{ color:C.muted, fontSize:11, marginTop:3 }}>{c.adresse}</Text>
                 <View style={{ flexDirection:"row", gap:6, marginTop:6 }}>
                   <View style={{ backgroundColor:c.color+"18", borderRadius:99, paddingHorizontal:8, paddingVertical:2, borderWidth:1, borderColor:c.color+"40" }}>
                     <Text style={{ color:c.color, fontSize:10, fontWeight:"700" }}>{c.certif}</Text>
                   </View>
-                  <Text style={{ color:c.ouvert ? "#2ECC71" : "#E74C3C", fontSize:10, fontWeight:"700" }}>{c.ouvert ? "Ouvert" : "Ferme"}</Text>
+                  <Text style={{ color:c.ouvert ? C.green : C.red, fontSize:10, fontWeight:"700" }}>{c.ouvert ? "Ouvert" : "Ferme"}</Text>
                 </View>
                 {selected?.id===c.id && (
-                  <View style={{ marginTop:12, paddingTop:12, borderTopWidth:1, borderTopColor:"rgba(201,168,76,0.15)" }}>
-                    <Text style={{ color:"#F0EAD8", fontSize:12, marginBottom:10 }}>{c.spec}</Text>
+                  <View style={{ marginTop:12, paddingTop:12, borderTopWidth:1, borderTopColor:C.border }}>
+                    <Text style={{ color:C.white, fontSize:12, marginBottom:10 }}>{c.spec}</Text>
                     <View style={{ flexDirection:"row", gap:8 }}>
-                      {[["Appeler",c.color],["Y aller","#3498DB"],["Favori","#C9A84C"]].map(([label,col]) => (
+                      {[["Appeler",c.color],["Y aller",C.blue],["Favori",C.gold]].map(([label,col]) => (
                         <TouchableOpacity key={label} style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:col, alignItems:"center" }}>
                           <Text style={{ color:col, fontSize:11, fontWeight:"700" }}>{label}</Text>
                         </TouchableOpacity>
@@ -381,13 +521,13 @@ function EcranCarte() {
 
 // ─── Écran Culture ────────────────────────────────────────────────────────────
 function EcranCulture() {
-  const CULTURE_ITEMS = [
-    { emoji:"📖", titre:"Coran", desc:"Lecture et écoute du Saint Coran", color:"#C9A84C" },
-    { emoji:"🎓", titre:"Tajwid", desc:"Apprendre la récitation correcte", color:"#2ECC71" },
-    { emoji:"📚", titre:"Hadith", desc:"Les paroles du Prophète ﷺ", color:"#8B5E3C" },
-    { emoji:"🕌", titre:"Fiqh", desc:"Jurisprudence islamique pratique", color:"#3498DB" },
-    { emoji:"🌟", titre:"Sira", desc:"La biographie du Prophète ﷺ", color:"#9B59B6" },
-    { emoji:"🖋️", titre:"Arabe", desc:"Apprendre la langue du Coran", color:"#1ABC9C" },
+  const ITEMS = [
+    { emoji:"📖", titre:"Coran", desc:"Lecture et ecoute du Saint Coran", color:C.gold },
+    { emoji:"🎓", titre:"Tajwid", desc:"Apprendre la recitation correcte", color:C.green },
+    { emoji:"📚", titre:"Hadith", desc:"Les paroles du Prophete ﷺ", color:C.brown },
+    { emoji:"🕌", titre:"Fiqh", desc:"Jurisprudence islamique pratique", color:C.blue },
+    { emoji:"🌟", titre:"Sira", desc:"La biographie du Prophete ﷺ", color:C.purple },
+    { emoji:"🖋️", titre:"Arabe", desc:"Apprendre la langue du Coran", color:C.teal },
   ]
   return (
     <View style={{ flex:1 }}>
@@ -397,20 +537,13 @@ function EcranCulture() {
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <View style={{ flexDirection:"row", flexWrap:"wrap", gap:10 }}>
-          {CULTURE_ITEMS.map((item, i) => (
+          {ITEMS.map((item, i) => (
             <TouchableOpacity key={i} style={[styles.card, { width:(W-42)/2, alignItems:"center", paddingVertical:20, borderTopWidth:3, borderTopColor:item.color }]}>
               <Text style={{ fontSize:32 }}>{item.emoji}</Text>
               <Text style={{ color:C.white, fontSize:14, fontWeight:"800", marginTop:8, textAlign:"center" }}>{item.titre}</Text>
               <Text style={{ color:C.muted, fontSize:11, marginTop:4, textAlign:"center", lineHeight:15 }}>{item.desc}</Text>
             </TouchableOpacity>
           ))}
-        </View>
-        <View style={[styles.card, { marginTop:16, flexDirection:"row", alignItems:"center", gap:14 }]}>
-          <Text style={{ fontSize:28 }}>🕋</Text>
-          <View style={{ flex:1 }}>
-            <Text style={{ color:C.gold, fontSize:14, fontWeight:"800" }}>Prochainement</Text>
-            <Text style={{ color:C.muted, fontSize:12, marginTop:2 }}>Cours en ligne, quiz interactifs et bien plus</Text>
-          </View>
         </View>
       </ScrollView>
     </View>
@@ -419,13 +552,11 @@ function EcranCulture() {
 
 // ─── Écran Finance ────────────────────────────────────────────────────────────
 function EcranFinance() {
-  const FINANCE_ITEMS = [
-    { emoji:"🏦", titre:"Banque islamique", desc:"Comptes sans intérêts ribawi", color:"#C9A84C", tag:"Halal" },
-    { emoji:"🛡️", titre:"Takaful", desc:"Assurance islamique solidaire", color:"#2ECC71", tag:"Halal" },
-    { emoji:"📈", titre:"Investissement", desc:"Actions et fonds conformes charia", color:"#3498DB", tag:"Halal" },
-    { emoji:"🏠", titre:"Immobilier", desc:"Financement halal sans intérêts", color:"#9B59B6", tag:"Halal" },
-    { emoji:"💰", titre:"Zakat", desc:"Calculer et payer votre zakat", color:"#E74C3C", tag:"Obligatoire" },
-    { emoji:"🤝", titre:"Qard Hasan", desc:"Prêt sans intérêts entre musulmans", color:"#1ABC9C", tag:"Sunnah" },
+  const ITEMS = [
+    { emoji:"🏦", titre:"Banque islamique", desc:"Comptes sans interets ribawi", color:C.gold, tag:"Halal" },
+    { emoji:"🛡️", titre:"Takaful", desc:"Assurance islamique solidaire", color:C.green, tag:"Halal" },
+    { emoji:"📈", titre:"Investissement", desc:"Actions et fonds conformes charia", color:C.blue, tag:"Halal" },
+    { emoji:"💰", titre:"Zakat", desc:"Calculer et payer votre zakat", color:C.red, tag:"Obligatoire" },
   ]
   return (
     <View style={{ flex:1 }}>
@@ -434,28 +565,20 @@ function EcranFinance() {
         <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>🏦 Argent Halal</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
-        {FINANCE_ITEMS.map((item, i) => (
+        {ITEMS.map((item, i) => (
           <TouchableOpacity key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10 }]}>
             <View style={{ width:52, height:52, borderRadius:12, backgroundColor:item.color+"18", alignItems:"center", justifyContent:"center" }}>
               <Text style={{ fontSize:24 }}>{item.emoji}</Text>
             </View>
             <View style={{ flex:1 }}>
-              <View style={{ flexDirection:"row", alignItems:"center", gap:8 }}>
-                <Text style={{ color:C.white, fontSize:15, fontWeight:"700" }}>{item.titre}</Text>
-                <View style={{ backgroundColor:item.color+"25", borderRadius:99, paddingHorizontal:8, paddingVertical:2 }}>
-                  <Text style={{ color:item.color, fontSize:9, fontWeight:"800" }}>{item.tag}</Text>
-                </View>
-              </View>
+              <Text style={{ color:C.white, fontSize:15, fontWeight:"700" }}>{item.titre}</Text>
               <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{item.desc}</Text>
             </View>
-            <Text style={{ color:C.muted, fontSize:18 }}>›</Text>
+            <View style={{ backgroundColor:item.color+"25", borderRadius:99, paddingHorizontal:8, paddingVertical:2 }}>
+              <Text style={{ color:item.color, fontSize:9, fontWeight:"800" }}>{item.tag}</Text>
+            </View>
           </TouchableOpacity>
         ))}
-        <View style={[styles.card, { marginTop:6, alignItems:"center", paddingVertical:20, borderColor:C.border }]}>
-          <Text style={{ fontSize:28 }}>📊</Text>
-          <Text style={{ color:C.gold, fontSize:14, fontWeight:"800", marginTop:8 }}>Calculateur Zakat</Text>
-          <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Bientôt disponible</Text>
-        </View>
       </ScrollView>
     </View>
   )
@@ -464,12 +587,12 @@ function EcranFinance() {
 // ─── Écran Voyage ─────────────────────────────────────────────────────────────
 function EcranVoyage() {
   const DESTINATIONS = [
-    { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacrée", color:"#C9A84C" },
-    { emoji:"🕌", ville:"Médine", pays:"Arabie Saoudite", desc:"La ville du Prophète ﷺ", color:"#2ECC71" },
-    { emoji:"🌙", ville:"Istanbul", pays:"Turquie", desc:"Cité des mosquées et de l'histoire", color:"#3498DB" },
-    { emoji:"🌴", ville:"Marrakech", pays:"Maroc", desc:"Joyau de l'Islam africain", color:"#E74C3C" },
-    { emoji:"🏛️", ville:"Jérusalem", pays:"Palestine", desc:"Al-Quds, 3ème lieu saint", color:"#9B59B6" },
-    { emoji:"🌊", ville:"Dubaï", pays:"Émirats", desc:"Modernité et tradition halal", color:"#1ABC9C" },
+    { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacree", color:C.gold },
+    { emoji:"🕌", ville:"Medine", pays:"Arabie Saoudite", desc:"La ville du Prophete ﷺ", color:C.green },
+    { emoji:"🌙", ville:"Istanbul", pays:"Turquie", desc:"Cite des mosquees et de l'histoire", color:C.blue },
+    { emoji:"🌴", ville:"Marrakech", pays:"Maroc", desc:"Joyau de l'Islam africain", color:C.red },
+    { emoji:"🏛️", ville:"Jerusalem", pays:"Palestine", desc:"Al-Quds, 3eme lieu saint", color:C.purple },
+    { emoji:"🌊", ville:"Dubai", pays:"Emirats", desc:"Modernite et tradition halal", color:C.teal },
   ]
   return (
     <View style={{ flex:1 }}>
@@ -478,13 +601,6 @@ function EcranVoyage() {
         <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>✈️ Destinations</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
-        <View style={[styles.card, { flexDirection:"row", alignItems:"center", gap:12, marginBottom:16, borderColor:"rgba(201,168,76,.4)" }]}>
-          <Text style={{ fontSize:24 }}>🕋</Text>
-          <View style={{ flex:1 }}>
-            <Text style={{ color:C.gold, fontSize:13, fontWeight:"800" }}>Omra & Hajj — Partenaires agréés</Text>
-            <Text style={{ color:C.muted, fontSize:11, marginTop:2 }}>Réservez via nos agences certifiées halal</Text>
-          </View>
-        </View>
         {DESTINATIONS.map((dest, i) => (
           <TouchableOpacity key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10, borderLeftWidth:3, borderLeftColor:dest.color }]}>
             <Text style={{ fontSize:32 }}>{dest.emoji}</Text>
@@ -501,12 +617,24 @@ function EcranVoyage() {
   )
 }
 
-
-function EcranProfil() {
+// ─── Écran Profil ─────────────────────────────────────────────────────────────
+function EcranProfil({ prayedToday, notifEnabled, onToggleNotif }) {
   const { user, isAnonymous } = useAuth()
+  const [profile, setProfile] = useState(null)
   const [loggingOut, setLoggingOut] = useState(false)
-  const displayName = user?.user_metadata?.full_name || (isAnonymous ? "Visiteur" : user?.email?.split("@")[0] || "Utilisateur")
+  const [saving, setSaving] = useState(false)
+  const [notifCount, setNotifCount] = useState(0)
+
+  const displayName = profile?.display_name || user?.user_metadata?.full_name || (isAnonymous ? "Visiteur" : user?.email?.split("@")[0] || "Utilisateur")
   const displayEmail = isAnonymous ? "Compte invite" : (user?.email || "")
+  const prayedCount = Object.values(prayedToday).filter(Boolean).length
+
+  useEffect(() => {
+    if (user && !isAnonymous) {
+      fetchProfile(user.id).then(p => { if (p) setProfile(p) })
+    }
+    Notifications.getScheduledNotificationsAsync().then(n => setNotifCount(n.length))
+  }, [user])
 
   const handleLogout = async () => {
     setLoggingOut(true)
@@ -514,47 +642,87 @@ function EcranProfil() {
     setLoggingOut(false)
   }
 
+  const handleToggleNotif = async (val) => {
+    await onToggleNotif(val)
+    setTimeout(() => {
+      Notifications.getScheduledNotificationsAsync().then(n => setNotifCount(n.length))
+    }, 500)
+  }
+
   return (
     <ScrollView style={{ flex:1 }} showsVerticalScrollIndicator={false}>
       <View style={[styles.screenHeader, { alignItems:"center" }]}>
-        <View style={{ width:80, height:80, borderRadius:40, backgroundColor:"#C9A84C", alignItems:"center", justifyContent:"center" }}>
+        <View style={{ width:80, height:80, borderRadius:40, backgroundColor:C.gold, alignItems:"center", justifyContent:"center" }}>
           <Text style={{ fontSize:34 }}>{isAnonymous ? "👤" : "☪"}</Text>
         </View>
-        <Text style={{ color:"#F0EAD8", fontSize:20, fontWeight:"900", marginTop:14 }}>{displayName}</Text>
-        <Text style={{ color:"#C9A84C", fontSize:13, marginTop:2 }}>{displayEmail}</Text>
+        <Text style={{ color:C.white, fontSize:20, fontWeight:"900", marginTop:14 }}>{displayName}</Text>
+        <Text style={{ color:C.gold, fontSize:13, marginTop:2 }}>{displayEmail}</Text>
         {isAnonymous && (
           <View style={{ marginTop:12, paddingHorizontal:14, paddingVertical:6, backgroundColor:"rgba(201,168,76,.1)", borderRadius:99, borderWidth:1, borderColor:C.border }}>
             <Text style={{ color:C.muted, fontSize:11 }}>Mode invite — creez un compte pour sauvegarder</Text>
           </View>
         )}
+        {/* Stats */}
         <View style={{ flexDirection:"row", gap:10, marginTop:20, width:"100%" }}>
-          {[["3/5","Prieres","#C9A84C"],["7","Favoris","#3498DB"],["12","Avis","#2ECC71"]].map(([v,l,col]) => (
+          {[
+            [String(prayedCount)+"/5", "Prieres", C.gold],
+            [notifEnabled ? "ON" : "OFF", "Alertes", notifEnabled ? C.green : C.muted],
+            [notifCount > 0 ? String(notifCount) : "—", "Notifs", C.blue],
+          ].map(([v,l,col]) => (
             <View key={l} style={[styles.card, { flex:1, alignItems:"center", paddingVertical:14 }]}>
               <Text style={{ color:col, fontSize:20, fontWeight:"900" }}>{v}</Text>
-              <Text style={{ color:"#5A5A7A", fontSize:10, marginTop:3, textAlign:"center" }}>{l}</Text>
+              <Text style={{ color:C.muted, fontSize:10, marginTop:3, textAlign:"center" }}>{l}</Text>
             </View>
           ))}
         </View>
       </View>
+
       <View style={{ padding:16 }}>
-        {[["Ville","Bruxelles 50.850N 4.352E"],["Version","FADJR v1.0 Sprint 5"],["Email",displayEmail],["A propos","Super-app halal francophone"]].map(([label,desc],i) => (
-          <View key={i} style={{ flexDirection:"row", alignItems:"center", gap:14, paddingVertical:14, borderBottomWidth:1, borderBottomColor:"rgba(201,168,76,0.15)" }}>
+
+        {/* Notifications toggle */}
+        <View style={[styles.card, { marginBottom:12 }]}>
+          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:4 }}>🔔 Rappels de priere</Text>
+          <Text style={{ color:C.muted, fontSize:12, marginBottom:12 }}>Notification avant chaque priere quotidienne</Text>
+          <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center" }}>
+            <Text style={{ color: notifEnabled ? C.green : C.muted, fontSize:13 }}>
+              {notifEnabled ? `Actif — ${notifCount} notif${notifCount > 1 ? 's' : ''} planifiee${notifCount > 1 ? 's' : ''}` : "Desactive"}
+            </Text>
+            <Switch
+              value={notifEnabled}
+              onValueChange={handleToggleNotif}
+              trackColor={{ false: "#2A2A3A", true: "rgba(46,204,113,.4)" }}
+              thumbColor={notifEnabled ? C.green : C.muted}
+            />
+          </View>
+        </View>
+
+        {/* Infos compte */}
+        {[
+          ["Version","FADJR v1.0 Sprint 5"],
+          ["Email", displayEmail],
+          ["A propos","Super-app halal francophone"],
+        ].map(([label,desc],i) => (
+          <View key={i} style={{ flexDirection:"row", alignItems:"center", gap:14, paddingVertical:14, borderBottomWidth:1, borderBottomColor:C.border }}>
             <View style={{ flex:1 }}>
-              <Text style={{ color:"#F0EAD8", fontSize:14, fontWeight:"600" }}>{label}</Text>
-              <Text style={{ color:"#5A5A7A", fontSize:12, marginTop:2 }}>{desc}</Text>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"600" }}>{label}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:2 }}>{desc}</Text>
             </View>
-            <Text style={{ color:"#5A5A7A", fontSize:18 }}>›</Text>
           </View>
         ))}
+
         {isAnonymous && (
           <TouchableOpacity onPress={() => supabase.auth.signOut()}
             style={{ marginTop:20, borderWidth:1, borderColor:C.gold, borderRadius:12, paddingVertical:13, alignItems:"center" }}>
             <Text style={{ color:C.gold, fontSize:14, fontWeight:"700" }}>Creer un compte →</Text>
           </TouchableOpacity>
         )}
+
         <TouchableOpacity onPress={handleLogout} disabled={loggingOut}
           style={{ marginTop:isAnonymous ? 12 : 24, backgroundColor:"rgba(231,76,60,.1)", borderWidth:1, borderColor:"rgba(231,76,60,.3)", borderRadius:12, paddingVertical:13, alignItems:"center" }}>
-          {loggingOut ? <ActivityIndicator color={C.red} size="small" /> : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>Se deconnecter</Text>}
+          {loggingOut
+            ? <ActivityIndicator color={C.red} size="small" />
+            : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>Se deconnecter</Text>
+          }
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -571,13 +739,51 @@ export default function App() {
   const [nextPrayer, setNextPrayer] = useState(null)
   const [timeToNext, setTimeToNext] = useState("")
   const [hijriDate, setHijriDate] = useState("")
+  // Tracker prières
+  const [prayedToday, setPrayedToday] = useState({})
+  // Notifications
+  const [notifEnabled, setNotifEnabled] = useState(false)
+  const notifListener = useRef()
+  const responseListener = useRef()
 
+  // ── Auth ──
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => setSession(s ?? null))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => setSession(s ?? null))
     return () => subscription.unsubscribe()
   }, [])
 
+  // ── Charger tracker prières depuis Supabase ou AsyncStorage ──
+  useEffect(() => {
+    const loadTracked = async () => {
+      const user = session?.user
+      if (user && !user.is_anonymous) {
+        const remote = await fetchPrayerTracked(user.id)
+        if (remote && Object.keys(remote).length > 0) { setPrayedToday(remote); return }
+      }
+      // Fallback local
+      const key = `fadjr_prayed_${todayKey()}`
+      const local = await AsyncStorage.getItem(key)
+      if (local) setPrayedToday(JSON.parse(local))
+    }
+    if (session !== undefined) loadTracked()
+  }, [session])
+
+  // ── Toggle prière accomplie ──
+  const onTogglePrayed = useCallback(async (prayerName) => {
+    const updated = { ...prayedToday, [prayerName]: !prayedToday[prayerName] }
+    setPrayedToday(updated)
+    // Persister local
+    const key = `fadjr_prayed_${todayKey()}`
+    await AsyncStorage.setItem(key, JSON.stringify(updated))
+    // Sync Supabase si connecté
+    const user = session?.user
+    if (user && !user.is_anonymous) {
+      await savePrayerTracked(user.id, updated)
+    }
+  }, [prayedToday, session])
+
+  // ── Prières + next ──
   useEffect(() => {
     const computeNext = (list) => {
       const now = new Date()
@@ -627,6 +833,64 @@ export default function App() {
     fetchPrayers()
   }, [])
 
+  // ── Notifications setup ──
+  useEffect(() => {
+    // Charger préférence notifs
+    AsyncStorage.getItem('fadjr_notif_enabled').then(val => {
+      if (val === 'true') setNotifEnabled(true)
+    })
+    // Listeners
+    notifListener.current = Notifications.addNotificationReceivedListener(notif => {
+      console.log('Notification reçue:', notif.request.content.title)
+    })
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      const prayer = response.notification.request.content.data?.prayer
+      if (prayer) setTab('priere')
+    })
+    // Android channel
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('prayers', {
+        name: 'Rappels de prière',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#C9A84C',
+        sound: 'default',
+      })
+    }
+    return () => {
+      notifListener.current?.remove()
+      responseListener.current?.remove()
+    }
+  }, [])
+
+  // ── Planifier notifs quand prayers chargées ──
+  useEffect(() => {
+    if (prayers.length > 0 && notifEnabled) {
+      schedulePrayerNotifications(prayers)
+    }
+  }, [prayers, notifEnabled])
+
+  // ── Toggle notifications ──
+  const onToggleNotif = async (val) => {
+    setNotifEnabled(val)
+    await AsyncStorage.setItem('fadjr_notif_enabled', val ? 'true' : 'false')
+    if (val) {
+      const count = await schedulePrayerNotifications(prayers)
+      if (count === false) {
+        Alert.alert(
+          "Permission requise",
+          "Autorisez les notifications dans les réglages de votre téléphone pour recevoir les rappels de prière.",
+          [{ text: "OK" }]
+        )
+        setNotifEnabled(false)
+        await AsyncStorage.setItem('fadjr_notif_enabled', 'false')
+      }
+    } else {
+      await Notifications.cancelAllScheduledNotificationsAsync()
+    }
+  }
+
+  // ── Splash ──
   if (session === undefined) {
     return (
       <View style={{ flex:1, backgroundColor:C.bg, alignItems:"center", justifyContent:"center" }}>
@@ -653,25 +917,36 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={authValue}>
-      <View style={{ flex:1, backgroundColor:"#0A0A14" }}>
-        <StatusBar barStyle="light-content" backgroundColor="#0A0A14" />
+      <View style={{ flex:1, backgroundColor:C.bg }}>
+        <StatusBar barStyle="light-content" backgroundColor={C.bg} />
         <View style={{ flex:1 }}>
           {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} hijriDate={hijriDate} />}
-          {tab==="priere" && <EcranPriere prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} />}
+          {tab==="priere" && <EcranPriere prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} prayedToday={prayedToday} onTogglePrayed={onTogglePrayed} />}
           {tab==="carte" && <EcranCarte />}
           {tab==="culture" && <EcranCulture />}
           {tab==="finance" && <EcranFinance />}
           {tab==="voyage" && <EcranVoyage />}
-          {tab==="profil" && <EcranProfil />}
+          {tab==="profil" && <EcranProfil prayedToday={prayedToday} notifEnabled={notifEnabled} onToggleNotif={onToggleNotif} />}
         </View>
         <View style={styles.tabBar}>
-          {NAV.map(n => (
-            <TouchableOpacity key={n.id} onPress={() => setTab(n.id)} style={styles.tabItem}>
-              {tab===n.id && <View style={{ position:"absolute", top:-1, left:"25%", right:"25%", height:2, backgroundColor:"#C9A84C", borderRadius:99 }} />}
-              <Text style={{ fontSize:22, opacity:tab===n.id ? 1 : 0.4 }}>{n.icon}</Text>
-              <Text style={{ color:tab===n.id ? "#C9A84C" : "#5A5A7A", fontSize:9, marginTop:2, fontWeight:tab===n.id?"700":"400" }}>{n.label.toUpperCase()}</Text>
-            </TouchableOpacity>
-          ))}
+          {NAV.map(n => {
+            const isCurrent = tab === n.id
+            const badge = n.id === "priere" ? Object.values(prayedToday).filter(Boolean).length : null
+            return (
+              <TouchableOpacity key={n.id} onPress={() => setTab(n.id)} style={styles.tabItem}>
+                {isCurrent && <View style={{ position:"absolute", top:-1, left:"25%", right:"25%", height:2, backgroundColor:C.gold, borderRadius:99 }} />}
+                <View>
+                  <Text style={{ fontSize:22, opacity:isCurrent ? 1 : 0.4 }}>{n.icon}</Text>
+                  {badge !== null && badge > 0 && (
+                    <View style={{ position:"absolute", top:-2, right:-4, width:14, height:14, borderRadius:7, backgroundColor:C.green, alignItems:"center", justifyContent:"center" }}>
+                      <Text style={{ color:"#fff", fontSize:8, fontWeight:"900" }}>{badge}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={{ color:isCurrent ? C.gold : C.muted, fontSize:9, marginTop:2, fontWeight:isCurrent?"700":"400" }}>{n.label.toUpperCase()}</Text>
+              </TouchableOpacity>
+            )
+          })}
         </View>
       </View>
     </AuthContext.Provider>
@@ -679,7 +954,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  input: { backgroundColor:"#12121E", borderWidth:1, borderColor:"rgba(201,168,76,0.15)", borderRadius:12, padding:14, color:"#F0EAD8", fontSize:14 },
+  input: { backgroundColor:C.card, borderWidth:1, borderColor:"rgba(201,168,76,0.15)", borderRadius:12, padding:14, color:"#F0EAD8", fontSize:14 },
   heroHeader: { backgroundColor:"#0D0D20", padding:20, paddingTop:50, borderBottomWidth:1, borderBottomColor:"rgba(201,168,76,0.15)" },
   nextPrayerCard: { backgroundColor:"#1A1A35", borderWidth:1, borderColor:"rgba(201,168,76,.3)", borderLeftWidth:4, borderLeftColor:"#C9A84C", borderRadius:14, padding:16, flexDirection:"row", justifyContent:"space-between", alignItems:"center" },
   screenHeader: { backgroundColor:"#0D0D20", padding:20, paddingTop:50, borderBottomWidth:1, borderBottomColor:"rgba(201,168,76,0.15)" },

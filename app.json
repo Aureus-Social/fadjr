@@ -12,6 +12,22 @@
       "resizeMode": "contain",
       "backgroundColor": "#07070F"
     },
+    "notification": {
+      "icon": "./assets/icon.png",
+      "color": "#C9A84C",
+      "androidMode": "default",
+      "androidCollapsedTitle": "FADJR — Rappel prière"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#C9A84C",
+          "sounds": []
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.fadjr",
@@ -64,8 +80,12 @@
       "versionCode": 1,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
-      ]
+        "ACCESS_FINE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
