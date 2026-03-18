@@ -107,9 +107,10 @@ async function schedulePrayerNotifications(prayers) {
 
 // ─── Supabase Profile helpers ─────────────────────────────────────────────────
 async function upsertProfile(userId, data) {
+  // La table profiles utilise id = auth.users.id (pas user_id)
   const { error } = await supabase
     .from('profiles')
-    .upsert({ user_id: userId, ...data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    .upsert({ id: userId, ...data, updated_at: new Date().toISOString() }, { onConflict: 'id' })
   if (error) console.warn('upsertProfile:', error.message)
 }
 
@@ -117,7 +118,7 @@ async function fetchProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('user_id', userId)
+    .eq('id', userId)
     .single()
   if (error && error.code !== 'PGRST116') console.warn('fetchProfile:', error.message)
   return data
