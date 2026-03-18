@@ -7,16 +7,24 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "ios": { "simulator": true },
-      "android": { "buildType": "apk" },
+      "ios": {
+        "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://bpvrqphmxrnjrbjtaxuw.supabase.co"
       }
     },
     "preview": {
       "distribution": "internal",
-      "ios": { "simulator": false },
-      "android": { "buildType": "apk" },
+      "ios": {
+        "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
+      },
       "channel": "preview"
     },
     "production": {
@@ -36,8 +44,8 @@
     "production": {
       "ios": {
         "appleId": "moussati.nourdin@gmail.com",
-        "ascAppId": "REMPLIR_APRES_CREATION_APP_STORE_CONNECT",
-        "appleTeamId": "REMPLIR_TEAM_ID"
+        "ascAppId": "6760795182",
+        "appleTeamId": "U624A68CHC"
       },
       "android": {
         "serviceAccountKeyPath": "./play-store-key.json",
