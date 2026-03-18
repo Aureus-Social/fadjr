@@ -6,25 +6,38 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
     },
     "preview": {
       "distribution": "internal",
       "ios": {
-        "simulator": false,
-        "enterpriseProvisioning": "adhoc"
+        "simulator": false
       },
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
+      "ios": {
+        "autoIncrement": "buildNumber",
+        "image": "latest"
+      },
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "autoIncrement": "versionCode"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "moussati.nourdin@gmail.com",
+        "ascAppId": "REMPLIR_APRES_CREATION_APP_STORE_CONNECT",
+        "appleTeamId": "REMPLIR_TEAM_ID"
+      }
+    }
   }
 }

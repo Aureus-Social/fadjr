@@ -2,3 +2,15 @@ node_modules/
 .expo/
 .env
 *.log
+*.html
+*.mjs
+dashboard.html
+CONTEXT_fadjr.md
+APPSTORE_METADATA.md
+fadjr-scraper.mjs
+fadjr-vercel.json
+partenaires.html
+support.html
+sw.js
+vercel.json
+manifest.json
