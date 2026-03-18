@@ -2744,7 +2744,13 @@ function wireTabButtons(){
     }, {passive:false})
   })
 }
-setTimeout(wireTabButtons, 100)
+// Premier câblage dès que le DOM est prêt, backup à 600ms pour iOS lent
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', wireTabButtons)
+} else {
+  wireTabButtons()
+}
+setTimeout(wireTabButtons, 600)
 
 
 // ── 99 NOMS D'ALLAH ───────────────────────────────────────────
@@ -3079,6 +3085,7 @@ function initOnboarding(){
   if(!obEl) return
   obEl.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX }, {passive:true})
   ob.addEventListener('touchend', e=>{
+    e.stopPropagation()
     const diff = touchStartX - e.changedTouches[0].clientX
     if(Math.abs(diff) > 50){ diff > 0 ? nextObSlide() : prevObSlide() }
   }, {passive:true})
@@ -3108,8 +3115,9 @@ function prevObSlide(){
 function finishOnboarding(){
   localStorage.setItem('fadjr_ob_done', '1')
   const obF = document.getElementById('onboarding')
+  obF.style.pointerEvents = 'none'  // CRITICAL: libère les touches immédiatement, avant même la fin du fade
   obF.style.opacity = '0'
-  setTimeout(()=>{ obF.style.display='none' }, 500)
+  setTimeout(()=>{ obF.style.display='none'; obF.style.pointerEvents='' }, 500)
 }
 function skipOnboarding(){ finishOnboarding() }
 
