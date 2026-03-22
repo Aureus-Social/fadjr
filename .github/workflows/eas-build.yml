@@ -22,13 +22,11 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Debug EAS info
+      - name: Debug and Build
         run: |
-          echo "=== WHOAMI ==="
-          eas whoami 2>&1 || true
-          echo "=== PROJECT INFO ==="
-          eas project:info 2>&1 || true
-          echo "=== APP.JSON owner/slug/projectId ==="
-          node -e "const a=require('./app.json').expo; console.log('owner:',a.owner,'slug:',a.slug,'projectId:',a.extra?.eas?.projectId)"
-      - name: Build Android AAB
-        run: eas build --platform android --profile production --non-interactive 2>&1 || true
+          echo "=== WHOAMI ===" | tee -a $GITHUB_STEP_SUMMARY
+          eas whoami 2>&1 | tee -a $GITHUB_STEP_SUMMARY || true
+          echo "=== PROJECT INFO ===" | tee -a $GITHUB_STEP_SUMMARY
+          eas project:info 2>&1 | tee -a $GITHUB_STEP_SUMMARY || true
+          echo "=== BUILD ===" | tee -a $GITHUB_STEP_SUMMARY
+          eas build --platform android --profile production --non-interactive 2>&1 | tee -a $GITHUB_STEP_SUMMARY
