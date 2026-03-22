@@ -31,7 +31,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.fadjr",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -143,6 +143,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/cec4b75a-6131-4e4a-9cd3-ac64b91bb67f"
-    }
+    },
+    "owner": "fadjr"
   }
 }
