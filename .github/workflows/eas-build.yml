@@ -18,15 +18,10 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Debug
+      - name: EAS Build Android
         run: |
-          set +e
-          echo "WHOAMI:" > /tmp/debug.txt
-          eas whoami >> /tmp/debug.txt 2>&1
-          echo "PROJECT INFO:" >> /tmp/debug.txt
-          eas project:info >> /tmp/debug.txt 2>&1
-          echo "BUILD ATTEMPT:" >> /tmp/debug.txt
-          eas build --platform android --profile production --non-interactive >> /tmp/debug.txt 2>&1
-          echo "EXIT CODE: $?" >> /tmp/debug.txt
-          cat /tmp/debug.txt
-          echo "::error::$(cat /tmp/debug.txt | tr '\n' ' ' | head -c 1000)"
+          eas build --platform android --profile production --non-interactive 2>&1 | tee /tmp/build.log; BUILD_EXIT=${PIPESTATUS[0]}
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "::error::BUILD_FAILED: $(tail -5 /tmp/build.log | tr '\n' ' ' | head -c 800)"
+            exit 1
+          fi
