@@ -22,26 +22,13 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
+      - name: EAS whoami + project info
+        run: |
+          eas whoami
+          cat app.json | head -5
+          echo "owner: $(cat app.json | python3 -c 'import json,sys;print(json.load(sys.stdin)[\"expo\"].get(\"owner\",\"NONE\"))')"
+          echo "slug: $(cat app.json | python3 -c 'import json,sys;print(json.load(sys.stdin)[\"expo\"].get(\"slug\",\"NONE\"))')"
+          echo "projectId: $(cat app.json | python3 -c 'import json,sys;print(json.load(sys.stdin)[\"expo\"][\"extra\"][\"eas\"][\"projectId\"])')"
       - name: Build Android AAB
-        run: eas build --platform android --profile production --non-interactive
-
-  build-ios:
-    name: Build iOS IPA (Production)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install dependencies
-        run: npm install
-      - name: Setup EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-      - name: Build iOS IPA
-        run: eas build --platform ios --profile production --non-interactive
+        run: |
+          eas build --platform android --profile production --non-interactive 2>&1 && echo "BUILD OK" || { echo "::error::BUILD FAILED"; exit 1; }
