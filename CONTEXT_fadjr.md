@@ -1,9 +1,9 @@
 # CONTEXT.md — FADJR
 # À lire en début de chaque session Claude. Toujours à jour.
-# Dernière mise à jour : Mars 2026
+# Dernière mise à jour : 22 Mars 2026
 
 ## Identité projet
-- **Produit** : FADJR — Halal Super-App (ex-NŪRLY)
+- **Produit** : FADJR — Halal Super-App
 - **Domain** : fadjr.app
 - **Repo** : Aureus-Social/fadjr
 - **Vercel** : projet fadjr → fadjr.app
@@ -11,25 +11,27 @@
 - **Local PC** : C:\Users\mouss\fadjr
 
 ## Stack
-- Expo React Native (SDK 54)
-- Supabase (auth + DB)
+- Expo React Native (SDK 52, React 18.3.1, RN 0.76.3)
+- Supabase (auth + DB + profiles)
 - GitHub Actions CI/CD
+- EAS Build configuré (iOS + Android production)
+- expo-updates (OTA updates via EAS Update)
 - Apple Developer : moussati.nourdin@gmail.com
 - Google Play : developer "FADJR", ID 5081224021454358354
 
 ## Architecture
 ```
 fadjr/
-├── App.js                 ← LIGNE 1 : import 'react-native-url-polyfill/auto'
-├── app.json               ← config Expo (permissions, icons, splash)
+├── App.js                 ← TOUT-EN-UN : 969 lignes, tous les écrans
+├── app.json               ← config Expo (permissions, icons, splash, EAS)
+├── eas.json               ← profiles EAS Build (dev, preview, production)
 ├── lib/supabase.js        ← client Supabase
-├── screens/               ← 5 screens principaux
-│   ├── AccueilScreen.jsx  ← prières + tracker + banner Ramadan
-│   ├── MapScreen.jsx      ← restaurants + mosquées
-│   ├── DhikrScreen.jsx    ← douas + dhikr
-│   ├── QuranScreen.jsx    ← Quran
-│   └── ProfilScreen.jsx   ← profil
-└── components/            ← composants réutilisables
+├── hooks/useRestaurants.js
+├── assets/                ← icons, splash, adaptive-icon
+├── screenshots/           ← 5 screenshots App Store (1290x2796)
+├── SUPABASE_MIGRATION.sql ← schéma DB
+├── APPSTORE_METADATA.md   ← métadonnées stores
+└── EAS_BUILD_GUIDE.md     ← guide build
 ```
 
 ## Règle #1 — CRITIQUE
@@ -38,60 +40,76 @@ fadjr/
 import 'react-native-url-polyfill/auto'
 ```
 
+## Écrans dans App.js
+1. **EcranAuth** — login/signup/guest anonyme (Supabase Auth)
+2. **EcranAccueil** — prières du jour + next prayer + banner Ramadan + piliers
+3. **EcranPriere** — horaires détaillés + tracker 5 prières + dhikr counter + douas
+4. **EcranCarte** — commerces halal + filtre catégories (7 commerces hardcodés)
+5. **EcranCulture** — placeholder
+6. **EcranFinance** — placeholder
+7. **EcranVoyage** — placeholder
+8. **EcranProfil** — profil persistant Supabase + notifications toggle + logout
+
 ## Sprints complétés
-- ✅ Sprint 1 : Foundation (structure, Supabase, landing page)
-- ✅ Sprint 2 : Core (prières, restaurants, Quran, navigation)
-- ✅ Sprint 3 : Polish (onboarding animations, favoris, partage, Adhan audio, tab animations) — commit `1f707d3`
-- ✅ Sprint 4 : Contenu (6 mosquées, 74 douas, tracker prières, banner Ramadan 1447)
+- ✅ Sprint 1 : Foundation (structure, Supabase, landing page, stores accounts)
+- ✅ Sprint 2 : Core (prières Aladhan, restaurants Google Places, Quran, navigation 5 tabs)
+- ✅ Sprint 3 : Polish (onboarding animations, favoris, partage natif, Adhan audio, tab animations)
+- ✅ Sprint 4 : Contenu (6 mosquées, 74 douas Hisnul Muslim, tracker prières, banner Ramadan 1447)
+- ✅ Sprint 5 : Production-ready (auth Supabase, Qibla boussole, push notifs, profil persistant, gate system, EAS config, screenshots, expo-updates, fix touch events)
 
-## Bug connu — NON RÉSOLU (priorité Sprint 5)
-**Touch events ne répondent pas sur iOS device réel**
-- Cause : overlay onboarding z-index 9999 bloque les touches
-- Fix partiel appliqué : `display:none` par défaut + touchend delegator
-- Statut : à retester sur device
+## Features actives
+- Auth : login/signup email + guest anonyme
+- Prières : Aladhan API method 3 (Europe), 5 prières, next prayer countdown
+- Tracker prières : 5 prières/jour, badge count dans tab
+- Qibla : boussole GPS + DeviceOrientation + low-pass filter
+- Push notifications : rappel avant chaque prière
+- Quran : Al-Quran Cloud API, gate 15 sourates gratuites
+- Commerces halal : 7 commerces hardcodés, gate 5 résultats gratuits
+- Douas : 74 douas Hisnul Muslim, 16 catégories
+- Dhikr counter, date hijri dynamique, banner Ramadan 1447
+- Profil persistant Supabase (display_name, ville, madhab)
+- OTA updates (expo-updates configuré)
 
-## Pending Sprint 5 — priorité ordre décroissant
-1. 🔴 Fix définitif touch events iOS + test Android
-2. 🔴 Auth Supabase (login/signup utilisateur)
-3. 🟡 Qibla (direction La Mecque)
-4. 🟡 Push notifications prières
-5. 🟡 Page restaurant détaillée
-6. 🟢 EAS Build iOS → TestFlight
-7. 🟢 EAS Build Android → Internal testing
+## Gate system
+- Quran : 15 sourates gratuites → bannière connexion
+- Halal : 5 résultats gratuits → bannière connexion
+
+## Ce qui manque pour les stores
+1. Lancer eas build + soumettre TestFlight / Play Console
+2. Remplir métadonnées stores (voir APPSTORE_METADATA.md)
+3. Ajouter vrais commerces halal (actuellement 7 hardcodés)
+4. Finaliser écrans Culture/Finance/Voyage (placeholders)
+
+## Navigation (5 tabs)
+| Tab | id | Écran |
+|---|---|---|
+| 🏠 Accueil | accueil | EcranAccueil |
+| 🕌 Priere | priere | EcranPriere |
+| 🗺️ Halal | carte | EcranCarte |
+| 📚 Culture | culture | EcranCulture |
+| 👤 Profil | profil | EcranProfil |
 
 ## Tokens & Accès
 ```
-GitHub FADJR : [voir GitHub Settings → Developer settings]
-Supabase ID  : bpvrqphmxrnjrbjtaxuw
-Supabase URL : https://bpvrqphmxrnjrbjtaxuw.supabase.co
-Anon key     : 
+GitHub FADJR    : [voir skills Claude / GitHub Settings]
+Supabase ID     : bpvrqphmxrnjrbjtaxuw
+Supabase URL    : https://bpvrqphmxrnjrbjtaxuw.supabase.co
+EAS Project ID  : cec4b75a-6131-4e4a-9cd3-ac64b91bb67f
 ```
 
 ## Démarrage session
 ```bash
-git clone https://[voir GitHub Settings → Developer settings]@github.com/Aureus-Social/fadjr.git /tmp/fadjr
+# Token GitHub : voir aureus-session-protocol skill
+git clone https://[GITHUB_TOKEN]@github.com/Aureus-Social/fadjr.git /tmp/fadjr
 cd /tmp/fadjr
 git config user.email "info@aureus-ia.com"
 git config user.name "Aureus IA"
 ```
 
 ## Règles développement
-1. Compatibilité iOS + Android obligatoire sur chaque feature
-2. Tester touch events sur device réel (pas simulateur)
+1. Compatibilité iOS + Android obligatoire
+2. Tester touch events sur device réel
 3. Pas de module natif sans vérifier compat Expo Go
-4. ZIPs : noms descriptifs `FADJR-Sprint5-Auth.zip`
+4. ZIPs : noms descriptifs FADJR-Sprint6-XXX.zip
 5. Permissions : déclarer dans app.json ET demander au runtime
-
-## 5 Piliers app
-1. Prières (Aladhan API, method 3 Europe)
-2. Restaurants halal (Google Places → Supabase)
-3. Quran (Al-Quran Cloud API)
-4. Voyages halal
-5. Finance islamique
-
-## Comment mettre à jour ce fichier
-Après chaque sprint :
-1. Cocher ✅ le sprint terminé
-2. Mettre à jour le bug connu si résolu
-3. Mettre à jour Pending avec nouvelles priorités
-4. Mettre à jour la date en haut
+6. Push sur staging d'abord, jamais main direct
