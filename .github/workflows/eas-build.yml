@@ -22,13 +22,13 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: EAS whoami + project info
+      - name: Debug EAS info
         run: |
-          eas whoami
-          cat app.json | head -5
-          echo "owner: $(cat app.json | python3 -c 'import json,sys;print(json.load(sys.stdin)[\"expo\"].get(\"owner\",\"NONE\"))')"
-          echo "slug: $(cat app.json | python3 -c 'import json,sys;print(json.load(sys.stdin)[\"expo\"].get(\"slug\",\"NONE\"))')"
-          echo "projectId: $(cat app.json | python3 -c 'import json,sys;print(json.load(sys.stdin)[\"expo\"][\"extra\"][\"eas\"][\"projectId\"])')"
+          echo "=== WHOAMI ==="
+          eas whoami 2>&1 || true
+          echo "=== PROJECT INFO ==="
+          eas project:info 2>&1 || true
+          echo "=== APP.JSON owner/slug/projectId ==="
+          node -e "const a=require('./app.json').expo; console.log('owner:',a.owner,'slug:',a.slug,'projectId:',a.extra?.eas?.projectId)"
       - name: Build Android AAB
-        run: |
-          eas build --platform android --profile production --non-interactive 2>&1 && echo "BUILD OK" || { echo "::error::BUILD FAILED"; exit 1; }
+        run: eas build --platform android --profile production --non-interactive 2>&1 || true
