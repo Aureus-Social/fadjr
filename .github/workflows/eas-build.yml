@@ -1,47 +1,32 @@
-name: EAS Build (iOS + Android)
+name: EAS Build Debug
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-android:
-    name: Build Android AAB (Production)
+  debug:
+    name: EAS Debug
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - name: Install dependencies
-        run: npm install
-      - name: Setup EAS
-        uses: expo/expo-github-action@v8
+      - run: npm install
+      - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-      - name: Build Android AAB
-        run: eas build --platform android --profile production --non-interactive
-
-  build-ios:
-    name: Build iOS IPA (Production)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install dependencies
-        run: npm install
-      - name: Setup EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-      - name: Build iOS IPA
-        run: eas build --platform ios --profile production --non-interactive
+      - name: Debug
+        run: |
+          set +e
+          echo "WHOAMI:" > /tmp/debug.txt
+          eas whoami >> /tmp/debug.txt 2>&1
+          echo "PROJECT INFO:" >> /tmp/debug.txt
+          eas project:info >> /tmp/debug.txt 2>&1
+          echo "BUILD ATTEMPT:" >> /tmp/debug.txt
+          eas build --platform android --profile production --non-interactive >> /tmp/debug.txt 2>&1
+          echo "EXIT CODE: $?" >> /tmp/debug.txt
+          cat /tmp/debug.txt
+          echo "::error::$(cat /tmp/debug.txt | tr '\n' ' ' | head -c 1000)"
