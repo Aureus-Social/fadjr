@@ -520,16 +520,214 @@ function EcranCarte() {
   )
 }
 
+// ─── Données Culture ──────────────────────────────────────────────────────────
+const HADITHS_NAWAWI = [
+  { num:1, ar:"إنما الأعمال بالنيات", fr:"Les actes ne valent que par les intentions", source:"Bukhari & Muslim" },
+  { num:2, ar:"أن تعبد الله كأنك تراه", fr:"Adore Allah comme si tu Le voyais", source:"Muslim" },
+  { num:3, ar:"بني الإسلام على خمس", fr:"L'Islam est bati sur cinq piliers", source:"Bukhari & Muslim" },
+  { num:5, ar:"من أحدث في أمرنا هذا ما ليس منه فهو رد", fr:"Quiconque introduit dans notre religion une chose qui n'en fait pas partie, elle est rejetee", source:"Bukhari & Muslim" },
+  { num:6, ar:"إن الحلال بيّن وإن الحرام بيّن", fr:"Le licite est clair et l'illicite est clair", source:"Bukhari & Muslim" },
+  { num:7, ar:"الدين النصيحة", fr:"La religion, c'est le bon conseil", source:"Muslim" },
+  { num:9, ar:"ما نهيتكم عنه فاجتنبوه", fr:"Ce que je vous ai interdit, evitez-le", source:"Bukhari & Muslim" },
+  { num:10, ar:"إن الله طيب لا يقبل إلا طيبا", fr:"Allah est bon et n'accepte que ce qui est bon", source:"Muslim" },
+  { num:12, ar:"من حسن إسلام المرء تركه ما لا يعنيه", fr:"Parmi les qualites de l'Islam, delaisser ce qui ne nous concerne pas", source:"Tirmidhi" },
+  { num:13, ar:"لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه", fr:"Nul ne croit veritablement tant qu'il n'aime pas pour son frere ce qu'il aime pour lui-meme", source:"Bukhari & Muslim" },
+  { num:15, ar:"من كان يؤمن بالله واليوم الآخر فليقل خيرا أو ليصمت", fr:"Que celui qui croit en Allah et au Jour Dernier dise du bien ou se taise", source:"Bukhari & Muslim" },
+  { num:16, ar:"لا تغضب", fr:"Ne te mets pas en colere", source:"Bukhari" },
+  { num:17, ar:"إن الله كتب الإحسان على كل شيء", fr:"Allah a prescrit la bienfaisance en toute chose", source:"Muslim" },
+  { num:18, ar:"اتق الله حيثما كنت", fr:"Crains Allah ou que tu sois", source:"Tirmidhi" },
+  { num:19, ar:"احفظ الله يحفظك", fr:"Preserve Allah, Il te preservera", source:"Tirmidhi" },
+  { num:22, ar:"إن الله تجاوز لي عن أمتي ما وسوست به صدورها", fr:"Allah a pardonne a ma communaute les mauvaises pensees tant qu'elle ne les met pas en pratique", source:"Bukhari & Muslim" },
+  { num:25, ar:"كل سلامى من الناس عليه صدقة", fr:"Chaque articulation du corps humain doit s'acquitter d'une aumone", source:"Muslim" },
+  { num:27, ar:"البر حسن الخلق", fr:"La piete c'est le bon comportement", source:"Muslim" },
+  { num:34, ar:"من رأى منكم منكرا فليغيره بيده", fr:"Que celui qui voit un mal le change de sa main", source:"Muslim" },
+  { num:36, ar:"من نفس عن مؤمن كربة من كرب الدنيا نفس الله عنه كربة من كرب يوم القيامة", fr:"Celui qui soulage un croyant d'une affliction, Allah le soulagera au Jour de la Resurrection", source:"Muslim" },
+  { num:40, ar:"كن في الدنيا كأنك غريب أو عابر سبيل", fr:"Sois dans ce monde comme un etranger ou un voyageur de passage", source:"Bukhari" },
+]
+const TAJWID_REGLES = [
+  { titre:"Noon Sakinah", desc:"Les 4 regles de Noon avec sukun : Izhar, Idgham, Iqlab, Ikhfa", emoji:"🔤" },
+  { titre:"Meem Sakinah", desc:"Idgham Shafawi, Ikhfa Shafawi, Izhar Shafawi", emoji:"📝" },
+  { titre:"Madd (prolongation)", desc:"Madd Tabii (2), Madd Muttasil (4-5), Madd Munfasil (4-5), Madd Lazim (6)", emoji:"📏" },
+  { titre:"Qalqalah", desc:"Vibration sur les lettres ق ط ب ج د quand elles ont sukun", emoji:"🔊" },
+  { titre:"Lam de Allah", desc:"Tafkheem (apres fatha/damma) et Tarqeeq (apres kasra)", emoji:"🌟" },
+  { titre:"Ghunnah", desc:"Nasalisation de 2 temps sur Noon et Meem mushaddadah", emoji:"🎵" },
+  { titre:"Waqf (arret)", desc:"Les signes d'arret : obligatoire, permis, interdit, preferable", emoji:"⏸️" },
+  { titre:"Lettres solaires/lunaires", desc:"Assimilation du Lam de l'article avec les lettres solaires", emoji:"☀️" },
+]
+const SIRA_EVENTS = [
+  { annee:"570", titre:"Naissance du Prophete ﷺ", desc:"Annee de l'Elephant, a La Mecque", emoji:"👶" },
+  { annee:"610", titre:"Premiere revelation", desc:"Grotte de Hira — Sourate Al-Alaq", emoji:"📖" },
+  { annee:"613", titre:"Predication publique", desc:"Le Prophete ﷺ invite les Quraysh ouvertement", emoji:"📢" },
+  { annee:"615", titre:"Emigration en Abyssinie", desc:"Les premiers musulmans refugies chez le Negus", emoji:"🚢" },
+  { annee:"619", titre:"Annee de la tristesse", desc:"Deces de Khadija et Abu Talib", emoji:"💔" },
+  { annee:"620", titre:"Voyage nocturne (Isra & Miraj)", desc:"De La Mecque a Jerusalem puis aux cieux", emoji:"🌙" },
+  { annee:"622", titre:"Hijra vers Medine", desc:"Debut du calendrier islamique", emoji:"🐪" },
+  { annee:"624", titre:"Bataille de Badr", desc:"Premiere grande victoire — 313 contre 1000", emoji:"⚔️" },
+  { annee:"628", titre:"Traite de Hudaybiyya", desc:"Accord de paix avec les Quraysh", emoji:"🤝" },
+  { annee:"630", titre:"Conquete de La Mecque", desc:"Entree pacifique et purification de la Kaaba", emoji:"🕋" },
+  { annee:"632", titre:"Sermon d'adieu", desc:"Derniers enseignements au Mont Arafat", emoji:"🏔️" },
+  { annee:"632", titre:"Deces du Prophete ﷺ", desc:"12 Rabi Al-Awal, a Medine", emoji:"🤲" },
+]
+const FIQH_BASES = [
+  { titre:"La priere (Salat)", desc:"Conditions, piliers, obligations et sunnahs de la priere", emoji:"🕌" },
+  { titre:"Les ablutions (Wudu)", desc:"Obligations et sunnahs du wudu, annulants", emoji:"💧" },
+  { titre:"Le jeune (Siyam)", desc:"Regles du Ramadan, excuses valables, rattrapage", emoji:"🌙" },
+  { titre:"La zakat", desc:"Seuil (nisab), taux, beneficiaires, calcul", emoji:"💰" },
+  { titre:"Le pelerinage (Hajj)", desc:"Piliers, obligations, rites de la Omra et du Hajj", emoji:"🕋" },
+  { titre:"Les interdits alimentaires", desc:"Porc, alcool, animaux non-egorgees, regles d'abattage", emoji:"🍖" },
+  { titre:"Le mariage (Nikah)", desc:"Conditions, droits et devoirs des epoux", emoji:"💍" },
+  { titre:"Les transactions (Muamalat)", desc:"Interdiction du riba, vente licite, contrats", emoji:"📜" },
+]
+const ARABE_LECONS = [
+  { titre:"L'alphabet arabe", desc:"28 lettres — formes isolees, debut, milieu, fin", emoji:"أ" },
+  { titre:"Les voyelles (Harakaat)", desc:"Fatha, Kasra, Damma, Sukun, Tanwin, Shadda", emoji:"َ" },
+  { titre:"Les pronoms", desc:"Ana, Anta, Anti, Huwa, Hiya, Nahnu, Antum, Hum", emoji:"👤" },
+  { titre:"Les salutations", desc:"Salam, comment vas-tu, merci, au revoir", emoji:"👋" },
+  { titre:"Les chiffres 1-10", desc:"Wahid, Ithnan, Thalatha, Arbaa, Khamsa...", emoji:"🔢" },
+  { titre:"La famille", desc:"Ab (pere), Umm (mere), Ibn (fils), Bint (fille), Akh (frere)", emoji:"👨‍👩‍👧‍👦" },
+  { titre:"Le corps humain", desc:"Ra's (tete), Yad (main), Ayn (oeil), Qalb (coeur)", emoji:"🫀" },
+  { titre:"La mosquee", desc:"Masjid, Mihrab, Minbar, Imam, Muezzin, Adhan", emoji:"🕌" },
+]
+
 // ─── Écran Culture ────────────────────────────────────────────────────────────
 function EcranCulture() {
+  const [section, setSection] = useState(null)
   const ITEMS = [
-    { emoji:"📖", titre:"Coran", desc:"Lecture et ecoute du Saint Coran", color:C.gold },
-    { emoji:"🎓", titre:"Tajwid", desc:"Apprendre la recitation correcte", color:C.green },
-    { emoji:"📚", titre:"Hadith", desc:"Les paroles du Prophete ﷺ", color:C.brown },
-    { emoji:"🕌", titre:"Fiqh", desc:"Jurisprudence islamique pratique", color:C.blue },
-    { emoji:"🌟", titre:"Sira", desc:"La biographie du Prophete ﷺ", color:C.purple },
-    { emoji:"🖋️", titre:"Arabe", desc:"Apprendre la langue du Coran", color:C.teal },
+    { id:"hadith", emoji:"📚", titre:"Hadith", desc:"Les 40 Nawawi — Paroles du Prophete ﷺ", color:C.brown },
+    { id:"tajwid", emoji:"🎓", titre:"Tajwid", desc:"Apprendre la recitation correcte", color:C.green },
+    { id:"sira", emoji:"🌟", titre:"Sira", desc:"La biographie du Prophete ﷺ", color:C.purple },
+    { id:"fiqh", emoji:"🕌", titre:"Fiqh", desc:"Jurisprudence islamique pratique", color:C.blue },
+    { id:"arabe", emoji:"🖋️", titre:"Arabe", desc:"Apprendre la langue du Coran", color:C.teal },
   ]
+
+  if (section === "hadith") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📚 Les 40 Nawawi</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{HADITHS_NAWAWI.length} hadiths selectionnes</Text>
+      </View>
+      <FlatList data={HADITHS_NAWAWI} keyExtractor={h => String(h.num)}
+        contentContainerStyle={{ padding:16, gap:10 }}
+        renderItem={({ item }) => (
+          <View style={[styles.card, { padding:14 }]}>
+            <View style={{ flexDirection:"row", justifyContent:"space-between", marginBottom:8 }}>
+              <View style={{ backgroundColor:C.gold+"25", borderRadius:99, width:28, height:28, alignItems:"center", justifyContent:"center" }}>
+                <Text style={{ color:C.gold, fontSize:12, fontWeight:"900" }}>{item.num}</Text>
+              </View>
+              <Text style={{ color:C.muted, fontSize:10 }}>{item.source}</Text>
+            </View>
+            <Text style={{ color:C.goldL, fontSize:16, textAlign:"right", lineHeight:26, marginBottom:8, fontStyle:"italic" }}>{item.ar}</Text>
+            <Text style={{ color:C.white, fontSize:13, lineHeight:20 }}>{item.fr}</Text>
+          </View>
+        )} />
+    </View>
+  )
+
+  if (section === "tajwid") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🎓 Regles de Tajwid</Text>
+      </View>
+      <FlatList data={TAJWID_REGLES} keyExtractor={(_, i) => String(i)}
+        contentContainerStyle={{ padding:16, gap:10 }}
+        renderItem={({ item }) => (
+          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center" }]}>
+            <View style={{ width:44, height:44, borderRadius:12, backgroundColor:C.green+"20", alignItems:"center", justifyContent:"center" }}>
+              <Text style={{ fontSize:20 }}>{item.emoji}</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{item.desc}</Text>
+            </View>
+          </View>
+        )} />
+    </View>
+  )
+
+  if (section === "sira") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌟 La Sira du Prophete ﷺ</Text>
+      </View>
+      <FlatList data={SIRA_EVENTS} keyExtractor={(_, i) => String(i)}
+        contentContainerStyle={{ padding:16, gap:10 }}
+        renderItem={({ item }) => (
+          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center" }]}>
+            <View style={{ alignItems:"center", width:50 }}>
+              <Text style={{ fontSize:22 }}>{item.emoji}</Text>
+              <Text style={{ color:C.gold, fontSize:11, fontWeight:"900", marginTop:4 }}>{item.annee}</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{item.desc}</Text>
+            </View>
+          </View>
+        )} />
+    </View>
+  )
+
+  if (section === "fiqh") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕌 Fiqh — Les bases</Text>
+      </View>
+      <FlatList data={FIQH_BASES} keyExtractor={(_, i) => String(i)}
+        contentContainerStyle={{ padding:16, gap:10 }}
+        renderItem={({ item }) => (
+          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center" }]}>
+            <View style={{ width:44, height:44, borderRadius:12, backgroundColor:C.blue+"20", alignItems:"center", justifyContent:"center" }}>
+              <Text style={{ fontSize:20 }}>{item.emoji}</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{item.desc}</Text>
+            </View>
+          </View>
+        )} />
+    </View>
+  )
+
+  if (section === "arabe") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🖋️ Apprendre l'arabe</Text>
+      </View>
+      <FlatList data={ARABE_LECONS} keyExtractor={(_, i) => String(i)}
+        contentContainerStyle={{ padding:16, gap:10 }}
+        renderItem={({ item }) => (
+          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center" }]}>
+            <View style={{ width:44, height:44, borderRadius:12, backgroundColor:C.teal+"20", alignItems:"center", justifyContent:"center" }}>
+              <Text style={{ fontSize:20 }}>{item.emoji}</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{item.desc}</Text>
+            </View>
+          </View>
+        )} />
+    </View>
+  )
+
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
@@ -539,7 +737,7 @@ function EcranCulture() {
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <View style={{ flexDirection:"row", flexWrap:"wrap", gap:10 }}>
           {ITEMS.map((item, i) => (
-            <TouchableOpacity key={i} style={[styles.card, { width:(W-42)/2, alignItems:"center", paddingVertical:20, borderTopWidth:3, borderTopColor:item.color }]}>
+            <TouchableOpacity key={i} onPress={() => setSection(item.id)} style={[styles.card, { width:(W-42)/2, alignItems:"center", paddingVertical:20, borderTopWidth:3, borderTopColor:item.color }]}>
               <Text style={{ fontSize:32 }}>{item.emoji}</Text>
               <Text style={{ color:C.white, fontSize:14, fontWeight:"800", marginTop:8, textAlign:"center" }}>{item.titre}</Text>
               <Text style={{ color:C.muted, fontSize:11, marginTop:4, textAlign:"center", lineHeight:15 }}>{item.desc}</Text>
