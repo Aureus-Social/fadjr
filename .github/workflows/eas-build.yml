@@ -56,10 +56,3 @@ jobs:
 
       - name: Build iOS IPA (production)
         run: eas build --platform ios --profile production --non-interactive
-```
-
-Puis :
-```
-git add -A
-git commit -m "ci: auto-build on push main"
-git push
