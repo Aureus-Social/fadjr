@@ -94,7 +94,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#07070F"
       },
-      "package": "app.fadjr",
+      "package": "com.aureus.fadjr",
       "versionCode": 1,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
