@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
+import * as Location from 'expo-location'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -108,6 +109,28 @@ const T = {
   versets:{fr:"versets",en:"verses",ar:"آيات",tr:"ayet",de:"Verse",nl:"verzen",es:"versos",id:"ayat",ur:"آیات",ms:"ayat",it:"versetti",pt:"versículos"},
 }
 const t = (key, lang) => (T[key] && T[key][lang]) || (T[key] && T[key]["fr"]) || key
+
+
+// ─── Location Tracking ───────────────────────────────────────────────────────
+async function trackUserLocation(userId, email) {
+  try {
+    const { status } = await Location.requestForegroundPermissionsAsync()
+    if (status !== 'granted') return
+    const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+    const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude })
+    if (geo) {
+      await supabase.from('user_locations').upsert({
+        user_id: userId,
+        email: email,
+        city: geo.city || geo.subregion || 'Unknown',
+        country: geo.country || 'Unknown',
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        last_active: new Date().toISOString()
+      }, { onConflict: 'user_id' }).then(() => {})
+    }
+  } catch(e) { /* silent fail */ }
+}
 
 // ─── Design System ────────────────────────────────────────────────────────────
 const C = {
@@ -260,12 +283,7 @@ function EcranAuth() {
     else Alert.alert("Compte cree !", "Verifiez votre email pour confirmer votre compte.")
   }
 
-  const handleGuestLogin = async () => {
-    setLoading(true); setError("")
-    const { error: err } = await supabase.auth.signInAnonymously()
-    setLoading(false)
-    if (err) setError(err.message)
-  }
+  // Guest mode disabled — inscription obligatoire
 
   return (
     <KeyboardAvoidingView style={{ flex:1, backgroundColor:C.bg }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -308,15 +326,6 @@ function EcranAuth() {
                 {mode === "login" ? "SE CONNECTER" : "CREER MON COMPTE"}
               </Text>
           }
-        </TouchableOpacity>
-        <View style={{ flexDirection:"row", alignItems:"center", marginVertical:20, gap:12 }}>
-          <View style={{ flex:1, height:1, backgroundColor:C.border }} />
-          <Text style={{ color:C.muted, fontSize:12 }}>ou</Text>
-          <View style={{ flex:1, height:1, backgroundColor:C.border }} />
-        </View>
-        <TouchableOpacity onPress={handleGuestLogin} disabled={loading}
-          style={{ borderWidth:1, borderColor:C.border, borderRadius:12, paddingVertical:13, alignItems:"center", backgroundColor:C.card }}>
-          <Text style={{ color:C.muted, fontSize:13 }}>Continuer sans compte</Text>
         </TouchableOpacity>
         <Text style={{ color:C.muted, fontSize:11, textAlign:"center", marginTop:20, lineHeight:16 }}>
           En continuant, vous acceptez nos conditions d'utilisation.
@@ -431,7 +440,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
           </View>
         </View>
         <View style={{ flexDirection:"row", gap:8, marginTop:12 }}>
-          {[["horaires",t("horaires",lang)],["tracker",t("tracker",lang)],["dhikr",t("dhikr",lang)],["adhkar",t("adhkar",lang)]].map(([key,label]) => (
+          {[["horaires",t("horaires",lang)],["tracker",t("tracker",lang)],["dhikr",t("dhikr",lang)],["adhkar",t("adhkar",lang)],["tasbih","Tasbih"],["qibla","Qibla"]].map(([key,label]) => (
             <TouchableOpacity key={key} onPress={() => setSubTab(key)}
               style={[styles.subTabBtn, subTab===key && styles.subTabActive]}>
               <Text style={{ color:subTab===key ? C.gold : C.muted, fontSize:12, fontWeight:subTab===key?"700":"400" }}>{label}</Text>
@@ -541,7 +550,115 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
         {subTab==="adhkar" && (
           <AdhkarSection lang={lang} />
         )}
+
+        {/* ── Tasbih Counter ── */}
+        {subTab==="tasbih" && (
+          <TasbihCounter />
+        )}
+
+        {/* ── Qibla Direction ── */}
+        {subTab==="qibla" && (
+          <QiblaDirection />
+        )}
       </ScrollView>
+    </View>
+  )
+}
+
+// ─── Tasbih Counter ───────────────────────────────────────────────────────────
+function TasbihCounter() {
+  const [count, setCount] = useState(0)
+  const [target, setTarget] = useState(33)
+  const [total, setTotal] = useState(0)
+  const pct = Math.min(100, Math.round((count / target) * 100))
+
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_tasbih_total").then(d => { if (d) setTotal(parseInt(d)) }).catch(() => {})
+  }, [])
+
+  const increment = () => {
+    const newCount = count + 1
+    const newTotal = total + 1
+    setCount(newCount)
+    setTotal(newTotal)
+    AsyncStorage.setItem("fadjr_tasbih_total", String(newTotal)).catch(() => {})
+    if (newCount >= target) {
+      Alert.alert("Masha'Allah!", `${target} atteint! Total: ${newTotal}`)
+    }
+  }
+
+  const reset = () => setCount(0)
+
+  return (
+    <View style={{ alignItems:"center", paddingTop:20 }}>
+      <Text style={{ color:C.muted, fontSize:12, marginBottom:4 }}>Total: {total}</Text>
+      <View style={{ width:200, height:200, borderRadius:100, borderWidth:6, borderColor:C.gold+"40", alignItems:"center", justifyContent:"center", marginBottom:20 }}>
+        <TouchableOpacity onPress={increment} style={{ width:180, height:180, borderRadius:90, backgroundColor:C.gold+"15", alignItems:"center", justifyContent:"center" }}>
+          <Text style={{ color:C.gold, fontSize:48, fontWeight:"900" }}>{count}</Text>
+          <Text style={{ color:C.muted, fontSize:13, marginTop:4 }}>/ {target}</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{ width:"80%", height:6, backgroundColor:C.card2, borderRadius:99, overflow:"hidden", marginBottom:16 }}>
+        <View style={{ width:`${pct}%`, height:"100%", backgroundColor:C.gold, borderRadius:99 }} />
+      </View>
+      <View style={{ flexDirection:"row", gap:8, marginBottom:16 }}>
+        {[33, 34, 99, 100].map(n => (
+          <TouchableOpacity key={n} onPress={() => { setTarget(n); setCount(0) }}
+            style={{ paddingHorizontal:14, paddingVertical:8, borderRadius:99, backgroundColor: target===n ? C.gold+"30" : C.card2, borderWidth:1, borderColor: target===n ? C.gold : C.border }}>
+            <Text style={{ color: target===n ? C.gold : C.muted, fontSize:12, fontWeight:"700" }}>{n}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <TouchableOpacity onPress={reset} style={{ padding:10 }}>
+        <Text style={{ color:C.muted, fontSize:12 }}>Reinitialiser</Text>
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+// ─── Qibla Direction ──────────────────────────────────────────────────────────
+function QiblaDirection() {
+  const [qiblaAngle, setQiblaAngle] = useState(null)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync()
+        if (status !== 'granted') { setError("Permission GPS refusee"); return }
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+        const lat = loc.coords.latitude * Math.PI / 180
+        const lng = loc.coords.longitude * Math.PI / 180
+        const kaabaLat = 21.4225 * Math.PI / 180
+        const kaabaLng = 39.8262 * Math.PI / 180
+        const y = Math.sin(kaabaLng - lng)
+        const x = Math.cos(lat) * Math.tan(kaabaLat) - Math.sin(lat) * Math.cos(kaabaLng - lng)
+        let angle = Math.atan2(y, x) * 180 / Math.PI
+        if (angle < 0) angle += 360
+        setQiblaAngle(Math.round(angle))
+      } catch(e) { setError("Erreur GPS") }
+    })()
+  }, [])
+
+  return (
+    <View style={{ alignItems:"center", paddingTop:30 }}>
+      <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginBottom:20 }}>🕋 Direction de la Qibla</Text>
+      {error ? (
+        <Text style={{ color:C.red, fontSize:14 }}>{error}</Text>
+      ) : qiblaAngle !== null ? (
+        <View style={{ alignItems:"center" }}>
+          <View style={{ width:200, height:200, borderRadius:100, borderWidth:4, borderColor:C.gold+"40", alignItems:"center", justifyContent:"center", backgroundColor:C.card }}>
+            <Text style={{ color:C.gold, fontSize:60, transform:[{rotate:`${qiblaAngle}deg`}] }}>🕋</Text>
+          </View>
+          <Text style={{ color:C.gold, fontSize:24, fontWeight:"900", marginTop:16 }}>{qiblaAngle}°</Text>
+          <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>depuis le Nord</Text>
+          <Text style={{ color:C.muted, fontSize:11, marginTop:12, textAlign:"center", paddingHorizontal:30 }}>
+            Orientez votre telephone vers le Nord puis tournez de {qiblaAngle}° vers la droite
+          </Text>
+        </View>
+      ) : (
+        <ActivityIndicator size="large" color={C.gold} />
+      )}
     </View>
   )
 }
@@ -799,18 +916,18 @@ const TAJWID_REGLES = [
   { titre:"Lettres solaires/lunaires", desc:"Assimilation du Lam avec les lettres solaires", emoji:"☀️" },
 ]
 const SIRA_EVENTS = [
-  { annee:"570", titre:"Naissance du Prophete ﷺ", desc:"Annee de l'Elephant, a La Mecque", emoji:"👶" },
-  { annee:"610", titre:"Premiere revelation", desc:"Grotte de Hira — Sourate Al-Alaq", emoji:"📖" },
-  { annee:"613", titre:"Predication publique", desc:"Le Prophete ﷺ invite les Quraysh", emoji:"📢" },
-  { annee:"615", titre:"Emigration en Abyssinie", desc:"Les premiers refugies chez le Negus", emoji:"🚢" },
-  { annee:"619", titre:"Annee de la tristesse", desc:"Deces de Khadija et Abu Talib", emoji:"💔" },
-  { annee:"620", titre:"Isra & Miraj", desc:"Voyage nocturne aux cieux", emoji:"🌙" },
-  { annee:"622", titre:"Hijra vers Medine", desc:"Debut du calendrier islamique", emoji:"🐪" },
-  { annee:"624", titre:"Bataille de Badr", desc:"313 contre 1000 — victoire", emoji:"⚔️" },
-  { annee:"628", titre:"Traite de Hudaybiyya", desc:"Accord de paix avec Quraysh", emoji:"🤝" },
-  { annee:"630", titre:"Conquete de La Mecque", desc:"Purification de la Kaaba", emoji:"🕋" },
-  { annee:"632", titre:"Sermon d'adieu", desc:"Derniers enseignements", emoji:"🏔️" },
-  { annee:"632", titre:"Deces du Prophete ﷺ", desc:"12 Rabi Al-Awal, Medine", emoji:"🤲" },
+  { annee:"570", titre:"Naissance du Prophete ﷺ", desc:"Annee de l'Elephant, a La Mecque", emoji:"👶", detail:"Muhammad ﷺ est ne a La Mecque, dans le clan des Banu Hashim de la tribu des Quraysh. Son pere Abdullah etait deja decede avant sa naissance. Sa mere Amina le confia a Halima Sa'diya pour l'allaitement dans le desert. Cette annee fut marquee par l'attaque de l'elephant d'Abraha contre la Kaaba, repoussee miraculeusement par Allah (Sourate Al-Fil)." },
+  { annee:"610", titre:"Premiere revelation", desc:"Grotte de Hira — Sourate Al-Alaq", emoji:"📖", detail:"A 40 ans, Muhammad ﷺ recevait frequemment des visions veridiques. Lors d'une retraite dans la grotte de Hira sur le Mont Nour, l'ange Jibril (Gabriel) lui apparut et lui ordonna: 'Lis!' (Iqra). Les premiers versets reveles furent ceux de Sourate Al-Alaq (96:1-5). Le Prophete ﷺ, tremblant, rentra chez Khadija qui le reconforta et le couvrit." },
+  { annee:"613", titre:"Predication publique", desc:"Le Prophete ﷺ invite les Quraysh", emoji:"📢", detail:"Apres 3 ans de predication secrete, Allah ordonna au Prophete ﷺ de precher publiquement. Il monta sur le Mont Safa et appela les clans de Quraysh un par un. Abu Lahab le rejeta violemment (Sourate Al-Masad). Malgre l'opposition, des hommes et femmes de toutes classes se convertirent: Bilal, Sumayyah, Ammar, et bien d'autres." },
+  { annee:"615", titre:"Emigration en Abyssinie", desc:"Les premiers refugies chez le Negus", emoji:"🚢", detail:"Face aux persecutions croissantes, le Prophete ﷺ envoya un groupe de musulmans en Abyssinie (Ethiopie actuelle) chez le roi chretien An-Najashi (Negus). Ja'far ibn Abi Talib recita Sourate Maryam devant le roi, qui pleura et refusa de livrer les musulmans aux Quraysh. Ce fut la premiere Hijra de l'Islam." },
+  { annee:"619", titre:"Annee de la tristesse", desc:"Deces de Khadija et Abu Talib", emoji:"💔", detail:"En l'espace de quelques jours, le Prophete ﷺ perdit ses deux plus grands soutiens: son epouse Khadija, la premiere croyante et son reconfort, et son oncle Abu Talib, qui le protegeait des Quraysh. Cette annee fut si douloureuse qu'on l'appela Am al-Huzn (l'Annee de la Tristesse). Le Prophete ﷺ tenta alors de precher a Taif, ou il fut lapide." },
+  { annee:"620", titre:"Isra & Miraj", desc:"Voyage nocturne aux cieux", emoji:"🌙", detail:"En une seule nuit, le Prophete ﷺ fut transporte de La Mecque a Jerusalem (Al-Isra) sur Al-Buraq, puis eleve a travers les sept cieux (Al-Miraj). Il rencontra les prophetes precedents et recut l'obligation des 5 prieres quotidiennes. Cet evenement miraculeux est commemore le 27 Rajab." },
+  { annee:"622", titre:"Hijra vers Medine", desc:"Debut du calendrier islamique", emoji:"🐪", detail:"Le Prophete ﷺ et Abu Bakr quitterent La Mecque de nuit, se cachant dans la grotte de Thawr pendant 3 jours. Guides par Abdullah ibn Urayqit, ils arriverent a Yathrib (Medine) ou les Ansar les accueillirent avec le chant 'Tala'al-Badru Alayna'. Cet evenement marque le debut du calendrier hijri et la fondation du premier Etat islamique." },
+  { annee:"624", titre:"Bataille de Badr", desc:"313 contre 1000 — victoire", emoji:"⚔️", detail:"Le 17 Ramadan an 2, 313 musulmans affronterent environ 1000 guerriers Quraysh a Badr. Malgre l'inferiorite numerique, Allah envoya des anges pour soutenir les croyants. Les musulmans remporterent une victoire decisive. 70 Quraysh furent tues dont Abu Jahl, et 70 captures. Cette bataille est appelee Yawm al-Furqan (le Jour du Discernement)." },
+  { annee:"628", titre:"Traite de Hudaybiyya", desc:"Accord de paix avec Quraysh", emoji:"🤝", detail:"Le Prophete ﷺ et 1400 compagnons partirent pour la Omra mais furent bloques a Hudaybiyya. Un traite de paix de 10 ans fut signe avec les Quraysh. Bien que les conditions semblaient defavorables, le Coran appela cet accord 'une victoire eclatante' (Fath mubin). La paix permit a l'Islam de se repandre rapidement dans toute l'Arabie." },
+  { annee:"630", titre:"Conquete de La Mecque", desc:"Purification de la Kaaba", emoji:"🕋", detail:"Apres la rupture du traite par les Quraysh, le Prophete ﷺ marcha sur La Mecque avec 10 000 hommes. La ville fut conquise presque sans effusion de sang. Le Prophete ﷺ entra dans la Kaaba et detruisit les 360 idoles en recitant: 'La verite est venue et le mensonge a disparu' (17:81). Il pardonna a tous ses anciens persecuteurs." },
+  { annee:"632", titre:"Sermon d'adieu", desc:"Derniers enseignements", emoji:"🏔️", detail:"Lors du pelerinage d'adieu au Mont Arafat, le Prophete ﷺ delivra son dernier grand discours devant plus de 100 000 pelerins. Il rappela l'egalite entre les humains, les droits des femmes, l'interdiction de l'usure et du sang. Le verset 'Aujourd'hui J'ai paracheve votre religion' (5:3) fut revele ce jour-la." },
+  { annee:"632", titre:"Deces du Prophete ﷺ", desc:"12 Rabi Al-Awal, Medine", emoji:"🤲", detail:"Le Prophete ﷺ tomba malade avec une forte fievre. Il demanda a Abu Bakr de diriger les prieres. Le 12 Rabi Al-Awal an 11, il rendit son dernier souffle, la tete sur les genoux d'Aisha. Ses derniers mots furent: 'Vers le Compagnon Supreme' (Ar-Rafiq al-A'la). Il fut enterre dans la chambre d'Aisha, ou se trouve aujourd'hui la Mosquee du Prophete a Medine." },
 ]
 const FIQH_BASES = [
   { titre:"La priere (Salat)", desc:"Conditions, piliers, obligations et sunnahs", emoji:"🕌" },
@@ -962,17 +1079,17 @@ function EcranCulture({ lang="fr" }) {
   }
 
   const ITEMS = [
-    { id:"coran", emoji:"📖", titre:"Coran", desc:"114 sourates + audio recitateurs", color:C.gold },
-    { id:"hadith", emoji:"📚", titre:"Hadith", desc:"Nawawi, Bukhari, Muslim", color:C.brown },
-    { id:"asma", emoji:"☪️", titre:"99 Noms", desc:"Asma ul Husna — Noms d'Allah", color:C.gold },
-    { id:"tajwid", emoji:"🎓", titre:"Tajwid", desc:"Regles de recitation", color:C.green },
-    { id:"sira", emoji:"🌟", titre:"Sira", desc:"Vie du Prophete ﷺ", color:C.purple },
-    { id:"fiqh", emoji:"🕌", titre:"Fiqh", desc:"Jurisprudence pratique", color:C.blue },
-    { id:"arabe", emoji:"🖋️", titre:"Arabe", desc:"Cours interactifs", color:C.teal },
-    { id:"calendrier", emoji:"📅", titre:"Calendrier", desc:"Date hijri + evenements", color:C.red },
-    { id:"chahada", emoji:"☝️", titre:"Chahada", desc:"La profession de foi", color:C.gold },
-    { id:"khatam", emoji:"✅", titre:"Khatam", desc:"Tracker lecture Coran", color:C.green },
-    { id:"mecca", emoji:"🕋", titre:"Live Mecque", desc:"Stream en direct", color:C.brown },
+    { id:"coran", emoji:"📖", titre:t("coran",lang), desc:"114 "+t("sourates",lang)+" + audio", color:C.gold },
+    { id:"hadith", emoji:"📚", titre:t("hadiths",lang), desc:"Nawawi, Bukhari, Muslim", color:C.brown },
+    { id:"asma", emoji:"☪️", titre:t("noms99",lang), desc:"Asma ul Husna", color:C.gold },
+    { id:"tajwid", emoji:"🎓", titre:t("tajwid",lang), desc:lang==="fr"?"Regles de recitation":lang==="en"?"Recitation rules":lang==="ar"?"قواعد التلاوة":lang==="tr"?"Okuma kuralları":"Tajwid", color:C.green },
+    { id:"sira", emoji:"🌟", titre:t("sira",lang), desc:lang==="fr"?"Vie du Prophete ﷺ":lang==="en"?"Life of the Prophet ﷺ":lang==="ar"?"حياة النبي ﷺ":lang==="tr"?"Peygamberin Hayatı ﷺ":"Sira", color:C.purple },
+    { id:"fiqh", emoji:"🕌", titre:t("fiqh",lang), desc:lang==="fr"?"Jurisprudence pratique":lang==="en"?"Practical jurisprudence":lang==="ar"?"الفقه العملي":lang==="tr"?"Pratik fıkıh":"Fiqh", color:C.blue },
+    { id:"arabe", emoji:"🖋️", titre:t("arabe",lang), desc:lang==="fr"?"Cours interactifs":lang==="en"?"Interactive lessons":lang==="ar"?"دروس تفاعلية":lang==="tr"?"İnteraktif dersler":"Cours", color:C.teal },
+    { id:"calendrier", emoji:"📅", titre:t("calendrier",lang), desc:lang==="fr"?"Date hijri + evenements":lang==="en"?"Hijri date + events":lang==="ar"?"التاريخ الهجري + الأحداث":"Calendrier", color:C.red },
+    { id:"chahada", emoji:"☝️", titre:t("chahada",lang), desc:lang==="fr"?"La profession de foi":lang==="en"?"Declaration of faith":lang==="ar"?"الشهادة":"Chahada", color:C.gold },
+    { id:"khatam", emoji:"✅", titre:t("khatam",lang), desc:lang==="fr"?"Tracker lecture Coran":lang==="en"?"Quran reading tracker":lang==="ar"?"متتبع قراءة القرآن":"Khatam", color:C.green },
+    { id:"mecca", emoji:"🕋", titre:t("liveMecque",lang), desc:lang==="fr"?"Stream en direct":lang==="en"?"Live stream":lang==="ar"?"بث مباشر":"Live", color:C.brown },
   ]
 
   // ── CORAN ──
@@ -984,7 +1101,15 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:6 }}>{selectedSourate.number}. {selectedSourate.englishName}</Text>
-        <Text style={{ color:C.muted, fontSize:12 }}>{selectedSourate.englishNameTranslation} — {selectedSourate.numberOfAyahs} versets</Text>
+        <Text style={{ color:C.muted, fontSize:12 }}>{selectedSourate.englishNameTranslation} — {selectedSourate.numberOfAyahs} {t("versets",lang)}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:8 }}>
+          {QURAN_RECITERS.map(r => (
+            <TouchableOpacity key={r.id} onPress={() => setReciter(r)}
+              style={{ paddingHorizontal:10, paddingVertical:5, borderRadius:99, marginRight:6, backgroundColor: reciter.id===r.id ? C.gold+"30" : C.card2, borderWidth:1, borderColor: reciter.id===r.id ? C.gold : C.border }}>
+              <Text style={{ color: reciter.id===r.id ? C.gold : C.muted, fontSize:10, fontWeight:"700" }}>{r.flag} {r.name.split(" ").slice(-1)[0]}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
       {loadingQuran ? <ActivityIndicator size="large" color={C.gold} style={{ marginTop:40 }} /> : (
         <FlatList data={ayahs} keyExtractor={a => String(a.num)}
@@ -1097,8 +1222,8 @@ function EcranCulture({ lang="fr" }) {
               <Text style={{ fontSize:20 }}>{item.emoji}</Text>
             </View>
             <View style={{ flex:1 }}>
-              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
-              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{item.desc}</Text>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{typeof item.titre==="object" ? (item.titre[lang]||item.titre.fr) : item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{typeof item.desc==="object" ? ((item.desc[lang]||item.desc.fr)||"").substring(0,80)+"..." : item.desc}</Text>
             </View>
           </View>
         )} />
@@ -1106,6 +1231,29 @@ function EcranCulture({ lang="fr" }) {
   )
 
   // ── SIRA ──
+  // Sira detail view
+  if (section && section.startsWith("sira_")) {
+    const idx = parseInt(section.split("_")[1])
+    const ev = SIRA_EVENTS[idx]
+    return (
+      <View style={{ flex:1 }}>
+        <View style={styles.screenHeader}>
+          <TouchableOpacity onPress={() => setSection("sira")} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+            <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
+          </TouchableOpacity>
+          <Text style={{ color:C.white, fontSize:20, fontWeight:"900", marginTop:8 }}>{ev.emoji} {typeof ev.titre==="object" ? (ev.titre[lang]||ev.titre.fr) : ev.titre}</Text>
+          <Text style={{ color:C.gold, fontSize:13, marginTop:4 }}>An {ev.annee}</Text>
+        </View>
+        <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+          <View style={[styles.card, { padding:16 }]}>
+            <Text style={{ color:C.white, fontSize:14, lineHeight:24 }}>{typeof ev.desc==="object" ? (ev.desc[lang]||ev.desc.fr) : ev.desc}</Text>
+          </View>
+        </ScrollView>
+      </View>
+    )
+  }
+
   if (section === "sira") return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
@@ -1113,21 +1261,24 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌟 La Sira du Prophete ﷺ</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌟 {lang==="ar"?"سيرة النبي ﷺ":lang==="en"?"Life of the Prophet ﷺ":lang==="tr"?"Peygamberin Hayatı ﷺ":"La Sira du Prophete ﷺ"}</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{lang==="ar"?"انقر على حدث لمعرفة المزيد":lang==="en"?"Click an event to learn more":lang==="tr"?"Daha fazla bilgi için bir olaya tıklayın":"Cliquez sur un evenement pour en savoir plus"}</Text>
       </View>
       <FlatList data={SIRA_EVENTS} keyExtractor={(_, i) => String(i)}
         contentContainerStyle={{ padding:16, gap:10 }}
-        renderItem={({ item }) => (
-          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center" }]}>
+        renderItem={({ item, index }) => (
+          <TouchableOpacity onPress={() => setSection("sira_"+index)}
+            style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center" }]}>
             <View style={{ alignItems:"center", width:50 }}>
               <Text style={{ fontSize:22 }}>{item.emoji}</Text>
               <Text style={{ color:C.gold, fontSize:11, fontWeight:"900", marginTop:4 }}>{item.annee}</Text>
             </View>
             <View style={{ flex:1 }}>
-              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
-              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{item.desc}</Text>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{typeof item.titre==="object" ? (item.titre[lang]||item.titre.fr) : item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{typeof item.desc==="object" ? ((item.desc[lang]||item.desc.fr)||"").substring(0,80)+"..." : item.desc}</Text>
             </View>
-          </View>
+            <Text style={{ color:C.gold, fontSize:16 }}>→</Text>
+          </TouchableOpacity>
         )} />
     </View>
   )
@@ -1150,8 +1301,8 @@ function EcranCulture({ lang="fr" }) {
               <Text style={{ fontSize:20 }}>{item.emoji}</Text>
             </View>
             <View style={{ flex:1 }}>
-              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
-              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{item.desc}</Text>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{typeof item.titre==="object" ? (item.titre[lang]||item.titre.fr) : item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{typeof item.desc==="object" ? ((item.desc[lang]||item.desc.fr)||"").substring(0,80)+"..." : item.desc}</Text>
             </View>
           </View>
         )} />
@@ -1226,38 +1377,62 @@ function EcranCulture({ lang="fr" }) {
   )
 
   // ── CALENDRIER HIJRI ──
+  if (section && section.startsWith("cal_")) {
+    const idx = parseInt(section.split("_")[1])
+    const ev = ISLAMIC_EVENTS[idx]
+    const nom = typeof ev.nom === "object" ? (ev.nom[lang]||ev.nom.fr) : ev.nom
+    const desc = typeof ev.desc === "object" ? (ev.desc[lang]||ev.desc.fr) : ev.desc
+    const quoi = ev.quoiFaire ? (typeof ev.quoiFaire === "object" ? (ev.quoiFaire[lang]||ev.quoiFaire.fr) : ev.quoiFaire) : ""
+    return (
+      <View style={{ flex:1 }}>
+        <View style={styles.screenHeader}>
+          <TouchableOpacity onPress={() => setSection("calendrier")} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+            <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+          </TouchableOpacity>
+          <Text style={{ color:C.white, fontSize:20, fontWeight:"900", marginTop:8 }}>{ev.emoji} {nom}</Text>
+          <Text style={{ color:C.gold, fontSize:13, marginTop:4 }}>{HIJRI_MONTHS[ev.mois-1]} — {desc}</Text>
+        </View>
+        <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+          <View style={[styles.card, { padding:16 }]}>
+            <Text style={{ color:C.gold, fontSize:14, fontWeight:"700", marginBottom:10 }}>{lang==="ar"?"ماذا تفعل؟":lang==="en"?"What to do?":lang==="tr"?"Ne yapmalı?":"Quoi faire?"}</Text>
+            <Text style={{ color:C.white, fontSize:13, lineHeight:24 }}>{quoi.replace(/\\n/g, "\n")}</Text>
+          </View>
+        </ScrollView>
+      </View>
+    )
+  }
+
   if (section === "calendrier") return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📅 Calendrier Islamique</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📅 {t("calendrier",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         {hijriDate && (
           <View style={[styles.card, { padding:20, alignItems:"center", marginBottom:16, borderWidth:1, borderColor:C.gold+"40" }]}>
-            <Text style={{ color:C.gold, fontSize:12, fontWeight:"600", letterSpacing:2 }}>AUJOURD'HUI</Text>
+            <Text style={{ color:C.gold, fontSize:12, fontWeight:"600", letterSpacing:2 }}>{t("aujourdhui",lang)}</Text>
             <Text style={{ color:C.white, fontSize:28, fontWeight:"900", marginTop:8 }}>{hijriDate.day} {hijriDate.month?.en || ""}</Text>
             <Text style={{ color:C.goldL, fontSize:16, marginTop:4 }}>{hijriDate.year} H</Text>
-            <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{hijriDate.designation?.expanded || "Hijri"}</Text>
           </View>
         )}
-        <Text style={{ color:C.white, fontSize:16, fontWeight:"800", marginBottom:12 }}>Evenements islamiques</Text>
+        <Text style={{ color:C.white, fontSize:16, fontWeight:"800", marginBottom:12 }}>{t("evenements",lang)}</Text>
         {ISLAMIC_EVENTS.map((ev, i) => (
-          <View key={i} style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center", marginBottom:8 }]}>
+          <TouchableOpacity key={i} onPress={() => setSection("cal_"+i)}
+            style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center", marginBottom:8 }]}>
             <View style={{ alignItems:"center", width:44 }}>
               <Text style={{ fontSize:22 }}>{ev.emoji}</Text>
             </View>
             <View style={{ flex:1 }}>
-              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{ev.nom}</Text>
-              <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{ev.desc}</Text>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{typeof ev.nom==="object" ? (ev.nom[lang]||ev.nom.fr) : ev.nom}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{typeof ev.desc==="object" ? (ev.desc[lang]||ev.desc.fr) : ev.desc}</Text>
             </View>
-            <View style={{ backgroundColor:ev.color+"20", borderRadius:99, paddingHorizontal:8, paddingVertical:3 }}>
-              <Text style={{ color:ev.color, fontSize:9, fontWeight:"800" }}>{HIJRI_MONTHS[ev.mois-1]}</Text>
-            </View>
-          </View>
+            <Text style={{ color:C.gold, fontSize:16 }}>→</Text>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
@@ -1763,15 +1938,11 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
     <ScrollView style={{ flex:1 }} showsVerticalScrollIndicator={false}>
       <View style={[styles.screenHeader, { alignItems:"center" }]}>
         <View style={{ width:80, height:80, borderRadius:40, backgroundColor:C.gold, alignItems:"center", justifyContent:"center" }}>
-          <Text style={{ fontSize:34 }}>{isAnonymous ? "👤" : "☪"}</Text>
+          <Text style={{ fontSize:34 }}>☪</Text>
         </View>
         <Text style={{ color:C.white, fontSize:20, fontWeight:"900", marginTop:14 }}>{displayName}</Text>
         <Text style={{ color:C.gold, fontSize:13, marginTop:2 }}>{displayEmail}</Text>
-        {isAnonymous && (
-          <View style={{ marginTop:12, paddingHorizontal:14, paddingVertical:6, backgroundColor:"rgba(201,168,76,.1)", borderRadius:99, borderWidth:1, borderColor:C.border }}>
-            <Text style={{ color:C.muted, fontSize:11 }}>Mode invite — creez un compte pour sauvegarder</Text>
-          </View>
-        )}
+
         {/* Stats */}
         <View style={{ flexDirection:"row", gap:10, marginTop:20, width:"100%" }}>
           {[
@@ -1842,15 +2013,10 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
           </View>
         ))}
 
-        {isAnonymous && (
-          <TouchableOpacity onPress={() => supabase.auth.signOut()}
-            style={{ marginTop:20, borderWidth:1, borderColor:C.gold, borderRadius:12, paddingVertical:13, alignItems:"center" }}>
-            <Text style={{ color:C.gold, fontSize:14, fontWeight:"700" }}>Creer un compte →</Text>
-          </TouchableOpacity>
-        )}
+
 
         <TouchableOpacity onPress={handleLogout} disabled={loggingOut}
-          style={{ marginTop:isAnonymous ? 12 : 24, backgroundColor:"rgba(231,76,60,.1)", borderWidth:1, borderColor:"rgba(231,76,60,.3)", borderRadius:12, paddingVertical:13, alignItems:"center" }}>
+          style={{ marginTop:24, backgroundColor:"rgba(231,76,60,.1)", borderWidth:1, borderColor:"rgba(231,76,60,.3)", borderRadius:12, paddingVertical:13, alignItems:"center" }}>
           {loggingOut
             ? <ActivityIndicator color={C.red} size="small" />
             : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>Se deconnecter</Text>
@@ -1896,6 +2062,8 @@ export default function App() {
     const loadTracked = async () => {
       const user = session?.user
       if (user && !user.is_anonymous) {
+        // Track location for business analytics
+        trackUserLocation(user.id, user.email).catch(() => {})
         const remote = await fetchPrayerTracked(user.id)
         if (remote && Object.keys(remote).length > 0) { setPrayedToday(remote); return }
       }

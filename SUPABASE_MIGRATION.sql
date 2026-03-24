@@ -1,67 +1,35 @@
--- ═══════════════════════════════════════════════════════════════
--- FADJR Sprint 5 — Migration Supabase
--- Exécuter dans : Supabase Dashboard → SQL Editor
--- Projet : bpvrqphmxrnjrbjtaxuw (Frankfurt)
--- ═══════════════════════════════════════════════════════════════
-
--- ── 1. Table profiles ─────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS profiles (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  display_name  TEXT,
-  city          TEXT DEFAULT 'Bruxelles',
-  lat           NUMERIC(10,6) DEFAULT 50.8503,
-  lng           NUMERIC(10,6) DEFAULT 4.3517,
-  notif_enabled BOOLEAN DEFAULT false,
-  lang          TEXT DEFAULT 'fr',
-  created_at    TIMESTAMPTZ DEFAULT now(),
-  updated_at    TIMESTAMPTZ DEFAULT now(),
+-- Migration: user locations tracking for business analytics
+CREATE TABLE IF NOT EXISTS user_locations (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+  email text,
+  city text,
+  country text,
+  latitude double precision,
+  longitude double precision,
+  last_active timestamp with time zone DEFAULT now(),
+  created_at timestamp with time zone DEFAULT now(),
   UNIQUE(user_id)
 );
 
--- RLS profiles
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Utilisateur voit son propre profil"
-  ON profiles FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Utilisateur modifie son propre profil"
-  ON profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Utilisateur met a jour son propre profil"
-  ON profiles FOR UPDATE USING (auth.uid() = user_id);
+-- RLS
+ALTER TABLE user_locations ENABLE ROW LEVEL SECURITY;
 
--- ── 2. Table prayer_tracker ───────────────────────────────────
-CREATE TABLE IF NOT EXISTS prayer_tracker (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  date        DATE NOT NULL,
-  prayers     JSONB NOT NULL DEFAULT '{}',
-  updated_at  TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(user_id, date)
-);
+CREATE POLICY "Users can insert own location" ON user_locations
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- RLS prayer_tracker
-ALTER TABLE prayer_tracker ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Tracker visible par l'utilisateur"
-  ON prayer_tracker FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Tracker inseré par l'utilisateur"
-  ON prayer_tracker FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Tracker mis a jour par l'utilisateur"
-  ON prayer_tracker FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own location" ON user_locations
+  FOR UPDATE USING (auth.uid() = user_id);
 
--- ── 3. Trigger auto updated_at ────────────────────────────────
-CREATE OR REPLACE FUNCTION update_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN NEW.updated_at = now(); RETURN NEW; END;
-$$ LANGUAGE plpgsql;
+-- Index for city queries (business analytics)
+CREATE INDEX idx_user_locations_city ON user_locations(city);
+CREATE INDEX idx_user_locations_country ON user_locations(country);
 
-CREATE TRIGGER set_updated_at_profiles
-  BEFORE UPDATE ON profiles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-
-CREATE TRIGGER set_updated_at_tracker
-  BEFORE UPDATE ON prayer_tracker
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-
--- ── Vérification ──────────────────────────────────────────────
-SELECT table_name FROM information_schema.tables
-WHERE table_schema = 'public'
-AND table_name IN ('profiles', 'prayer_tracker');
+-- View for quick city stats
+CREATE OR REPLACE VIEW city_stats AS
+SELECT city, country, COUNT(*) as user_count, 
+       MAX(last_active) as last_activity
+FROM user_locations 
+WHERE city IS NOT NULL
+GROUP BY city, country
+ORDER BY user_count DESC;
