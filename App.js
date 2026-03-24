@@ -124,7 +124,7 @@ const todayKey = () => new Date().toISOString().slice(0, 10)
 
 // ─── Data statique ────────────────────────────────────────────────────────────
 const COMMERCES = [
-  { id:1, nom:"Le Sultane", type:"Restaurant", adresse:"Chaussee de Wavre 142, Ixelles", distance:"0.3 km", note:4.8, certif:"HBE", emoji:"🍽️", color:"#C9A84C", ouvert:true, spec:"Cuisine orientale, tagine, couscous" },
+  { id:1, nom:"Le Sultane", type:"Restaurant", adresse:"Chaussee de Wavre 142, Ixelles", distance:"0.3 km", note:4.8, certif:"HBE", emoji:"🍽️", color:"#C9A84C", ouvert:true, spec:"Cuisine orientale, tagine, couscous", tel:"+3225025050" },
   { id:2, nom:"Boucherie Al Madina", type:"Boucherie", adresse:"Rue Molenbeek 67, Molenbeek", distance:"0.7 km", note:4.6, certif:"AVS", emoji:"🥩", color:"#E74C3C", ouvert:true, spec:"Agneau, veau, poulet, merguez" },
   { id:3, nom:"Al Bouraq Books", type:"Librairie", adresse:"Rue de Flandre 88, Bruxelles", distance:"1.1 km", note:4.9, certif:"FADJR", emoji:"📚", color:"#8B5E3C", ouvert:true, spec:"Coran, hadith, livres enfants" },
   { id:4, nom:"Nour Abaya", type:"Boutique", adresse:"Chaussee d Anvers 234, Laeken", distance:"1.4 km", note:4.7, certif:"FADJR", emoji:"👗", color:"#9B59B6", ouvert:false, spec:"Abaya, qamis, hijab, tenues mariage" },
@@ -135,10 +135,18 @@ const COMMERCES = [
 ]
 const CATEGORIES = ["Tous","Restaurant","Boucherie","Librairie","Boutique","Parfumerie","Voyage","Ecole","Finance"]
 const DHIKR = [
-  { ar:"Subhan Allah", fr:"Subhan Allah", trad:"Gloire a Allah", count:33 },
-  { ar:"Alhamdulillah", fr:"Alhamdulillah", trad:"Louange a Allah", count:33 },
-  { ar:"Allahu Akbar", fr:"Allahu Akbar", trad:"Allah est le Plus Grand", count:34 },
-  { ar:"La ilaha illallah", fr:"La ilaha illallah", trad:"Nulle divinite sauf Allah", count:100 },
+  { ar:"سبحان الله", fr:"Subhan Allah", trad:"Gloire a Allah", count:33 },
+  { ar:"الحمد لله", fr:"Alhamdulillah", trad:"Louange a Allah", count:33 },
+  { ar:"الله أكبر", fr:"Allahu Akbar", trad:"Allah est le Plus Grand", count:34 },
+  { ar:"لا إله إلا الله", fr:"La ilaha illallah", trad:"Nulle divinite sauf Allah", count:100 },
+  { ar:"أستغفر الله", fr:"Astaghfirullah", trad:"Je demande pardon a Allah", count:100 },
+  { ar:"لا حول ولا قوة إلا بالله", fr:"La hawla wa la quwwata illa billah", trad:"Pas de force ni de puissance sauf en Allah", count:33 },
+  { ar:"سبحان الله وبحمده", fr:"Subhan Allah wa bihamdihi", trad:"Gloire et louange a Allah", count:100 },
+  { ar:"سبحان الله العظيم", fr:"Subhan Allah al-Azim", trad:"Gloire a Allah le Tout-Puissant", count:33 },
+  { ar:"اللهم صل على محمد", fr:"Allahumma salli ala Muhammad", trad:"O Allah prie sur Muhammad", count:10 },
+  { ar:"حسبي الله ونعم الوكيل", fr:"Hasbunallah wa ni'mal wakil", trad:"Allah nous suffit, quel excellent Protecteur", count:7 },
+  { ar:"رب اغفر لي وتب عليّ", fr:"Rabbi ighfir li wa tub alayya", trad:"Seigneur pardonne-moi et accepte mon repentir", count:100 },
+  { ar:"يا حي يا قيوم برحمتك أستغيث", fr:"Ya Hayyu ya Qayyum birahmatika astaghith", trad:"O Vivant, O Subsistant, par Ta misericorde je cherche secours", count:3 },
 ]
 const PRAYER_NAMES = ["Fajr","Sunrise","Dhuhr","Asr","Maghrib","Isha"]
 const PRAYER_AR = ["Al-Fajr","Ash-Shurouq","Adh-Dhuhr","Al-Asr","Al-Maghrib","Al-Icha"]
@@ -695,11 +703,18 @@ function EcranCarte({ lang="fr" }) {
                   <View style={{ marginTop:12, paddingTop:12, borderTopWidth:1, borderTopColor:C.border }}>
                     <Text style={{ color:C.white, fontSize:12, marginBottom:10 }}>{c.spec}</Text>
                     <View style={{ flexDirection:"row", gap:8 }}>
-                      {[["Appeler",c.color],["Y aller",C.blue],["Favori",C.gold]].map(([label,col]) => (
-                        <TouchableOpacity key={label} style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:col, alignItems:"center" }}>
-                          <Text style={{ color:col, fontSize:11, fontWeight:"700" }}>{label}</Text>
-                        </TouchableOpacity>
-                      ))}
+                      <TouchableOpacity onPress={() => { if(c.tel) Linking.openURL("tel:"+c.tel).catch(()=>{}) }}
+                        style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:c.color, alignItems:"center" }}>
+                        <Text style={{ color:c.color, fontSize:11, fontWeight:"700" }}>📞 Appeler</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => Linking.openURL("https://maps.google.com/?q="+encodeURIComponent(c.adresse)).catch(()=>{})}
+                        style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:C.blue, alignItems:"center" }}>
+                        <Text style={{ color:C.blue, fontSize:11, fontWeight:"700" }}>🗺️ Y aller</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => { AsyncStorage.getItem("fadjr_favs").then(d => { const favs = d ? JSON.parse(d) : []; if(!favs.includes(c.id)) { favs.push(c.id); AsyncStorage.setItem("fadjr_favs",JSON.stringify(favs)); Alert.alert("Favori","Ajouté aux favoris!") } else { Alert.alert("Favori","Déjà dans vos favoris") } }).catch(()=>{}) }}
+                        style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:C.gold, alignItems:"center" }}>
+                        <Text style={{ color:C.gold, fontSize:11, fontWeight:"700" }}>⭐ Favori</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 )}
@@ -761,10 +776,17 @@ const HADITHS_MUSLIM = [
 ]
 const QURAN_RECITERS = [
   { id:"ar.alafasy", name:"Mishary Al-Afasy", flag:"🇰🇼" },
-  { id:"ar.abdulbasit", name:"Abdul Basit", flag:"🇪🇬" },
-  { id:"ar.husary", name:"Mahmoud Al-Husary", flag:"🇪🇬" },
-  { id:"ar.minshawi", name:"Al-Minshawi", flag:"🇪🇬" },
+  { id:"ar.abdulbasit", name:"Abdul Basit Abdus Samad", flag:"🇪🇬" },
+  { id:"ar.husary", name:"Mahmoud Khalil Al-Husary", flag:"🇪🇬" },
+  { id:"ar.minshawi", name:"Mohamed Siddiq Al-Minshawi", flag:"🇪🇬" },
   { id:"ar.abdulsamad", name:"Abdul Samad", flag:"🇪🇬" },
+  { id:"ar.shaatree", name:"Abu Bakr Al-Shatri", flag:"🇸🇦" },
+  { id:"ar.ahmedajamy", name:"Ahmed Al-Ajamy", flag:"🇸🇦" },
+  { id:"ar.mahermuaiqly", name:"Maher Al-Muaiqly", flag:"🇸🇦" },
+  { id:"ar.hudhaify", name:"Ali Al-Hudhaify", flag:"🇸🇦" },
+  { id:"ar.muhammadayyoub", name:"Muhammad Ayyoub", flag:"🇸🇦" },
+  { id:"ar.parhizgar", name:"Ibrahim Al-Akhdar", flag:"🇸🇦" },
+  { id:"ar.muhammadjibreel", name:"Muhammad Jibreel", flag:"🇪🇬" },
 ]
 const TAJWID_REGLES = [
   { titre:"Noon Sakinah", desc:"Les 4 regles : Izhar, Idgham, Iqlab, Ikhfa", emoji:"🔤" },
@@ -917,7 +939,7 @@ function EcranCulture({ lang="fr" }) {
   useEffect(() => {
     if (selectedSourate) {
       setLoadingQuran(true)
-      fetch(`https://api.alquran.cloud/v1/surah/${selectedSourate.number}/editions/ar.alafasy,fr.hamidullah`)
+      fetch(`https://api.alquran.cloud/v1/surah/${selectedSourate.number}/editions/${reciter.id},fr.hamidullah`)
         .then(r => r.json())
         .then(d => {
           if (d.data && d.data.length === 2) {
@@ -929,7 +951,7 @@ function EcranCulture({ lang="fr" }) {
         })
         .catch(() => setLoadingQuran(false))
     }
-  }, [selectedSourate])
+  }, [selectedSourate, reciter])
 
   // Audio playback via browser
   const playAyah = async (audioUrl, ayahNum) => {
@@ -1325,8 +1347,8 @@ function EcranCulture({ lang="fr" }) {
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         {[
-          { titre:"🕋 Makkah Live — Al Haram", desc:"Stream en direct de la Mosquee Al-Haram", url:"https://www.youtube.com/watch?v=bN23iKiJmVE", color:C.gold },
-          { titre:"🕌 Madinah Live — Al-Masjid An-Nabawi", desc:"Stream en direct de la Mosquee du Prophete ﷺ", url:"https://www.youtube.com/watch?v=SQjd5VqCyME", color:C.green },
+          { titre:"🕋 Makkah Live — Al Haram", desc:"Stream en direct de la Mosquee Al-Haram", url:"https://www.youtube.com/watch?v=P_bY9WLKelg", color:C.gold },
+          { titre:"🕌 Madinah Live — Al-Masjid An-Nabawi", desc:"Stream en direct de la Mosquee du Prophete ﷺ", url:"https://www.youtube.com/watch?v=HYLK1K3MMDI", color:C.green },
           { titre:"📺 Quran TV — Recitation 24/7", desc:"Recitation du Coran en continu", url:"https://www.youtube.com/watch?v=gVoGF7kOb84", color:C.blue },
         ].map((stream, i) => (
           <TouchableOpacity key={i} onPress={() => Linking.openURL(stream.url).catch(() => {})}
