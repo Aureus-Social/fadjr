@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, createContext, useContext, useCallback } f
 import {
   StyleSheet, Text, View, TouchableOpacity, ScrollView,
   StatusBar, TextInput, ActivityIndicator, Dimensions, FlatList,
-  KeyboardAvoidingView, Platform, Alert, Switch
+  KeyboardAvoidingView, Platform, Alert, Switch, Linking
 } from "react-native"
 import { createClient } from '@supabase/supabase-js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -511,6 +511,62 @@ function AdhkarSection() {
     </View>
   )
 }
+// ─── Khatam Quran Tracker ─────────────────────────────────────────────────────
+function KhatamTracker({ onBack }) {
+  const [progress, setProgress] = useState({})
+  const [totalRead, setTotalRead] = useState(0)
+  useEffect(() => {
+    AsyncStorage.getItem("khatam_progress").then(data => {
+      if (data) { const p = JSON.parse(data); setProgress(p); setTotalRead(Object.keys(p).filter(k => p[k]).length) }
+    }).catch(() => {})
+  }, [])
+  const toggleSourate = async (num) => {
+    const newP = { ...progress, [num]: !progress[num] }
+    setProgress(newP)
+    const count = Object.keys(newP).filter(k => newP[k]).length
+    setTotalRead(count)
+    await AsyncStorage.setItem("khatam_progress", JSON.stringify(newP))
+  }
+  const pct = Math.round((totalRead / 114) * 100)
+  const JUZ_SOURATES = [
+    [1,2],[2],[2,3],[3,4],[4],[4,5],[5,6],[6,7],[7,8],[8,9,10],
+    [9,10,11],[11,12],[12,13,14],[15,16],[17,18],[18,19,20],[21,22],[23,24,25],[25,26,27],[27,28,29],
+    [29,30,31,32,33],[33,34,35,36],[36,37,38,39],[39,40,41],[41,42,43,44,45],[46,47,48,49,50,51],[51,52,53,54,55,56,57],[58,59,60,61,62,63,64,65,66],[67,68,69,70,71,72,73,74,75,76,77],[78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114]
+  ]
+  return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={onBack} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>✅ Khatam — Tracker Coran</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <View style={[styles.card, { padding:16, alignItems:"center", marginBottom:14, borderWidth:1, borderColor: pct===100 ? C.green : C.gold+"40" }]}>
+          <Text style={{ color: pct===100 ? C.green : C.gold, fontSize:36, fontWeight:"900" }}>{pct}%</Text>
+          <Text style={{ color:C.white, fontSize:14, fontWeight:"600", marginTop:4 }}>{totalRead} / 114 sourates</Text>
+          <View style={{ width:"100%", height:8, backgroundColor:C.card2, borderRadius:99, marginTop:12, overflow:"hidden" }}>
+            <View style={{ width:`${pct}%`, height:"100%", backgroundColor: pct===100 ? C.green : C.gold, borderRadius:99 }} />
+          </View>
+          {pct===100 && <Text style={{ color:C.green, fontSize:14, fontWeight:"800", marginTop:8 }}>Masha'Allah ! Khatam complete !</Text>}
+        </View>
+        <Text style={{ color:C.muted, fontSize:11, marginBottom:10 }}>Cochez les sourates que vous avez lues</Text>
+        {Array.from({length:114}, (_, i) => i+1).map(num => (
+          <TouchableOpacity key={num} onPress={() => toggleSourate(num)}
+            style={[styles.card, { flexDirection:"row", alignItems:"center", gap:10, padding:10, marginBottom:4, backgroundColor: progress[num] ? C.green+"15" : C.card }]}>
+            <View style={{ width:24, height:24, borderRadius:6, borderWidth:2, borderColor: progress[num] ? C.green : C.gold+"50", backgroundColor: progress[num] ? C.green : "transparent", alignItems:"center", justifyContent:"center" }}>
+              {progress[num] && <Text style={{ color:C.white, fontSize:12, fontWeight:"900" }}>✓</Text>}
+            </View>
+            <Text style={{ color:C.gold, fontSize:12, fontWeight:"800", width:28 }}>{num}</Text>
+            <Text style={{ color: progress[num] ? C.green : C.white, fontSize:13, fontWeight:"600", flex:1 }}>Sourate {num}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  )
+}
+
 // ─── Écran Carte ──────────────────────────────────────────────────────────────
 function EcranCarte() {
   const [cat, setCat] = useState("Tous")
@@ -688,8 +744,60 @@ const ISLAMIC_EVENTS = [
   { mois:12, jour:9, nom:"Jour d'Arafat", desc:"Jeune recommande — meilleur jour", emoji:"🏔️", color:C.blue },
   { mois:12, jour:10, nom:"Aid Al-Adha", desc:"Fete du sacrifice", emoji:"🐑", color:C.gold },
 ]
+const ASMA_UL_HUSNA = [
+  {num:1,ar:"الرحمن",fr:"Le Tout Misericordieux",rom:"Ar-Rahman"},{num:2,ar:"الرحيم",fr:"Le Tres Misericordieux",rom:"Ar-Rahim"},
+  {num:3,ar:"الملك",fr:"Le Souverain",rom:"Al-Malik"},{num:4,ar:"القدوس",fr:"Le Saint",rom:"Al-Quddus"},
+  {num:5,ar:"السلام",fr:"La Paix",rom:"As-Salam"},{num:6,ar:"المؤمن",fr:"Le Fidele",rom:"Al-Mu'min"},
+  {num:7,ar:"المهيمن",fr:"Le Surveillant",rom:"Al-Muhaymin"},{num:8,ar:"العزيز",fr:"Le Tout Puissant",rom:"Al-Aziz"},
+  {num:9,ar:"الجبار",fr:"Le Contraignant",rom:"Al-Jabbar"},{num:10,ar:"المتكبر",fr:"L'Orgueilleux",rom:"Al-Mutakabbir"},
+  {num:11,ar:"الخالق",fr:"Le Createur",rom:"Al-Khaliq"},{num:12,ar:"البارئ",fr:"Le Producteur",rom:"Al-Bari'"},
+  {num:13,ar:"المصور",fr:"Le Formateur",rom:"Al-Musawwir"},{num:14,ar:"الغفار",fr:"Le Pardonnant",rom:"Al-Ghaffar"},
+  {num:15,ar:"القهار",fr:"Le Dominateur",rom:"Al-Qahhar"},{num:16,ar:"الوهاب",fr:"Le Donateur",rom:"Al-Wahhab"},
+  {num:17,ar:"الرزاق",fr:"Le Pourvoyeur",rom:"Ar-Razzaq"},{num:18,ar:"الفتاح",fr:"Le Juge Supreme",rom:"Al-Fattah"},
+  {num:19,ar:"العليم",fr:"L'Omniscient",rom:"Al-Alim"},{num:20,ar:"القابض",fr:"Celui qui retient",rom:"Al-Qabid"},
+  {num:21,ar:"الباسط",fr:"Celui qui etend",rom:"Al-Basit"},{num:22,ar:"الخافض",fr:"Celui qui abaisse",rom:"Al-Khafid"},
+  {num:23,ar:"الرافع",fr:"Celui qui eleve",rom:"Ar-Rafi'"},{num:24,ar:"المعز",fr:"Celui qui honore",rom:"Al-Mu'izz"},
+  {num:25,ar:"المذل",fr:"Celui qui humilie",rom:"Al-Mudhill"},{num:26,ar:"السميع",fr:"L'Audient",rom:"As-Sami'"},
+  {num:27,ar:"البصير",fr:"Le Voyant",rom:"Al-Basir"},{num:28,ar:"الحكم",fr:"Le Juge",rom:"Al-Hakam"},
+  {num:29,ar:"العدل",fr:"Le Juste",rom:"Al-Adl"},{num:30,ar:"اللطيف",fr:"Le Subtil",rom:"Al-Latif"},
+  {num:31,ar:"الخبير",fr:"L'Informe",rom:"Al-Khabir"},{num:32,ar:"الحليم",fr:"Le Longanime",rom:"Al-Halim"},
+  {num:33,ar:"العظيم",fr:"L'Immense",rom:"Al-Azim"},{num:34,ar:"الغفور",fr:"Le Pardonneur",rom:"Al-Ghafur"},
+  {num:35,ar:"الشكور",fr:"Le Reconnaissant",rom:"Ash-Shakur"},{num:36,ar:"العلي",fr:"Le Tres Haut",rom:"Al-Ali"},
+  {num:37,ar:"الكبير",fr:"Le Grand",rom:"Al-Kabir"},{num:38,ar:"الحفيظ",fr:"Le Gardien",rom:"Al-Hafiz"},
+  {num:39,ar:"المقيت",fr:"Le Nourricier",rom:"Al-Muqit"},{num:40,ar:"الحسيب",fr:"Le Compteur",rom:"Al-Hasib"},
+  {num:41,ar:"الجليل",fr:"Le Majestueux",rom:"Al-Jalil"},{num:42,ar:"الكريم",fr:"Le Genereux",rom:"Al-Karim"},
+  {num:43,ar:"الرقيب",fr:"Le Vigilant",rom:"Ar-Raqib"},{num:44,ar:"المجيب",fr:"Celui qui repond",rom:"Al-Mujib"},
+  {num:45,ar:"الواسع",fr:"Le Vaste",rom:"Al-Wasi'"},{num:46,ar:"الحكيم",fr:"Le Sage",rom:"Al-Hakim"},
+  {num:47,ar:"الودود",fr:"L'Aimant",rom:"Al-Wadud"},{num:48,ar:"المجيد",fr:"Le Glorieux",rom:"Al-Majid"},
+  {num:49,ar:"الباعث",fr:"Le Ressusciteur",rom:"Al-Ba'ith"},{num:50,ar:"الشهيد",fr:"Le Temoin",rom:"Ash-Shahid"},
+  {num:51,ar:"الحق",fr:"La Verite",rom:"Al-Haqq"},{num:52,ar:"الوكيل",fr:"Le Protecteur",rom:"Al-Wakil"},
+  {num:53,ar:"القوي",fr:"Le Fort",rom:"Al-Qawi"},{num:54,ar:"المتين",fr:"Le Ferme",rom:"Al-Matin"},
+  {num:55,ar:"الولي",fr:"L'Ami",rom:"Al-Wali"},{num:56,ar:"الحميد",fr:"Le Louable",rom:"Al-Hamid"},
+  {num:57,ar:"المحصي",fr:"Le Denombrant",rom:"Al-Muhsi"},{num:58,ar:"المبدئ",fr:"Le Novateur",rom:"Al-Mubdi'"},
+  {num:59,ar:"المعيد",fr:"Le Restaurateur",rom:"Al-Mu'id"},{num:60,ar:"المحيي",fr:"Le Vivificateur",rom:"Al-Muhyi"},
+  {num:61,ar:"المميت",fr:"Celui qui fait mourir",rom:"Al-Mumit"},{num:62,ar:"الحي",fr:"Le Vivant",rom:"Al-Hayy"},
+  {num:63,ar:"القيوم",fr:"Le Subsistant",rom:"Al-Qayyum"},{num:64,ar:"الواجد",fr:"Le Trouveur",rom:"Al-Wajid"},
+  {num:65,ar:"الماجد",fr:"L'Illustre",rom:"Al-Majid"},{num:66,ar:"الواحد",fr:"L'Unique",rom:"Al-Wahid"},
+  {num:67,ar:"الصمد",fr:"Le Refuge",rom:"As-Samad"},{num:68,ar:"القادر",fr:"Le Capable",rom:"Al-Qadir"},
+  {num:69,ar:"المقتدر",fr:"Le Tout-Puissant",rom:"Al-Muqtadir"},{num:70,ar:"المقدم",fr:"Celui qui avance",rom:"Al-Muqaddim"},
+  {num:71,ar:"المؤخر",fr:"Celui qui retarde",rom:"Al-Mu'akhkhir"},{num:72,ar:"الأول",fr:"Le Premier",rom:"Al-Awwal"},
+  {num:73,ar:"الآخر",fr:"Le Dernier",rom:"Al-Akhir"},{num:74,ar:"الظاهر",fr:"L'Apparent",rom:"Az-Zahir"},
+  {num:75,ar:"الباطن",fr:"Le Cache",rom:"Al-Batin"},{num:76,ar:"الوالي",fr:"Le Gouverneur",rom:"Al-Wali"},
+  {num:77,ar:"المتعالي",fr:"Le Tres Eleve",rom:"Al-Muta'ali"},{num:78,ar:"البر",fr:"Le Bienfaisant",rom:"Al-Barr"},
+  {num:79,ar:"التواب",fr:"Le Repentant",rom:"At-Tawwab"},{num:80,ar:"المنتقم",fr:"Le Vengeur",rom:"Al-Muntaqim"},
+  {num:81,ar:"العفو",fr:"Le Pardonnant",rom:"Al-Afuw"},{num:82,ar:"الرؤوف",fr:"Le Compatissant",rom:"Ar-Ra'uf"},
+  {num:83,ar:"مالك الملك",fr:"Le Roi des rois",rom:"Malik Al-Mulk"},{num:84,ar:"ذو الجلال والإكرام",fr:"Le Majestueux",rom:"Dhul Jalal wal Ikram"},
+  {num:85,ar:"المقسط",fr:"L'Equitable",rom:"Al-Muqsit"},{num:86,ar:"الجامع",fr:"Le Rassembleur",rom:"Al-Jami'"},
+  {num:87,ar:"الغني",fr:"Le Riche",rom:"Al-Ghani"},{num:88,ar:"المغني",fr:"L'Enrichisseur",rom:"Al-Mughni"},
+  {num:89,ar:"المانع",fr:"Le Preventeur",rom:"Al-Mani'"},{num:90,ar:"الضار",fr:"Le Nuisible",rom:"Ad-Darr"},
+  {num:91,ar:"النافع",fr:"L'Utile",rom:"An-Nafi'"},{num:92,ar:"النور",fr:"La Lumiere",rom:"An-Nur"},
+  {num:93,ar:"الهادي",fr:"Le Guide",rom:"Al-Hadi"},{num:94,ar:"البديع",fr:"L'Inventeur",rom:"Al-Badi'"},
+  {num:95,ar:"الباقي",fr:"Le Permanent",rom:"Al-Baqi"},{num:96,ar:"الوارث",fr:"L'Heritier",rom:"Al-Warith"},
+  {num:97,ar:"الرشيد",fr:"Le Guide Sage",rom:"Ar-Rashid"},{num:98,ar:"الصبور",fr:"Le Patient",rom:"As-Sabur"},
+  {num:99,ar:"الله",fr:"Allah — Le Dieu unique",rom:"Allah"},
+]
 
-// ─── Écran Culture ────────────────────────────────────────────────────────────
+
 function EcranCulture() {
   const [section, setSection] = useState(null)
   const [sourates, setSourates] = useState([])
@@ -765,11 +873,15 @@ function EcranCulture() {
   const ITEMS = [
     { id:"coran", emoji:"📖", titre:"Coran", desc:"114 sourates + audio recitateurs", color:C.gold },
     { id:"hadith", emoji:"📚", titre:"Hadith", desc:"Nawawi, Bukhari, Muslim", color:C.brown },
+    { id:"asma", emoji:"☪️", titre:"99 Noms", desc:"Asma ul Husna — Noms d'Allah", color:C.gold },
     { id:"tajwid", emoji:"🎓", titre:"Tajwid", desc:"Regles de recitation", color:C.green },
     { id:"sira", emoji:"🌟", titre:"Sira", desc:"Vie du Prophete ﷺ", color:C.purple },
     { id:"fiqh", emoji:"🕌", titre:"Fiqh", desc:"Jurisprudence pratique", color:C.blue },
     { id:"arabe", emoji:"🖋️", titre:"Arabe", desc:"Cours interactifs", color:C.teal },
     { id:"calendrier", emoji:"📅", titre:"Calendrier", desc:"Date hijri + evenements", color:C.red },
+    { id:"chahada", emoji:"☝️", titre:"Chahada", desc:"La profession de foi", color:C.gold },
+    { id:"khatam", emoji:"✅", titre:"Khatam", desc:"Tracker lecture Coran", color:C.green },
+    { id:"mecca", emoji:"🕋", titre:"Live Mecque", desc:"Stream en direct", color:C.brown },
   ]
 
   // ── CORAN ──
@@ -1055,6 +1167,109 @@ function EcranCulture() {
               <Text style={{ color:ev.color, fontSize:9, fontWeight:"800" }}>{HIJRI_MONTHS[ev.mois-1]}</Text>
             </View>
           </View>
+        ))}
+      </ScrollView>
+    </View>
+  )
+
+  // ── 99 NOMS D'ALLAH ──
+  if (section === "asma") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☪️ Les 99 Noms d'Allah</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Asma ul Husna — Les plus beaux noms</Text>
+      </View>
+      <FlatList data={ASMA_UL_HUSNA} keyExtractor={n => String(n.num)} numColumns={3}
+        contentContainerStyle={{ padding:12, gap:6 }}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={[styles.card, { flex:1, margin:3, padding:10, alignItems:"center", minWidth:(W-48)/3 }]}>
+            <Text style={{ color:C.gold, fontSize:10, fontWeight:"800" }}>{item.num}</Text>
+            <Text style={{ color:C.goldL, fontSize:20, marginTop:4 }}>{item.ar}</Text>
+            <Text style={{ color:C.white, fontSize:9, fontWeight:"700", marginTop:4, textAlign:"center" }}>{item.rom}</Text>
+            <Text style={{ color:C.muted, fontSize:8, marginTop:2, textAlign:"center" }}>{item.fr}</Text>
+          </TouchableOpacity>
+        )} />
+    </View>
+  )
+
+  // ── CHAHADA ──
+  if (section === "chahada") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☝️ La Chahada</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <View style={[styles.card, { padding:20, alignItems:"center", borderWidth:1, borderColor:C.gold+"40" }]}>
+          <Text style={{ color:C.goldL, fontSize:28, textAlign:"center", lineHeight:48, marginBottom:16 }}>أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ{"\n"}وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ</Text>
+          <Text style={{ color:C.white, fontSize:14, textAlign:"center", lineHeight:22, marginBottom:8 }}>Ash-hadu an la ilaha illa Allah{"\n"}Wa ash-hadu anna Muhammadan rasulu Allah</Text>
+          <View style={{ height:1, backgroundColor:C.border, width:"100%", marginVertical:12 }} />
+          <Text style={{ color:C.muted, fontSize:13, textAlign:"center", lineHeight:20 }}>J'atteste qu'il n'y a de divinite qu'Allah{"\n"}Et j'atteste que Muhammad est le messager d'Allah</Text>
+        </View>
+        <View style={[styles.card, { padding:16, marginTop:12 }]}>
+          <Text style={{ color:C.gold, fontSize:14, fontWeight:"700", marginBottom:8 }}>📋 Signification</Text>
+          <Text style={{ color:C.white, fontSize:13, lineHeight:22 }}>
+            La Chahada est le premier pilier de l'Islam. C'est la declaration de foi qui fait entrer une personne dans l'Islam.{"\n\n"}
+            Elle se compose de deux parties :{"\n"}
+            1. L'unicite d'Allah (Tawhid) — Il n'y a aucune divinite digne d'adoration en dehors d'Allah{"\n"}
+            2. La prophetie de Muhammad ﷺ — Il est le dernier messager envoye a l'humanite{"\n\n"}
+            Prononcer la Chahada avec sincerite, comprehension et conviction est la condition d'entree dans l'Islam.
+          </Text>
+        </View>
+        <View style={[styles.card, { padding:16, marginTop:12 }]}>
+          <Text style={{ color:C.gold, fontSize:14, fontWeight:"700", marginBottom:8 }}>Les 5 Piliers de l'Islam</Text>
+          {[["☝️","Chahada","La profession de foi"],["🕌","Salat","Les 5 prieres quotidiennes"],["💰","Zakat","L'aumone obligatoire"],["🌙","Siyam","Le jeune du Ramadan"],["🕋","Hajj","Le pelerinage a La Mecque"]].map(([e,t,d],i) => (
+            <View key={i} style={{ flexDirection:"row", gap:10, alignItems:"center", paddingVertical:8, borderBottomWidth: i<4 ? 1 : 0, borderBottomColor:C.border }}>
+              <Text style={{ fontSize:20 }}>{e}</Text>
+              <View>
+                <Text style={{ color:C.white, fontSize:13, fontWeight:"700" }}>{t}</Text>
+                <Text style={{ color:C.muted, fontSize:11 }}>{d}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  )
+
+  // ── KHATAM QURAN TRACKER ──
+  if (section === "khatam") return (
+    <KhatamTracker onBack={() => setSection(null)} />
+  )
+
+  // ── LIVE MECQUE ──
+  if (section === "mecca") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕋 Live Mecque & Medine</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        {[
+          { titre:"🕋 Makkah Live — Al Haram", desc:"Stream en direct de la Mosquee Al-Haram", url:"https://www.youtube.com/watch?v=bN23iKiJmVE", color:C.gold },
+          { titre:"🕌 Madinah Live — Al-Masjid An-Nabawi", desc:"Stream en direct de la Mosquee du Prophete ﷺ", url:"https://www.youtube.com/watch?v=SQjd5VqCyME", color:C.green },
+          { titre:"📺 Quran TV — Recitation 24/7", desc:"Recitation du Coran en continu", url:"https://www.youtube.com/watch?v=gVoGF7kOb84", color:C.blue },
+        ].map((stream, i) => (
+          <TouchableOpacity key={i} onPress={() => Linking.openURL(stream.url).catch(() => {})}
+            style={[styles.card, { padding:16, marginBottom:10, borderLeftWidth:3, borderLeftColor:stream.color }]}>
+            <Text style={{ color:C.white, fontSize:15, fontWeight:"800" }}>{stream.titre}</Text>
+            <Text style={{ color:C.muted, fontSize:12, marginTop:6 }}>{stream.desc}</Text>
+            <View style={{ flexDirection:"row", alignItems:"center", gap:6, marginTop:10 }}>
+              <View style={{ width:8, height:8, borderRadius:4, backgroundColor:C.red }} />
+              <Text style={{ color:C.red, fontSize:11, fontWeight:"700" }}>EN DIRECT</Text>
+              <Text style={{ color:C.muted, fontSize:11, marginLeft:"auto" }}>Ouvrir YouTube →</Text>
+            </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
