@@ -531,7 +531,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
 
         {/* ── Adhkar Matin/Soir ── */}
         {subTab==="adhkar" && (
-          <AdhkarSection />
+          <AdhkarSection lang={lang} />
         )}
       </ScrollView>
     </View>
@@ -539,7 +539,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
 }
 
 // ─── Adhkar Component ─────────────────────────────────────────────────────────
-function AdhkarSection() {
+function AdhkarSection({ lang="fr" }) {
   const [period, setPeriod] = useState("matin")
   const ADHKAR_MATIN = [
     { ar:"أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ", fr:"Nous voila au matin et le royaume appartient a Allah", count:1 },
@@ -590,7 +590,7 @@ function AdhkarSection() {
   )
 }
 // ─── Khatam Quran Tracker ─────────────────────────────────────────────────────
-function KhatamTracker({ onBack }) {
+function KhatamTracker({ onBack, lang="fr" }) {
   const [progress, setProgress] = useState({})
   const [totalRead, setTotalRead] = useState(0)
   useEffect(() => {
@@ -1310,7 +1310,7 @@ function EcranCulture({ lang="fr" }) {
 
   // ── KHATAM QURAN TRACKER ──
   if (section === "khatam") return (
-    <KhatamTracker onBack={() => setSection(null)} />
+    <KhatamTracker onBack={() => setSection(null)} lang={lang} />
   )
 
   // ── LIVE MECQUE ──
