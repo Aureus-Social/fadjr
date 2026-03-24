@@ -1699,8 +1699,10 @@ function EcranVoyage({ lang="fr" }) {
 }
 
 // ─── Écran Profil ─────────────────────────────────────────────────────────────
-function EcranProfil({ prayedToday, notifEnabled, onToggleNotif, lang, onChangeLang }) {
-  const { user, isAnonymous } = useAuth()
+function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{}, lang="fr", onChangeLang=()=>{} }) {
+  const auth = useAuth() || {}
+  const user = auth.user || null
+  const isAnonymous = auth.isAnonymous || !user
   const [profile, setProfile] = useState(null)
   const [loggingOut, setLoggingOut] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -1709,13 +1711,15 @@ function EcranProfil({ prayedToday, notifEnabled, onToggleNotif, lang, onChangeL
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || (isAnonymous ? "Visiteur" : user?.email?.split("@")[0] || "Utilisateur")
   const displayEmail = isAnonymous ? "Compte invite" : (user?.email || "")
-  const prayedCount = Object.values(prayedToday).filter(Boolean).length
+  const prayedCount = prayedToday ? Object.values(prayedToday).filter(Boolean).length : 0
 
   useEffect(() => {
-    if (user && !isAnonymous) {
-      fetchProfile(user.id).then(p => { if (p) setProfile(p) })
-    }
-    Notifications.getScheduledNotificationsAsync().then(n => setNotifCount(n.length))
+    try {
+      if (user && !isAnonymous) {
+        fetchProfile(user.id).then(p => { if (p) setProfile(p) }).catch(() => {})
+      }
+      Notifications.getScheduledNotificationsAsync().then(n => setNotifCount(n.length)).catch(() => {})
+    } catch(e) {}
   }, [user])
 
   const handleLogout = async () => {
@@ -1725,10 +1729,12 @@ function EcranProfil({ prayedToday, notifEnabled, onToggleNotif, lang, onChangeL
   }
 
   const handleToggleNotif = async (val) => {
-    await onToggleNotif(val)
-    setTimeout(() => {
-      Notifications.getScheduledNotificationsAsync().then(n => setNotifCount(n.length))
-    }, 500)
+    try {
+      await onToggleNotif(val)
+      setTimeout(() => {
+        Notifications.getScheduledNotificationsAsync().then(n => setNotifCount(n.length)).catch(() => {})
+      }, 500)
+    } catch(e) {}
   }
 
   return (
