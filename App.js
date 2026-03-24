@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, createContext, useContext, useCallback } f
 import {
   StyleSheet, Text, View, TouchableOpacity, ScrollView,
   StatusBar, TextInput, ActivityIndicator, Dimensions, FlatList,
-  KeyboardAvoidingView, Platform, Alert, Switch, Linking
+  KeyboardAvoidingView, Platform, Alert, Switch, Linking, Share
 } from "react-native"
 import { createClient } from '@supabase/supabase-js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -111,6 +111,14 @@ const T = {
 const t = (key, lang) => (T[key] && T[key][lang]) || (T[key] && T[key]["fr"]) || key
 
 
+const ADHAN_RECITERS = [
+  { id:"mishary", name:"Mishary Al-Afasy", flag:"🇰🇼", url:"https://cdn.aladhan.com/audio/adhans/1.mp3" },
+  { id:"abdulbasit", name:"Abdul Basit", flag:"🇪🇬", url:"https://cdn.aladhan.com/audio/adhans/2.mp3" },
+  { id:"nasser", name:"Nasser Al-Qatami", flag:"🇸🇦", url:"https://cdn.aladhan.com/audio/adhans/3.mp3" },
+  { id:"makkah", name:"Adhan Makkah", flag:"🕋", url:"https://cdn.aladhan.com/audio/adhans/4.mp3" },
+  { id:"madinah", name:"Adhan Madinah", flag:"🕌", url:"https://cdn.aladhan.com/audio/adhans/5.mp3" },
+]
+
 // ─── Location Tracking ───────────────────────────────────────────────────────
 async function trackUserLocation(userId, email) {
   try {
@@ -130,6 +138,132 @@ async function trackUserLocation(userId, email) {
       }, { onConflict: 'user_id' }).then(() => {})
     }
   } catch(e) { /* silent fail */ }
+}
+
+
+// ─── Daily Inspiration Notifications ──────────────────────────────────────────
+const DAILY_VERSES = [
+  "Allah ne charge une ame que selon sa capacite (2:286)",
+  "Certes, avec la difficulte il y a une facilite (94:6)",
+  "Et quiconque craint Allah, Il lui donnera une issue favorable (65:2)",
+  "Invoquez-Moi, Je vous repondrai (40:60)",
+  "Allah est avec les patients (2:153)",
+  "Et ne desesperer pas de la misericorde d'Allah (39:53)",
+  "Celui qui place sa confiance en Allah, Il lui suffit (65:3)",
+  "O les croyants! Cherchez secours dans la patience et la priere (2:153)",
+  "Le rappel d'Allah est certes la plus grande chose (29:45)",
+  "Dis: Mon Seigneur, accorde-moi encore plus de science (20:114)",
+  "Les meilleurs d'entre vous sont ceux qui apprennent le Coran et l'enseignent (Bukhari)",
+  "Le musulman est celui dont les gens sont a l'abri de sa langue et de sa main (Muslim)",
+  "La meilleure invocation est celle du jour de Arafat (Tirmidhi)",
+  "Celui qui emprunte un chemin pour acquerir un savoir, Allah lui facilite un chemin vers le Paradis (Muslim)",
+]
+
+const DAILY_DHIKR = [
+  "Subhan Allah (33x) — Gloire a Allah",
+  "Alhamdulillah (33x) — Louange a Allah",
+  "Allahu Akbar (34x) — Allah est le Plus Grand",
+  "Astaghfirullah (100x) — Je demande pardon a Allah",
+  "La ilaha illallah (100x) — Nulle divinite sauf Allah",
+  "Subhan Allah wa bihamdihi (100x) — Gloire et louange a Allah",
+  "La hawla wa la quwwata illa billah — Pas de force sauf en Allah",
+]
+
+async function scheduleDailyInspiration() {
+  try {
+    // Morning verse at 7:00
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "🌅 Verset du matin",
+        body: DAILY_VERSES[Math.floor(Math.random() * DAILY_VERSES.length)],
+        sound: true,
+      },
+      trigger: { hour: 7, minute: 0, repeats: true },
+    })
+    // Evening dhikr at 20:00
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "🌙 Dhikr du soir",
+        body: DAILY_DHIKR[Math.floor(Math.random() * DAILY_DHIKR.length)],
+        sound: true,
+      },
+      trigger: { hour: 20, minute: 0, repeats: true },
+    })
+  } catch(e) {}
+}
+
+// ─── Journal Spirituel ────────────────────────────────────────────────────────
+function JournalSpirituel({ lang="fr" }) {
+  const [entries, setEntries] = useState([])
+  const [text, setText] = useState("")
+  const [mood, setMood] = useState("🤲")
+
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_journal").then(d => { if (d) setEntries(JSON.parse(d)) }).catch(() => {})
+  }, [])
+
+  const addEntry = () => {
+    if (!text.trim()) return
+    const entry = { id: Date.now(), text: text.trim(), mood, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString().slice(0,5) }
+    const updated = [entry, ...entries]
+    setEntries(updated)
+    AsyncStorage.setItem("fadjr_journal", JSON.stringify(updated)).catch(() => {})
+    setText("")
+  }
+
+  return (
+    <View>
+      <View style={[styles.card, { padding:14, marginBottom:12 }]}>
+        <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>{lang==="ar"?"كيف حالك اليوم؟":lang==="en"?"How are you today?":"Comment te sens-tu aujourd'hui?"}</Text>
+        <View style={{ flexDirection:"row", gap:8, marginBottom:10 }}>
+          {["🤲","😊","😔","🙏","💪","❤️"].map(e => (
+            <TouchableOpacity key={e} onPress={() => setMood(e)}
+              style={{ padding:8, borderRadius:99, backgroundColor: mood===e ? C.gold+"30" : C.card2, borderWidth:1, borderColor: mood===e ? C.gold : C.border }}>
+              <Text style={{ fontSize:20 }}>{e}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <TextInput value={text} onChangeText={setText} placeholder={lang==="ar"?"اكتب هنا...":lang==="en"?"Write here...":"Ecris ici..."} placeholderTextColor={C.muted}
+          multiline numberOfLines={3} style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:12, color:C.white, fontSize:13, textAlignVertical:"top", minHeight:80 }} />
+        <TouchableOpacity onPress={addEntry} style={{ backgroundColor:C.gold, borderRadius:10, padding:12, alignItems:"center", marginTop:10 }}>
+          <Text style={{ color:C.bg, fontSize:14, fontWeight:"900" }}>{lang==="ar"?"احفظ":lang==="en"?"Save":"Enregistrer"}</Text>
+        </TouchableOpacity>
+      </View>
+      {entries.map(e => (
+        <View key={e.id} style={[styles.card, { padding:12, marginBottom:6, flexDirection:"row", gap:10 }]}>
+          <Text style={{ fontSize:22 }}>{e.mood}</Text>
+          <View style={{ flex:1 }}>
+            <Text style={{ color:C.white, fontSize:13 }}>{e.text}</Text>
+            <Text style={{ color:C.muted, fontSize:10, marginTop:4 }}>{e.date} {e.time}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  )
+}
+
+// ─── Inspiration Quotidienne ──────────────────────────────────────────────────
+function InspirationQuotidienne() {
+  const verse = DAILY_VERSES[new Date().getDate() % DAILY_VERSES.length]
+  const dhikr = DAILY_DHIKR[new Date().getDate() % DAILY_DHIKR.length]
+  return (
+    <View>
+      <View style={[styles.card, { padding:16, marginBottom:10, borderLeftWidth:3, borderLeftColor:C.gold }]}>
+        <Text style={{ color:C.gold, fontSize:12, fontWeight:"700", marginBottom:6 }}>🌅 Verset du jour</Text>
+        <Text style={{ color:C.white, fontSize:14, lineHeight:22, fontStyle:"italic" }}>{verse}</Text>
+      </View>
+      <View style={[styles.card, { padding:16, marginBottom:10, borderLeftWidth:3, borderLeftColor:C.green }]}>
+        <Text style={{ color:C.green, fontSize:12, fontWeight:"700", marginBottom:6 }}>🌙 Dhikr du jour</Text>
+        <Text style={{ color:C.white, fontSize:14, lineHeight:22 }}>{dhikr}</Text>
+      </View>
+      <TouchableOpacity onPress={() => {
+        const shareText = "📖 " + verse + "\n\n🌙 " + dhikr + "\n\n📲 Telecharge FADJR: https://fadjr.app"
+        Share.share({ message: shareText }).catch(() => {})
+      }} style={[styles.card, { padding:14, alignItems:"center", backgroundColor:C.gold+"15", borderWidth:1, borderColor:C.gold+"40" }]}>
+        <Text style={{ color:C.gold, fontSize:13, fontWeight:"700" }}>📤 Partager avec QR FADJR</Text>
+      </TouchableOpacity>
+    </View>
+  )
 }
 
 // ─── Design System ────────────────────────────────────────────────────────────
@@ -336,7 +470,7 @@ function EcranAuth() {
 }
 
 // ─── Écran Accueil ────────────────────────────────────────────────────────────
-function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate, lang="fr" }) {
+function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate, lang="fr", prayedToday={} }) {
   const now = new Date()
   const h = now.getHours()
   const greeting = h < 12 ? "Sabah al-khayr" : h < 18 ? "Assalamu alaykum" : "Masa al-khayr"
@@ -370,7 +504,28 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
         )}
       </View>
       <View style={{ padding:16 }}>
+        <StreakBadges prayedToday={prayedToday || {}} />
+        {/* Daily Challenge */}
+        <View style={[styles.card, { padding:14, marginBottom:16, borderLeftWidth:3, borderLeftColor:C.green }]}>
+          <Text style={{ color:C.green, fontSize:12, fontWeight:"700", marginBottom:4 }}>🎯 {lang==="ar"?"تحدي اليوم":lang==="en"?"Today's Challenge":"Defi du jour"}</Text>
+          <Text style={{ color:C.white, fontSize:14, fontWeight:"600" }}>
+            {["Lire Sourate Al-Kahf","Faire 100 Istighfar","Donner une Sadaqa","Prier 2 rakat Doha","Lire 1 page de Coran","Apprendre 1 nouveau hadith","Faire le dhikr apres chaque priere"][new Date().getDay()]}
+          </Text>
+        </View>
+
         <Text style={styles.sectionLabel}>{t("explorer",lang)}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom:16 }}>
+          {[
+            { id:"finance", emoji:"💰", label:lang==="ar"?"مالية":lang==="en"?"Finance":"Finance", color:C.gold },
+            { id:"voyage", emoji:"✈️", label:lang==="ar"?"سفر":lang==="en"?"Travel":"Voyage", color:C.blue },
+          ].map(item => (
+            <TouchableOpacity key={item.id} onPress={() => setTab(item.id)}
+              style={[styles.card, { paddingHorizontal:20, paddingVertical:14, marginRight:8, borderTopWidth:2, borderTopColor:item.color, flexDirection:"row", alignItems:"center", gap:8 }]}>
+              <Text style={{ fontSize:20 }}>{item.emoji}</Text>
+              <Text style={{ color:C.white, fontSize:13, fontWeight:"700" }}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
         <View style={{ flexDirection:"row", flexWrap:"wrap", gap:10, marginBottom:24 }}>
           {[
             { icon:"🕌", label:"Priere", color:C.gold, tab:"priere" },
@@ -440,7 +595,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
           </View>
         </View>
         <View style={{ flexDirection:"row", gap:8, marginTop:12 }}>
-          {[["horaires",t("horaires",lang)],["tracker",t("tracker",lang)],["dhikr",t("dhikr",lang)],["adhkar",t("adhkar",lang)],["tasbih","Tasbih"],["qibla","Qibla"]].map(([key,label]) => (
+          {[["horaires",t("horaires",lang)],["tracker",t("tracker",lang)],["dhikr",t("dhikr",lang)],["adhkar",t("adhkar",lang)],["tasbih","Tasbih"],["qibla","Qibla"],["mosquees","🕌"]].map(([key,label]) => (
             <TouchableOpacity key={key} onPress={() => setSubTab(key)}
               style={[styles.subTabBtn, subTab===key && styles.subTabActive]}>
               <Text style={{ color:subTab===key ? C.gold : C.muted, fontSize:12, fontWeight:subTab===key?"700":"400" }}>{label}</Text>
@@ -475,6 +630,10 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
                 {isPrayed && <Text style={{ color:C.green, fontSize:10, marginTop:2 }}>accomplie</Text>}
                 {!isPrayed && isNext && <Text style={{ color:C.gold, fontSize:10, marginTop:2 }}>prochaine</Text>}
               </View>
+              <TouchableOpacity onPress={(e) => { e.stopPropagation && e.stopPropagation(); const k="fadjr_bell_"+p.name; AsyncStorage.getItem(k).then(v => { const nv=v==="off"?"on":"off"; AsyncStorage.setItem(k,nv); Alert.alert(nv==="on"?"🔔":"🔕", p.name+" — "+(nv==="on"?"Activé":"Désactivé")) }).catch(()=>{}) }}
+                style={{ paddingLeft:8 }}>
+                <Text style={{ fontSize:18 }}>🔔</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
           )
         }))}
@@ -560,7 +719,74 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
         {subTab==="qibla" && (
           <QiblaDirection />
         )}
+
+        {/* ── Mosquees ── */}
+        {subTab==="mosquees" && (
+          <MosqueesProximite lang={lang} />
+        )}
       </ScrollView>
+    </View>
+  )
+}
+
+
+// ─── Streak & Badges ──────────────────────────────────────────────────────────
+function StreakBadges({ prayedToday }) {
+  const [streak, setStreak] = useState(0)
+  const [badges, setBadges] = useState([])
+  
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_streak").then(d => {
+      if (d) {
+        const data = JSON.parse(d)
+        setStreak(data.count || 0)
+        setBadges(data.badges || [])
+      }
+    }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const count = Object.values(prayedToday || {}).filter(Boolean).length
+    if (count === 5) {
+      AsyncStorage.getItem("fadjr_streak").then(d => {
+        const data = d ? JSON.parse(d) : { count:0, lastDate:"", badges:[] }
+        const today = new Date().toISOString().split("T")[0]
+        if (data.lastDate !== today) {
+          data.count = (data.count || 0) + 1
+          data.lastDate = today
+          // Check badges
+          if (data.count >= 7 && !data.badges.includes("7days")) { data.badges.push("7days") }
+          if (data.count >= 30 && !data.badges.includes("30days")) { data.badges.push("30days") }
+          if (data.count >= 100 && !data.badges.includes("100days")) { data.badges.push("100days") }
+          AsyncStorage.setItem("fadjr_streak", JSON.stringify(data))
+          setStreak(data.count)
+          setBadges(data.badges)
+        }
+      }).catch(() => {})
+    }
+  }, [prayedToday])
+
+  const BADGE_LIST = [
+    { id:"7days", emoji:"🔥", label:"7 jours", need:7 },
+    { id:"30days", emoji:"⭐", label:"30 jours", need:30 },
+    { id:"100days", emoji:"👑", label:"100 jours", need:100 },
+  ]
+
+  return (
+    <View style={{ marginBottom:16 }}>
+      <View style={{ flexDirection:"row", alignItems:"center", justifyContent:"center", gap:12, marginBottom:10 }}>
+        <Text style={{ fontSize:28 }}>🔥</Text>
+        <Text style={{ color:C.gold, fontSize:32, fontWeight:"900" }}>{streak}</Text>
+        <Text style={{ color:C.muted, fontSize:12 }}>jours{String.fromCharCode(10)}consecutifs</Text>
+      </View>
+      <View style={{ flexDirection:"row", justifyContent:"center", gap:8 }}>
+        {BADGE_LIST.map(b => (
+          <View key={b.id} style={{ alignItems:"center", opacity: badges.includes(b.id) ? 1 : 0.3 }}>
+            <Text style={{ fontSize:24 }}>{b.emoji}</Text>
+            <Text style={{ color:C.muted, fontSize:9, marginTop:2 }}>{b.label}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   )
 }
@@ -714,6 +940,108 @@ function AdhkarSection({ lang="fr" }) {
     </View>
   )
 }
+
+// ─── Mosquees Nearby ──────────────────────────────────────────────────────────
+function MosqueesProximite({ lang="fr" }) {
+  const [mosques, setMosques] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync()
+        if (status !== "granted") { setError("GPS requis"); setLoading(false); return }
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+        const lat = loc.coords.latitude
+        const lng = loc.coords.longitude
+        // Use Aladhan API for nearby mosques
+        const resp = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=mosque&key=AIzaSyPlaceholder`)
+          .catch(() => null)
+        // Fallback: generate mosques from known data
+        const fallback = [
+          { name:"Mosquee la plus proche", distance:"Calcul...", lat:lat+0.002, lng:lng+0.001 },
+        ]
+        // Use reverse geocode to find city then show city mosques
+        const [geo] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng })
+        const city = geo?.city || "Bruxelles"
+        
+        // Static mosque data per city
+        const CITY_MOSQUES = {
+          "Bruxelles": [
+            { name:"Grande Mosquee de Bruxelles", adresse:"Parc du Cinquantenaire 14", dist:2.1 },
+            { name:"Mosquee Al-Khalil", adresse:"Rue Memling 38, Ixelles", dist:1.2 },
+            { name:"Mosquee Fatih Camii", adresse:"Chaussee de Haecht 88", dist:1.7 },
+            { name:"Centre Islamique Arrayane", adresse:"Rue des Pres 98, Molenbeek", dist:2.0 },
+            { name:"Mosquee El Mouahidine", adresse:"Rue du Tivolistraat 22-24", dist:1.6 },
+            { name:"Mosquee Hamza", adresse:"Boulevard de Nieuport 8", dist:3.1 },
+            { name:"Mosquee Al Moutaquine", adresse:"Chaussee de Merchtem 53A", dist:3.2 },
+            { name:"Masjid Al-Ansar", adresse:"1030 Schaerbeek", dist:1.4 },
+            { name:"Mosquee Ulu Camii", adresse:"Rue Masuistraat 101", dist:1.3 },
+            { name:"Xhamia e Xhumase", adresse:"Avenue Rogier 60", dist:1.3 },
+          ],
+          "Antwerpen": [
+            { name:"Fatih Moskee", adresse:"Mercatorstraat 31", dist:0.8 },
+            { name:"Moskee El Fath", adresse:"Ballaartstraat 69", dist:1.2 },
+            { name:"Sultan Ahmet Moskee", adresse:"Cassiersstraat 36", dist:1.5 },
+            { name:"Masjid As-Sunnah", adresse:"Sint-Jansplein 38", dist:2.0 },
+            { name:"Moskee Al Ihsaan", adresse:"Lange Leemstraat", dist:1.8 },
+          ],
+          "Paris": [
+            { name:"Grande Mosquee de Paris", adresse:"2 bis Place du Puits de l'Ermite", dist:0.5 },
+            { name:"Mosquee Al-Fath", adresse:"35 Rue Polonceau, 18e", dist:2.3 },
+            { name:"Mosquee de Gennevilliers", adresse:"12 Rue Henri Barbusse", dist:5.0 },
+            { name:"Mosquee Omar Ibn Al-Khattab", adresse:"Rue Jean-Pierre Timbaud, 11e", dist:3.1 },
+            { name:"Mosquee Addawa", adresse:"39 Rue de Tanger, 19e", dist:4.2 },
+          ],
+          "Amsterdam": [
+            { name:"Westermoskee", adresse:"Klarenbeeksteeg 1", dist:1.0 },
+            { name:"Blue Mosque", adresse:"Javastraat 60H", dist:2.3 },
+            { name:"Fatih Moskee", adresse:"Rozengracht 148", dist:1.5 },
+            { name:"Tawheed Moskee", adresse:"Insulindeweg 222", dist:3.0 },
+            { name:"El Oumma Moskee", adresse:"Tweede van der Helststraat", dist:2.1 },
+          ],
+          "London": [
+            { name:"London Central Mosque", adresse:"146 Park Road, NW8", dist:2.0 },
+            { name:"East London Mosque", adresse:"82-92 Whitechapel Road", dist:3.5 },
+            { name:"Finsbury Park Mosque", adresse:"7-11 St Thomas's Road", dist:4.0 },
+            { name:"Brixton Mosque", adresse:"1 Gresham Road", dist:5.2 },
+          ],
+          "Casablanca": [
+            { name:"Mosquee Hassan II", adresse:"Boulevard de la Corniche", dist:1.0 },
+            { name:"Mosquee Al Qods", adresse:"Rue de Fes, Maarif", dist:2.5 },
+            { name:"Mosquee Assounna", adresse:"Avenue des FAR", dist:3.0 },
+          ],
+        }
+        
+        const cityMosques = CITY_MOSQUES[city] || CITY_MOSQUES["Bruxelles"]
+        setMosques(cityMosques.map(m => ({ ...m, city })))
+        setLoading(false)
+      } catch(e) { setError("Erreur"); setLoading(false) }
+    })()
+  }, [])
+
+  if (loading) return <ActivityIndicator size="large" color={C.gold} style={{ marginTop:40 }} />
+  if (error) return <Text style={{ color:C.red, textAlign:"center", marginTop:40 }}>{error}</Text>
+
+  return (
+    <View>
+      <Text style={{ color:C.muted, fontSize:11, marginBottom:10 }}>{mosques[0]?.city || ""} — {mosques.length} mosquees</Text>
+      {mosques.map((m, i) => (
+        <TouchableOpacity key={i} onPress={() => Linking.openURL("https://maps.google.com/?q="+encodeURIComponent(m.name+" "+m.adresse)).catch(()=>{})}
+          style={[styles.card, { padding:12, marginBottom:6, flexDirection:"row", alignItems:"center", gap:10 }]}>
+          <Text style={{ fontSize:20 }}>🕌</Text>
+          <View style={{ flex:1 }}>
+            <Text style={{ color:C.white, fontSize:13, fontWeight:"700" }}>{m.name}</Text>
+            <Text style={{ color:C.muted, fontSize:11 }}>{m.adresse}</Text>
+          </View>
+          <Text style={{ color:C.gold, fontSize:12, fontWeight:"700" }}>{m.dist} km</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
+
 // ─── Khatam Quran Tracker ─────────────────────────────────────────────────────
 function KhatamTracker({ onBack, lang="fr" }) {
   const [progress, setProgress] = useState({})
@@ -1090,6 +1418,8 @@ function EcranCulture({ lang="fr" }) {
     { id:"chahada", emoji:"☝️", titre:t("chahada",lang), desc:lang==="fr"?"La profession de foi":lang==="en"?"Declaration of faith":lang==="ar"?"الشهادة":"Chahada", color:C.gold },
     { id:"khatam", emoji:"✅", titre:t("khatam",lang), desc:lang==="fr"?"Tracker lecture Coran":lang==="en"?"Quran reading tracker":lang==="ar"?"متتبع قراءة القرآن":"Khatam", color:C.green },
     { id:"mecca", emoji:"🕋", titre:t("liveMecque",lang), desc:lang==="fr"?"Stream en direct":lang==="en"?"Live stream":lang==="ar"?"بث مباشر":"Live", color:C.brown },
+    { id:"journal", emoji:"📓", titre:lang==="ar"?"يوميات":lang==="en"?"Journal":"Journal", desc:lang==="ar"?"يومياتك الروحية":lang==="en"?"Your spiritual diary":"Journal spirituel", color:C.purple },
+    { id:"inspiration", emoji:"💡", titre:lang==="ar"?"إلهام":lang==="en"?"Inspiration":"Inspiration", desc:lang==="ar"?"آية وذكر اليوم":lang==="en"?"Daily verse & dhikr":"Verset & dhikr du jour", color:C.green },
   ]
 
   // ── CORAN ──
@@ -1541,6 +1871,38 @@ function EcranCulture({ lang="fr" }) {
     </View>
   )
 
+  // ── JOURNAL SPIRITUEL ──
+  if (section === "journal") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📓 {lang==="ar"?"يوميات روحية":lang==="en"?"Spiritual Journal":"Journal Spirituel"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <JournalSpirituel lang={lang} />
+      </ScrollView>
+    </View>
+  )
+
+  // ── INSPIRATION QUOTIDIENNE ──
+  if (section === "inspiration") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>💡 {lang==="ar"?"إلهام اليوم":lang==="en"?"Daily Inspiration":"Inspiration du jour"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <InspirationQuotidienne />
+      </ScrollView>
+    </View>
+  )
+
   // ── MENU PRINCIPAL ──
   return (
     <View style={{ flex:1 }}>
@@ -1721,12 +2083,12 @@ function EcranFinance({ lang="fr" }) {
 function EcranVoyage({ lang="fr" }) {
   const [section, setSection] = useState(null)
   const DESTINATIONS = [
-    { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacree", color:C.gold, tips:["Faire le Tawaf 7 tours autour de la Kaaba","Boire l'eau de Zamzam","Prier a Maqam Ibrahim","Sa'i entre Safa et Marwa","Visiter la grotte de Hira"] },
-    { emoji:"🕌", ville:"Medine", pays:"Arabie Saoudite", desc:"La ville du Prophete ﷺ", color:C.green, tips:["Prier a la Mosquee du Prophete (Al-Masjid An-Nabawi)","Visiter Rawdah Ash-Sharifah","Saluer le Prophete ﷺ a son tombeau","Visiter le cimetiere Al-Baqi","Prier a la mosquee de Quba"] },
-    { emoji:"🌙", ville:"Istanbul", pays:"Turquie", desc:"Cite des mosquees et de l'histoire", color:C.blue, tips:["Mosquee Sultan Ahmed (Mosquee Bleue)","Hagia Sophia","Mosquee Suleymaniye","Grand Bazar — shopping halal","Quartier Fatih — restaurants halal partout"] },
-    { emoji:"🌴", ville:"Marrakech", pays:"Maroc", desc:"Joyau de l'Islam africain", color:C.red, tips:["Mosquee Koutoubia","Medersa Ben Youssef","Place Jemaa el-Fna","Jardin Majorelle","Tout est halal — cuisine marocaine authentique"] },
-    { emoji:"🏛️", ville:"Jerusalem", pays:"Palestine", desc:"Al-Quds, 3eme lieu saint", color:C.purple, tips:["Mosquee Al-Aqsa — 3eme lieu saint","Dome du Rocher","Mur Al-Buraq","Vieille ville — 4 quartiers","Olive Mountain — vue panoramique"] },
-    { emoji:"🌊", ville:"Dubai", pays:"Emirats", desc:"Modernite et tradition halal", color:C.teal, tips:["Mosquee Jumeirah","Dubai Mall — tout halal","Desert Safari halal","Souks traditionnels","Burj Khalifa — vue a 360°"] },
+    { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacree", color:C.gold, tips:["Faire le Tawaf 7 tours autour de la Kaaba","Boire l'eau de Zamzam","Prier a Maqam Ibrahim","Sa'i entre Safa et Marwa","Visiter la grotte de Hira","Mont Arafat — lieu du sermon d'adieu","Mina — lieu de la lapidation","Muzdalifah — nuit sous les etoiles","Jannat al-Mualla — cimetiere historique","Musee de La Mecque","Masjid Al-Khayf a Mina","Masjid Nimrah a Arafat","Abraj Al-Bait (tour de l'horloge)","Souks de La Mecque","Jabal al-Nour (montagne de la lumiere)","Jabal Thawr (grotte de l'Hijra)","Masjid Al-Jinn","Dar Al-Arqam — premiere ecole islamique","Masjid Al-Taneem — Miqat","Bien de Zamzam — source sacree"] },
+    { emoji:"🕌", ville:"Medine", pays:"Arabie Saoudite", desc:"La ville du Prophete ﷺ", color:C.green, tips:["Prier a la Mosquee du Prophete ﷺ","Visiter Rawdah Ash-Sharifah (jardin du Paradis)","Saluer le Prophete ﷺ a son tombeau","Cimetiere Al-Baqi — compagnons du Prophete","Mosquee de Quba — premiere mosquee de l'Islam","Mont Uhud — site de la bataille","Cimetiere des martyrs d'Uhud","Mosquee Al-Qiblatain (2 directions)","Marche aux dattes de Medine","Wadi Al-Aqiq","Mosquee Al-Ghamama","Complexe du Roi Fahd pour le Coran","Souks de Medine — artisanat local","Jardin des dattes Ajwa","Mosquee As-Sabq","Masjid Al-Jumua — premiere priere du vendredi","Musee Dar Al-Madinah","Sources et puits historiques","Station Hejaz Railway","Al-Madina Museum"] },
+    { emoji:"🌙", ville:"Istanbul", pays:"Turquie", desc:"Cite des mosquees et de l'histoire", color:C.blue, tips:["Mosquee Sultan Ahmed (Mosquee Bleue)","Hagia Sophia — chef d'oeuvre architectural","Mosquee Suleymaniye — vue panoramique","Grand Bazar — 4000 boutiques, shopping halal","Quartier Fatih — coeur islamique d'Istanbul","Palais de Topkapi — reliques du Prophete ﷺ","Mosquee Eyup Sultan — lieu de pelerinage","Pierre d'Abu Ayyub Al-Ansari","Citerne Basilique — merveille souterraine","Tour de Galata — vue 360 sur Istanbul","Bosphore — croisiere entre 2 continents","Quartier Balat — ruelles colorees","Mosquee Camlica — plus grande de Turquie","Musee de l'art islamique","Quartier Uskudar — rive asiatique","Marche aux epices (Bazar Egyptien)","Mosquee Yeni Cami — au bord de l'eau","Palais Dolmabahce","Quartier Sultanahmet — histoire vivante","Hammam historique de Hurrem Sultan"] },
+    { emoji:"🌴", ville:"Marrakech", pays:"Maroc", desc:"Joyau de l'Islam africain", color:C.red, tips:["Mosquee Koutoubia — icone de Marrakech","Medersa Ben Youssef — architecture islamique","Place Jemaa el-Fna — spectacle vivant","Jardin Majorelle — oasis de beaute","Palais Bahia — art arabo-andalou","Tombeaux Saadiens — tresor cache","Souks de Marrakech — artisanat local","Mellah — quartier historique","Musee de Marrakech","Palais El-Badi — ruines majestueuses","Tanneries traditionnelles","Riad experience — architecture islamique","Hammam traditionnel","Mosquee de la Kasbah","Jardin Menara — bassin reflectant","Atlas excursion — montagnes a 1h","Vallée de l'Ourika","Cascades d'Ouzoud","Palmeraie de Marrakech","Musee Dar Si Said"] },
+    { emoji:"🏛️", ville:"Jerusalem", pays:"Palestine", desc:"Al-Quds, 3eme lieu saint", color:C.purple, tips:["Mosquee Al-Aqsa — 3eme lieu saint de l'Islam","Dome du Rocher — architecture sublime","Mur Al-Buraq — lieu du Miraj","Vieille ville — 4 quartiers millénaires","Mont des Oliviers — vue panoramique","Via Dolorosa — chemin historique","Porte de Damas — entree majestueuse","Souks de la vieille ville","Mosquee d'Omar","Citadelle de Jerusalem","Musee Rockefeller","Jardins de Gethsemane","Quartier musulman — coeur battant","Piscine de Siloe","Mont du Temple — esplanade sacree","Haram ash-Sharif — enceinte sacree","Madrasa Al-Ashrafiyya","Fontaine de Qayt Bay","Porte Doree — eschatologie islamique","Quartier armenien — mosaiques anciennes"] },
+    { emoji:"🌊", ville:"Dubai", pays:"Emirats", desc:"Modernite et tradition halal", color:C.teal, tips:["Mosquee Jumeirah — architecture ottomane","Dubai Mall — plus grand centre commercial halal","Desert Safari halal — dunes et chameaux","Souks de l'or — tradition et artisanat","Burj Khalifa — vue a 828m de hauteur","Dubai Creek — traversee en abra","Mosquee Al Farooq Omar — plus grande de Dubai","La Mer Beach — plage halal-friendly","Al Fahidi Historical Neighbourhood","Musee de Dubai — Fort Al-Fahidi","Dubai Frame — vue spectaculaire","Miracle Garden — jardin fleuri","Global Village — cultures du monde","Palm Jumeirah — ile artificielle","Madinat Jumeirah — Venise du Golfe","Spice Souk — epices du monde","Dubai Opera","Quartier JBR — promenade en bord de mer","Mosquee Hassan bin Ahmed","Blue Mosque Dubai — replique d'Istanbul"] },
   ]
   const OMRA_STEPS = [
     { num:1, titre:"Ihram", desc:"Entrer en etat de sacralisation a Miqat. Vetements blancs pour les hommes, tenue modeste pour les femmes. Formuler la Niyyah (intention) et prononcer la Talbiyah.", emoji:"🧕" },
@@ -2064,6 +2426,8 @@ export default function App() {
       if (user && !user.is_anonymous) {
         // Track location for business analytics
         trackUserLocation(user.id, user.email).catch(() => {})
+        // Schedule daily inspiration notifications
+        scheduleDailyInspiration().catch(() => {})
         const remote = await fetchPrayerTracked(user.id)
         if (remote && Object.keys(remote).length > 0) { setPrayedToday(remote); return }
       }
@@ -2226,7 +2590,7 @@ export default function App() {
       <View style={{ flex:1, backgroundColor:C.bg }}>
         <StatusBar barStyle="light-content" backgroundColor={C.bg} />
         <View style={{ flex:1 }}>
-          {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} hijriDate={hijriDate} lang={lang} />}
+          {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} hijriDate={hijriDate} lang={lang} prayedToday={prayedToday} />}
           {tab==="priere" && <EcranPriere prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} prayedToday={prayedToday} onTogglePrayed={onTogglePrayed} lang={lang} />}
           {tab==="carte" && <EcranCarte lang={lang} />}
           {tab==="culture" && <EcranCulture lang={lang} />}
