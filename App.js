@@ -345,7 +345,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
           </View>
         </View>
         <View style={{ flexDirection:"row", gap:8, marginTop:12 }}>
-          {[["horaires","Horaires"],["tracker","Tracker"],["dhikr","Dhikr"]].map(([key,label]) => (
+          {[["horaires","Horaires"],["tracker","Tracker"],["dhikr","Dhikr"],["adhkar","Adhkar"]].map(([key,label]) => (
             <TouchableOpacity key={key} onPress={() => setSubTab(key)}
               style={[styles.subTabBtn, subTab===key && styles.subTabActive]}>
               <Text style={{ color:subTab===key ? C.gold : C.muted, fontSize:12, fontWeight:subTab===key?"700":"400" }}>{label}</Text>
@@ -450,11 +450,67 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
             </View>
           </View>
         )}
+
+        {/* ── Adhkar Matin/Soir ── */}
+        {subTab==="adhkar" && (
+          <AdhkarSection />
+        )}
       </ScrollView>
     </View>
   )
 }
 
+// ─── Adhkar Component ─────────────────────────────────────────────────────────
+function AdhkarSection() {
+  const [period, setPeriod] = useState("matin")
+  const ADHKAR_MATIN = [
+    { ar:"أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ", fr:"Nous voila au matin et le royaume appartient a Allah", count:1 },
+    { ar:"اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ", fr:"O Allah, par Toi nous entrons dans le matin, par Toi nous entrons dans le soir, par Toi nous vivons, par Toi nous mourons et vers Toi est la resurrection", count:1 },
+    { ar:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ", fr:"O Allah, Tu es mon Seigneur, il n'y a de divinite que Toi, Tu m'as cree et je suis Ton serviteur (Sayyid al-Istighfar)", count:1 },
+    { ar:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", fr:"Au nom d'Allah, rien sur terre ni dans le ciel ne peut nuire avec Son nom, et Il est l'Audient, l'Omniscient", count:3 },
+    { ar:"اللَّهُمَّ عَافِنِي فِي بَدَنِي اللَّهُمَّ عَافِنِي فِي سَمْعِي اللَّهُمَّ عَافِنِي فِي بَصَرِي", fr:"O Allah, accorde-moi la sante dans mon corps, dans mon ouie et dans ma vue", count:3 },
+    { ar:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", fr:"Allah me suffit, il n'y a de divinite que Lui, en Lui je place ma confiance et Il est le Seigneur du Trone immense", count:7 },
+    { ar:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", fr:"Gloire et louange a Allah", count:100 },
+    { ar:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", fr:"Nulle divinite sauf Allah, Seul sans associe, a Lui le royaume, a Lui la louange et Il est Omnipotent", count:10 },
+    { ar:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", fr:"Je cherche refuge dans les paroles parfaites d'Allah contre le mal de ce qu'Il a cree", count:3 },
+    { ar:"اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ", fr:"O Allah, prie et accorde le salut sur notre Prophete Muhammad ﷺ", count:10 },
+  ]
+  const ADHKAR_SOIR = [
+    { ar:"أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ", fr:"Nous voila au soir et le royaume appartient a Allah", count:1 },
+    { ar:"اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ الْمَصِيرُ", fr:"O Allah, par Toi nous entrons dans le soir, par Toi nous entrons dans le matin, par Toi nous vivons, par Toi nous mourons et vers Toi est le retour", count:1 },
+    { ar:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ", fr:"O Allah, Tu es mon Seigneur, il n'y a de divinite que Toi (Sayyid al-Istighfar)", count:1 },
+    { ar:"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ", fr:"Au nom d'Allah, rien sur terre ni dans le ciel ne peut nuire", count:3 },
+    { ar:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", fr:"Je cherche refuge dans les paroles parfaites d'Allah", count:3 },
+    { ar:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ", fr:"Allah me suffit, en Lui je place ma confiance", count:7 },
+    { ar:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", fr:"Gloire et louange a Allah", count:100 },
+    { ar:"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", fr:"Je demande pardon a Allah et je me repens a Lui", count:100 },
+    { ar:"اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ", fr:"O Allah, prie et accorde le salut sur notre Prophete Muhammad ﷺ", count:10 },
+  ]
+  const data = period === "matin" ? ADHKAR_MATIN : ADHKAR_SOIR
+  return (
+    <View>
+      <View style={{ flexDirection:"row", gap:8, marginBottom:14 }}>
+        {[["matin","🌅 Matin"],["soir","🌙 Soir"]].map(([key,label]) => (
+          <TouchableOpacity key={key} onPress={() => setPeriod(key)}
+            style={{ flex:1, padding:10, borderRadius:10, backgroundColor: period===key ? C.gold+"25" : C.card2, borderWidth:1, borderColor: period===key ? C.gold : C.border, alignItems:"center" }}>
+            <Text style={{ color: period===key ? C.gold : C.muted, fontWeight:"700", fontSize:13 }}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {data.map((dhikr, i) => (
+        <View key={i} style={[styles.card, { padding:14, marginBottom:8 }]}>
+          <Text style={{ color:C.goldL, fontSize:16, textAlign:"right", lineHeight:28, marginBottom:8 }}>{dhikr.ar}</Text>
+          <Text style={{ color:C.white, fontSize:12, lineHeight:18 }}>{dhikr.fr}</Text>
+          <View style={{ flexDirection:"row", justifyContent:"flex-end", marginTop:8 }}>
+            <View style={{ backgroundColor:C.gold+"20", borderRadius:99, paddingHorizontal:10, paddingVertical:3 }}>
+              <Text style={{ color:C.gold, fontSize:11, fontWeight:"800" }}>x{dhikr.count}</Text>
+            </View>
+          </View>
+        </View>
+      ))}
+    </View>
+  )
+}
 // ─── Écran Carte ──────────────────────────────────────────────────────────────
 function EcranCarte() {
   const [cat, setCat] = useState("Tous")
@@ -1028,12 +1084,120 @@ function EcranCulture() {
 
 // ─── Écran Finance ────────────────────────────────────────────────────────────
 function EcranFinance() {
-  const ITEMS = [
-    { emoji:"🏦", titre:"Banque islamique", desc:"Comptes sans interets ribawi", color:C.gold, tag:"Halal" },
-    { emoji:"🛡️", titre:"Takaful", desc:"Assurance islamique solidaire", color:C.green, tag:"Halal" },
-    { emoji:"📈", titre:"Investissement", desc:"Actions et fonds conformes charia", color:C.blue, tag:"Halal" },
-    { emoji:"💰", titre:"Zakat", desc:"Calculer et payer votre zakat", color:C.red, tag:"Obligatoire" },
+  const [section, setSection] = useState(null)
+  const [zakatType, setZakatType] = useState("argent")
+  const [montant, setMontant] = useState("")
+  const [zakatResult, setZakatResult] = useState(null)
+  const NISAB_OR = 85 * 70 // ~5950€ (85g or x ~70€/g)
+  const NISAB_ARGENT = 595 * 0.75 // ~446€ (595g argent x ~0.75€/g)
+
+  const FINANCE_INFO = [
+    { emoji:"🏦", titre:"Banque islamique", color:C.gold, content:[
+      { q:"Qu'est-ce que la banque islamique?", r:"Un systeme bancaire conforme a la charia, sans interets (riba). Les profits viennent du commerce reel et du partage des risques." },
+      { q:"Quels produits sont halal?", r:"Murabaha (vente a marge), Ijara (leasing), Musharaka (partenariat), Mudharaba (investissement), Sukuk (obligations islamiques)." },
+      { q:"Banques islamiques en Europe", r:"Al Rayan Bank (UK), KT Bank (Allemagne), Zitouna (Tunisie online), Noor Bank, et certaines fintechs comme Manzil ou Niyah." },
+    ]},
+    { emoji:"🛡️", titre:"Takaful (assurance)", color:C.green, content:[
+      { q:"Qu'est-ce que le Takaful?", r:"Assurance islamique basee sur la solidarite mutuelle. Les participants contribuent a un fonds commun pour s'entraider." },
+      { q:"Difference avec l'assurance classique?", r:"Pas de gharar (incertitude excessive), pas de riba, pas d'investissement haram. Le surplus est redistribue aux participants." },
+    ]},
+    { emoji:"📈", titre:"Investissement halal", color:C.blue, content:[
+      { q:"Criteres d'un investissement halal", r:"L'entreprise ne doit pas tirer plus de 5% de ses revenus de l'alcool, porc, armes, jeux, pornographie ou interets." },
+      { q:"Comment investir halal?", r:"ETFs islamiques (ISWD, ISDE), fonds Amundi Islamic, actions screenees (screening AAOIFI), immobilier, or physique." },
+      { q:"Apps de screening halal", r:"Zoya, Islamicly, Musaffa — ces apps analysent si une action est conforme a la charia." },
+    ]},
   ]
+
+  const calculateZakat = () => {
+    const m = parseFloat(montant)
+    if (isNaN(m) || m <= 0) return
+    const nisab = zakatType === "or" ? NISAB_OR : NISAB_ARGENT
+    if (m >= nisab) {
+      setZakatResult({ montant: m, zakat: (m * 0.025).toFixed(2), nisab, eligible: true })
+    } else {
+      setZakatResult({ montant: m, zakat: 0, nisab, eligible: false })
+    }
+  }
+
+  if (section === "zakat") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => { setSection(null); setZakatResult(null) }} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>💰 Calculateur de Zakat</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <View style={[styles.card, { padding:16 }]}>
+          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:12 }}>Type de Nisab</Text>
+          <View style={{ flexDirection:"row", gap:8, marginBottom:16 }}>
+            {[["argent","💵 Argent"],["or","🥇 Or"]].map(([key,label]) => (
+              <TouchableOpacity key={key} onPress={() => setZakatType(key)}
+                style={{ flex:1, padding:10, borderRadius:10, backgroundColor: zakatType===key ? C.gold+"25" : C.card2, borderWidth:1, borderColor: zakatType===key ? C.gold : C.border, alignItems:"center" }}>
+                <Text style={{ color: zakatType===key ? C.gold : C.muted, fontWeight:"700", fontSize:13 }}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={{ color:C.muted, fontSize:11, marginBottom:6 }}>Nisab actuel: ~{zakatType==="or" ? NISAB_OR : NISAB_ARGENT}€</Text>
+          <Text style={{ color:C.white, fontSize:13, fontWeight:"600", marginBottom:8 }}>Votre patrimoine total (€)</Text>
+          <TextInput value={montant} onChangeText={setMontant} placeholder="Ex: 10000" placeholderTextColor={C.muted} keyboardType="numeric"
+            style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:12, color:C.white, fontSize:16, marginBottom:12 }} />
+          <TouchableOpacity onPress={calculateZakat}
+            style={{ backgroundColor:C.gold, borderRadius:10, padding:14, alignItems:"center" }}>
+            <Text style={{ color:C.bg, fontSize:15, fontWeight:"900" }}>Calculer ma Zakat</Text>
+          </TouchableOpacity>
+        </View>
+        {zakatResult && (
+          <View style={[styles.card, { padding:16, marginTop:12, borderWidth:1, borderColor: zakatResult.eligible ? C.green : C.red }]}>
+            {zakatResult.eligible ? (<>
+              <Text style={{ color:C.green, fontSize:14, fontWeight:"700" }}>✅ Vous etes redevable de la Zakat</Text>
+              <Text style={{ color:C.white, fontSize:28, fontWeight:"900", marginTop:8 }}>{zakatResult.zakat} €</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:6 }}>2.5% de {zakatResult.montant}€ (Nisab: {zakatResult.nisab}€)</Text>
+            </>) : (<>
+              <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>❌ Pas de Zakat due</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:6 }}>Votre patrimoine ({zakatResult.montant}€) est inferieur au Nisab ({zakatResult.nisab}€)</Text>
+            </>)}
+          </View>
+        )}
+        <View style={[styles.card, { padding:14, marginTop:12 }]}>
+          <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>📋 Regles de la Zakat</Text>
+          <Text style={{ color:C.muted, fontSize:12, lineHeight:20 }}>
+            • Taux : 2.5% du patrimoine total{"\n"}
+            • Condition : posseder le Nisab pendant 1 annee lunaire{"\n"}
+            • Sur : argent, or, actions, marchandises, revenus locatifs{"\n"}
+            • Pas sur : residence principale, voiture personnelle, vetements{"\n"}
+            • Beneficiaires : 8 categories (pauvres, necessiteux, voyageurs, etc.)
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
+  )
+
+  if (section && section.startsWith("info_")) {
+    const idx = parseInt(section.split("_")[1])
+    const info = FINANCE_INFO[idx]
+    return (
+      <View style={{ flex:1 }}>
+        <View style={styles.screenHeader}>
+          <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+            <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          </TouchableOpacity>
+          <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>{info.emoji} {info.titre}</Text>
+        </View>
+        <FlatList data={info.content} keyExtractor={(_, i) => String(i)}
+          contentContainerStyle={{ padding:16, gap:10 }}
+          renderItem={({ item }) => (
+            <View style={[styles.card, { padding:14 }]}>
+              <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>{item.q}</Text>
+              <Text style={{ color:C.white, fontSize:13, lineHeight:20 }}>{item.r}</Text>
+            </View>
+          )} />
+      </View>
+    )
+  }
+
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
@@ -1041,18 +1205,30 @@ function EcranFinance() {
         <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>🏦 Argent Halal</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
-        {ITEMS.map((item, i) => (
-          <TouchableOpacity key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10 }]}>
+        <TouchableOpacity onPress={() => setSection("zakat")}
+          style={[styles.card, { padding:16, borderWidth:1, borderColor:C.gold+"40", marginBottom:12 }]}>
+          <View style={{ flexDirection:"row", alignItems:"center", gap:14 }}>
+            <View style={{ width:52, height:52, borderRadius:12, backgroundColor:C.gold+"18", alignItems:"center", justifyContent:"center" }}>
+              <Text style={{ fontSize:24 }}>💰</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.gold, fontSize:16, fontWeight:"800" }}>Calculateur de Zakat</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>Calculez le montant exact de votre zakat</Text>
+            </View>
+            <Text style={{ color:C.gold, fontSize:20 }}>→</Text>
+          </View>
+        </TouchableOpacity>
+        {FINANCE_INFO.map((item, i) => (
+          <TouchableOpacity key={i} onPress={() => setSection("info_"+i)}
+            style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10 }]}>
             <View style={{ width:52, height:52, borderRadius:12, backgroundColor:item.color+"18", alignItems:"center", justifyContent:"center" }}>
               <Text style={{ fontSize:24 }}>{item.emoji}</Text>
             </View>
             <View style={{ flex:1 }}>
               <Text style={{ color:C.white, fontSize:15, fontWeight:"700" }}>{item.titre}</Text>
-              <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{item.desc}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{item.content.length} questions</Text>
             </View>
-            <View style={{ backgroundColor:item.color+"25", borderRadius:99, paddingHorizontal:8, paddingVertical:2 }}>
-              <Text style={{ color:item.color, fontSize:9, fontWeight:"800" }}>{item.tag}</Text>
-            </View>
+            <Text style={{ color:C.muted, fontSize:18 }}>→</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -1062,30 +1238,175 @@ function EcranFinance() {
 
 // ─── Écran Voyage ─────────────────────────────────────────────────────────────
 function EcranVoyage() {
+  const [section, setSection] = useState(null)
   const DESTINATIONS = [
-    { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacree", color:C.gold },
-    { emoji:"🕌", ville:"Medine", pays:"Arabie Saoudite", desc:"La ville du Prophete ﷺ", color:C.green },
-    { emoji:"🌙", ville:"Istanbul", pays:"Turquie", desc:"Cite des mosquees et de l'histoire", color:C.blue },
-    { emoji:"🌴", ville:"Marrakech", pays:"Maroc", desc:"Joyau de l'Islam africain", color:C.red },
-    { emoji:"🏛️", ville:"Jerusalem", pays:"Palestine", desc:"Al-Quds, 3eme lieu saint", color:C.purple },
-    { emoji:"🌊", ville:"Dubai", pays:"Emirats", desc:"Modernite et tradition halal", color:C.teal },
+    { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacree", color:C.gold, tips:["Faire le Tawaf 7 tours autour de la Kaaba","Boire l'eau de Zamzam","Prier a Maqam Ibrahim","Sa'i entre Safa et Marwa","Visiter la grotte de Hira"] },
+    { emoji:"🕌", ville:"Medine", pays:"Arabie Saoudite", desc:"La ville du Prophete ﷺ", color:C.green, tips:["Prier a la Mosquee du Prophete (Al-Masjid An-Nabawi)","Visiter Rawdah Ash-Sharifah","Saluer le Prophete ﷺ a son tombeau","Visiter le cimetiere Al-Baqi","Prier a la mosquee de Quba"] },
+    { emoji:"🌙", ville:"Istanbul", pays:"Turquie", desc:"Cite des mosquees et de l'histoire", color:C.blue, tips:["Mosquee Sultan Ahmed (Mosquee Bleue)","Hagia Sophia","Mosquee Suleymaniye","Grand Bazar — shopping halal","Quartier Fatih — restaurants halal partout"] },
+    { emoji:"🌴", ville:"Marrakech", pays:"Maroc", desc:"Joyau de l'Islam africain", color:C.red, tips:["Mosquee Koutoubia","Medersa Ben Youssef","Place Jemaa el-Fna","Jardin Majorelle","Tout est halal — cuisine marocaine authentique"] },
+    { emoji:"🏛️", ville:"Jerusalem", pays:"Palestine", desc:"Al-Quds, 3eme lieu saint", color:C.purple, tips:["Mosquee Al-Aqsa — 3eme lieu saint","Dome du Rocher","Mur Al-Buraq","Vieille ville — 4 quartiers","Olive Mountain — vue panoramique"] },
+    { emoji:"🌊", ville:"Dubai", pays:"Emirats", desc:"Modernite et tradition halal", color:C.teal, tips:["Mosquee Jumeirah","Dubai Mall — tout halal","Desert Safari halal","Souks traditionnels","Burj Khalifa — vue a 360°"] },
   ]
+  const OMRA_STEPS = [
+    { num:1, titre:"Ihram", desc:"Entrer en etat de sacralisation a Miqat. Vetements blancs pour les hommes, tenue modeste pour les femmes. Formuler la Niyyah (intention) et prononcer la Talbiyah.", emoji:"🧕" },
+    { num:2, titre:"Tawaf", desc:"Effectuer 7 tours autour de la Kaaba dans le sens inverse des aiguilles d'une montre, en commencant par la Pierre Noire.", emoji:"🕋" },
+    { num:3, titre:"Priere 2 Rakat", desc:"Prier 2 rakat derriere Maqam Ibrahim apres le Tawaf.", emoji:"🤲" },
+    { num:4, titre:"Boire Zamzam", desc:"Boire l'eau de Zamzam en faisant des douas.", emoji:"💧" },
+    { num:5, titre:"Sa'i", desc:"Marcher 7 fois entre Safa et Marwa (3.15 km au total) en commemorant Hajar.", emoji:"🚶" },
+    { num:6, titre:"Halq ou Taqsir", desc:"Se raser la tete (Halq) ou couper les cheveux (Taqsir) pour sortir de l'Ihram.", emoji:"💈" },
+  ]
+  const HAJJ_STEPS = [
+    { num:1, titre:"Jour 8 - Yawm al-Tarwiyah", desc:"Ihram a La Mecque puis depart vers Mina. Prier Dhuhr, Asr, Maghrib, Isha et Fajr a Mina.", emoji:"⛺" },
+    { num:2, titre:"Jour 9 - Yawm al-Arafat", desc:"Se rendre au Mont Arafat. Rester en priere et invocation du Dhuhr au Maghrib. C'est LE pilier du Hajj.", emoji:"🏔️" },
+    { num:3, titre:"Nuit a Muzdalifah", desc:"Apres Arafat, passer la nuit a Muzdalifah. Ramasser 49 cailloux pour la lapidation.", emoji:"🌙" },
+    { num:4, titre:"Jour 10 - Yawm al-Nahr", desc:"Lapidation de Jamrat al-Aqaba (7 cailloux), sacrifice, rasage, Tawaf al-Ifadah, Sa'i.", emoji:"🐑" },
+    { num:5, titre:"Jours 11-12-13 - Ayyam al-Tashriq", desc:"Lapidation des 3 Jamarat chaque jour (21 cailloux/jour). Rester a Mina.", emoji:"⛰️" },
+    { num:6, titre:"Tawaf al-Wada", desc:"Tawaf d'adieu autour de la Kaaba avant de quitter La Mecque.", emoji:"👋" },
+  ]
+  const CHECKLIST = [
+    { cat:"Documents", items:["Passeport valide 6 mois+","Visa Hajj/Omra","Copies documents","Photos d'identite","Assurance voyage","Reservation hotel confirmee"] },
+    { cat:"Vetements", items:["2 pieces Ihram (hommes)","Vetements amples modestes","Chaussures confortables (marche)","Ceinture porte-monnaie","Chapeau/parapluie soleil","Vetements de nuit"] },
+    { cat:"Sante", items:["Medicaments personnels","Creme solaire","Masque anti-poussiere","Desinfectant mains","Pansements ampoules","Vaccination meningite"] },
+    { cat:"Spirituel", items:["Petit Coran","Livre de douas Hajj/Omra","Tapis de priere pliable","Chapelet (misbaha)","Cahier pour noter les douas"] },
+  ]
+
+  if (section === "omra") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕋 Guide de la Omra</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>6 etapes pas a pas</Text>
+      </View>
+      <FlatList data={OMRA_STEPS} keyExtractor={s => String(s.num)}
+        contentContainerStyle={{ padding:16, gap:10 }}
+        renderItem={({ item }) => (
+          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12 }]}>
+            <View style={{ alignItems:"center", width:44 }}>
+              <View style={{ backgroundColor:C.gold+"25", borderRadius:99, width:28, height:28, alignItems:"center", justifyContent:"center" }}>
+                <Text style={{ color:C.gold, fontSize:13, fontWeight:"900" }}>{item.num}</Text>
+              </View>
+              <Text style={{ fontSize:20, marginTop:6 }}>{item.emoji}</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:6, lineHeight:18 }}>{item.desc}</Text>
+            </View>
+          </View>
+        )} />
+    </View>
+  )
+
+  if (section === "hajj") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕋 Guide du Hajj</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Les 6 jours du pelerinage</Text>
+      </View>
+      <FlatList data={HAJJ_STEPS} keyExtractor={s => String(s.num)}
+        contentContainerStyle={{ padding:16, gap:10 }}
+        renderItem={({ item }) => (
+          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12 }]}>
+            <View style={{ alignItems:"center", width:44 }}>
+              <View style={{ backgroundColor:C.green+"25", borderRadius:99, width:28, height:28, alignItems:"center", justifyContent:"center" }}>
+                <Text style={{ color:C.green, fontSize:13, fontWeight:"900" }}>{item.num}</Text>
+              </View>
+              <Text style={{ fontSize:20, marginTop:6 }}>{item.emoji}</Text>
+            </View>
+            <View style={{ flex:1 }}>
+              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{item.titre}</Text>
+              <Text style={{ color:C.muted, fontSize:12, marginTop:6, lineHeight:18 }}>{item.desc}</Text>
+            </View>
+          </View>
+        )} />
+    </View>
+  )
+
+  if (section === "checklist") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>✅ Check-list Voyage</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        {CHECKLIST.map((cat, ci) => (
+          <View key={ci} style={{ marginBottom:16 }}>
+            <Text style={{ color:C.gold, fontSize:14, fontWeight:"800", marginBottom:8 }}>{cat.cat}</Text>
+            {cat.items.map((item, ii) => (
+              <View key={ii} style={[styles.card, { padding:12, flexDirection:"row", alignItems:"center", gap:10, marginBottom:6 }]}>
+                <View style={{ width:22, height:22, borderRadius:6, borderWidth:2, borderColor:C.gold+"50" }} />
+                <Text style={{ color:C.white, fontSize:13 }}>{item}</Text>
+              </View>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  )
+
+  if (section && section.startsWith("dest_")) {
+    const idx = parseInt(section.split("_")[1])
+    const dest = DESTINATIONS[idx]
+    return (
+      <View style={{ flex:1 }}>
+        <View style={styles.screenHeader}>
+          <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+            <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          </TouchableOpacity>
+          <Text style={{ color:C.white, fontSize:22, fontWeight:"900", marginTop:8 }}>{dest.emoji} {dest.ville}</Text>
+          <Text style={{ color:dest.color, fontSize:13, fontWeight:"600", marginTop:4 }}>{dest.pays} — {dest.desc}</Text>
+        </View>
+        <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+          <Text style={{ color:C.gold, fontSize:14, fontWeight:"800", marginBottom:10 }}>Incontournables</Text>
+          {dest.tips.map((tip, i) => (
+            <View key={i} style={[styles.card, { padding:12, flexDirection:"row", alignItems:"center", gap:10, marginBottom:8 }]}>
+              <View style={{ backgroundColor:dest.color+"20", borderRadius:99, width:28, height:28, alignItems:"center", justifyContent:"center" }}>
+                <Text style={{ color:dest.color, fontSize:12, fontWeight:"900" }}>{i+1}</Text>
+              </View>
+              <Text style={{ color:C.white, fontSize:13, flex:1 }}>{tip}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    )
+  }
+
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
         <Text style={styles.sectionLabel}>VOYAGES HALAL</Text>
-        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>✈️ Destinations</Text>
+        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>✈️ Destinations & Guides</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <View style={{ flexDirection:"row", gap:8, marginBottom:14 }}>
+          {[["omra","🕋 Omra",C.gold],["hajj","🕋 Hajj",C.green],["checklist","✅ Check-list",C.blue]].map(([id,label,col]) => (
+            <TouchableOpacity key={id} onPress={() => setSection(id)}
+              style={[styles.card, { flex:1, padding:12, alignItems:"center", borderTopWidth:3, borderTopColor:col }]}>
+              <Text style={{ color:C.white, fontSize:12, fontWeight:"800", textAlign:"center" }}>{label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={{ color:C.white, fontSize:15, fontWeight:"800", marginBottom:10 }}>Destinations</Text>
         {DESTINATIONS.map((dest, i) => (
-          <TouchableOpacity key={i} style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10, borderLeftWidth:3, borderLeftColor:dest.color }]}>
+          <TouchableOpacity key={i} onPress={() => setSection("dest_"+i)}
+            style={[styles.card, { flexDirection:"row", alignItems:"center", gap:14, marginBottom:10, borderLeftWidth:3, borderLeftColor:dest.color }]}>
             <Text style={{ fontSize:32 }}>{dest.emoji}</Text>
             <View style={{ flex:1 }}>
               <Text style={{ color:C.white, fontSize:15, fontWeight:"800" }}>{dest.ville}</Text>
               <Text style={{ color:dest.color, fontSize:11, fontWeight:"600" }}>{dest.pays}</Text>
               <Text style={{ color:C.muted, fontSize:12, marginTop:3 }}>{dest.desc}</Text>
             </View>
-            <Text style={{ color:C.muted, fontSize:18 }}>›</Text>
+            <Text style={{ color:C.muted, fontSize:18 }}>→</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
