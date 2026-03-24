@@ -9,7 +9,6 @@ import { createClient } from '@supabase/supabase-js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
-import { Audio } from 'expo-av'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -806,7 +805,6 @@ function EcranCulture() {
   const [loadingQuran, setLoadingQuran] = useState(false)
   const [reciter, setReciter] = useState(QURAN_RECITERS[0])
   const [playingAyah, setPlayingAyah] = useState(null)
-  const [sound, setSound] = useState(null)
   const [hadithCollection, setHadithCollection] = useState("nawawi")
   const [arabeLecon, setArabeLecon] = useState(null)
   const [revealedItems, setRevealedItems] = useState({})
@@ -854,21 +852,13 @@ function EcranCulture() {
     }
   }, [selectedSourate])
 
-  // Audio playback
+  // Audio playback via browser
   const playAyah = async (audioUrl, ayahNum) => {
-    try {
-      if (sound) { await sound.unloadAsync(); setSound(null) }
-      if (playingAyah === ayahNum) { setPlayingAyah(null); return }
-      const { sound: s } = await Audio.Sound.createAsync({ uri: audioUrl })
-      setSound(s)
-      setPlayingAyah(ayahNum)
-      s.setOnPlaybackStatusUpdate(status => { if (status.didJustFinish) { setPlayingAyah(null) } })
-      await s.playAsync()
-    } catch(e) { setPlayingAyah(null) }
+    if (playingAyah === ayahNum) { setPlayingAyah(null); return }
+    setPlayingAyah(ayahNum)
+    Linking.openURL(audioUrl).catch(() => {})
+    setTimeout(() => setPlayingAyah(null), 3000)
   }
-
-  // Cleanup audio
-  useEffect(() => { return () => { if (sound) sound.unloadAsync() } }, [sound])
 
   const ITEMS = [
     { id:"coran", emoji:"📖", titre:"Coran", desc:"114 sourates + audio recitateurs", color:C.gold },
