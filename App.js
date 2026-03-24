@@ -30,6 +30,85 @@ const supabase = createClient(
 const AuthContext = createContext(null)
 const useAuth = () => useContext(AuthContext)
 
+// ─── i18n — 12 langues ────────────────────────────────────────────────────────
+const LangContext = createContext({ lang:"fr", setLang:()=>{}, t:(k)=>k })
+const useLang = () => useContext(LangContext)
+
+const LANGS = [
+  { code:"fr", label:"Français", flag:"🇫🇷" },
+  { code:"en", label:"English", flag:"🇬🇧" },
+  { code:"ar", label:"العربية", flag:"🇸🇦" },
+  { code:"tr", label:"Türkçe", flag:"🇹🇷" },
+  { code:"de", label:"Deutsch", flag:"🇩🇪" },
+  { code:"nl", label:"Nederlands", flag:"🇳🇱" },
+  { code:"es", label:"Español", flag:"🇪🇸" },
+  { code:"id", label:"Bahasa", flag:"🇮🇩" },
+  { code:"ur", label:"اردو", flag:"🇵🇰" },
+  { code:"ms", label:"Melayu", flag:"🇲🇾" },
+  { code:"it", label:"Italiano", flag:"🇮🇹" },
+  { code:"pt", label:"Português", flag:"🇧🇷" },
+]
+
+const T = {
+  // ── Tabs ──
+  accueil:{fr:"ACCUEIL",en:"HOME",ar:"الرئيسية",tr:"ANA SAYFA",de:"STARTSEITE",nl:"HOME",es:"INICIO",id:"BERANDA",ur:"ہوم",ms:"UTAMA",it:"HOME",pt:"INÍCIO"},
+  priere:{fr:"PRIERE",en:"PRAYER",ar:"الصلاة",tr:"NAMAZ",de:"GEBET",nl:"GEBED",es:"ORACIÓN",id:"SHOLAT",ur:"نماز",ms:"SOLAT",it:"PREGHIERA",pt:"ORAÇÃO"},
+  halal:{fr:"HALAL",en:"HALAL",ar:"حلال",tr:"HELAL",de:"HALAL",nl:"HALAL",es:"HALAL",id:"HALAL",ur:"حلال",ms:"HALAL",it:"HALAL",pt:"HALAL"},
+  culture:{fr:"CULTURE",en:"CULTURE",ar:"ثقافة",tr:"KÜLTÜR",de:"KULTUR",nl:"CULTUUR",es:"CULTURA",id:"BUDAYA",ur:"ثقافت",ms:"BUDAYA",it:"CULTURA",pt:"CULTURA"},
+  profil:{fr:"PROFIL",en:"PROFILE",ar:"الملف",tr:"PROFİL",de:"PROFIL",nl:"PROFIEL",es:"PERFIL",id:"PROFIL",ur:"پروفائل",ms:"PROFIL",it:"PROFILO",pt:"PERFIL"},
+  // ── Accueil ──
+  explorer:{fr:"EXPLORER",en:"EXPLORE",ar:"استكشاف",tr:"KEŞFET",de:"ENTDECKEN",nl:"ONTDEK",es:"EXPLORAR",id:"JELAJAHI",ur:"دریافت",ms:"TEROKAI",it:"ESPLORA",pt:"EXPLORAR"},
+  presDeVous:{fr:"PRES DE VOUS",en:"NEAR YOU",ar:"بالقرب منك",tr:"YAKININIZDA",de:"IN IHRER NÄHE",nl:"BIJ U IN DE BUURT",es:"CERCA DE TI",id:"DEKAT ANDA",ur:"آپ کے قریب",ms:"DEKAT ANDA",it:"VICINO A TE",pt:"PERTO DE VOCÊ"},
+  // ── Prière ──
+  horaires:{fr:"Horaires",en:"Times",ar:"المواقيت",tr:"Vakitler",de:"Zeiten",nl:"Tijden",es:"Horarios",id:"Jadwal",ur:"اوقات",ms:"Waktu",it:"Orari",pt:"Horários"},
+  tracker:{fr:"Tracker",en:"Tracker",ar:"تتبع",tr:"Takip",de:"Tracker",nl:"Tracker",es:"Seguimiento",id:"Pelacak",ur:"ٹریکر",ms:"Penjejak",it:"Tracker",pt:"Rastreador"},
+  dhikr:{fr:"Dhikr",en:"Dhikr",ar:"ذكر",tr:"Zikir",de:"Dhikr",nl:"Dhikr",es:"Dhikr",id:"Dzikir",ur:"ذکر",ms:"Zikir",it:"Dhikr",pt:"Dhikr"},
+  adhkar:{fr:"Adhkar",en:"Adhkar",ar:"أذكار",tr:"Ezkar",de:"Adhkar",nl:"Adhkar",es:"Adhkar",id:"Adzkar",ur:"اذکار",ms:"Azkar",it:"Adhkar",pt:"Adhkar"},
+  prochainePriere:{fr:"Prochaine priere",en:"Next prayer",ar:"الصلاة القادمة",tr:"Sonraki namaz",de:"Nächstes Gebet",nl:"Volgend gebed",es:"Próxima oración",id:"Sholat berikutnya",ur:"اگلی نماز",ms:"Solat seterusnya",it:"Prossima preghiera",pt:"Próxima oração"},
+  prieres:{fr:"Prieres",en:"Prayers",ar:"صلوات",tr:"Namazlar",de:"Gebete",nl:"Gebeden",es:"Oraciones",id:"Sholat",ur:"نمازیں",ms:"Solat",it:"Preghiere",pt:"Orações"},
+  // ── Culture ──
+  cultureIslamique:{fr:"CULTURE ISLAMIQUE",en:"ISLAMIC CULTURE",ar:"الثقافة الإسلامية",tr:"İSLAM KÜLTÜRÜ",de:"ISLAMISCHE KULTUR",nl:"ISLAMITISCHE CULTUUR",es:"CULTURA ISLÁMICA",id:"BUDAYA ISLAM",ur:"اسلامی ثقافت",ms:"BUDAYA ISLAM",it:"CULTURA ISLAMICA",pt:"CULTURA ISLÂMICA"},
+  apprendreGrandir:{fr:"Apprendre & Grandir",en:"Learn & Grow",ar:"تعلم وانمو",tr:"Öğren & Büyü",de:"Lernen & Wachsen",nl:"Leren & Groeien",es:"Aprender & Crecer",id:"Belajar & Tumbuh",ur:"سیکھیں اور بڑھیں",ms:"Belajar & Berkembang",it:"Impara & Cresci",pt:"Aprender & Crescer"},
+  retour:{fr:"Retour",en:"Back",ar:"رجوع",tr:"Geri",de:"Zurück",nl:"Terug",es:"Volver",id:"Kembali",ur:"واپس",ms:"Kembali",it:"Indietro",pt:"Voltar"},
+  coran:{fr:"Coran",en:"Quran",ar:"القرآن",tr:"Kur'an",de:"Koran",nl:"Koran",es:"Corán",id:"Al-Qur'an",ur:"قرآن",ms:"Al-Quran",it:"Corano",pt:"Alcorão"},
+  hadiths:{fr:"Hadiths",en:"Hadiths",ar:"أحاديث",tr:"Hadisler",de:"Hadithe",nl:"Hadiths",es:"Hadices",id:"Hadits",ur:"احادیث",ms:"Hadis",it:"Hadith",pt:"Hadiths"},
+  noms99:{fr:"99 Noms",en:"99 Names",ar:"الأسماء الحسنى",tr:"99 İsim",de:"99 Namen",nl:"99 Namen",es:"99 Nombres",id:"99 Nama",ur:"99 نام",ms:"99 Nama",it:"99 Nomi",pt:"99 Nomes"},
+  tajwid:{fr:"Tajwid",en:"Tajweed",ar:"التجويد",tr:"Tecvid",de:"Tadschid",nl:"Tajwied",es:"Tajwid",id:"Tajwid",ur:"تجوید",ms:"Tajwid",it:"Tajweed",pt:"Tajwid"},
+  sira:{fr:"Sira",en:"Sira",ar:"السيرة",tr:"Siyer",de:"Sira",nl:"Sira",es:"Sira",id:"Sirah",ur:"سیرت",ms:"Sirah",it:"Sira",pt:"Sira"},
+  fiqh:{fr:"Fiqh",en:"Fiqh",ar:"الفقه",tr:"Fıkıh",de:"Fiqh",nl:"Fiqh",es:"Fiqh",id:"Fiqih",ur:"فقہ",ms:"Fiqh",it:"Fiqh",pt:"Fiqh"},
+  arabe:{fr:"Arabe",en:"Arabic",ar:"العربية",tr:"Arapça",de:"Arabisch",nl:"Arabisch",es:"Árabe",id:"Arab",ur:"عربی",ms:"Arab",it:"Arabo",pt:"Árabe"},
+  calendrier:{fr:"Calendrier",en:"Calendar",ar:"التقويم",tr:"Takvim",de:"Kalender",nl:"Kalender",es:"Calendario",id:"Kalender",ur:"کیلنڈر",ms:"Kalendar",it:"Calendario",pt:"Calendário"},
+  chahada:{fr:"Chahada",en:"Shahada",ar:"الشهادة",tr:"Şehadet",de:"Schahada",nl:"Shahada",es:"Shahada",id:"Syahadat",ur:"شہادت",ms:"Syahadah",it:"Shahada",pt:"Shahada"},
+  khatam:{fr:"Khatam",en:"Khatam",ar:"ختم",tr:"Hatim",de:"Khatam",nl:"Khatam",es:"Khatam",id:"Khatam",ur:"ختم",ms:"Khatam",it:"Khatam",pt:"Khatam"},
+  liveMecque:{fr:"Live Mecque",en:"Live Mecca",ar:"بث مباشر مكة",tr:"Canlı Mekke",de:"Live Mekka",nl:"Live Mekka",es:"Meca en vivo",id:"Live Mekkah",ur:"مکہ لائیو",ms:"Live Makkah",it:"Mecca Live",pt:"Meca ao vivo"},
+  // ── Finance ──
+  financeIslamique:{fr:"FINANCE ISLAMIQUE",en:"ISLAMIC FINANCE",ar:"التمويل الإسلامي",tr:"İSLAMİ FİNANS",de:"ISLAMISCHE FINANZEN",nl:"ISLAMITISCHE FINANCIËN",es:"FINANZAS ISLÁMICAS",id:"KEUANGAN ISLAM",ur:"اسلامی مالیات",ms:"KEWANGAN ISLAM",it:"FINANZA ISLAMICA",pt:"FINANÇAS ISLÂMICAS"},
+  argentHalal:{fr:"Argent Halal",en:"Halal Money",ar:"المال الحلال",tr:"Helal Para",de:"Halal-Geld",nl:"Halal Geld",es:"Dinero Halal",id:"Uang Halal",ur:"حلال پیسہ",ms:"Wang Halal",it:"Denaro Halal",pt:"Dinheiro Halal"},
+  calculerZakat:{fr:"Calculateur de Zakat",en:"Zakat Calculator",ar:"حاسبة الزكاة",tr:"Zekat Hesaplayıcı",de:"Zakat-Rechner",nl:"Zakat Calculator",es:"Calculadora de Zakat",id:"Kalkulator Zakat",ur:"زکوٰۃ کیلکولیٹر",ms:"Kalkulator Zakat",it:"Calcolatore Zakat",pt:"Calculadora de Zakat"},
+  // ── Voyage ──
+  voyagesHalal:{fr:"VOYAGES HALAL",en:"HALAL TRAVEL",ar:"السفر الحلال",tr:"HELAL SEYAHAT",de:"HALAL-REISEN",nl:"HALAL REIZEN",es:"VIAJES HALAL",id:"WISATA HALAL",ur:"حلال سفر",ms:"PELANCONGAN HALAL",it:"VIAGGI HALAL",pt:"VIAGENS HALAL"},
+  destinations:{fr:"Destinations & Guides",en:"Destinations & Guides",ar:"الوجهات والأدلة",tr:"Yerler & Rehberler",de:"Reiseziele & Guides",nl:"Bestemmingen & Gidsen",es:"Destinos & Guías",id:"Tujuan & Panduan",ur:"منزلیں اور گائیڈز",ms:"Destinasi & Panduan",it:"Destinazioni & Guide",pt:"Destinos & Guias"},
+  // ── Carte ──
+  carteHalal:{fr:"CARTE HALAL",en:"HALAL MAP",ar:"خريطة الحلال",tr:"HELAL HARİTA",de:"HALAL-KARTE",nl:"HALAL KAART",es:"MAPA HALAL",id:"PETA HALAL",ur:"حلال نقشہ",ms:"PETA HALAL",it:"MAPPA HALAL",pt:"MAPA HALAL"},
+  chercherCommerce:{fr:"Chercher un commerce halal...",en:"Search halal business...",ar:"ابحث عن محل حلال...",tr:"Helal işletme ara...",de:"Halal-Geschäft suchen...",nl:"Halal bedrijf zoeken...",es:"Buscar negocio halal...",id:"Cari bisnis halal...",ur:"حلال کاروبار تلاش کریں...",ms:"Cari perniagaan halal...",it:"Cerca attività halal...",pt:"Procurar negócio halal..."},
+  // ── Profil ──
+  monProfil:{fr:"Mon Profil",en:"My Profile",ar:"ملفي",tr:"Profilim",de:"Mein Profil",nl:"Mijn Profiel",es:"Mi Perfil",id:"Profil Saya",ur:"میری پروفائل",ms:"Profil Saya",it:"Il mio Profilo",pt:"Meu Perfil"},
+  langue:{fr:"Langue",en:"Language",ar:"اللغة",tr:"Dil",de:"Sprache",nl:"Taal",es:"Idioma",id:"Bahasa",ur:"زبان",ms:"Bahasa",it:"Lingua",pt:"Idioma"},
+  deconnexion:{fr:"Deconnexion",en:"Logout",ar:"تسجيل الخروج",tr:"Çıkış",de:"Abmelden",nl:"Uitloggen",es:"Cerrar sesión",id:"Keluar",ur:"لاگ آؤٹ",ms:"Log keluar",it:"Disconnetti",pt:"Sair"},
+  connexion:{fr:"Connexion",en:"Login",ar:"تسجيل الدخول",tr:"Giriş",de:"Anmelden",nl:"Inloggen",es:"Iniciar sesión",id:"Masuk",ur:"لاگ ان",ms:"Log masuk",it:"Accedi",pt:"Entrar"},
+  inscription:{fr:"Inscription",en:"Sign up",ar:"التسجيل",tr:"Kayıt ol",de:"Registrieren",nl:"Registreren",es:"Registrarse",id:"Daftar",ur:"رجسٹریشن",ms:"Daftar",it:"Registrati",pt:"Cadastrar"},
+  continuerInvite:{fr:"Continuer en invite",en:"Continue as guest",ar:"متابعة كضيف",tr:"Misafir olarak devam et",de:"Als Gast fortfahren",nl:"Doorgaan als gast",es:"Continuar como invitado",id:"Lanjut sebagai tamu",ur:"مہمان کے طور پر جاری رکھیں",ms:"Teruskan sebagai tetamu",it:"Continua come ospite",pt:"Continuar como convidado"},
+  // ── Adhkar ──
+  matin:{fr:"Matin",en:"Morning",ar:"الصباح",tr:"Sabah",de:"Morgen",nl:"Ochtend",es:"Mañana",id:"Pagi",ur:"صبح",ms:"Pagi",it:"Mattina",pt:"Manhã"},
+  soir:{fr:"Soir",en:"Evening",ar:"المساء",tr:"Akşam",de:"Abend",nl:"Avond",es:"Noche",id:"Sore",ur:"شام",ms:"Petang",it:"Sera",pt:"Noite"},
+  // ── Misc ──
+  aujourdhui:{fr:"AUJOURD'HUI",en:"TODAY",ar:"اليوم",tr:"BUGÜN",de:"HEUTE",nl:"VANDAAG",es:"HOY",id:"HARI INI",ur:"آج",ms:"HARI INI",it:"OGGI",pt:"HOJE"},
+  evenements:{fr:"Evenements islamiques",en:"Islamic events",ar:"المناسبات الإسلامية",tr:"İslami etkinlikler",de:"Islamische Ereignisse",nl:"Islamitische evenementen",es:"Eventos islámicos",id:"Peristiwa Islam",ur:"اسلامی واقعات",ms:"Peristiwa Islam",it:"Eventi islamici",pt:"Eventos islâmicos"},
+  sourates:{fr:"sourates",en:"surahs",ar:"سور",tr:"sure",de:"Suren",nl:"soera's",es:"suras",id:"surah",ur:"سورتیں",ms:"surah",it:"sure",pt:"suratas"},
+  versets:{fr:"versets",en:"verses",ar:"آيات",tr:"ayet",de:"Verse",nl:"verzen",es:"versos",id:"ayat",ur:"آیات",ms:"ayat",it:"versetti",pt:"versículos"},
+}
+const t = (key, lang) => (T[key] && T[key][lang]) || (T[key] && T[key]["fr"]) || key
+
 // ─── Design System ────────────────────────────────────────────────────────────
 const C = {
   bg:"#0A0A14", card:"#12121E", card2:"#1A1A2E",
@@ -240,7 +319,7 @@ function EcranAuth() {
 }
 
 // ─── Écran Accueil ────────────────────────────────────────────────────────────
-function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate }) {
+function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate, lang="fr" }) {
   const now = new Date()
   const h = now.getHours()
   const greeting = h < 12 ? "Sabah al-khayr" : h < 18 ? "Assalamu alaykum" : "Masa al-khayr"
@@ -274,7 +353,7 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
         )}
       </View>
       <View style={{ padding:16 }}>
-        <Text style={styles.sectionLabel}>EXPLORER</Text>
+        <Text style={styles.sectionLabel}>{t("explorer",lang)}</Text>
         <View style={{ flexDirection:"row", flexWrap:"wrap", gap:10, marginBottom:24 }}>
           {[
             { icon:"🕌", label:"Priere", color:C.gold, tab:"priere" },
@@ -292,7 +371,7 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
           ))}
         </View>
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-          <Text style={styles.sectionLabel}>PRES DE VOUS</Text>
+          <Text style={styles.sectionLabel}>{t("presDeVous",lang)}</Text>
           <TouchableOpacity onPress={() => setTab("carte")}>
             <Text style={{ color:C.gold, fontSize:12 }}>Voir tout →</Text>
           </TouchableOpacity>
@@ -318,7 +397,7 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
 }
 
 // ─── Écran Prière ─────────────────────────────────────────────────────────────
-function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onTogglePrayed }) {
+function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onTogglePrayed, lang="fr" }) {
   const [subTab, setSubTab] = useState("horaires")
   const [dhikrIdx, setDhikrIdx] = useState(0)
   const [dhikrCount, setDhikrCount] = useState(0)
@@ -344,7 +423,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
           </View>
         </View>
         <View style={{ flexDirection:"row", gap:8, marginTop:12 }}>
-          {[["horaires","Horaires"],["tracker","Tracker"],["dhikr","Dhikr"],["adhkar","Adhkar"]].map(([key,label]) => (
+          {[["horaires",t("horaires",lang)],["tracker",t("tracker",lang)],["dhikr",t("dhikr",lang)],["adhkar",t("adhkar",lang)]].map(([key,label]) => (
             <TouchableOpacity key={key} onPress={() => setSubTab(key)}
               style={[styles.subTabBtn, subTab===key && styles.subTabActive]}>
               <Text style={{ color:subTab===key ? C.gold : C.muted, fontSize:12, fontWeight:subTab===key?"700":"400" }}>{label}</Text>
@@ -489,7 +568,7 @@ function AdhkarSection() {
   return (
     <View>
       <View style={{ flexDirection:"row", gap:8, marginBottom:14 }}>
-        {[["matin","🌅 Matin"],["soir","🌙 Soir"]].map(([key,label]) => (
+        {[["matin","🌅 "+t("matin",lang)],["soir","🌙 "+t("soir",lang)]].map(([key,label]) => (
           <TouchableOpacity key={key} onPress={() => setPeriod(key)}
             style={{ flex:1, padding:10, borderRadius:10, backgroundColor: period===key ? C.gold+"25" : C.card2, borderWidth:1, borderColor: period===key ? C.gold : C.border, alignItems:"center" }}>
             <Text style={{ color: period===key ? C.gold : C.muted, fontWeight:"700", fontSize:13 }}>{label}</Text>
@@ -537,7 +616,7 @@ function KhatamTracker({ onBack }) {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={onBack} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>✅ Khatam — Tracker Coran</Text>
       </View>
@@ -567,7 +646,7 @@ function KhatamTracker({ onBack }) {
 }
 
 // ─── Écran Carte ──────────────────────────────────────────────────────────────
-function EcranCarte() {
+function EcranCarte({ lang="fr" }) {
   const [cat, setCat] = useState("Tous")
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState(null)
@@ -578,8 +657,8 @@ function EcranCarte() {
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
-        <Text style={styles.sectionLabel}>CARTE HALAL BRUXELLES</Text>
-        <TextInput value={search} onChangeText={setSearch} placeholder="Chercher un commerce halal..."
+        <Text style={styles.sectionLabel}>{t("carteHalal",lang)} BRUXELLES</Text>
+        <TextInput value={search} onChangeText={setSearch} placeholder={t("chercherCommerce",lang)}
           placeholderTextColor={C.muted}
           style={{ backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:11, color:C.white, fontSize:13, marginTop:8 }} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:10 }}>
@@ -797,7 +876,7 @@ const ASMA_UL_HUSNA = [
 ]
 
 
-function EcranCulture() {
+function EcranCulture({ lang="fr" }) {
   const [section, setSection] = useState(null)
   const [sourates, setSourates] = useState([])
   const [selectedSourate, setSelectedSourate] = useState(null)
@@ -880,7 +959,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => { setSelectedSourate(null); setAyahs([]) }} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:6 }}>{selectedSourate.number}. {selectedSourate.englishName}</Text>
         <Text style={{ color:C.muted, fontSize:12 }}>{selectedSourate.englishNameTranslation} — {selectedSourate.numberOfAyahs} versets</Text>
@@ -914,7 +993,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:6 }}>📖 Le Saint Coran</Text>
         <Text style={{ color:C.muted, fontSize:12 }}>{sourates.length} sourates</Text>
@@ -948,7 +1027,7 @@ function EcranCulture() {
         <View style={styles.screenHeader}>
           <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
             <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
           </TouchableOpacity>
           <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:6 }}>📚 Hadiths</Text>
           <View style={{ flexDirection:"row", gap:6, marginTop:8 }}>
@@ -984,7 +1063,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🎓 Regles de Tajwid</Text>
       </View>
@@ -1010,7 +1089,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌟 La Sira du Prophete ﷺ</Text>
       </View>
@@ -1037,7 +1116,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕌 Fiqh — Les bases</Text>
       </View>
@@ -1065,7 +1144,7 @@ function EcranCulture() {
         <View style={styles.screenHeader}>
           <TouchableOpacity onPress={() => { setArabeLecon(null); setRevealedItems({}) }} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
             <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
           </TouchableOpacity>
           <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>{lecon.emoji} {lecon.titre}</Text>
           <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Tapez sur une carte pour reveler la reponse</Text>
@@ -1102,7 +1181,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🖋️ Apprendre l'arabe</Text>
       </View>
@@ -1130,7 +1209,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📅 Calendrier Islamique</Text>
       </View>
@@ -1168,7 +1247,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☪️ Les 99 Noms d'Allah</Text>
         <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Asma ul Husna — Les plus beaux noms</Text>
@@ -1192,7 +1271,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☝️ La Chahada</Text>
       </View>
@@ -1240,7 +1319,7 @@ function EcranCulture() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕋 Live Mecque & Medine</Text>
       </View>
@@ -1269,8 +1348,8 @@ function EcranCulture() {
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
-        <Text style={styles.sectionLabel}>CULTURE ISLAMIQUE</Text>
-        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>📚 Apprendre & Grandir</Text>
+        <Text style={styles.sectionLabel}>{t("cultureIslamique",lang)}</Text>
+        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>📚 {t("apprendreGrandir",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <View style={{ flexDirection:"row", flexWrap:"wrap", gap:10 }}>
@@ -1288,7 +1367,7 @@ function EcranCulture() {
 }
 
 // ─── Écran Finance ────────────────────────────────────────────────────────────
-function EcranFinance() {
+function EcranFinance({ lang="fr" }) {
   const [section, setSection] = useState(null)
   const [zakatType, setZakatType] = useState("argent")
   const [montant, setMontant] = useState("")
@@ -1329,7 +1408,7 @@ function EcranFinance() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => { setSection(null); setZakatResult(null) }} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>💰 Calculateur de Zakat</Text>
       </View>
@@ -1387,7 +1466,7 @@ function EcranFinance() {
         <View style={styles.screenHeader}>
           <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
             <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
           </TouchableOpacity>
           <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>{info.emoji} {info.titre}</Text>
         </View>
@@ -1406,8 +1485,8 @@ function EcranFinance() {
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
-        <Text style={styles.sectionLabel}>FINANCE ISLAMIQUE</Text>
-        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>🏦 Argent Halal</Text>
+        <Text style={styles.sectionLabel}>{t("financeIslamique",lang)}</Text>
+        <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>🏦 {t("argentHalal",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <TouchableOpacity onPress={() => setSection("zakat")}
@@ -1442,7 +1521,7 @@ function EcranFinance() {
 }
 
 // ─── Écran Voyage ─────────────────────────────────────────────────────────────
-function EcranVoyage() {
+function EcranVoyage({ lang="fr" }) {
   const [section, setSection] = useState(null)
   const DESTINATIONS = [
     { emoji:"🕋", ville:"La Mecque", pays:"Arabie Saoudite", desc:"Omra & Hajj — Terre sacree", color:C.gold, tips:["Faire le Tawaf 7 tours autour de la Kaaba","Boire l'eau de Zamzam","Prier a Maqam Ibrahim","Sa'i entre Safa et Marwa","Visiter la grotte de Hira"] },
@@ -1480,7 +1559,7 @@ function EcranVoyage() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕋 Guide de la Omra</Text>
         <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>6 etapes pas a pas</Text>
@@ -1509,7 +1588,7 @@ function EcranVoyage() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕋 Guide du Hajj</Text>
         <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Les 6 jours du pelerinage</Text>
@@ -1538,7 +1617,7 @@ function EcranVoyage() {
       <View style={styles.screenHeader}>
         <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>✅ Check-list Voyage</Text>
       </View>
@@ -1566,7 +1645,7 @@ function EcranVoyage() {
         <View style={styles.screenHeader}>
           <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
             <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
-            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>Retour</Text>
+            <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
           </TouchableOpacity>
           <Text style={{ color:C.white, fontSize:22, fontWeight:"900", marginTop:8 }}>{dest.emoji} {dest.ville}</Text>
           <Text style={{ color:dest.color, fontSize:13, fontWeight:"600", marginTop:4 }}>{dest.pays} — {dest.desc}</Text>
@@ -1589,7 +1668,7 @@ function EcranVoyage() {
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
-        <Text style={styles.sectionLabel}>VOYAGES HALAL</Text>
+        <Text style={styles.sectionLabel}>{t("voyagesHalal",lang)}</Text>
         <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>✈️ Destinations & Guides</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
@@ -1620,12 +1699,13 @@ function EcranVoyage() {
 }
 
 // ─── Écran Profil ─────────────────────────────────────────────────────────────
-function EcranProfil({ prayedToday, notifEnabled, onToggleNotif }) {
+function EcranProfil({ prayedToday, notifEnabled, onToggleNotif, lang, onChangeLang }) {
   const { user, isAnonymous } = useAuth()
   const [profile, setProfile] = useState(null)
   const [loggingOut, setLoggingOut] = useState(false)
   const [saving, setSaving] = useState(false)
   const [notifCount, setNotifCount] = useState(0)
+  const [showLangPicker, setShowLangPicker] = useState(false)
 
   const displayName = profile?.display_name || user?.user_metadata?.full_name || (isAnonymous ? "Visiteur" : user?.email?.split("@")[0] || "Utilisateur")
   const displayEmail = isAnonymous ? "Compte invite" : (user?.email || "")
@@ -1698,6 +1778,28 @@ function EcranProfil({ prayedToday, notifEnabled, onToggleNotif }) {
           </View>
         </View>
 
+        {/* Langue */}
+        <TouchableOpacity onPress={() => setShowLangPicker(!showLangPicker)}
+          style={[styles.card, { marginBottom:12, flexDirection:"row", alignItems:"center", justifyContent:"space-between" }]}>
+          <View>
+            <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>🌍 {t("langue",lang)}</Text>
+            <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{LANGS.find(l => l.code === lang)?.flag} {LANGS.find(l => l.code === lang)?.label}</Text>
+          </View>
+          <Text style={{ color:C.gold, fontSize:16 }}>{showLangPicker ? "▲" : "▼"}</Text>
+        </TouchableOpacity>
+        {showLangPicker && (
+          <View style={[styles.card, { marginBottom:12, padding:8 }]}>
+            <View style={{ flexDirection:"row", flexWrap:"wrap", gap:6 }}>
+              {LANGS.map(l => (
+                <TouchableOpacity key={l.code} onPress={() => { onChangeLang(l.code); setShowLangPicker(false) }}
+                  style={{ paddingHorizontal:10, paddingVertical:8, borderRadius:8, backgroundColor: lang===l.code ? C.gold+"25" : C.card2, borderWidth:1, borderColor: lang===l.code ? C.gold : C.border, minWidth:(W-72)/4 }}>
+                  <Text style={{ color: lang===l.code ? C.gold : C.white, fontSize:12, fontWeight:"700", textAlign:"center" }}>{l.flag} {l.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
         {/* Infos compte */}
         {[
           ["Version","FADJR v1.0 Sprint 5"],
@@ -1734,6 +1836,7 @@ function EcranProfil({ prayedToday, notifEnabled, onToggleNotif }) {
 // ─── App Root ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [session, setSession] = useState(undefined)
+  const [lang, setLang] = useState("fr")
   const [tab, setTab] = useState("accueil")
   const [prayers, setPrayers] = useState([])
   const [city] = useState("Bruxelles")
@@ -1749,6 +1852,11 @@ export default function App() {
   const responseListener = useRef()
 
   // ── Auth ──
+  // Load saved language
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_lang").then(l => { if (l && LANGS.find(x => x.code === l)) setLang(l) }).catch(() => {})
+  }, [])
+  const changeLang = (l) => { setLang(l); AsyncStorage.setItem("fadjr_lang", l).catch(() => {}) }
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => setSession(s ?? null))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => setSession(s ?? null))
@@ -1910,11 +2018,11 @@ export default function App() {
   }
 
   const NAV = [
-    { id:"accueil", icon:"🏠", label:"Accueil" },
-    { id:"priere", icon:"🕌", label:"Priere" },
-    { id:"carte", icon:"🗺️", label:"Halal" },
-    { id:"culture", icon:"📚", label:"Culture" },
-    { id:"profil", icon:"👤", label:"Profil" },
+    { id:"accueil", icon:"🏠", label:t("accueil",lang) },
+    { id:"priere", icon:"🕌", label:t("priere",lang) },
+    { id:"carte", icon:"🗺️", label:t("halal",lang) },
+    { id:"culture", icon:"📚", label:t("culture",lang) },
+    { id:"profil", icon:"👤", label:t("profil",lang) },
   ]
 
   return (
@@ -1922,13 +2030,13 @@ export default function App() {
       <View style={{ flex:1, backgroundColor:C.bg }}>
         <StatusBar barStyle="light-content" backgroundColor={C.bg} />
         <View style={{ flex:1 }}>
-          {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} hijriDate={hijriDate} />}
-          {tab==="priere" && <EcranPriere prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} prayedToday={prayedToday} onTogglePrayed={onTogglePrayed} />}
-          {tab==="carte" && <EcranCarte />}
-          {tab==="culture" && <EcranCulture />}
-          {tab==="finance" && <EcranFinance />}
-          {tab==="voyage" && <EcranVoyage />}
-          {tab==="profil" && <EcranProfil prayedToday={prayedToday} notifEnabled={notifEnabled} onToggleNotif={onToggleNotif} />}
+          {tab==="accueil" && <EcranAccueil prayers={prayers} city={city} nextPrayer={nextPrayer} timeToNext={timeToNext} setTab={setTab} hijriDate={hijriDate} lang={lang} />}
+          {tab==="priere" && <EcranPriere prayers={prayers} city={city} loading={loading} nextPrayer={nextPrayer} prayedToday={prayedToday} onTogglePrayed={onTogglePrayed} lang={lang} />}
+          {tab==="carte" && <EcranCarte lang={lang} />}
+          {tab==="culture" && <EcranCulture lang={lang} />}
+          {tab==="finance" && <EcranFinance lang={lang} />}
+          {tab==="voyage" && <EcranVoyage lang={lang} />}
+          {tab==="profil" && <EcranProfil prayedToday={prayedToday} notifEnabled={notifEnabled} onToggleNotif={onToggleNotif} lang={lang} onChangeLang={changeLang} />}
         </View>
         <View style={styles.tabBar}>
           {NAV.map(n => {
