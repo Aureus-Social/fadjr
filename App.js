@@ -595,7 +595,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
           </View>
         </View>
         <View style={{ flexDirection:"row", gap:8, marginTop:12 }}>
-          {[["horaires",t("horaires",lang)],["tracker",t("tracker",lang)],["dhikr",t("dhikr",lang)],["adhkar",t("adhkar",lang)],["tasbih","Tasbih"],["qibla","Qibla"],["mosquees","🕌"]].map(([key,label]) => (
+          {[["horaires",t("horaires",lang)],["tracker",t("tracker",lang)],["dhikr",t("dhikr",lang)],["adhkar",t("adhkar",lang)],["tasbih","Tasbih"],["qibla","Qibla"],["mosquees","🕌"],["settings","⚙️"]].map(([key,label]) => (
             <TouchableOpacity key={key} onPress={() => setSubTab(key)}
               style={[styles.subTabBtn, subTab===key && styles.subTabActive]}>
               <Text style={{ color:subTab===key ? C.gold : C.muted, fontSize:12, fontWeight:subTab===key?"700":"400" }}>{label}</Text>
@@ -723,6 +723,11 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
         {/* ── Mosquees ── */}
         {subTab==="mosquees" && (
           <MosqueesProximite lang={lang} />
+        )}
+
+        {/* ── Prayer Settings ── */}
+        {subTab==="settings" && (
+          <PrayerSettings lang={lang} />
         )}
       </ScrollView>
     </View>
@@ -885,6 +890,298 @@ function QiblaDirection() {
       ) : (
         <ActivityIndicator size="large" color={C.gold} />
       )}
+    </View>
+  )
+}
+
+
+
+// ─── AI Imam (Claude) ─────────────────────────────────────────────────────────
+function AIImam({ lang="fr" }) {
+  const [question, setQuestion] = useState("")
+  const [answer, setAnswer] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [history, setHistory] = useState([])
+
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_ai_history").then(d => { if (d) setHistory(JSON.parse(d).slice(0,10)) }).catch(() => {})
+  }, [])
+
+  const askImam = async () => {
+    if (!question.trim() || loading) return
+    setLoading(true)
+    setAnswer("")
+    try {
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": "placeholder" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 500,
+          system: "Tu es un imam bienveillant et savant. Reponds aux questions islamiques avec sagesse, en citant le Coran et les Hadiths quand c'est pertinent. Reponds dans la langue de la question. Sois concis mais complet.",
+          messages: [{ role: "user", content: question }]
+        })
+      })
+      const data = await resp.json()
+      const text = data.content?.[0]?.text || "Desole, je ne peux pas repondre pour le moment. Consultez un imam local."
+      setAnswer(text)
+      const newHistory = [{ q: question, a: text, date: new Date().toLocaleDateString() }, ...history].slice(0, 10)
+      setHistory(newHistory)
+      AsyncStorage.setItem("fadjr_ai_history", JSON.stringify(newHistory)).catch(() => {})
+    } catch(e) {
+      setAnswer(lang==="ar"?"آسف، لا يمكنني الرد الآن. استشر إمامك المحلي.":lang==="en"?"Sorry, I cannot answer now. Consult your local imam.":"Desole, je ne peux pas repondre pour le moment. Consultez votre imam local.")
+    }
+    setLoading(false)
+    setQuestion("")
+  }
+
+  return (
+    <View>
+      <View style={[styles.card, { padding:14, marginBottom:12, borderWidth:1, borderColor:C.gold+"40" }]}>
+        <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>🤖 {lang==="ar"?"اسأل الإمام الذكي":lang==="en"?"Ask AI Imam":"Posez votre question"}</Text>
+        <TextInput value={question} onChangeText={setQuestion}
+          placeholder={lang==="ar"?"اكتب سؤالك...":lang==="en"?"Type your question...":"Tapez votre question..."}
+          placeholderTextColor={C.muted} multiline
+          style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:12, color:C.white, fontSize:13, minHeight:60, textAlignVertical:"top" }} />
+        <TouchableOpacity onPress={askImam} disabled={loading}
+          style={{ backgroundColor:C.gold, borderRadius:10, padding:12, alignItems:"center", marginTop:8 }}>
+          {loading ? <ActivityIndicator color={C.bg} /> : <Text style={{ color:C.bg, fontSize:14, fontWeight:"900" }}>{lang==="ar"?"اسأل":lang==="en"?"Ask":"Demander"}</Text>}
+        </TouchableOpacity>
+      </View>
+      {answer ? (
+        <View style={[styles.card, { padding:14, marginBottom:12, borderLeftWidth:3, borderLeftColor:C.green }]}>
+          <Text style={{ color:C.white, fontSize:13, lineHeight:22 }}>{answer}</Text>
+        </View>
+      ) : null}
+      {history.length > 0 && (
+        <Text style={{ color:C.muted, fontSize:12, fontWeight:"700", marginBottom:8 }}>{lang==="ar"?"الأسئلة السابقة":lang==="en"?"Previous questions":"Questions precedentes"}</Text>
+      )}
+      {history.map((h, i) => (
+        <TouchableOpacity key={i} onPress={() => setAnswer(h.a)}
+          style={[styles.card, { padding:10, marginBottom:6 }]}>
+          <Text style={{ color:C.gold, fontSize:12, fontWeight:"600" }}>{h.q}</Text>
+          <Text style={{ color:C.muted, fontSize:10, marginTop:2 }}>{h.date}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
+
+// ─── Articles Islamiques ──────────────────────────────────────────────────────
+function ArticlesIslamiques({ lang="fr" }) {
+  const ARTICLES = [
+    { title:{fr:"La Kaaba: voyage a travers l'histoire sacree",en:"The Kaaba: A Journey Through Sacred History",ar:"الكعبة: رحلة عبر التاريخ المقدس",tr:"Kabe: Kutsal Tarih Yolculuğu"}, cat:"DEEN", emoji:"🕋" },
+    { title:{fr:"Les bienfaits de Muharram",en:"Blessings of Muharram",ar:"بركات محرم",tr:"Muharrem'in Faziletleri"}, cat:"DEEN", emoji:"🌙" },
+    { title:{fr:"Le repentir (Tawbah) en Islam",en:"Repentance (Tawbah) in Islam",ar:"التوبة في الإسلام",tr:"İslam'da Tövbe"}, cat:"DEEN", emoji:"🤲" },
+    { title:{fr:"6 manieres de celebrer l'Aid",en:"6 Meaningful Ways to Celebrate Eid",ar:"6 طرق للاحتفال بالعيد",tr:"Bayramı Kutlamanın 6 Yolu"}, cat:"COMMUNITY", emoji:"🎉" },
+    { title:{fr:"Comment l'Islam encourage la croissance",en:"How Islam Encourages Growth",ar:"كيف يشجع الإسلام النمو",tr:"İslam Nasıl Gelişimi Teşvik Eder"}, cat:"LIFESTYLE", emoji:"🌱" },
+    { title:{fr:"Surmonter le desespoir par le pardon d'Allah",en:"Overcoming Despair Through Allah's Forgiveness",ar:"التغلب على اليأس من خلال مغفرة الله",tr:"Allah'ın Affıyla Umutsuzluğu Yenmek"}, cat:"DEEN", emoji:"❤️" },
+    { title:{fr:"Le coeur de Tawhid: Sourate Al-Ikhlas",en:"The Heart of Tawhid: Surah Al-Ikhlas",ar:"قلب التوحيد: سورة الإخلاص",tr:"Tevhidin Kalbi: İhlas Suresi"}, cat:"QURAN", emoji:"📖" },
+    { title:{fr:"Le jour d'Achoura: un spectre d'evenements",en:"The Day of Ashura: A Spectrum of Events",ar:"يوم عاشوراء: طيف من الأحداث",tr:"Aşure Günü: Olayların Yelpazesi"}, cat:"DEEN", emoji:"☪️" },
+    { title:{fr:"5 facons d'enseigner le Coran aux enfants",en:"5 Ways to Teach Kids About the Quran",ar:"5 طرق لتعليم الأطفال القرآن",tr:"Çocuklara Kur'an Öğretmenin 5 Yolu"}, cat:"QURAN", emoji:"👶" },
+    { title:{fr:"L'importance du Dhikr quotidien",en:"The Importance of Daily Dhikr",ar:"أهمية الذكر اليومي",tr:"Günlük Zikirin Önemi"}, cat:"DEEN", emoji:"📿" },
+  ]
+
+  return (
+    <View>
+      {ARTICLES.map((a, i) => (
+        <View key={i} style={[styles.card, { padding:14, marginBottom:8 }]}>
+          <View style={{ flexDirection:"row", alignItems:"center", gap:8, marginBottom:6 }}>
+            <View style={{ backgroundColor:C.green+"25", borderRadius:99, paddingHorizontal:8, paddingVertical:2 }}>
+              <Text style={{ color:C.green, fontSize:9, fontWeight:"800" }}>{a.cat}</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection:"row", gap:10, alignItems:"center" }}>
+            <Text style={{ fontSize:28 }}>{a.emoji}</Text>
+            <Text style={{ color:C.white, fontSize:14, fontWeight:"700", flex:1, lineHeight:20 }}>{a.title[lang] || a.title.fr}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  )
+}
+
+// ─── Mode Ramadan ─────────────────────────────────────────────────────────────
+function ModeRamadan({ prayers, lang="fr" }) {
+  const [checklist, setChecklist] = useState({})
+  
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_ramadan_checklist").then(d => { if (d) setChecklist(JSON.parse(d)) }).catch(() => {})
+  }, [])
+
+  const toggle = (key) => {
+    const updated = { ...checklist, [key]: !checklist[key] }
+    setChecklist(updated)
+    AsyncStorage.setItem("fadjr_ramadan_checklist", JSON.stringify(updated)).catch(() => {})
+  }
+
+  const fajr = prayers.find(p => p.name === "Fajr")
+  const maghrib = prayers.find(p => p.name === "Maghrib")
+
+  const TASKS = [
+    { key:"suhoor", emoji:"🌅", label:{fr:"Suhoor pris",en:"Suhoor taken",ar:"تناول السحور",tr:"Sahur yapıldı"} },
+    { key:"fasted", emoji:"☪️", label:{fr:"Jeune du jour",en:"Day fasted",ar:"صيام اليوم",tr:"Günlük oruç"} },
+    { key:"quran", emoji:"📖", label:{fr:"Lecture Coran (1 juz)",en:"Quran reading (1 juz)",ar:"قراءة القرآن (جزء)",tr:"Kur'an okuma (1 cüz)"} },
+    { key:"tarawih", emoji:"🕌", label:{fr:"Priere Tarawih",en:"Tarawih prayer",ar:"صلاة التراويح",tr:"Teravih namazı"} },
+    { key:"sadaqa", emoji:"💰", label:{fr:"Sadaqa donnee",en:"Sadaqah given",ar:"صدقة",tr:"Sadaka verildi"} },
+    { key:"dhikr", emoji:"📿", label:{fr:"Dhikr apres priere",en:"Dhikr after prayer",ar:"ذكر بعد الصلاة",tr:"Namaz sonrası zikir"} },
+    { key:"dua", emoji:"🤲", label:{fr:"Douas a l'Iftar",en:"Dua at Iftar",ar:"دعاء عند الإفطار",tr:"İftar duası"} },
+    { key:"gooddeed", emoji:"❤️", label:{fr:"Bonne action du jour",en:"Good deed of the day",ar:"حسنة اليوم",tr:"Günün iyiliği"} },
+  ]
+
+  const completed = Object.values(checklist).filter(Boolean).length
+  const pct = Math.round((completed / TASKS.length) * 100)
+
+  return (
+    <View>
+      {/* Iftar / Suhoor times */}
+      <View style={{ flexDirection:"row", gap:8, marginBottom:14 }}>
+        <View style={[styles.card, { flex:1, padding:14, alignItems:"center", borderTopWidth:3, borderTopColor:C.gold }]}>
+          <Text style={{ color:C.gold, fontSize:11, fontWeight:"700" }}>{lang==="ar"?"السحور":"SUHOOR"}</Text>
+          <Text style={{ color:C.white, fontSize:24, fontWeight:"900", marginTop:4 }}>{fajr?.time || "--:--"}</Text>
+        </View>
+        <View style={[styles.card, { flex:1, padding:14, alignItems:"center", borderTopWidth:3, borderTopColor:C.green }]}>
+          <Text style={{ color:C.green, fontSize:11, fontWeight:"700" }}>{lang==="ar"?"الإفطار":"IFTAR"}</Text>
+          <Text style={{ color:C.white, fontSize:24, fontWeight:"900", marginTop:4 }}>{maghrib?.time || "--:--"}</Text>
+        </View>
+      </View>
+
+      {/* Progress */}
+      <View style={[styles.card, { padding:14, marginBottom:14, alignItems:"center" }]}>
+        <Text style={{ color:C.gold, fontSize:28, fontWeight:"900" }}>{pct}%</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{completed}/{TASKS.length} {lang==="ar"?"مكتمل":lang==="en"?"completed":"accompli"}</Text>
+        <View style={{ width:"100%", height:6, backgroundColor:C.card2, borderRadius:99, marginTop:10, overflow:"hidden" }}>
+          <View style={{ width:pct+"%", height:"100%", backgroundColor:C.gold, borderRadius:99 }} />
+        </View>
+      </View>
+
+      {/* Checklist */}
+      {TASKS.map(task => (
+        <TouchableOpacity key={task.key} onPress={() => toggle(task.key)}
+          style={[styles.card, { padding:12, marginBottom:6, flexDirection:"row", alignItems:"center", gap:10, backgroundColor: checklist[task.key] ? C.green+"12" : C.card }]}>
+          <View style={{ width:24, height:24, borderRadius:6, borderWidth:2, borderColor: checklist[task.key] ? C.green : C.gold+"50", backgroundColor: checklist[task.key] ? C.green : "transparent", alignItems:"center", justifyContent:"center" }}>
+            {checklist[task.key] && <Text style={{ color:C.white, fontSize:12, fontWeight:"900" }}>✓</Text>}
+          </View>
+          <Text style={{ fontSize:18 }}>{task.emoji}</Text>
+          <Text style={{ color: checklist[task.key] ? C.green : C.white, fontSize:13, fontWeight:"600" }}>{task.label[lang] || task.label.fr}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
+
+// ─── Memorisation Coran (Hifz) ────────────────────────────────────────────────
+function HifzTracker({ lang="fr" }) {
+  const [memorized, setMemorized] = useState({})
+  const [totalMemo, setTotalMemo] = useState(0)
+
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_hifz").then(d => {
+      if (d) { const p = JSON.parse(d); setMemorized(p); setTotalMemo(Object.keys(p).filter(k => p[k]).length) }
+    }).catch(() => {})
+  }, [])
+
+  const toggleMemo = async (num) => {
+    const newM = { ...memorized, [num]: !memorized[num] }
+    setMemorized(newM)
+    const count = Object.keys(newM).filter(k => newM[k]).length
+    setTotalMemo(count)
+    await AsyncStorage.setItem("fadjr_hifz", JSON.stringify(newM))
+  }
+
+  const pct = Math.round((totalMemo / 114) * 100)
+  const SHORT_SURAHS = [112,113,114,111,108,107,106,105,103,102,101,100,99,97,96,95,94,93,92,91]
+
+  return (
+    <View>
+      <View style={[styles.card, { padding:16, alignItems:"center", marginBottom:14, borderWidth:1, borderColor:C.gold+"40" }]}>
+        <Text style={{ color:C.gold, fontSize:12, fontWeight:"700", marginBottom:6 }}>{lang==="ar"?"تقدم الحفظ":lang==="en"?"Memorization Progress":"Progression Hifz"}</Text>
+        <Text style={{ color:C.white, fontSize:36, fontWeight:"900" }}>{totalMemo}/114</Text>
+        <View style={{ width:"100%", height:8, backgroundColor:C.card2, borderRadius:99, marginTop:10, overflow:"hidden" }}>
+          <View style={{ width:pct+"%", height:"100%", backgroundColor:C.green, borderRadius:99 }} />
+        </View>
+        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{pct}% {lang==="ar"?"مكتمل":lang==="en"?"memorized":"memorise"}</Text>
+      </View>
+
+      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>{lang==="ar"?"ابدأ بالسور القصيرة":lang==="en"?"Start with short surahs":"Commence par les courtes sourates"}</Text>
+      {SHORT_SURAHS.map(num => (
+        <TouchableOpacity key={num} onPress={() => toggleMemo(num)}
+          style={[styles.card, { flexDirection:"row", alignItems:"center", gap:10, padding:10, marginBottom:4, backgroundColor: memorized[num] ? C.green+"15" : C.card }]}>
+          <View style={{ width:24, height:24, borderRadius:6, borderWidth:2, borderColor: memorized[num] ? C.green : C.gold+"50", backgroundColor: memorized[num] ? C.green : "transparent", alignItems:"center", justifyContent:"center" }}>
+            {memorized[num] && <Text style={{ color:C.white, fontSize:12, fontWeight:"900" }}>✓</Text>}
+          </View>
+          <Text style={{ color:C.gold, fontSize:12, fontWeight:"800", width:28 }}>{num}</Text>
+          <Text style={{ color: memorized[num] ? C.green : C.white, fontSize:13, fontWeight:"600", flex:1 }}>Sourate {num}</Text>
+          <Text style={{ color:C.muted, fontSize:10 }}>{memorized[num] ? "✅" : "📖"}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
+
+// ─── Parametres de Priere ─────────────────────────────────────────────────────
+function PrayerSettings({ lang="fr" }) {
+  const [method, setMethod] = useState(12) // 12 = UOIF (Europe)
+  const METHODS = [
+    { id:2, name:"ISNA", desc:"Islamic Society of North America" },
+    { id:3, name:"MWL", desc:"Muslim World League" },
+    { id:4, name:"Makkah", desc:"Umm al-Qura University" },
+    { id:5, name:"Egypt", desc:"Egyptian General Authority" },
+    { id:12, name:"UOIF", desc:"Union des Organisations Islamiques de France" },
+    { id:13, name:"Gulf", desc:"Gulf Region" },
+    { id:14, name:"Turkey", desc:"Diyanet Isleri Baskanligi" },
+  ]
+
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_prayer_method").then(d => { if (d) setMethod(parseInt(d)) }).catch(() => {})
+  }, [])
+
+  const selectMethod = (id) => {
+    setMethod(id)
+    AsyncStorage.setItem("fadjr_prayer_method", String(id)).catch(() => {})
+    Alert.alert(lang==="ar"?"تم التحديث":lang==="en"?"Updated":"Mis a jour", lang==="ar"?"أعد تشغيل التطبيق":lang==="en"?"Restart app to apply":"Relancez l'app pour appliquer")
+  }
+
+  return (
+    <View>
+      <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:10 }}>{lang==="ar"?"طريقة الحساب":lang==="en"?"Calculation Method":"Methode de calcul"}</Text>
+      {METHODS.map(m => (
+        <TouchableOpacity key={m.id} onPress={() => selectMethod(m.id)}
+          style={[styles.card, { padding:12, marginBottom:6, flexDirection:"row", alignItems:"center", gap:10, backgroundColor: method===m.id ? C.gold+"15" : C.card, borderWidth:1, borderColor: method===m.id ? C.gold : C.border }]}>
+          <View style={{ width:22, height:22, borderRadius:11, borderWidth:2, borderColor: method===m.id ? C.gold : C.muted, backgroundColor: method===m.id ? C.gold : "transparent" }} />
+          <View style={{ flex:1 }}>
+            <Text style={{ color: method===m.id ? C.gold : C.white, fontSize:13, fontWeight:"700" }}>{m.name}</Text>
+            <Text style={{ color:C.muted, fontSize:10 }}>{m.desc}</Text>
+          </View>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
+
+// ─── Son Ambiance ─────────────────────────────────────────────────────────────
+function SonAmbiance({ lang="fr" }) {
+  const SOUNDS = [
+    { id:"rain_quran", emoji:"🌧️📖", label:{fr:"Pluie + Coran",en:"Rain + Quran",ar:"مطر + قرآن",tr:"Yağmur + Kur'an"}, url:"https://www.youtube.com/results?search_query=rain+quran+relaxation" },
+    { id:"nature_quran", emoji:"🌿📖", label:{fr:"Nature + Coran",en:"Nature + Quran",ar:"طبيعة + قرآن",tr:"Doğa + Kur'an"}, url:"https://www.youtube.com/results?search_query=nature+sounds+quran+recitation" },
+    { id:"ocean_dhikr", emoji:"🌊📿", label:{fr:"Ocean + Dhikr",en:"Ocean + Dhikr",ar:"بحر + ذكر",tr:"Deniz + Zikir"}, url:"https://www.youtube.com/results?search_query=ocean+waves+dhikr+meditation" },
+    { id:"night_tahajjud", emoji:"🌙🤲", label:{fr:"Nuit + Tahajjud",en:"Night + Tahajjud",ar:"ليل + تهجد",tr:"Gece + Teheccüd"}, url:"https://www.youtube.com/results?search_query=night+prayer+tahajjud+relaxation" },
+    { id:"birds_morning", emoji:"🐦🌅", label:{fr:"Oiseaux + Adhkar matin",en:"Birds + Morning Adhkar",ar:"طيور + أذكار الصباح",tr:"Kuşlar + Sabah Ezkarı"}, url:"https://www.youtube.com/results?search_query=birds+morning+adhkar" },
+  ]
+
+  return (
+    <View>
+      <Text style={{ color:C.muted, fontSize:12, marginBottom:12 }}>{lang==="ar"?"استرخ مع أصوات هادئة وقرآن":lang==="en"?"Relax with calming sounds & Quran":"Detendez-vous avec des sons apaisants et le Coran"}</Text>
+      {SOUNDS.map(s => (
+        <TouchableOpacity key={s.id} onPress={() => Linking.openURL(s.url).catch(()=>{})}
+          style={[styles.card, { padding:14, marginBottom:8, flexDirection:"row", alignItems:"center", gap:12 }]}>
+          <Text style={{ fontSize:28 }}>{s.emoji}</Text>
+          <View style={{ flex:1 }}>
+            <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{s.label[lang] || s.label.fr}</Text>
+          </View>
+          <Text style={{ color:C.gold, fontSize:14 }}>▶️</Text>
+        </TouchableOpacity>
+      ))}
     </View>
   )
 }
@@ -1173,20 +1470,20 @@ function EcranCarte({ lang="fr" }) {
 
 // ─── Données Culture ──────────────────────────────────────────────────────────
 const HADITHS_NAWAWI = [
-  { num:1, ar:"إنما الأعمال بالنيات", fr:"Les actes ne valent que par les intentions", source:"Bukhari & Muslim" },
-  { num:2, ar:"أن تعبد الله كأنك تراه", fr:"Adore Allah comme si tu Le voyais", source:"Muslim" },
-  { num:3, ar:"بني الإسلام على خمس", fr:"L'Islam est bati sur cinq piliers", source:"Bukhari & Muslim" },
-  { num:5, ar:"من أحدث في أمرنا هذا ما ليس منه فهو رد", fr:"Toute innovation dans notre religion est rejetee", source:"Bukhari & Muslim" },
-  { num:6, ar:"إن الحلال بيّن وإن الحرام بيّن", fr:"Le licite est clair et l'illicite est clair", source:"Bukhari & Muslim" },
+  { num:1, ar:"إنما الأعمال بالنيات", fr:"Les actes ne valent que par les intentions", en:"Actions are judged by intentions", tr:"Ameller niyetlere goredir", source:"Bukhari & Muslim" },
+  { num:2, ar:"أن تعبد الله كأنك تراه", fr:"Adore Allah comme si tu Le voyais", en:"Worship Allah as if you see Him", tr:"Allah'a O'nu goruyormus gibi ibadet et", source:"Muslim" },
+  { num:3, ar:"بني الإسلام على خمس", fr:"L'Islam est bati sur cinq piliers", en:"Islam is built on five pillars", tr:"Islam bes esas uzerine kurulmustur", source:"Bukhari & Muslim" },
+  { num:5, ar:"من أحدث في أمرنا هذا ما ليس منه فهو رد", fr:"Toute innovation dans notre religion est rejetee", en:"Every innovation in religion is rejected", tr:"Dinimizde olmayan her yenilik reddedilir", source:"Bukhari & Muslim" },
+  { num:6, ar:"إن الحلال بيّن وإن الحرام بيّن", fr:"Le licite est clair et l'illicite est clair", en:"The lawful is clear and the unlawful is clear", tr:"Helal bellidir haram bellidir", source:"Bukhari & Muslim" },
   { num:7, ar:"الدين النصيحة", fr:"La religion, c'est le bon conseil", source:"Muslim" },
   { num:9, ar:"ما نهيتكم عنه فاجتنبوه", fr:"Ce que je vous ai interdit, evitez-le", source:"Bukhari & Muslim" },
-  { num:10, ar:"إن الله طيب لا يقبل إلا طيبا", fr:"Allah est bon et n'accepte que ce qui est bon", source:"Muslim" },
+  { num:10, ar:"إن الله طيب لا يقبل إلا طيبا", fr:"Allah est bon et n'accepte que ce qui est bon", en:"Allah is good and accepts only what is good", tr:"Allah temizdir sadece temiz olani kabul eder", source:"Muslim" },
   { num:12, ar:"من حسن إسلام المرء تركه ما لا يعنيه", fr:"Delaisser ce qui ne nous concerne pas", source:"Tirmidhi" },
   { num:13, ar:"لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه", fr:"Nul ne croit tant qu'il n'aime pas pour son frere ce qu'il aime pour lui-meme", source:"Bukhari & Muslim" },
   { num:15, ar:"من كان يؤمن بالله واليوم الآخر فليقل خيرا أو ليصمت", fr:"Que celui qui croit en Allah dise du bien ou se taise", source:"Bukhari & Muslim" },
-  { num:16, ar:"لا تغضب", fr:"Ne te mets pas en colere", source:"Bukhari" },
+  { num:16, ar:"لا تغضب", fr:"Ne te mets pas en colere", en:"Do not become angry", tr:"Kizma", source:"Bukhari" },
   { num:17, ar:"إن الله كتب الإحسان على كل شيء", fr:"Allah a prescrit la bienfaisance en toute chose", source:"Muslim" },
-  { num:18, ar:"اتق الله حيثما كنت", fr:"Crains Allah ou que tu sois", source:"Tirmidhi" },
+  { num:18, ar:"اتق الله حيثما كنت", fr:"Crains Allah ou que tu sois", en:"Fear Allah wherever you are", tr:"Nerede olursan ol Allah'tan kork", source:"Tirmidhi" },
   { num:19, ar:"احفظ الله يحفظك", fr:"Preserve Allah, Il te preservera", source:"Tirmidhi" },
   { num:22, ar:"إن الله تجاوز لي عن أمتي ما وسوست به صدورها", fr:"Allah a pardonne les mauvaises pensees non mises en pratique", source:"Bukhari & Muslim" },
   { num:25, ar:"كل سلامى من الناس عليه صدقة", fr:"Chaque articulation doit s'acquitter d'une aumone", source:"Muslim" },
@@ -1420,6 +1717,11 @@ function EcranCulture({ lang="fr" }) {
     { id:"mecca", emoji:"🕋", titre:t("liveMecque",lang), desc:lang==="fr"?"Stream en direct":lang==="en"?"Live stream":lang==="ar"?"بث مباشر":"Live", color:C.brown },
     { id:"journal", emoji:"📓", titre:lang==="ar"?"يوميات":lang==="en"?"Journal":"Journal", desc:lang==="ar"?"يومياتك الروحية":lang==="en"?"Your spiritual diary":"Journal spirituel", color:C.purple },
     { id:"inspiration", emoji:"💡", titre:lang==="ar"?"إلهام":lang==="en"?"Inspiration":"Inspiration", desc:lang==="ar"?"آية وذكر اليوم":lang==="en"?"Daily verse & dhikr":"Verset & dhikr du jour", color:C.green },
+    { id:"hifz", emoji:"🧠", titre:lang==="ar"?"حفظ":lang==="en"?"Memorize":"Memorisation", desc:lang==="ar"?"حفظ القرآن":lang==="en"?"Quran memorization":"Memoriser le Coran", color:C.blue },
+    { id:"ramadan", emoji:"🌙", titre:lang==="ar"?"رمضان":lang==="en"?"Ramadan":"Ramadan", desc:lang==="ar"?"وضع رمضان":lang==="en"?"Ramadan mode":"Mode Ramadan", color:C.gold },
+    { id:"aiimam", emoji:"🤖", titre:lang==="ar"?"اسأل الإمام":lang==="en"?"AI Imam":"AI Imam", desc:lang==="ar"?"اسأل سؤالك":lang==="en"?"Ask your question":"Posez votre question", color:C.green },
+    { id:"articles", emoji:"📰", titre:lang==="ar"?"مقالات":lang==="en"?"Articles":"Articles", desc:lang==="ar"?"مقالات إسلامية":lang==="en"?"Islamic articles":"Articles islamiques", color:C.red },
+    { id:"ambiance", emoji:"🎵", titre:lang==="ar"?"أصوات":lang==="en"?"Sounds":"Ambiance", desc:lang==="ar"?"استرخاء + قرآن":lang==="en"?"Relaxation + Quran":"Sons apaisants + Coran", color:C.teal },
   ]
 
   // ── CORAN ──
@@ -1776,8 +2078,8 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☪️ Les 99 Noms d'Allah</Text>
-        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Asma ul Husna — Les plus beaux noms</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☪️ {lang==="ar"?"أسماء الله الحسنى":lang==="en"?"99 Names of Allah":lang==="tr"?"Allah'ın 99 İsmi":"Les 99 Noms d'Allah"}</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{lang==="ar"?"الأسماء الأكثر جمالاً":lang==="en"?"The Most Beautiful Names":lang==="tr"?"En Güzel İsimler":"Asma ul Husna — Les plus beaux noms"}</Text>
       </View>
       <FlatList data={ASMA_UL_HUSNA} keyExtractor={n => String(n.num)} numColumns={3}
         contentContainerStyle={{ padding:12, gap:6 }}
@@ -1786,7 +2088,7 @@ function EcranCulture({ lang="fr" }) {
             <Text style={{ color:C.gold, fontSize:10, fontWeight:"800" }}>{item.num}</Text>
             <Text style={{ color:C.goldL, fontSize:20, marginTop:4 }}>{item.ar}</Text>
             <Text style={{ color:C.white, fontSize:9, fontWeight:"700", marginTop:4, textAlign:"center" }}>{item.rom}</Text>
-            <Text style={{ color:C.muted, fontSize:8, marginTop:2, textAlign:"center" }}>{item.fr}</Text>
+            <Text style={{ color:C.muted, fontSize:8, marginTop:2, textAlign:"center" }}>{lang==="ar" ? item.ar : item.fr}</Text>
           </TouchableOpacity>
         )} />
     </View>
@@ -1899,6 +2201,87 @@ function EcranCulture({ lang="fr" }) {
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <InspirationQuotidienne />
+      </ScrollView>
+    </View>
+  )
+
+  // ── AI IMAM ──
+  if (section === "aiimam") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🤖 AI Imam</Text>
+        <Text style={{ color:C.muted, fontSize:11, marginTop:4 }}>{lang==="ar"?"اسأل أي سؤال إسلامي":lang==="en"?"Ask any Islamic question":"Posez n'importe quelle question islamique"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <AIImam lang={lang} />
+      </ScrollView>
+    </View>
+  )
+
+  // ── ARTICLES ISLAMIQUES ──
+  if (section === "articles") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📰 {lang==="ar"?"مقالات إسلامية":lang==="en"?"Islamic Articles":"Articles Islamiques"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <ArticlesIslamiques lang={lang} />
+      </ScrollView>
+    </View>
+  )
+
+  // ── HIFZ (Memorisation) ──
+  if (section === "hifz") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🧠 {lang==="ar"?"حفظ القرآن":lang==="en"?"Quran Memorization":"Memorisation du Coran"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <HifzTracker lang={lang} />
+      </ScrollView>
+    </View>
+  )
+
+  // ── MODE RAMADAN ──
+  if (section === "ramadan") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌙 {lang==="ar"?"وضع رمضان":lang==="en"?"Ramadan Mode":"Mode Ramadan"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <ModeRamadan prayers={[]} lang={lang} />
+      </ScrollView>
+    </View>
+  )
+
+  // ── SON AMBIANCE ──
+  if (section === "ambiance") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🎵 {lang==="ar"?"أصوات هادئة":lang==="en"?"Calming Sounds":"Sons Apaisants"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <SonAmbiance lang={lang} />
       </ScrollView>
     </View>
   )
@@ -2337,6 +2720,19 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
               thumbColor={notifEnabled ? C.green : C.muted}
             />
           </View>
+        </View>
+
+        {/* Adhan Recitateur */}
+        <View style={[styles.card, { marginBottom:12, padding:14 }]}>
+          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>🔊 {lang==="ar"?"مؤذن":lang==="en"?"Muezzin":"Recitateur Adhan"}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {ADHAN_RECITERS.map(r => (
+              <TouchableOpacity key={r.id} onPress={() => { AsyncStorage.setItem("fadjr_adhan", r.id); Alert.alert("Adhan", r.name) }}
+                style={{ paddingHorizontal:12, paddingVertical:8, borderRadius:99, marginRight:6, backgroundColor:C.card2, borderWidth:1, borderColor:C.border }}>
+                <Text style={{ color:C.white, fontSize:11, fontWeight:"600" }}>{r.flag} {r.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
         {/* Langue */}
