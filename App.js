@@ -1305,7 +1305,7 @@ function MosqueesProximite({ lang="fr" }) {
 
         // Search mosques using Nominatim (OpenStreetMap) — free, no API key
         const resp = await fetch(
-          \`https://nominatim.openstreetmap.org/search?q=mosque&format=json&limit=30&viewbox=\${lng-0.15},\${lat+0.15},\${lng+0.15},\${lat-0.15}&bounded=1\`,
+          `https://nominatim.openstreetmap.org/search?q=mosque&format=json&limit=30&viewbox=${lng-0.15},${lat+0.15},${lng+0.15},${lat-0.15}&bounded=1`,
           { headers: { "User-Agent": "FADJR-App/1.0" } }
         )
         const data = await resp.json()
