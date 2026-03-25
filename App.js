@@ -10,7 +10,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import * as Location from 'expo-location'
-import { Audio } from 'expo-av'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -1769,63 +1768,38 @@ function EcranCulture({ lang="fr" }) {
     }
   }, [selectedSourate, reciter])
 
-  // In-app Audio player
-  const [sound, setSound] = useState(null)
+  // Audio player — opens native audio player
   const [isPlayingAll, setIsPlayingAll] = useState(false)
-  const playAllRef = useRef(false)
-
-  // Cleanup audio on unmount
-  useEffect(() => { return () => { if (sound) sound.unloadAsync().catch(()=>{}) } }, [sound])
 
   const playAyah = async (audioUrl, ayahNum) => {
-    try {
-      if (sound) { await sound.unloadAsync().catch(()=>{}); setSound(null) }
-      if (playingAyah === ayahNum) { setPlayingAyah(null); return }
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: false, playsInSilentModeIOS: true, staysActiveInBackground: true })
-      const { sound: s } = await Audio.Sound.createAsync({ uri: audioUrl })
-      setSound(s)
-      setPlayingAyah(ayahNum)
-      s.setOnPlaybackStatusUpdate(status => {
-        if (status.didJustFinish) {
-          setPlayingAyah(null)
-          setSound(null)
-          // Auto-play next verse if playing all
-          if (playAllRef.current) {
-            const nextIdx = ayahs.findIndex(a => a.num === ayahNum) + 1
-            if (nextIdx < ayahs.length) {
-              const next = ayahs[nextIdx]
-              if (next.audio) setTimeout(() => playAyah(next.audio, next.num), 300)
-            } else {
-              playAllRef.current = false
-              setIsPlayingAll(false)
-            }
-          }
+    if (playingAyah === ayahNum) { setPlayingAyah(null); return }
+    setPlayingAyah(ayahNum)
+    Linking.openURL(audioUrl).catch(() => {})
+    // Auto-advance after estimated duration
+    setTimeout(() => {
+      setPlayingAyah(null)
+      if (isPlayingAll) {
+        const nextIdx = ayahs.findIndex(a => a.num === ayahNum) + 1
+        if (nextIdx < ayahs.length && ayahs[nextIdx].audio) {
+          setTimeout(() => playAyah(ayahs[nextIdx].audio, ayahs[nextIdx].num), 500)
+        } else {
+          setIsPlayingAll(false)
         }
-      })
-      await s.playAsync()
-    } catch(e) { setPlayingAyah(null) }
+      }
+    }, 8000)
   }
 
   const playAllSurah = () => {
-    if (isPlayingAll) {
-      playAllRef.current = false
-      setIsPlayingAll(false)
-      if (sound) sound.stopAsync().catch(()=>{})
-      setPlayingAyah(null)
-      return
-    }
+    if (isPlayingAll) { setIsPlayingAll(false); setPlayingAyah(null); return }
     if (ayahs.length > 0 && ayahs[0].audio) {
-      playAllRef.current = true
       setIsPlayingAll(true)
-      playAyah(ayahs[0].audio, ayahs[0].num)
+      // Play full surah audio via reciter URL
+      const surahUrl = `https://cdn.islamic.network/quran/audio-surah/128/${reciter.id.replace("ar.","")}/${selectedSourate.number}.mp3`
+      Linking.openURL(surahUrl).catch(() => {
+        // Fallback: play first ayah
+        playAyah(ayahs[0].audio, ayahs[0].num)
+      })
     }
-  }
-
-  const stopAudio = async () => {
-    playAllRef.current = false
-    setIsPlayingAll(false)
-    if (sound) { await sound.stopAsync().catch(()=>{}); await sound.unloadAsync().catch(()=>{}); setSound(null) }
-    setPlayingAyah(null)
   }
 
   const ITEMS = [
