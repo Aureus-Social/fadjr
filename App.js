@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import * as Location from 'expo-location'
+import { Audio } from 'expo-av'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -850,45 +851,77 @@ function TasbihCounter() {
 // ─── Qibla Direction ──────────────────────────────────────────────────────────
 function QiblaDirection() {
   const [qiblaAngle, setQiblaAngle] = useState(null)
+  const [heading, setHeading] = useState(0)
   const [error, setError] = useState(null)
+  const [city, setCity] = useState("")
 
   useEffect(() => {
+    let headingSub = null;
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync()
-        if (status !== 'granted') { setError("Permission GPS refusee"); return }
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
-        const lat = loc.coords.latitude * Math.PI / 180
-        const lng = loc.coords.longitude * Math.PI / 180
-        const kaabaLat = 21.4225 * Math.PI / 180
-        const kaabaLng = 39.8262 * Math.PI / 180
-        const y = Math.sin(kaabaLng - lng)
-        const x = Math.cos(lat) * Math.tan(kaabaLat) - Math.sin(lat) * Math.cos(kaabaLng - lng)
-        let angle = Math.atan2(y, x) * 180 / Math.PI
-        if (angle < 0) angle += 360
-        setQiblaAngle(Math.round(angle))
-      } catch(e) { setError("Erreur GPS") }
+        if (status !== "granted") { setError("Permission GPS requise pour la Qibla"); return }
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High })
+        
+        // Get city name
+        try {
+          const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude })
+          if (geo) setCity(geo.city || "")
+        } catch(e) {}
+        
+        // Calculate Qibla angle using great circle formula
+        const lat1 = loc.coords.latitude * Math.PI / 180
+        const lng1 = loc.coords.longitude * Math.PI / 180
+        const lat2 = 21.4225 * Math.PI / 180  // Kaaba latitude
+        const lng2 = 39.8262 * Math.PI / 180  // Kaaba longitude
+        const dLng = lng2 - lng1
+        const y = Math.sin(dLng) * Math.cos(lat2)
+        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng)
+        let bearing = Math.atan2(y, x) * 180 / Math.PI
+        bearing = (bearing + 360) % 360
+        setQiblaAngle(Math.round(bearing))
+        
+        // Watch compass heading
+        headingSub = await Location.watchHeadingAsync(data => {
+          if (data.trueHeading >= 0) setHeading(data.trueHeading)
+          else if (data.magHeading >= 0) setHeading(data.magHeading)
+        })
+      } catch(e) { setError("Activez le GPS et la boussole") }
     })()
+    return () => { if (headingSub) headingSub.remove() }
   }, [])
 
+  const rotation = qiblaAngle !== null ? qiblaAngle - heading : 0
+
   return (
-    <View style={{ alignItems:"center", paddingTop:30 }}>
-      <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginBottom:20 }}>🕋 Direction de la Qibla</Text>
+    <View style={{ alignItems:"center", paddingTop:20 }}>
+      <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginBottom:6 }}>🕋 Direction de la Qibla</Text>
+      {city ? <Text style={{ color:C.muted, fontSize:12, marginBottom:16 }}>{city}</Text> : null}
       {error ? (
-        <Text style={{ color:C.red, fontSize:14 }}>{error}</Text>
+        <View style={[styles.card, { padding:16, alignItems:"center" }]}>
+          <Text style={{ color:C.red, fontSize:14, textAlign:"center" }}>{error}</Text>
+        </View>
       ) : qiblaAngle !== null ? (
         <View style={{ alignItems:"center" }}>
-          <View style={{ width:200, height:200, borderRadius:100, borderWidth:4, borderColor:C.gold+"40", alignItems:"center", justifyContent:"center", backgroundColor:C.card }}>
-            <Text style={{ color:C.gold, fontSize:60, transform:[{rotate:`${qiblaAngle}deg`}] }}>🕋</Text>
+          <View style={{ width:220, height:220, borderRadius:110, borderWidth:4, borderColor:C.gold+"40", alignItems:"center", justifyContent:"center", backgroundColor:C.card }}>
+            <View style={{ transform:[{rotate: rotation+"deg"}], alignItems:"center" }}>
+              <Text style={{ color:C.gold, fontSize:16, marginBottom:4 }}>▲</Text>
+              <Text style={{ fontSize:50 }}>🕋</Text>
+            </View>
           </View>
-          <Text style={{ color:C.gold, fontSize:24, fontWeight:"900", marginTop:16 }}>{qiblaAngle}°</Text>
-          <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>depuis le Nord</Text>
-          <Text style={{ color:C.muted, fontSize:11, marginTop:12, textAlign:"center", paddingHorizontal:30 }}>
-            Orientez votre telephone vers le Nord puis tournez de {qiblaAngle}° vers la droite
-          </Text>
+          <Text style={{ color:C.gold, fontSize:28, fontWeight:"900", marginTop:16 }}>{qiblaAngle}°</Text>
+          <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>Bearing depuis le Nord</Text>
+          <View style={[styles.card, { padding:12, marginTop:16 }]}>
+            <Text style={{ color:C.white, fontSize:12, textAlign:"center", lineHeight:20 }}>
+              Tenez votre telephone a plat.{String.fromCharCode(10)}La Kaaba tourne en temps reel.{String.fromCharCode(10)}Quand elle pointe vers le haut → c'est la Qibla.
+            </Text>
+          </View>
         </View>
       ) : (
-        <ActivityIndicator size="large" color={C.gold} />
+        <View style={{ alignItems:"center", gap:10 }}>
+          <ActivityIndicator size="large" color={C.gold} />
+          <Text style={{ color:C.muted, fontSize:12 }}>Calibration de la boussole...</Text>
+        </View>
       )}
     </View>
   )
@@ -1243,98 +1276,79 @@ function MosqueesProximite({ lang="fr" }) {
   const [mosques, setMosques] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [userCoords, setUserCoords] = useState(null)
+  const [cityName, setCityName] = useState("")
+
+  const calcDist = (lat1, lon1, lat2, lon2) => {
+    const R = 6371
+    const dLat = (lat2-lat1) * Math.PI/180
+    const dLon = (lon2-lon1) * Math.PI/180
+    const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2)
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  }
 
   useEffect(() => {
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync()
-        if (status !== "granted") { setError("GPS requis"); setLoading(false); return }
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+        if (status !== "granted") { setError(lang==="ar"?"يرجى تفعيل GPS":lang==="en"?"Please enable GPS":"Activez le GPS"); setLoading(false); return }
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High })
         const lat = loc.coords.latitude
         const lng = loc.coords.longitude
-        // Use Aladhan API for nearby mosques
-        const resp = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=mosque&key=AIzaSyPlaceholder`)
-          .catch(() => null)
-        // Fallback: generate mosques from known data
-        const fallback = [
-          { name:"Mosquee la plus proche", distance:"Calcul...", lat:lat+0.002, lng:lng+0.001 },
-        ]
-        // Use reverse geocode to find city then show city mosques
-        const [geo] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng })
-        const city = geo?.city || "Bruxelles"
+        setUserCoords({ lat, lng })
         
-        // Static mosque data per city
-        const CITY_MOSQUES = {
-          "Bruxelles": [
-            { name:"Grande Mosquee de Bruxelles", adresse:"Parc du Cinquantenaire 14", dist:2.1 },
-            { name:"Mosquee Al-Khalil", adresse:"Rue Memling 38, Ixelles", dist:1.2 },
-            { name:"Mosquee Fatih Camii", adresse:"Chaussee de Haecht 88", dist:1.7 },
-            { name:"Centre Islamique Arrayane", adresse:"Rue des Pres 98, Molenbeek", dist:2.0 },
-            { name:"Mosquee El Mouahidine", adresse:"Rue du Tivolistraat 22-24", dist:1.6 },
-            { name:"Mosquee Hamza", adresse:"Boulevard de Nieuport 8", dist:3.1 },
-            { name:"Mosquee Al Moutaquine", adresse:"Chaussee de Merchtem 53A", dist:3.2 },
-            { name:"Masjid Al-Ansar", adresse:"1030 Schaerbeek", dist:1.4 },
-            { name:"Mosquee Ulu Camii", adresse:"Rue Masuistraat 101", dist:1.3 },
-            { name:"Xhamia e Xhumase", adresse:"Avenue Rogier 60", dist:1.3 },
-          ],
-          "Antwerpen": [
-            { name:"Fatih Moskee", adresse:"Mercatorstraat 31", dist:0.8 },
-            { name:"Moskee El Fath", adresse:"Ballaartstraat 69", dist:1.2 },
-            { name:"Sultan Ahmet Moskee", adresse:"Cassiersstraat 36", dist:1.5 },
-            { name:"Masjid As-Sunnah", adresse:"Sint-Jansplein 38", dist:2.0 },
-            { name:"Moskee Al Ihsaan", adresse:"Lange Leemstraat", dist:1.8 },
-          ],
-          "Paris": [
-            { name:"Grande Mosquee de Paris", adresse:"2 bis Place du Puits de l'Ermite", dist:0.5 },
-            { name:"Mosquee Al-Fath", adresse:"35 Rue Polonceau, 18e", dist:2.3 },
-            { name:"Mosquee de Gennevilliers", adresse:"12 Rue Henri Barbusse", dist:5.0 },
-            { name:"Mosquee Omar Ibn Al-Khattab", adresse:"Rue Jean-Pierre Timbaud, 11e", dist:3.1 },
-            { name:"Mosquee Addawa", adresse:"39 Rue de Tanger, 19e", dist:4.2 },
-          ],
-          "Amsterdam": [
-            { name:"Westermoskee", adresse:"Klarenbeeksteeg 1", dist:1.0 },
-            { name:"Blue Mosque", adresse:"Javastraat 60H", dist:2.3 },
-            { name:"Fatih Moskee", adresse:"Rozengracht 148", dist:1.5 },
-            { name:"Tawheed Moskee", adresse:"Insulindeweg 222", dist:3.0 },
-            { name:"El Oumma Moskee", adresse:"Tweede van der Helststraat", dist:2.1 },
-          ],
-          "London": [
-            { name:"London Central Mosque", adresse:"146 Park Road, NW8", dist:2.0 },
-            { name:"East London Mosque", adresse:"82-92 Whitechapel Road", dist:3.5 },
-            { name:"Finsbury Park Mosque", adresse:"7-11 St Thomas's Road", dist:4.0 },
-            { name:"Brixton Mosque", adresse:"1 Gresham Road", dist:5.2 },
-          ],
-          "Casablanca": [
-            { name:"Mosquee Hassan II", adresse:"Boulevard de la Corniche", dist:1.0 },
-            { name:"Mosquee Al Qods", adresse:"Rue de Fes, Maarif", dist:2.5 },
-            { name:"Mosquee Assounna", adresse:"Avenue des FAR", dist:3.0 },
-          ],
+        // Get city
+        try {
+          const [geo] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng })
+          if (geo?.city) setCityName(geo.city)
+        } catch(e) {}
+
+        // Search mosques using Nominatim (OpenStreetMap) — free, no API key
+        const resp = await fetch(
+          \`https://nominatim.openstreetmap.org/search?q=mosque&format=json&limit=30&viewbox=\${lng-0.15},\${lat+0.15},\${lng+0.15},\${lat-0.15}&bounded=1\`,
+          { headers: { "User-Agent": "FADJR-App/1.0" } }
+        )
+        const data = await resp.json()
+        
+        if (data && data.length > 0) {
+          const sorted = data.map(m => ({
+            name: m.display_name.split(",")[0],
+            adresse: m.display_name.split(",").slice(1,3).join(",").trim(),
+            lat: parseFloat(m.lat),
+            lng: parseFloat(m.lon),
+            dist: calcDist(lat, lng, parseFloat(m.lat), parseFloat(m.lon))
+          })).filter(m => m.dist <= 25).sort((a,b) => a.dist - b.dist)
+          setMosques(sorted)
         }
-        
-        const cityMosques = CITY_MOSQUES[city] || CITY_MOSQUES["Bruxelles"]
-        setMosques(cityMosques.map(m => ({ ...m, city })))
         setLoading(false)
-      } catch(e) { setError("Erreur"); setLoading(false) }
+      } catch(e) { setError(lang==="en"?"Error":"Erreur de chargement"); setLoading(false) }
     })()
   }, [])
 
-  if (loading) return <ActivityIndicator size="large" color={C.gold} style={{ marginTop:40 }} />
-  if (error) return <Text style={{ color:C.red, textAlign:"center", marginTop:40 }}>{error}</Text>
+  if (loading) return (
+    <View style={{ alignItems:"center", paddingTop:40 }}>
+      <ActivityIndicator size="large" color={C.gold} />
+      <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>{lang==="ar"?"جاري البحث...":lang==="en"?"Searching...":"Recherche des mosquees..."}</Text>
+    </View>
+  )
+  if (error) return <Text style={{ color:C.red, textAlign:"center", marginTop:40, fontSize:14 }}>{error}</Text>
 
   return (
     <View>
-      <Text style={{ color:C.muted, fontSize:11, marginBottom:10 }}>{mosques[0]?.city || ""} — {mosques.length} mosquees</Text>
+      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:4 }}>{cityName} — {mosques.length} {lang==="ar"?"مسجد":lang==="en"?"mosques":"mosquees"} ({lang==="ar"?"ضمن 25 كم":lang==="en"?"within 25km":"dans un rayon de 25km"})</Text>
+      <Text style={{ color:C.muted, fontSize:10, marginBottom:12 }}>{lang==="ar"?"اضغط للتوجيه":lang==="en"?"Tap for directions":"Appuyez pour le GPS"}</Text>
       {mosques.map((m, i) => (
-        <TouchableOpacity key={i} onPress={() => Linking.openURL("https://maps.google.com/?q="+encodeURIComponent(m.name+" "+m.adresse)).catch(()=>{})}
+        <TouchableOpacity key={i} onPress={() => Linking.openURL("https://maps.google.com/?daddr="+m.lat+","+m.lng).catch(()=>{})}
           style={[styles.card, { padding:12, marginBottom:6, flexDirection:"row", alignItems:"center", gap:10 }]}>
           <Text style={{ fontSize:20 }}>🕌</Text>
           <View style={{ flex:1 }}>
             <Text style={{ color:C.white, fontSize:13, fontWeight:"700" }}>{m.name}</Text>
-            <Text style={{ color:C.muted, fontSize:11 }}>{m.adresse}</Text>
+            <Text style={{ color:C.muted, fontSize:10 }}>{m.adresse}</Text>
           </View>
-          <Text style={{ color:C.gold, fontSize:12, fontWeight:"700" }}>{m.dist} km</Text>
+          <Text style={{ color:C.gold, fontSize:12, fontWeight:"700" }}>{m.dist.toFixed(1)} km</Text>
         </TouchableOpacity>
       ))}
+      {mosques.length === 0 && <Text style={{ color:C.muted, fontSize:13, textAlign:"center", marginTop:20 }}>{lang==="ar"?"لم يتم العثور على مساجد":lang==="en"?"No mosques found":"Aucune mosquee trouvee"}</Text>}
     </View>
   )
 }
@@ -1397,73 +1411,133 @@ function KhatamTracker({ onBack, lang="fr" }) {
 
 // ─── Écran Carte ──────────────────────────────────────────────────────────────
 function EcranCarte({ lang="fr" }) {
-  const [cat, setCat] = useState("Tous")
+  const [restaurants, setRestaurants] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState(null)
-  const filtered = COMMERCES.filter(c =>
-    (cat==="Tous" || c.type===cat) &&
-    (c.nom.toLowerCase().includes(search.toLowerCase()) || c.spec.toLowerCase().includes(search.toLowerCase()))
+  const [userCity, setUserCity] = useState("Brussels")
+  const [favs, setFavs] = useState([])
+
+  // Load favorites
+  useEffect(() => {
+    AsyncStorage.getItem("fadjr_favs").then(d => { if (d) setFavs(JSON.parse(d)) }).catch(() => {})
+  }, [])
+
+  // Fetch restaurants from Supabase based on GPS
+  useEffect(() => {
+    (async () => {
+      try {
+        // Get user location
+        const { status } = await Location.requestForegroundPermissionsAsync()
+        let cityName = "Brussels"
+        if (status === "granted") {
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+          const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude })
+          if (geo?.city) cityName = geo.city
+        }
+        setUserCity(cityName)
+        
+        // Find city in Supabase
+        const { data: cities } = await supabase.from("cities").select("id,name").ilike("name", "%"+cityName+"%").limit(1)
+        let cityId = cities?.[0]?.id
+        
+        // Fallback to Brussels
+        if (!cityId) {
+          const { data: bxl } = await supabase.from("cities").select("id").eq("name","Brussels").limit(1)
+          cityId = bxl?.[0]?.id
+        }
+        
+        if (cityId) {
+          const { data: restos } = await supabase
+            .from("restaurants")
+            .select("id,name,address,phone,rating,latitude,longitude,halal_status,cuisine_type,google_maps_url")
+            .eq("city_id", cityId)
+            .order("rating", { ascending: false })
+            .limit(50)
+          
+          if (restos) setRestaurants(restos)
+        }
+        setLoading(false)
+      } catch(e) { setLoading(false) }
+    })()
+  }, [])
+
+  const toggleFav = async (id) => {
+    let updated
+    if (favs.includes(id)) {
+      updated = favs.filter(f => f !== id)
+    } else {
+      updated = [...favs, id]
+    }
+    setFavs(updated)
+    await AsyncStorage.setItem("fadjr_favs", JSON.stringify(updated))
+  }
+
+  const filtered = restaurants.filter(c =>
+    c.name?.toLowerCase().includes(search.toLowerCase()) ||
+    c.address?.toLowerCase().includes(search.toLowerCase()) ||
+    (c.cuisine_type||"").toLowerCase().includes(search.toLowerCase())
   )
+
   return (
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
-        <Text style={styles.sectionLabel}>{t("carteHalal",lang)} BRUXELLES</Text>
+        <Text style={styles.sectionLabel}>{t("carteHalal",lang)} {userCity}</Text>
         <TextInput value={search} onChangeText={setSearch} placeholder={t("chercherCommerce",lang)}
           placeholderTextColor={C.muted}
           style={{ backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:11, color:C.white, fontSize:13, marginTop:8 }} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:10 }}>
-          {CATEGORIES.map(c => (
-            <TouchableOpacity key={c} onPress={() => setCat(c)}
-              style={{ paddingHorizontal:14, paddingVertical:6, borderRadius:99, borderWidth:1, borderColor:cat===c ? C.gold : C.border, backgroundColor:cat===c ? "rgba(201,168,76,.15)" : C.card, marginRight:6 }}>
-              <Text style={{ color:cat===c ? C.gold : C.muted, fontSize:12, fontWeight:cat===c?"700":"400" }}>{c}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{filtered.length} restaurants halal</Text>
       </View>
-      <FlatList data={filtered} keyExtractor={c => String(c.id)} contentContainerStyle={{ padding:16 }} showsVerticalScrollIndicator={false}
-        renderItem={({ item:c }) => (
-          <TouchableOpacity onPress={() => setSelected(selected?.id===c.id ? null : c)}
-            style={[styles.card, { marginBottom:10, borderColor:selected?.id===c.id ? c.color : C.border, backgroundColor:selected?.id===c.id ? "#1C1C35" : C.card }]}>
-            <View style={{ flexDirection:"row", alignItems:"flex-start", gap:14 }}>
-              <View style={{ width:52, height:52, borderRadius:12, backgroundColor:c.color+"18", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                <Text style={{ fontSize:24 }}>{c.emoji}</Text>
-              </View>
-              <View style={{ flex:1 }}>
-                <View style={{ flexDirection:"row", justifyContent:"space-between", marginBottom:4 }}>
-                  <Text style={{ color:selected?.id===c.id ? c.color : C.white, fontSize:15, fontWeight:"700", flex:1 }}>{c.nom}</Text>
-                  <Text style={{ color:C.muted, fontSize:11, marginLeft:8 }}>{c.distance}</Text>
+      {loading ? (
+        <View style={{ flex:1, alignItems:"center", justifyContent:"center" }}>
+          <ActivityIndicator size="large" color={C.gold} />
+          <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>Chargement des restaurants...</Text>
+        </View>
+      ) : (
+        <FlatList data={filtered} keyExtractor={c => c.id} contentContainerStyle={{ padding:16 }} showsVerticalScrollIndicator={false}
+          renderItem={({ item:c }) => (
+            <TouchableOpacity onPress={() => setSelected(selected?.id===c.id ? null : c)}
+              style={[styles.card, { marginBottom:10, borderColor: selected?.id===c.id ? C.gold : C.border, backgroundColor: selected?.id===c.id ? "#1C1C35" : C.card }]}>
+              <View style={{ flexDirection:"row", alignItems:"flex-start", gap:14, padding:14 }}>
+                <View style={{ width:44, height:44, borderRadius:10, backgroundColor:C.gold+"18", alignItems:"center", justifyContent:"center" }}>
+                  <Text style={{ fontSize:22 }}>🍽️</Text>
                 </View>
-                <Text style={{ color:C.gold, fontSize:11 }}>{"★".repeat(Math.floor(c.note))} {c.note}</Text>
-                <Text style={{ color:C.muted, fontSize:11, marginTop:3 }}>{c.adresse}</Text>
-                <View style={{ flexDirection:"row", gap:6, marginTop:6 }}>
-                  <View style={{ backgroundColor:c.color+"18", borderRadius:99, paddingHorizontal:8, paddingVertical:2, borderWidth:1, borderColor:c.color+"40" }}>
-                    <Text style={{ color:c.color, fontSize:10, fontWeight:"700" }}>{c.certif}</Text>
-                  </View>
-                  <Text style={{ color:c.ouvert ? C.green : C.red, fontSize:10, fontWeight:"700" }}>{c.ouvert ? "Ouvert" : "Ferme"}</Text>
-                </View>
-                {selected?.id===c.id && (
-                  <View style={{ marginTop:12, paddingTop:12, borderTopWidth:1, borderTopColor:C.border }}>
-                    <Text style={{ color:C.white, fontSize:12, marginBottom:10 }}>{c.spec}</Text>
-                    <View style={{ flexDirection:"row", gap:8 }}>
-                      <TouchableOpacity onPress={() => { if(c.tel) Linking.openURL("tel:"+c.tel).catch(()=>{}) }}
-                        style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:c.color, alignItems:"center" }}>
-                        <Text style={{ color:c.color, fontSize:11, fontWeight:"700" }}>📞 Appeler</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => Linking.openURL("https://maps.google.com/?q="+encodeURIComponent(c.adresse)).catch(()=>{})}
-                        style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:C.blue, alignItems:"center" }}>
-                        <Text style={{ color:C.blue, fontSize:11, fontWeight:"700" }}>🗺️ Y aller</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => { AsyncStorage.getItem("fadjr_favs").then(d => { const favs = d ? JSON.parse(d) : []; if(!favs.includes(c.id)) { favs.push(c.id); AsyncStorage.setItem("fadjr_favs",JSON.stringify(favs)); Alert.alert("Favori","Ajouté aux favoris!") } else { Alert.alert("Favori","Déjà dans vos favoris") } }).catch(()=>{}) }}
-                        style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:C.gold, alignItems:"center" }}>
-                        <Text style={{ color:C.gold, fontSize:11, fontWeight:"700" }}>⭐ Favori</Text>
-                      </TouchableOpacity>
+                <View style={{ flex:1 }}>
+                  <Text style={{ color: selected?.id===c.id ? C.gold : C.white, fontSize:14, fontWeight:"700" }}>{c.name}</Text>
+                  {c.rating > 0 && <Text style={{ color:C.gold, fontSize:11, marginTop:2 }}>{"★".repeat(Math.floor(c.rating))} {c.rating}</Text>}
+                  <Text style={{ color:C.muted, fontSize:11, marginTop:3 }}>{c.address}</Text>
+                  {c.cuisine_type && <Text style={{ color:C.teal, fontSize:10, marginTop:3 }}>{c.cuisine_type}</Text>}
+                  {c.halal_status && (
+                    <View style={{ backgroundColor:C.green+"18", borderRadius:99, paddingHorizontal:8, paddingVertical:2, alignSelf:"flex-start", marginTop:4 }}>
+                      <Text style={{ color:C.green, fontSize:9, fontWeight:"700" }}>HALAL {c.halal_status === "verified" ? "✅" : ""}</Text>
                     </View>
-                  </View>
-                )}
+                  )}
+                  {selected?.id===c.id && (
+                    <View style={{ marginTop:12, paddingTop:12, borderTopWidth:1, borderTopColor:C.border }}>
+                      <View style={{ flexDirection:"row", gap:8 }}>
+                        <TouchableOpacity onPress={() => { if(c.phone) Linking.openURL("tel:"+c.phone.replace(/\s/g,"")).catch(()=>{}) }}
+                          style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:C.gold, alignItems:"center" }}>
+                          <Text style={{ color:C.gold, fontSize:11, fontWeight:"700" }}>📞 {c.phone || "Appeler"}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                          const url = c.google_maps_url || "https://maps.google.com/?q="+encodeURIComponent(c.address||c.name)
+                          Linking.openURL(url).catch(()=>{})
+                        }}
+                          style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor:C.blue, alignItems:"center" }}>
+                          <Text style={{ color:C.blue, fontSize:11, fontWeight:"700" }}>🗺️ Y aller</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => toggleFav(c.id)}
+                          style={{ flex:1, padding:8, borderRadius:8, borderWidth:1, borderColor: favs.includes(c.id) ? C.green : C.gold, backgroundColor: favs.includes(c.id) ? C.green+"15" : "transparent", alignItems:"center" }}>
+                          <Text style={{ color: favs.includes(c.id) ? C.green : C.gold, fontSize:11, fontWeight:"700" }}>{favs.includes(c.id) ? "✅ Favori" : "⭐ Favori"}</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        )} />
+            </TouchableOpacity>
+          )} />
+      )}
     </View>
   )
 }
@@ -1695,12 +1769,63 @@ function EcranCulture({ lang="fr" }) {
     }
   }, [selectedSourate, reciter])
 
-  // Audio playback via browser
+  // In-app Audio player
+  const [sound, setSound] = useState(null)
+  const [isPlayingAll, setIsPlayingAll] = useState(false)
+  const playAllRef = useRef(false)
+
+  // Cleanup audio on unmount
+  useEffect(() => { return () => { if (sound) sound.unloadAsync().catch(()=>{}) } }, [sound])
+
   const playAyah = async (audioUrl, ayahNum) => {
-    if (playingAyah === ayahNum) { setPlayingAyah(null); return }
-    setPlayingAyah(ayahNum)
-    Linking.openURL(audioUrl).catch(() => {})
-    setTimeout(() => setPlayingAyah(null), 3000)
+    try {
+      if (sound) { await sound.unloadAsync().catch(()=>{}); setSound(null) }
+      if (playingAyah === ayahNum) { setPlayingAyah(null); return }
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: false, playsInSilentModeIOS: true, staysActiveInBackground: true })
+      const { sound: s } = await Audio.Sound.createAsync({ uri: audioUrl })
+      setSound(s)
+      setPlayingAyah(ayahNum)
+      s.setOnPlaybackStatusUpdate(status => {
+        if (status.didJustFinish) {
+          setPlayingAyah(null)
+          setSound(null)
+          // Auto-play next verse if playing all
+          if (playAllRef.current) {
+            const nextIdx = ayahs.findIndex(a => a.num === ayahNum) + 1
+            if (nextIdx < ayahs.length) {
+              const next = ayahs[nextIdx]
+              if (next.audio) setTimeout(() => playAyah(next.audio, next.num), 300)
+            } else {
+              playAllRef.current = false
+              setIsPlayingAll(false)
+            }
+          }
+        }
+      })
+      await s.playAsync()
+    } catch(e) { setPlayingAyah(null) }
+  }
+
+  const playAllSurah = () => {
+    if (isPlayingAll) {
+      playAllRef.current = false
+      setIsPlayingAll(false)
+      if (sound) sound.stopAsync().catch(()=>{})
+      setPlayingAyah(null)
+      return
+    }
+    if (ayahs.length > 0 && ayahs[0].audio) {
+      playAllRef.current = true
+      setIsPlayingAll(true)
+      playAyah(ayahs[0].audio, ayahs[0].num)
+    }
+  }
+
+  const stopAudio = async () => {
+    playAllRef.current = false
+    setIsPlayingAll(false)
+    if (sound) { await sound.stopAsync().catch(()=>{}); await sound.unloadAsync().catch(()=>{}); setSound(null) }
+    setPlayingAyah(null)
   }
 
   const ITEMS = [
@@ -1734,7 +1859,13 @@ function EcranCulture({ lang="fr" }) {
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:6 }}>{selectedSourate.number}. {selectedSourate.englishName}</Text>
         <Text style={{ color:C.muted, fontSize:12 }}>{selectedSourate.englishNameTranslation} — {selectedSourate.numberOfAyahs} {t("versets",lang)}</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:8 }}>
+        <View style={{ flexDirection:"row", gap:8, marginTop:10, marginBottom:6 }}>
+          <TouchableOpacity onPress={playAllSurah}
+            style={{ flex:1, padding:10, borderRadius:10, backgroundColor: isPlayingAll ? C.red+"25" : C.gold+"25", borderWidth:1, borderColor: isPlayingAll ? C.red : C.gold, alignItems:"center" }}>
+            <Text style={{ color: isPlayingAll ? C.red : C.gold, fontSize:13, fontWeight:"800" }}>{isPlayingAll ? "⏹ Stop" : "▶️ Ecouter la sourate"}</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:6 }}>
           {QURAN_RECITERS.map(r => (
             <TouchableOpacity key={r.id} onPress={() => setReciter(r)}
               style={{ paddingHorizontal:10, paddingVertical:5, borderRadius:99, marginRight:6, backgroundColor: reciter.id===r.id ? C.gold+"30" : C.card2, borderWidth:1, borderColor: reciter.id===r.id ? C.gold : C.border }}>
@@ -2791,7 +2922,10 @@ export default function App() {
   const [lang, setLang] = useState("fr")
   const [tab, setTab] = useState("accueil")
   const [prayers, setPrayers] = useState([])
-  const [city] = useState("Bruxelles")
+  const [city, setCity] = useState("Bruxelles")
+  const [userLat, setUserLat] = useState(50.8503)
+  const [userLng, setUserLng] = useState(4.3517)
+  const [prayerMethod, setPrayerMethod] = useState(12)
   const [loading, setLoading] = useState(true)
   const [nextPrayer, setNextPrayer] = useState(null)
   const [timeToNext, setTimeToNext] = useState("")
@@ -2848,6 +2982,25 @@ export default function App() {
       await savePrayerTracked(user.id, updated)
     }
   }, [prayedToday, session])
+
+  // ── Get user GPS for precise prayer times ──
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync()
+        if (status === "granted") {
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+          setUserLat(loc.coords.latitude)
+          setUserLng(loc.coords.longitude)
+          const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude })
+          if (geo?.city) setCity(geo.city)
+        }
+        // Load saved prayer method
+        const method = await AsyncStorage.getItem("fadjr_prayer_method")
+        if (method) setPrayerMethod(parseInt(method))
+      } catch(e) {}
+    })()
+  }, [])
 
   // ── Prières + next ──
   useEffect(() => {

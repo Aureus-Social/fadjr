@@ -36,7 +36,11 @@
             "targetSdkVersion": 35,
             "minSdkVersion": 24,
             "enableProguardInReleaseBuilds": false,
-            "extraProguardRules": "-dontwarn com.facebook.react.**"
+            "extraProguardRules": "-dontwarn com.facebook.react.**",
+            "newArchEnabled": false
+          },
+          "ios": {
+            "newArchEnabled": false
           }
         }
       ]
@@ -44,7 +48,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.fadjr",
-      "buildNumber": "10",
+      "buildNumber": "12",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -100,7 +104,7 @@
         "backgroundColor": "#07070F"
       },
       "package": "com.aureus.fadjr",
-      "versionCode": 4,
+      "versionCode": 7,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
