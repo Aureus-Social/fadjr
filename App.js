@@ -471,6 +471,26 @@ function EcranAuth() {
 
 // ─── Écran Accueil ────────────────────────────────────────────────────────────
 function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate, lang="fr", prayedToday={} }) {
+  const [commune, setCommune] = useState(city || "")
+  const [locLoading, setLocLoading] = useState(false)
+
+  useEffect(() => { if (city) setCommune(city) }, [city])
+
+  const refreshLocation = async () => {
+    setLocLoading(true)
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync()
+      if (status === "granted") {
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High })
+        const [geo] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude })
+        if (geo) {
+          const name = [geo.subLocality, geo.city, geo.district].filter(Boolean).join(", ")
+          setCommune(name || geo.city || "")
+        }
+      }
+    } catch(e) {}
+    setLocLoading(false)
+  }
   const now = new Date()
   const h = now.getHours()
   const greeting = h < 12 ? "Sabah al-khayr" : h < 18 ? "Assalamu alaykum" : "Masa al-khayr"
@@ -581,6 +601,13 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
         <Text style={styles.sectionLabel}>PRIERE & SPIRITUALITE</Text>
+            <TouchableOpacity onPress={refreshLocation} style={{ flexDirection:"row", alignItems:"center", gap:4, marginTop:2 }}>
+              <Text style={{ fontSize:12 }}>📍</Text>
+              {locLoading ? <ActivityIndicator size="small" color={C.muted} /> : (
+                <Text style={{ color:C.muted, fontSize:12 }}>{commune || "Localiser"}</Text>
+              )}
+              <Text style={{ color:C.gold, fontSize:10 }}>↻</Text>
+            </TouchableOpacity>
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center" }}>
           <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>☪ {city}</Text>
           {/* Compteur journalier */}
@@ -2279,9 +2306,9 @@ function EcranCulture({ lang="fr" }) {
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         {[
-          { titre:"🕋 Makkah Live — Al Haram", desc:"Stream en direct de la Mosquee Al-Haram", url:"https://www.youtube.com/watch?v=P_bY9WLKelg", color:C.gold },
-          { titre:"🕌 Madinah Live — Al-Masjid An-Nabawi", desc:"Stream en direct de la Mosquee du Prophete ﷺ", url:"https://www.youtube.com/watch?v=HYLK1K3MMDI", color:C.green },
-          { titre:"📺 Quran TV — Recitation 24/7", desc:"Recitation du Coran en continu", url:"https://www.youtube.com/watch?v=gVoGF7kOb84", color:C.blue },
+          { titre:"🕋 Makkah Live — Al Haram", desc:"Stream en direct de la Mosquee Al-Haram", url:"https://www.youtube.com/@alaboralmakkah/live", color:C.gold },
+          { titre:"🕌 Madinah Live — Al-Masjid An-Nabawi", desc:"Stream en direct de la Mosquee du Prophete ﷺ", url:"https://www.youtube.com/@alaboralmadinah/live", color:C.green },
+          { titre:"📺 Quran TV — Recitation 24/7", desc:"Recitation du Coran en continu", url:"https://www.youtube.com/@QuranHD/live", color:C.blue },
         ].map((stream, i) => (
           <TouchableOpacity key={i} onPress={() => Linking.openURL(stream.url).catch(() => {})}
             style={[styles.card, { padding:16, marginBottom:10, borderLeftWidth:3, borderLeftColor:stream.color }]}>
