@@ -44,7 +44,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.fadjr",
-      "buildNumber": "16",
+      "buildNumber": "18",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -100,7 +100,7 @@
         "backgroundColor": "#07070F"
       },
       "package": "com.aureus.fadjr",
-      "versionCode": 9,
+      "versionCode": 11,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
