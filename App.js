@@ -11,6 +11,7 @@ import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import * as Location from 'expo-location'
 import * as WebBrowser from 'expo-web-browser'
+import * as Updates from 'expo-updates'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -2944,6 +2945,22 @@ export default function App() {
   const [session, setSession] = useState(undefined)
   const [lang, setLang] = useState("fr")
   const [tab, setTab] = useState("accueil")
+
+  // ── OTA update forcé au lancement ──
+  useEffect(() => {
+    async function checkUpdate() {
+      try {
+        if (!__DEV__) {
+          const update = await Updates.checkForUpdateAsync()
+          if (update.isAvailable) {
+            await Updates.fetchUpdateAsync()
+            await Updates.reloadAsync()
+          }
+        }
+      } catch (e) {}
+    }
+    checkUpdate()
+  }, [])
   const [prayers, setPrayers] = useState([])
   const [city, setCity] = useState("Bruxelles")
   const [userLat, setUserLat] = useState(50.8503)
