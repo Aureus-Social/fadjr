@@ -563,7 +563,36 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
           ))}
         </View>
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-          <Text style={styles.sectionLabel}>{t("presDeVous",lang)}</Text>
+          
+        {/* ── Partenaires / Sponsored ── */}
+        <View style={{ marginBottom:16 }}>
+          <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+            <Text style={styles.sectionLabel}>{lang==="ar"?"شركاؤنا":lang==="en"?"PARTNERS":lang==="tr"?"ORTAKLAR":lang==="id"?"MITRA":"PARTENAIRES"}</Text>
+            <TouchableOpacity onPress={() => Linking.openURL("https://app.aureussocial.be").catch(()=>{})}>
+              <Text style={{ color:C.gold, fontSize:10, fontWeight:"700" }}>Powered by Aureus Social ⚡</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {[
+              { nom:"Aureus Social Pro", desc:lang==="ar"?"إدارة الموارد البشرية":lang==="en"?"HR & Payroll SaaS":"SaaS RH & Paie belge", emoji:"⚡", url:"https://app.aureussocial.be", color:C.gold },
+              { nom:"Aureus IA", desc:lang==="ar"?"أدوات التداول الذكية":lang==="en"?"AI Trading Tools":"Outils de trading IA", emoji:"📊", url:"https://aureus-ia.com", color:C.blue },
+              { nom:"Freeman Academy", desc:lang==="ar"?"تعلم التداول":lang==="en"?"Learn Trading":"Formation trading", emoji:"🎓", url:"https://freemanacademy.io", color:C.green },
+            ].map((partner, i) => (
+              <TouchableOpacity key={i} onPress={() => Linking.openURL(partner.url).catch(()=>{})}
+                style={[styles.card, { width:160, marginRight:10, padding:14, borderTopWidth:2, borderTopColor:partner.color }]}>
+                <Text style={{ fontSize:24, marginBottom:6 }}>{partner.emoji}</Text>
+                <Text style={{ color:C.white, fontSize:13, fontWeight:"800" }}>{partner.nom}</Text>
+                <Text style={{ color:C.muted, fontSize:10, marginTop:4 }}>{partner.desc}</Text>
+                <View style={{ flexDirection:"row", alignItems:"center", gap:4, marginTop:8 }}>
+                  <View style={{ width:12, height:12, borderRadius:6, backgroundColor:C.gold }} />
+                  <Text style={{ color:C.gold, fontSize:8, fontWeight:"700" }}>PARTENAIRE FADJR</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        <Text style={styles.sectionLabel}>{t("presDeVous",lang)}</Text>
           <TouchableOpacity onPress={() => setTab("carte")}>
             <Text style={{ color:C.gold, fontSize:12 }}>Voir tout →</Text>
           </TouchableOpacity>
