@@ -567,7 +567,7 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
           
         {/* ── Aureus Social Pro Banner ── */}
-        <TouchableOpacity onPress={() => WebBrowser.openBrowserAsync("https://aureussocial.be", { dismissButtonStyle: 'close', toolbarColor: '#0c0b09', controlsColor: '#c6a34e' }).catch(()=>{})}
+        <TouchableOpacity onPress={() => WebBrowser.openBrowserAsync("https://aureussocial.be?v=" + Date.now(), { dismissButtonStyle: 'close', toolbarColor: '#0c0b09', controlsColor: '#c6a34e' }).catch(()=>{})}
           style={[styles.card, { marginBottom:16, padding:16, borderWidth:1, borderColor:C.gold+"40", flexDirection:"row", alignItems:"center", gap:14 }]}>
           <View style={{ width:50, height:50, borderRadius:12, backgroundColor:C.gold+"20", alignItems:"center", justifyContent:"center" }}>
             <Text style={{ fontSize:26 }}>⚡</Text>
