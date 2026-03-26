@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import * as Location from 'expo-location'
+import * as WebBrowser from 'expo-web-browser'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -565,7 +566,7 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
           
         {/* ── Aureus Social Pro Banner ── */}
-        <TouchableOpacity onPress={() => Linking.openURL("https://aureussocial.be").catch(()=>{})}
+        <TouchableOpacity onPress={() => WebBrowser.openBrowserAsync("https://aureussocial.be", { dismissButtonStyle: 'close', toolbarColor: '#0c0b09', controlsColor: '#c6a34e' }).catch(()=>{})}
           style={[styles.card, { marginBottom:16, padding:16, borderWidth:1, borderColor:C.gold+"40", flexDirection:"row", alignItems:"center", gap:14 }]}>
           <View style={{ width:50, height:50, borderRadius:12, backgroundColor:C.gold+"20", alignItems:"center", justifyContent:"center" }}>
             <Text style={{ fontSize:26 }}>⚡</Text>
