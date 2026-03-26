@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import * as Location from 'expo-location'
-import * as WebBrowser from 'expo-web-browser'
+// WebBrowser removed — using Linking instead
 import * as Updates from 'expo-updates'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
@@ -260,10 +260,94 @@ function InspirationQuotidienne() {
       </View>
       <TouchableOpacity onPress={() => {
         const shareText = "📖 " + verse + "\n\n🌙 " + dhikr + "\n\n📲 Telecharge FADJR: https://fadjr.app"
-        Share.share({ message: shareText }).catch(() => {})
+        Share.share({ message: "☪️ FADJR\n\n📖 " + verse + "\n\n🌙 " + dhikr + "\n\n📲 Telecharge FADJR: https://fadjr.app" }).catch(() => {})
       }} style={[styles.card, { padding:14, alignItems:"center", backgroundColor:C.gold+"15", borderWidth:1, borderColor:C.gold+"40" }]}>
         <Text style={{ color:C.gold, fontSize:13, fontWeight:"700" }}>📤 Partager avec QR FADJR</Text>
       </TouchableOpacity>
+    </View>
+  )
+}
+
+// ─── Story Share with QR Code ─────────────────────────────────────────────────
+function ShareStoryCard({ text, source, lang="fr" }) {
+  const shareStory = async () => {
+    const shareText = "╔══════════════════╗\n" +
+      "   ☪️ FADJR   \n" +
+      "╚══════════════════╝\n\n" +
+      "📖 " + text + "\n\n" +
+      (source ? "— " + source + "\n\n" : "") +
+      "━━━━━━━━━━━━━━━━━━\n" +
+      "📲 " + (lang==="ar"?"حمّل تطبيق FADJR":lang==="en"?"Download FADJR app":"Telecharge l'app FADJR") + "\n" +
+      "🍎 iOS: https://testflight.apple.com/join/FADJR\n" +
+      "🤖 Android: https://play.google.com/store/apps/details?id=com.aureus.fadjr\n" +
+      "🌐 https://fadjr.app\n" +
+      "━━━━━━━━━━━━━━━━━━"
+    try {
+      await Share.share({ message: shareText })
+    } catch(e) {}
+  }
+
+  return (
+    <TouchableOpacity onPress={shareStory}
+      style={{ flexDirection:"row", alignItems:"center", gap:6, paddingVertical:6, paddingHorizontal:10, borderRadius:99, backgroundColor:C.gold+"15", borderWidth:1, borderColor:C.gold+"30", alignSelf:"flex-start" }}>
+      <Text style={{ fontSize:12 }}>📤</Text>
+      <Text style={{ color:C.gold, fontSize:11, fontWeight:"700" }}>{lang==="ar"?"شارك":lang==="en"?"Share":"Partager"}</Text>
+    </TouchableOpacity>
+  )
+}
+
+// ─── Community Feed ───────────────────────────────────────────────────────────
+function CommunityFeed({ lang="fr" }) {
+  const [filter, setFilter] = useState("all")
+  const FILTERS = [
+    { id:"all", label:{fr:"Tout",en:"All",ar:"الكل",tr:"Hepsi"} },
+    { id:"quran", label:{fr:"Coran",en:"Quran",ar:"قرآن",tr:"Kur'an"} },
+    { id:"dua", label:{fr:"Douas",en:"Duas",ar:"دعاء",tr:"Dua"} },
+    { id:"hadith", label:{fr:"Hadiths",en:"Hadiths",ar:"أحاديث",tr:"Hadisler"} },
+    { id:"tips", label:{fr:"Conseils",en:"Tips",ar:"نصائح",tr:"İpuçları"} },
+  ]
+
+  const POSTS = [
+    { type:"quran", emoji:"📖", user:"FADJR", time:"2h", content:{fr:"Sourate Al-Ikhlas (112) — Dis: Il est Allah, Unique. Allah, Le Seul a etre implore pour ce que nous desirons. Il n'a jamais engendre, n'a pas ete engendre non plus. Et nul n'est egal a Lui.",en:"Surah Al-Ikhlas (112) — Say: He is Allah, the One. Allah, the Eternal Refuge. He neither begets nor is born. Nor is there to Him any equivalent.",ar:"سورة الإخلاص — قل هو الله أحد. الله الصمد. لم يلد ولم يولد. ولم يكن له كفوا أحد.",tr:"İhlas Suresi — De ki: O, Allah'tır, tektir. Allah Samed'dir. Doğurmamış ve doğmamıştır. Hiçbir şey O'na denk değildir."}, likes:342 },
+    { type:"dua", emoji:"🤲", user:"FADJR", time:"5h", content:{fr:"Doua du voyageur: 'Subhana-lladhi sakhkhara lana hadha wa ma kunna lahu muqrinin' — Gloire a Celui qui a mis ceci a notre service, alors que nous n'etions pas capables de le faire.",en:"Traveler's dua: 'Subhana-lladhi sakhkhara lana hadha wa ma kunna lahu muqrinin' — Glory to Him who has subjected this to us, and we could not have subdued it.",ar:"دعاء السفر: سبحان الذي سخر لنا هذا وما كنا له مقرنين",tr:"Yolcu duası: Bunu bize boyun eğdiren Allah'ın şanı yücedir, yoksa biz bunu yanaştıramazdık."}, likes:189 },
+    { type:"hadith", emoji:"📚", user:"FADJR", time:"8h", content:{fr:"Le Prophete ﷺ a dit: 'Le meilleur d'entre vous est celui qui apprend le Coran et l'enseigne.' (Bukhari)",en:"The Prophet ﷺ said: 'The best among you are those who learn the Quran and teach it.' (Bukhari)",ar:"قال النبي ﷺ: خيركم من تعلم القرآن وعلمه. (البخاري)",tr:"Hz. Peygamber ﷺ buyurdu: 'Sizin en hayırlınız Kur'an'ı öğrenen ve öğretendir.' (Buhari)"}, likes:456 },
+    { type:"tips", emoji:"💡", user:"FADJR", time:"12h", content:{fr:"Conseil: Lisez Sourate Al-Kahf chaque vendredi. Le Prophete ﷺ a dit que celui qui la lit le vendredi sera illumine d'une lumiere entre les deux vendredis.",en:"Tip: Read Surah Al-Kahf every Friday. The Prophet ﷺ said whoever reads it on Friday will be illuminated by a light between the two Fridays.",ar:"نصيحة: اقرأ سورة الكهف كل جمعة. قال النبي ﷺ من قرأها يوم الجمعة أضاء له من النور ما بين الجمعتين.",tr:"İpucu: Her Cuma Al-Kehf Suresi'ni oku. Hz. Peygamber ﷺ Cuma günü okuyan için iki Cuma arası nur olacağını buyurdu."}, likes:278 },
+    { type:"dua", emoji:"🌙", user:"FADJR", time:"1j", content:{fr:"Dhikr du soir: 'Allahumma bika amsayna wa bika asbahna wa bika nahya wa bika namutu wa ilayka al-masir' — O Allah par Toi nous sommes au soir et par Toi nous serons au matin.",en:"Evening dhikr: 'Allahumma bika amsayna...' — O Allah, by You we enter the evening and by You we enter the morning.",ar:"أذكار المساء: اللهم بك أمسينا وبك أصبحنا وبك نحيا وبك نموت وإليك المصير",tr:"Akşam zikri: Allah'ım, Seninle akşamladık, Seninle sabahladık, Seninle yaşar, Seninle ölürüz."}, likes:167 },
+    { type:"quran", emoji:"📖", user:"FADJR", time:"1j", content:{fr:"'Et quiconque craint Allah — Il lui donnera une issue favorable et lui accordera Ses dons par des moyens qu'il ne soupconne meme pas.' (65:2-3)",en:"'And whoever fears Allah — He will make for him a way out and will provide for him from where he does not expect.' (65:2-3)",ar:"ومن يتق الله يجعل له مخرجاً ويرزقه من حيث لا يحتسب (65:2-3)",tr:"Kim Allah'tan korkarsa, Allah ona bir çıkış yolu yaratır ve onu ummadığı yerden rızıklandırır. (65:2-3)"}, likes:523 },
+    { type:"tips", emoji:"❤️", user:"FADJR", time:"2j", content:{fr:"Le sourire est une Sadaqa! Le Prophete ﷺ a dit: 'Ton sourire a ton frere est une charite.' (Tirmidhi)",en:"Smiling is Sadaqah! The Prophet ﷺ said: 'Your smile to your brother is charity.' (Tirmidhi)",ar:"الابتسامة صدقة! قال النبي ﷺ: تبسمك في وجه أخيك صدقة. (الترمذي)",tr:"Gülümsemek sadakadır! Hz. Peygamber ﷺ: 'Kardeşine gülümsemen sadakadır.' (Tirmizi)"}, likes:891 },
+  ]
+
+  const filtered = filter === "all" ? POSTS : POSTS.filter(p => p.type === filter)
+
+  return (
+    <View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom:14 }}>
+        {FILTERS.map(f => (
+          <TouchableOpacity key={f.id} onPress={() => setFilter(f.id)}
+            style={{ paddingHorizontal:14, paddingVertical:7, borderRadius:99, marginRight:6, backgroundColor: filter===f.id ? C.gold+"25" : C.card2, borderWidth:1, borderColor: filter===f.id ? C.gold : C.border }}>
+            <Text style={{ color: filter===f.id ? C.gold : C.muted, fontSize:12, fontWeight:"700" }}>{f.label[lang]||f.label.fr}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      {filtered.map((post, i) => (
+        <View key={i} style={[styles.card, { padding:14, marginBottom:10 }]}>
+          <View style={{ flexDirection:"row", alignItems:"center", gap:8, marginBottom:10 }}>
+            <View style={{ width:32, height:32, borderRadius:16, backgroundColor:C.gold+"20", alignItems:"center", justifyContent:"center" }}>
+              <Text style={{ fontSize:14 }}>{post.emoji}</Text>
+            </View>
+            <Text style={{ color:C.white, fontSize:13, fontWeight:"700", flex:1 }}>{post.user}</Text>
+            <Text style={{ color:C.muted, fontSize:10 }}>{post.time}</Text>
+          </View>
+          <Text style={{ color:C.white, fontSize:13, lineHeight:22 }}>{post.content[lang]||post.content.fr}</Text>
+          <View style={{ flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginTop:10, paddingTop:10, borderTopWidth:1, borderTopColor:C.border }}>
+            <View style={{ flexDirection:"row", alignItems:"center", gap:4 }}>
+              <Text style={{ fontSize:14 }}>❤️</Text>
+              <Text style={{ color:C.muted, fontSize:11 }}>{post.likes}</Text>
+            </View>
+            <ShareStoryCard text={post.content[lang]||post.content.fr} source="FADJR" lang={lang} />
+          </View>
+        </View>
+      ))}
     </View>
   )
 }
@@ -1792,6 +1876,7 @@ function EcranCulture({ lang="fr" }) {
   // Fetch sourates list
   useEffect(() => {
     if (section === "coran" && sourates.length === 0) {
+      setLoadingQuran(true)
       fetch("https://api.alquran.cloud/v1/surah")
         .then(r => r.json())
         .then(d => { if (d.data) setSourates(d.data) })
@@ -1883,6 +1968,7 @@ function EcranCulture({ lang="fr" }) {
     { id:"ramadan", emoji:"🌙", titre:lang==="ar"?"رمضان":lang==="en"?"Ramadan":"Ramadan", desc:lang==="ar"?"وضع رمضان":lang==="en"?"Ramadan mode":"Mode Ramadan", color:C.gold },
     { id:"aiimam", emoji:"🤖", titre:lang==="ar"?"اسأل الإمام":lang==="en"?"AI Imam":"AI Imam", desc:lang==="ar"?"اسأل سؤالك":lang==="en"?"Ask your question":"Posez votre question", color:C.green },
     { id:"articles", emoji:"📰", titre:lang==="ar"?"مقالات":lang==="en"?"Articles":"Articles", desc:lang==="ar"?"مقالات إسلامية":lang==="en"?"Islamic articles":"Articles islamiques", color:C.red },
+    { id:"community", emoji:"🕌", titre:lang==="ar"?"المجتمع":lang==="en"?"Community":"Communaute", desc:lang==="ar"?"محتوى يومي":lang==="en"?"Daily content":"Contenu quotidien", color:C.teal },
     { id:"ambiance", emoji:"🎵", titre:lang==="ar"?"أصوات":lang==="en"?"Sounds":"Ambiance", desc:lang==="ar"?"استرخاء + قرآن":lang==="en"?"Relaxation + Quran":"Sons apaisants + Coran", color:C.teal },
   ]
 
@@ -1929,6 +2015,7 @@ function EcranCulture({ lang="fr" }) {
               </View>
               <Text style={{ color:C.goldL, fontSize:20, textAlign:"right", lineHeight:36, marginBottom:8 }}>{item.ar}</Text>
               <Text style={{ color:C.muted, fontSize:12, lineHeight:18 }}>{item.fr}</Text>
+              <ShareStoryCard text={item.ar} source={"Coran " + (selectedSourate?.englishName||"")} lang={lang} />
             </View>
           )} />
       )}
@@ -2369,6 +2456,22 @@ function EcranCulture({ lang="fr" }) {
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <InspirationQuotidienne />
+      </ScrollView>
+    </View>
+  )
+
+  // ── COMMUNAUTE ──
+  if (section === "community") return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={() => setSection(null)} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
+        </TouchableOpacity>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕌 {lang==="ar"?"المجتمع":lang==="en"?"Community":"Communaute"}</Text>
+      </View>
+      <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
+        <CommunityFeed lang={lang} />
       </ScrollView>
     </View>
   )
