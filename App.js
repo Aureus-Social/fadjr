@@ -457,7 +457,7 @@ function EcranAuth() {
           {loading
             ? <ActivityIndicator color="#0A0A14" />
             : <Text style={{ color:"#0A0A14", fontSize:15, fontWeight:"900", letterSpacing:1 }}>
-                {mode === "login" ? "SE CONNECTER" : "CREER MON COMPTE"}
+                {mode === "login" ? (lang==="ar"?"تسجيل الدخول":lang==="en"?"SIGN IN":lang==="tr"?"GİRİŞ YAP":"SE CONNECTER") : (lang==="ar"?"إنشاء حساب":lang==="en"?"CREATE ACCOUNT":lang==="tr"?"HESAP OLUŞTUR":"CREER MON COMPTE")}
               </Text>
           }
         </TouchableOpacity>
@@ -627,8 +627,8 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
               </View>
               <View style={{ alignItems:"flex-end" }}>
                 <Text style={{ color: isPrayed ? C.green : isNext ? C.gold : C.white, fontSize:22, fontWeight:"900" }}>{p.time}</Text>
-                {isPrayed && <Text style={{ color:C.green, fontSize:10, marginTop:2 }}>accomplie</Text>}
-                {!isPrayed && isNext && <Text style={{ color:C.gold, fontSize:10, marginTop:2 }}>prochaine</Text>}
+                {isPrayed && <Text style={{ color:C.green, fontSize:10, marginTop:2 }}>{lang==="ar"?"تم":lang==="en"?"done":lang==="tr"?"tamam":"accomplie"}</Text>}
+                {!isPrayed && isNext && <Text style={{ color:C.gold, fontSize:10, marginTop:2 }}>{lang==="ar"?"التالية":lang==="en"?"next":lang==="tr"?"sıradaki":"prochaine"}</Text>}
               </View>
               <TouchableOpacity onPress={(e) => { e.stopPropagation && e.stopPropagation(); const k="fadjr_bell_"+p.name; AsyncStorage.getItem(k).then(v => { const nv=v==="off"?"on":"off"; AsyncStorage.setItem(k,nv); Alert.alert(nv==="on"?"🔔":"🔕", p.name+" — "+(nv==="on"?"Activé":"Désactivé")) }).catch(()=>{}) }}
                 style={{ paddingLeft:8 }}>
@@ -713,6 +713,26 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
         {/* ── Tasbih Counter ── */}
         {subTab==="tasbih" && (
           <TasbihCounter />
+        )}
+
+        {/* ── Adhan Recitateur (dans Horaires) ── */}
+        {subTab==="horaires" && (
+          <View style={[styles.card, { padding:14, marginTop:10 }]}>
+            <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>🔊 {lang==="ar"?"اختر المؤذن":lang==="en"?"Choose Muezzin":lang==="tr"?"Müezzin Seç":"Choisir le Muezzin"}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {ADHAN_RECITERS.map(r => (
+                <TouchableOpacity key={r.id} onPress={() => {
+                  AsyncStorage.setItem("fadjr_adhan", r.id)
+                  Alert.alert("Adhan", r.name)
+                  Linking.openURL(r.url).catch(()=>{})
+                }}
+                  style={{ paddingHorizontal:12, paddingVertical:10, borderRadius:10, marginRight:6, backgroundColor:C.card2, borderWidth:1, borderColor:C.border, alignItems:"center" }}>
+                  <Text style={{ fontSize:20, marginBottom:4 }}>{r.flag}</Text>
+                  <Text style={{ color:C.white, fontSize:10, fontWeight:"600" }}>{r.name.split(" ").slice(-1)[0]}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
         )}
 
         {/* ── Qibla Direction ── */}
@@ -841,7 +861,7 @@ function TasbihCounter() {
         ))}
       </View>
       <TouchableOpacity onPress={reset} style={{ padding:10 }}>
-        <Text style={{ color:C.muted, fontSize:12 }}>Reinitialiser</Text>
+        <Text style={{ color:C.muted, fontSize:12 }}>{lang==="ar"?"إعادة تعيين":lang==="en"?"Reset":lang==="tr"?"Sıfırla":"Reinitialiser"}</Text>
       </TouchableOpacity>
     </View>
   )
@@ -1485,12 +1505,12 @@ function EcranCarte({ lang="fr" }) {
         <TextInput value={search} onChangeText={setSearch} placeholder={t("chercherCommerce",lang)}
           placeholderTextColor={C.muted}
           style={{ backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:11, color:C.white, fontSize:13, marginTop:8 }} />
-        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{filtered.length} restaurants halal</Text>
+        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{filtered.length} {lang==="ar"?"مطعم حلال":lang==="en"?"halal restaurants":lang==="tr"?"helal restoran":"restaurants halal"}</Text>
       </View>
       {loading ? (
         <View style={{ flex:1, alignItems:"center", justifyContent:"center" }}>
           <ActivityIndicator size="large" color={C.gold} />
-          <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>Chargement des restaurants...</Text>
+          <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>{lang==="ar"?"جاري التحميل...":lang==="en"?"Loading...":lang==="tr"?"Yükleniyor...":"Chargement..."}</Text>
         </View>
       ) : (
         <FlatList data={filtered} keyExtractor={c => c.id} contentContainerStyle={{ padding:16 }} showsVerticalScrollIndicator={false}
@@ -1836,7 +1856,7 @@ function EcranCulture({ lang="fr" }) {
         <View style={{ flexDirection:"row", gap:8, marginTop:10, marginBottom:6 }}>
           <TouchableOpacity onPress={playAllSurah}
             style={{ flex:1, padding:10, borderRadius:10, backgroundColor: isPlayingAll ? C.red+"25" : C.gold+"25", borderWidth:1, borderColor: isPlayingAll ? C.red : C.gold, alignItems:"center" }}>
-            <Text style={{ color: isPlayingAll ? C.red : C.gold, fontSize:13, fontWeight:"800" }}>{isPlayingAll ? "⏹ Stop" : "▶️ Ecouter la sourate"}</Text>
+            <Text style={{ color: isPlayingAll ? C.red : C.gold, fontSize:13, fontWeight:"800" }}>{isPlayingAll ? "⏹ Stop" : "▶️ "+(lang==="ar"?"استمع للسورة":lang==="en"?"Listen to surah":lang==="tr"?"Sureyi dinle":"Ecouter la sourate")}</Text>
           </TouchableOpacity>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:6 }}>
@@ -2476,7 +2496,7 @@ function EcranFinance({ lang="fr" }) {
             style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:12, color:C.white, fontSize:16, marginBottom:12 }} />
           <TouchableOpacity onPress={calculateZakat}
             style={{ backgroundColor:C.gold, borderRadius:10, padding:14, alignItems:"center" }}>
-            <Text style={{ color:C.bg, fontSize:15, fontWeight:"900" }}>Calculer ma Zakat</Text>
+            <Text style={{ color:C.bg, fontSize:15, fontWeight:"900" }}>{lang==="ar"?"حساب الزكاة":lang==="en"?"Calculate Zakat":lang==="tr"?"Zekat Hesapla":"Calculer ma Zakat"}</Text>
           </TouchableOpacity>
         </View>
         {zakatResult && (
@@ -2812,7 +2832,7 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
 
         {/* Notifications toggle */}
         <View style={[styles.card, { marginBottom:12 }]}>
-          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:4 }}>🔔 Rappels de priere</Text>
+          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:4 }}>🔔 {lang==="ar"?"تذكيرات الصلاة":lang==="en"?"Prayer reminders":lang==="tr"?"Namaz hatırlatıcıları":"Rappels de priere"}</Text>
           <Text style={{ color:C.muted, fontSize:12, marginBottom:12 }}>Notification avant chaque priere quotidienne</Text>
           <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center" }}>
             <Text style={{ color: notifEnabled ? C.green : C.muted, fontSize:13 }}>
@@ -2825,19 +2845,6 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
               thumbColor={notifEnabled ? C.green : C.muted}
             />
           </View>
-        </View>
-
-        {/* Adhan Recitateur */}
-        <View style={[styles.card, { marginBottom:12, padding:14 }]}>
-          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>🔊 {lang==="ar"?"مؤذن":lang==="en"?"Muezzin":"Recitateur Adhan"}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {ADHAN_RECITERS.map(r => (
-              <TouchableOpacity key={r.id} onPress={() => { AsyncStorage.setItem("fadjr_adhan", r.id); Alert.alert("Adhan", r.name) }}
-                style={{ paddingHorizontal:12, paddingVertical:8, borderRadius:99, marginRight:6, backgroundColor:C.card2, borderWidth:1, borderColor:C.border }}>
-                <Text style={{ color:C.white, fontSize:11, fontWeight:"600" }}>{r.flag} {r.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
         </View>
 
         {/* Langue */}
@@ -2864,9 +2871,9 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
 
         {/* Infos compte */}
         {[
-          ["Version","FADJR v1.0 Sprint 5"],
+          ["Version","FADJR v2.2"],
           ["Email", displayEmail],
-          ["A propos","Super-app halal francophone"],
+          ["A propos",lang==="ar"?"التطبيق الإسلامي الشامل":lang==="en"?"The complete Islamic app":"Super-app halal"],
         ].map(([label,desc],i) => (
           <View key={i} style={{ flexDirection:"row", alignItems:"center", gap:14, paddingVertical:14, borderBottomWidth:1, borderBottomColor:C.border }}>
             <View style={{ flex:1 }}>
@@ -2882,7 +2889,7 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
           style={{ marginTop:24, backgroundColor:"rgba(231,76,60,.1)", borderWidth:1, borderColor:"rgba(231,76,60,.3)", borderRadius:12, paddingVertical:13, alignItems:"center" }}>
           {loggingOut
             ? <ActivityIndicator color={C.red} size="small" />
-            : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>Se deconnecter</Text>
+            : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>{lang==="ar"?"تسجيل الخروج":lang==="en"?"Sign out":lang==="tr"?"Çıkış":"Se deconnecter"}</Text>
           }
         </TouchableOpacity>
       </View>
