@@ -474,7 +474,7 @@ async function fetchPrayerTracked(userId) {
 }
 
 // ─── Écran Auth ───────────────────────────────────────────────────────────────
-function EcranAuth() {
+function EcranAuth({ lang="fr" }) {
   const [mode, setMode] = useState("login")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -701,13 +701,6 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
     <View style={{ flex:1 }}>
       <View style={styles.screenHeader}>
         <Text style={styles.sectionLabel}>PRIERE & SPIRITUALITE</Text>
-            <TouchableOpacity onPress={refreshLocation} style={{ flexDirection:"row", alignItems:"center", gap:4, marginTop:2 }}>
-              <Text style={{ fontSize:12 }}>📍</Text>
-              {locLoading ? <ActivityIndicator size="small" color={C.muted} /> : (
-                <Text style={{ color:C.muted, fontSize:12 }}>{commune || "Localiser"}</Text>
-              )}
-              <Text style={{ color:C.gold, fontSize:10 }}>↻</Text>
-            </TouchableOpacity>
         <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center" }}>
           <Text style={{ color:C.gold, fontSize:18, fontWeight:"900" }}>☪ {city}</Text>
           {/* Compteur journalier */}
@@ -839,7 +832,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
 
         {/* ── Tasbih Counter ── */}
         {subTab==="tasbih" && (
-          <TasbihCounter />
+          <TasbihCounter lang={lang} />
         )}
 
         {/* ── Adhan Recitateur (dans Horaires) ── */}
@@ -944,7 +937,7 @@ function StreakBadges({ prayedToday }) {
 }
 
 // ─── Tasbih Counter ───────────────────────────────────────────────────────────
-function TasbihCounter() {
+function TasbihCounter({ lang="fr" }) {
   const [count, setCount] = useState(0)
   const [target, setTarget] = useState(33)
   const [total, setTotal] = useState(0)
@@ -1863,6 +1856,7 @@ const ASMA_UL_HUSNA = [
 function EcranCulture({ lang="fr" }) {
   const [section, setSection] = useState(null)
   const [sourates, setSourates] = useState([])
+  const [surahLoadError, setSurahLoadError] = useState(false)
   const [selectedSourate, setSelectedSourate] = useState(null)
   const [ayahs, setAyahs] = useState([])
   const [loadingQuran, setLoadingQuran] = useState(false)
@@ -1877,10 +1871,15 @@ function EcranCulture({ lang="fr" }) {
   useEffect(() => {
     if (section === "coran" && sourates.length === 0) {
       setLoadingQuran(true)
+      setSurahLoadError(false)
       fetch("https://api.alquran.cloud/v1/surah")
         .then(r => r.json())
-        .then(d => { if (d.data) setSourates(d.data) })
-        .catch(() => {})
+        .then(d => {
+          if (d.data && d.data.length > 0) { setSourates(d.data) }
+          else { setSurahLoadError(true) }
+          setLoadingQuran(false)
+        })
+        .catch(() => { setSurahLoadError(true); setLoadingQuran(false) })
     }
   }, [section])
 
@@ -2032,7 +2031,17 @@ function EcranCulture({ lang="fr" }) {
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:6 }}>📖 Le Saint Coran</Text>
         <Text style={{ color:C.muted, fontSize:12 }}>{sourates.length} sourates</Text>
       </View>
-      {sourates.length === 0 ? <ActivityIndicator size="large" color={C.gold} style={{ marginTop:40 }} /> : (
+      {surahLoadError ? (
+        <View style={{ alignItems:"center", paddingTop:60, padding:20 }}>
+          <Text style={{ color:C.red, fontSize:14, textAlign:"center", marginBottom:16 }}>
+            ⚠️ Impossible de charger le Coran{"\n"}Vérifiez votre connexion internet
+          </Text>
+          <TouchableOpacity onPress={() => { setSourates([]); setSurahLoadError(false); setLoadingQuran(true); fetch("https://api.alquran.cloud/v1/surah").then(r=>r.json()).then(d=>{if(d.data)setSourates(d.data);setLoadingQuran(false)}).catch(()=>{setSurahLoadError(true);setLoadingQuran(false)}) }}
+            style={{ backgroundColor:C.gold, borderRadius:10, paddingHorizontal:20, paddingVertical:10 }}>
+            <Text style={{ color:C.bg, fontWeight:"900" }}>↻ Réessayer</Text>
+          </TouchableOpacity>
+        </View>
+      ) : sourates.length === 0 ? <ActivityIndicator size="large" color={C.gold} style={{ marginTop:40 }} /> : (
         <FlatList data={sourates} keyExtractor={s => String(s.number)}
           contentContainerStyle={{ padding:16, gap:6 }}
           renderItem={({ item }) => (
@@ -3266,7 +3275,7 @@ export default function App() {
   const authValue = { user: session?.user ?? null, isAnonymous }
 
   if (!session) {
-    return <AuthContext.Provider value={authValue}><EcranAuth /></AuthContext.Provider>
+    return <AuthContext.Provider value={authValue}><EcranAuth lang={lang} /></AuthContext.Provider>
   }
 
   const NAV = [
