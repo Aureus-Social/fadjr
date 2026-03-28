@@ -44,7 +44,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.fadjr",
-      "buildNumber": "18",
+      "buildNumber": "20",
       "config": {
         "usesNonExemptEncryption": false
       },
