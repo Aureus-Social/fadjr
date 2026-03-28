@@ -1823,6 +1823,10 @@ function EcranCarte({ lang="fr" }) {
   )
 
   return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <Text style={styles.sectionLabel}>{t("carteHalal",lang)} {userCity}</Text>
+        <TextInput value={search} onChangeText={setSearch} placeholder={t("chercherCommerce",lang)}
           placeholderTextColor={C.muted}
           style={{ backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:11, color:C.white, fontSize:13, marginTop:8 }} />
         <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{filtered.length} {lang==="ar"?"مطعم حلال":lang==="en"?"halal restaurants":lang==="tr"?"helal restoran":"restaurants halal"}</Text>
