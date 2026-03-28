@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Helvetica Neue', sans-serif; }
+  body { width:430px; height:932px; background:#0A0A14; color:#F0EAD8; overflow:hidden; }
+  .status { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 6px; font-size:15px; font-weight:600; }
+  .header { background:#0D0D20; padding:20px; border-bottom:1px solid rgba(201,168,76,0.15); }
+  .label { color:#5A5A7A; font-size:10px; letter-spacing:2px; font-weight:600; }
+  .title { color:#C9A84C; font-size:18px; font-weight:900; margin-top:4px; }
+  .tabs { display:flex; gap:6px; margin-top:14px; overflow:hidden; }
+  .tab-btn { flex:1; padding:8px 0; text-align:center; border-radius:9px; font-size:11px; font-weight:400; color:#5A5A7A; background:rgba(255,255,255,.05); border-bottom:2px solid transparent; }
+  .tab-btn.active { background:rgba(201,168,76,.15); border-bottom-color:#C9A84C; color:#C9A84C; font-weight:700; }
+  .content { padding:16px; }
+  .score-card { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; padding:24px; text-align:center; margin-bottom:16px; }
+  .score-num { font-size:52px; font-weight:900; color:#C9A84C; }
+  .score-sub { color:#5A5A7A; font-size:14px; margin-top:8px; }
+  .progress-row { display:flex; gap:4px; margin-bottom:16px; justify-content:center; }
+  .dot { width:10px; height:10px; border-radius:99px; }
+  .dot.done { background:#2ECC71; }
+  .dot.pending { background:rgba(255,255,255,.1); }
+  .prayer-row { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; padding:14px; display:flex; align-items:center; gap:14px; margin-bottom:8px; }
+  .prayer-row.done { background:rgba(46,204,113,.08); border-color:rgba(46,204,113,.3); }
+  .prayer-row.next { background:#1C1C35; border-color:rgba(201,168,76,.4); }
+  .p-icon { width:44px; height:44px; border-radius:22px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .p-icon.done { background:rgba(46,204,113,.15); }
+  .p-icon.next { background:rgba(201,168,76,.15); }
+  .p-icon.pending { background:rgba(255,255,255,.05); }
+  .p-name { font-size:16px; font-weight:700; flex:1; }
+  .p-name.done { color:#2ECC71; }
+  .p-name.next { color:#C9A84C; }
+  .p-name.pending { color:#F0EAD8; }
+  .p-time { font-size:22px; font-weight:900; }
+  .p-time.done { color:#2ECC71; }
+  .p-time.next { color:#C9A84C; }
+  .p-badge { font-size:9px; margin-top:2px; text-align:right; }
+  .check { width:28px; height:28px; border-radius:14px; border:2px solid; display:flex; align-items:center; justify-content:center; }
+  .check.done { border-color:#2ECC71; background:#2ECC71; color:white; font-size:14px; font-weight:900; }
+  .check.pending { border-color:#5A5A7A; }
+  .tabbar { position:absolute; bottom:0; left:0; right:0; background:rgba(10,10,20,.97); border-top:1px solid rgba(201,168,76,0.15); padding:8px 0 20px; display:flex; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .tab-icon { font-size:22px; opacity:.4; }
+  .tab-icon.active { opacity:1; }
+  .tab-label { font-size:9px; color:#5A5A7A; }
+  .tab-label.active { color:#C9A84C; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="status">
+  <span>9:41</span>
+  <span>● ●●● 📶 🔋</span>
+</div>
+
+<div class="header">
+  <div class="label">PRIÈRE & SPIRITUALITÉ</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+    <div class="title">☪ Bruxelles</div>
+    <div style="display:flex;gap:4px;align-items:center">
+      <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div>
+      <div class="dot pending"></div><div class="dot pending"></div>
+      <span style="color:#C9A84C;font-size:11px;font-weight:700;margin-left:4px">3/5</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab-btn">Horaires</div>
+    <div class="tab-btn active">Tracker</div>
+    <div class="tab-btn">Dhikr</div>
+    <div class="tab-btn">Adhkar</div>
+    <div class="tab-btn">Tasbih</div>
+    <div class="tab-btn">Qibla</div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="score-card">
+    <div class="label">PRIÈRES DU JOUR</div>
+    <div style="margin-top:8px">
+      <span class="score-num" style="color:#C9A84C">3</span><span style="font-size:28px;color:#5A5A7A">/5</span>
+    </div>
+    <div class="score-sub">Que ta journée commence avec Fajr</div>
+  </div>
+
+  <div class="prayer-row done">
+    <div class="p-icon done">✅</div>
+    <div style="flex:1"><div class="p-name done">Fajr</div><div style="color:#5A5A7A;font-size:12px">05:42</div></div>
+    <div><div class="p-time done">05:42</div><div class="p-badge" style="color:#2ECC71">accomplie</div></div>
+    <div class="check done">✓</div>
+  </div>
+
+  <div class="prayer-row done">
+    <div class="p-icon done">✅</div>
+    <div style="flex:1"><div class="p-name done">Dhuhr</div><div style="color:#5A5A7A;font-size:12px">13:12</div></div>
+    <div><div class="p-time done">13:12</div><div class="p-badge" style="color:#2ECC71">accomplie</div></div>
+    <div class="check done">✓</div>
+  </div>
+
+  <div class="prayer-row done">
+    <div class="p-icon done">✅</div>
+    <div style="flex:1"><div class="p-name done">Asr</div><div style="color:#5A5A7A;font-size:12px">16:35</div></div>
+    <div><div class="p-time done">16:35</div><div class="p-badge" style="color:#2ECC71">accomplie</div></div>
+    <div class="check done">✓</div>
+  </div>
+
+  <div class="prayer-row next">
+    <div class="p-icon next">🌇</div>
+    <div style="flex:1"><div class="p-name next">Maghrib</div><div style="color:#5A5A7A;font-size:12px">19:48</div></div>
+    <div><div class="p-time next">19:48</div><div class="p-badge" style="color:#C9A84C">prochaine</div></div>
+    <div class="check pending" style="border-color:#C9A84C"></div>
+  </div>
+
+  <div class="prayer-row">
+    <div class="p-icon pending">🌃</div>
+    <div style="flex:1"><div class="p-name pending">Isha</div><div style="color:#5A5A7A;font-size:12px">21:22</div></div>
+    <div><div class="p-time" style="color:#F0EAD8">21:22</div></div>
+    <div class="check pending"></div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab"><div class="tab-icon">🏠</div><div class="tab-label">ACCUEIL</div></div>
+  <div class="tab" style="position:relative">
+    <div style="position:absolute;top:0;left:25%;right:25%;height:2px;background:#C9A84C;border-radius:99px"></div>
+    <div class="tab-icon active">🕌</div>
+    <div class="tab-label active">PRIÈRE</div>
+  </div>
+  <div class="tab"><div class="tab-icon">🗺️</div><div class="tab-label">HALAL</div></div>
+  <div class="tab"><div class="tab-icon">📚</div><div class="tab-label">CULTURE</div></div>
+  <div class="tab"><div class="tab-icon">👤</div><div class="tab-label">PROFIL</div></div>
+</div>
+</body>
+</html>

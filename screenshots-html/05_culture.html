@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Helvetica Neue', sans-serif; }
+  body { width:430px; height:932px; background:#0A0A14; color:#F0EAD8; overflow:hidden; }
+  .status { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 6px; font-size:15px; font-weight:600; }
+  .header { background:#0D0D20; padding:20px; border-bottom:1px solid rgba(201,168,76,0.15); }
+  .label { color:#5A5A7A; font-size:10px; letter-spacing:2px; font-weight:600; }
+  .title { color:#C9A84C; font-size:18px; font-weight:900; margin-top:4px; }
+  .subtitle { color:#F0EAD8; font-size:14px; font-weight:600; }
+  .content { padding:14px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  .item { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; padding:18px 12px; text-align:center; }
+  .item-icon { font-size:30px; }
+  .item-name { color:#F0EAD8; font-size:13px; font-weight:800; margin-top:8px; }
+  .item-desc { color:#5A5A7A; font-size:10px; margin-top:4px; line-height:14px; }
+  .dua-card { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; padding:14px; margin-bottom:8px; }
+  .dua-ar { color:#F0D080; font-size:18px; text-align:right; line-height:30px; margin-bottom:8px; }
+  .dua-fr { color:#F0EAD8; font-size:12px; line-height:18px; }
+  .dua-source { color:#5A5A7A; font-size:10px; margin-top:6px; }
+  .dua-count { background:rgba(201,168,76,.2); border-radius:99px; padding:3px 10px; display:inline-block; }
+  .dua-count-text { color:#C9A84C; font-size:11px; font-weight:800; }
+  .share-btn { display:flex; align-items:center; gap:4px; background:rgba(201,168,76,.15); border:1px solid rgba(201,168,76,.3); border-radius:99px; padding:5px 10px; display:inline-flex; }
+  .share-text { color:#C9A84C; font-size:10px; font-weight:700; }
+  .inspiration { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-left:3px solid #C9A84C; border-radius:14px; padding:14px; margin-bottom:8px; }
+  .ins-tag { color:#C9A84C; font-size:11px; font-weight:700; margin-bottom:6px; }
+  .ins-text { color:#F0EAD8; font-size:13px; line-height:20px; font-style:italic; }
+  .tabbar { position:absolute; bottom:0; left:0; right:0; background:rgba(10,10,20,.97); border-top:1px solid rgba(201,168,76,0.15); padding:8px 0 20px; display:flex; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .tab-icon { font-size:22px; opacity:.4; }
+  .tab-icon.active { opacity:1; }
+  .tab-label { font-size:9px; color:#5A5A7A; }
+  .tab-label.active { color:#C9A84C; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="status">
+  <span>9:41</span>
+  <span>● ●●● 📶 🔋</span>
+</div>
+
+<div class="header">
+  <div class="label">CULTURE ISLAMIQUE</div>
+  <div class="subtitle">📚 Apprendre & Grandir</div>
+</div>
+
+<div class="content">
+  <div class="grid">
+    <div class="item" style="border-top:3px solid #C9A84C">
+      <div class="item-icon">📖</div>
+      <div class="item-name">Coran</div>
+      <div class="item-desc">114 sourates + audio</div>
+    </div>
+    <div class="item" style="border-top:3px solid #8B5E3C">
+      <div class="item-icon">📚</div>
+      <div class="item-name">Hadiths</div>
+      <div class="item-desc">Nawawi, Bukhari, Muslim</div>
+    </div>
+    <div class="item" style="border-top:3px solid #9B59B6">
+      <div class="item-icon">🌟</div>
+      <div class="item-name">Sira</div>
+      <div class="item-desc">Vie du Prophète ﷺ</div>
+    </div>
+    <div class="item" style="border-top:3px solid #2ECC71">
+      <div class="item-icon">🤖</div>
+      <div class="item-name">AI Imam</div>
+      <div class="item-desc">Questions islamiques</div>
+    </div>
+  </div>
+
+  <div class="inspiration">
+    <div class="ins-tag">🌅 Verset du jour</div>
+    <div class="ins-text">"Certes, avec la difficulté il y a une facilité" (94:6)</div>
+  </div>
+
+  <div class="dua-card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="color:#C9A84C;font-size:11px;font-weight:700">🌅 Doua du matin</span>
+      <div class="dua-count"><span class="dua-count-text">x1</span></div>
+    </div>
+    <div class="dua-ar">أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ</div>
+    <div class="dua-fr">Nous voilà au matin et le royaume appartient à Allah</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div class="dua-source">Source : Muslim</div>
+      <div class="share-btn"><span style="font-size:11px">📤</span><span class="share-text">Partager</span></div>
+    </div>
+  </div>
+
+  <div class="dua-card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span style="color:#3498DB;font-size:11px;font-weight:700">🛡️ Protection</span>
+      <div class="dua-count"><span class="dua-count-text">x3</span></div>
+    </div>
+    <div class="dua-ar">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ</div>
+    <div class="dua-fr">Au nom d'Allah, rien ne peut nuire avec Son nom</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div class="dua-source">Source : Abu Dawud</div>
+      <div class="share-btn"><span style="font-size:11px">📤</span><span class="share-text">Partager</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab"><div class="tab-icon">🏠</div><div class="tab-label">ACCUEIL</div></div>
+  <div class="tab"><div class="tab-icon">🕌</div><div class="tab-label">PRIÈRE</div></div>
+  <div class="tab"><div class="tab-icon">🗺️</div><div class="tab-label">HALAL</div></div>
+  <div class="tab" style="position:relative">
+    <div style="position:absolute;top:0;left:25%;right:25%;height:2px;background:#C9A84C;border-radius:99px"></div>
+    <div class="tab-icon active">📚</div>
+    <div class="tab-label active">CULTURE</div>
+  </div>
+  <div class="tab"><div class="tab-icon">👤</div><div class="tab-label">PROFIL</div></div>
+</div>
+</body>
+</html>

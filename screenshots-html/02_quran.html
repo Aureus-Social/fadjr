@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Helvetica Neue', sans-serif; }
+  body { width:430px; height:932px; background:#0A0A14; color:#F0EAD8; overflow:hidden; position:relative; }
+  .status { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 6px; font-size:15px; font-weight:600; }
+  .header { background:#0D0D20; padding:20px; border-bottom:1px solid rgba(201,168,76,0.15); }
+  .nav { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+  .nav-back { color:#C9A84C; font-size:16px; font-weight:700; }
+  .title { color:#F0EAD8; font-size:18px; font-weight:900; }
+  .subtitle { color:#5A5A7A; font-size:12px; margin-top:4px; }
+  .audio-btn { background:rgba(201,168,76,.2); border:1px solid #C9A84C; border-radius:10px; padding:10px 16px; display:flex; align-items:center; gap:8px; margin-top:12px; margin-bottom:10px; }
+  .audio-label { color:#C9A84C; font-size:13px; font-weight:800; }
+  .reciters { display:flex; gap:6px; margin-top:6px; overflow:hidden; }
+  .reciter { background:#1A1A2E; border:1px solid rgba(201,168,76,0.15); border-radius:10px; padding:8px 10px; text-align:center; min-width:60px; }
+  .reciter.active { background:rgba(201,168,76,.25); border-color:#C9A84C; }
+  .reciter-flag { font-size:18px; }
+  .reciter-name { color:#F0EAD8; font-size:9px; font-weight:600; margin-top:3px; }
+  .surah-list { padding:12px 16px; overflow:hidden; }
+  .surah { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; padding:14px; display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .surah.highlighted { background:#1C1C35; border-color:rgba(201,168,76,.4); }
+  .num-badge { background:rgba(201,168,76,.2); border-radius:99px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; color:#C9A84C; font-size:12px; font-weight:900; flex-shrink:0; }
+  .surah-info { flex:1; }
+  .surah-en { color:#F0EAD8; font-size:14px; font-weight:700; }
+  .surah-sub { color:#5A5A7A; font-size:11px; margin-top:2px; }
+  .surah-ar { color:#F0D080; font-size:18px; }
+  .tabbar { position:absolute; bottom:0; left:0; right:0; background:rgba(10,10,20,.97); border-top:1px solid rgba(201,168,76,0.15); padding:8px 0 20px; display:flex; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .tab-icon { font-size:22px; opacity:.4; }
+  .tab-icon.active { opacity:1; }
+  .tab-label { font-size:9px; color:#5A5A7A; }
+  .tab-label.active { color:#C9A84C; font-weight:700; }
+  .playing-banner { background:rgba(46,204,113,.12); border:1px solid rgba(46,204,113,.3); border-radius:12px; padding:10px 14px; display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .wave { display:flex; gap:2px; align-items:flex-end; }
+  .wave span { background:#2ECC71; border-radius:2px; animation:wave .6s ease-in-out infinite alternate; }
+  .wave span:nth-child(2) { animation-delay:.15s; }
+  .wave span:nth-child(3) { animation-delay:.3s; }
+  @keyframes wave { from{height:4px} to{height:14px} }
+</style>
+</head>
+<body>
+<div class="status">
+  <span>9:41</span>
+  <span>● ●●● 📶 🔋</span>
+</div>
+
+<div class="header">
+  <div class="nav">
+    <div class="nav-back">← Retour</div>
+  </div>
+  <div class="title">📖 Le Saint Coran</div>
+  <div class="subtitle">114 sourates • Audio 12 récitateurs</div>
+  
+  <div class="audio-btn">
+    <span style="font-size:16px">▶️</span>
+    <div class="audio-label">Écouter la sourate complète</div>
+  </div>
+
+  <div class="playing-banner">
+    <div class="wave">
+      <span style="width:3px;height:8px"></span>
+      <span style="width:3px;height:4px"></span>
+      <span style="width:3px;height:12px"></span>
+      <span style="width:3px;height:6px"></span>
+      <span style="width:3px;height:10px"></span>
+    </div>
+    <div style="flex:1">
+      <div style="color:#2ECC71;font-size:12px;font-weight:700">Mishary Al-Afasy 🇰🇼</div>
+      <div style="color:#5A5A7A;font-size:10px">Récitation en cours...</div>
+    </div>
+    <span style="font-size:14px">⏸</span>
+  </div>
+
+  <div class="reciters" style="margin-top:10px">
+    <div class="reciter active"><div class="reciter-flag">🇰🇼</div><div class="reciter-name">Al-Afasy</div></div>
+    <div class="reciter"><div class="reciter-flag">🇪🇬</div><div class="reciter-name">Abdulbasit</div></div>
+    <div class="reciter"><div class="reciter-flag">🇸🇦</div><div class="reciter-name">Maher</div></div>
+    <div class="reciter"><div class="reciter-flag">🇸🇦</div><div class="reciter-name">Makkah</div></div>
+  </div>
+</div>
+
+<div class="surah-list">
+  <div class="surah highlighted">
+    <div class="num-badge">1</div>
+    <div class="surah-info">
+      <div class="surah-en">Al-Fatihah</div>
+      <div class="surah-sub">L'Ouverture — 7 versets</div>
+    </div>
+    <div class="surah-ar">الفاتحة</div>
+  </div>
+  <div class="surah">
+    <div class="num-badge">2</div>
+    <div class="surah-info">
+      <div class="surah-en">Al-Baqarah</div>
+      <div class="surah-sub">La Vache — 286 versets</div>
+    </div>
+    <div class="surah-ar">البقرة</div>
+  </div>
+  <div class="surah">
+    <div class="num-badge">3</div>
+    <div class="surah-info">
+      <div class="surah-en">Al-Imran</div>
+      <div class="surah-sub">La Famille d'Imran — 200 versets</div>
+    </div>
+    <div class="surah-ar">آل عمران</div>
+  </div>
+  <div class="surah">
+    <div class="num-badge">36</div>
+    <div class="surah-info">
+      <div class="surah-en">Ya-Sin</div>
+      <div class="surah-sub">Ya-Sin — 83 versets</div>
+    </div>
+    <div class="surah-ar">يس</div>
+  </div>
+  <div class="surah">
+    <div class="num-badge">112</div>
+    <div class="surah-info">
+      <div class="surah-en">Al-Ikhlas</div>
+      <div class="surah-sub">Le Monothéisme Pur — 4 versets</div>
+    </div>
+    <div class="surah-ar">الإخلاص</div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab"><div class="tab-icon">🏠</div><div class="tab-label">ACCUEIL</div></div>
+  <div class="tab"><div class="tab-icon">🕌</div><div class="tab-label">PRIÈRE</div></div>
+  <div class="tab"><div class="tab-icon">🗺️</div><div class="tab-label">HALAL</div></div>
+  <div class="tab" style="position:relative">
+    <div style="position:absolute;top:0;left:25%;right:25%;height:2px;background:#C9A84C;border-radius:99px"></div>
+    <div class="tab-icon active">📚</div>
+    <div class="tab-label active">CULTURE</div>
+  </div>
+  <div class="tab"><div class="tab-icon">👤</div><div class="tab-label">PROFIL</div></div>
+</div>
+</body>
+</html>

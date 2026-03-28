@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Helvetica Neue', sans-serif; }
+  body { width:430px; height:932px; background:#0A0A14; color:#F0EAD8; overflow:hidden; position:relative; }
+  .status { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 6px; font-size:15px; font-weight:600; }
+  .hero { background:#0D0D20; padding:20px; border-bottom:1px solid rgba(201,168,76,0.15); }
+  .greeting { color:#5A5A7A; font-size:13px; }
+  .app-title { color:#C9A84C; font-size:28px; font-weight:900; letter-spacing:3px; }
+  .city { color:#C9A84C; font-size:11px; letter-spacing:2px; opacity:.7; }
+  .date-right { text-align:right; }
+  .greg { color:#5A5A7A; font-size:11px; }
+  .hijri { color:#C9A84C; font-size:12px; margin-top:3px; }
+  .next-prayer { background:#1A1A35; border:1px solid rgba(201,168,76,.3); border-left:4px solid #C9A84C; border-radius:14px; padding:16px; margin-top:16px; display:flex; justify-content:space-between; align-items:center; }
+  .label { color:#5A5A7A; font-size:10px; letter-spacing:2px; margin-bottom:4px; }
+  .prayer-name { color:#C9A84C; font-size:24px; font-weight:900; }
+  .prayer-ar { color:#F0EAD8; font-size:13px; opacity:.6; }
+  .prayer-time { color:#F0EAD8; font-size:30px; font-weight:900; text-align:right; }
+  .time-left { color:#2ECC71; font-size:12px; margin-top:4px; }
+  .content { padding:16px; overflow:hidden; }
+  .section-label { color:#5A5A7A; font-size:10px; letter-spacing:2px; margin-bottom:10px; font-weight:600; }
+  .streak { display:flex; align-items:center; justify-content:center; gap:12px; background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; padding:14px; margin-bottom:14px; }
+  .streak-num { color:#C9A84C; font-size:32px; font-weight:900; }
+  .streak-label { color:#5A5A7A; font-size:12px; }
+  .challenge { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-left:3px solid #2ECC71; border-radius:14px; padding:14px; margin-bottom:14px; }
+  .challenge-tag { color:#2ECC71; font-size:11px; font-weight:700; margin-bottom:4px; }
+  .challenge-text { color:#F0EAD8; font-size:13px; font-weight:600; }
+  .pillars { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+  .pillar { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-top:2px solid var(--color); border-radius:12px; padding:12px; text-align:center; }
+  .pillar-icon { font-size:24px; }
+  .pillar-label { color:#F0EAD8; font-size:10px; font-weight:700; letter-spacing:1px; margin-top:4px; }
+  .nearby-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .nearby-link { color:#C9A84C; font-size:12px; }
+  .resto { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; padding:14px; display:flex; gap:12px; align-items:center; margin-bottom:8px; }
+  .resto-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .resto-name { color:#F0EAD8; font-size:13px; font-weight:700; }
+  .resto-stars { color:#C9A84C; font-size:10px; }
+  .resto-desc { color:#5A5A7A; font-size:10px; margin-top:2px; }
+  .resto-dist { color:#5A5A7A; font-size:11px; }
+  .tabbar { position:absolute; bottom:0; left:0; right:0; background:rgba(10,10,20,.97); border-top:1px solid rgba(201,168,76,0.15); padding:8px 0 20px; display:flex; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .tab-icon { font-size:22px; opacity:.4; }
+  .tab-icon.active { opacity:1; }
+  .tab-label { font-size:9px; color:#5A5A7A; font-weight:400; }
+  .tab-label.active { color:#C9A84C; font-weight:700; }
+  .tab-indicator { height:2px; width:50%; background:#C9A84C; border-radius:99px; position:absolute; top:0; }
+  .watermark { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:rgba(201,168,76,0.03); font-size:120px; font-weight:900; letter-spacing:10px; pointer-events:none; }
+</style>
+</head>
+<body>
+<div class="watermark">FADJR</div>
+<div class="status">
+  <span>9:41</span>
+  <span>● ●●● 📶 🔋</span>
+</div>
+
+<div class="hero">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div>
+      <div class="greeting">Assalamu alaykum</div>
+      <div class="app-title">FADJR</div>
+      <div class="city">☪ Bruxelles</div>
+    </div>
+    <div class="date-right">
+      <div class="greg">Samedi 28 mars 2026</div>
+      <div class="hijri">27 Ramadan 1447 H</div>
+    </div>
+  </div>
+  <div class="next-prayer">
+    <div>
+      <div class="label">PROCHAINE PRIÈRE</div>
+      <div class="prayer-name">Maghrib</div>
+      <div class="prayer-ar">Al-Maghrib</div>
+    </div>
+    <div>
+      <div class="prayer-time">19:48</div>
+      <div class="time-left">dans 2h14</div>
+      <div style="font-size:20px;text-align:right;margin-top:4px">🌇</div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="streak">
+    <div style="font-size:28px">🔥</div>
+    <div class="streak-num">12</div>
+    <div class="streak-label">jours<br>consécutifs</div>
+    <div style="display:flex;gap:8px;margin-left:12px">
+      <div style="text-align:center;opacity:.4"><div style="font-size:22px">⭐</div><div style="font-size:9px;color:#5A5A7A">30j</div></div>
+      <div style="text-align:center"><div style="font-size:22px">🔥</div><div style="font-size:9px;color:#C9A84C">7j ✓</div></div>
+    </div>
+  </div>
+
+  <div class="challenge">
+    <div class="challenge-tag">🎯 DÉFI DU JOUR</div>
+    <div class="challenge-text">Lire Sourate Al-Kahf</div>
+  </div>
+
+  <div class="section-label">EXPLORER</div>
+  <div class="pillars">
+    <div class="pillar" style="--color:#C9A84C"><div class="pillar-icon">🕌</div><div class="pillar-label">PRIÈRE</div></div>
+    <div class="pillar" style="--color:#E74C3C"><div class="pillar-icon">🍽️</div><div class="pillar-label">HALAL</div></div>
+    <div class="pillar" style="--color:#8B5E3C"><div class="pillar-icon">📚</div><div class="pillar-label">CULTURE</div></div>
+    <div class="pillar" style="--color:#9B59B6"><div class="pillar-icon">🏦</div><div class="pillar-label">FINANCE</div></div>
+    <div class="pillar" style="--color:#3498DB"><div class="pillar-icon">✈️</div><div class="pillar-label">VOYAGE</div></div>
+    <div class="pillar" style="--color:#1ABC9C"><div class="pillar-icon">👥</div><div class="pillar-label">COMMUNAUTÉ</div></div>
+  </div>
+
+  <div class="nearby-header">
+    <div class="section-label" style="margin-bottom:0">PRÈS DE VOUS</div>
+    <div class="nearby-link">Voir tout →</div>
+  </div>
+  <div class="resto">
+    <div class="resto-icon" style="background:rgba(201,168,76,.18)">🍽️</div>
+    <div style="flex:1">
+      <div class="resto-name">Le Sultane</div>
+      <div class="resto-stars">★★★★★ 4.8</div>
+      <div class="resto-desc">Cuisine orientale, tagine, couscous...</div>
+    </div>
+    <div class="resto-dist">0.3 km</div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab" style="position:relative">
+    <div class="tab-indicator"></div>
+    <div class="tab-icon active">🏠</div>
+    <div class="tab-label active">ACCUEIL</div>
+  </div>
+  <div class="tab"><div class="tab-icon">🕌</div><div class="tab-label">PRIÈRE</div></div>
+  <div class="tab"><div class="tab-icon">🗺️</div><div class="tab-label">HALAL</div></div>
+  <div class="tab"><div class="tab-icon">📚</div><div class="tab-label">CULTURE</div></div>
+  <div class="tab"><div class="tab-icon">👤</div><div class="tab-label">PROFIL</div></div>
+</div>
+</body>
+</html>

@@ -10,8 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import * as Location from 'expo-location'
-// WebBrowser removed — using Linking instead
 import * as Updates from 'expo-updates'
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -1548,19 +1548,207 @@ function KhatamTracker({ onBack, lang="fr" }) {
   )
 }
 
+// ─── Notation Restaurant ─────────────────────────────────────────────────────
+function RatingStars({ value=0, onRate=null, size=16 }) {
+  return (
+    <View style={{ flexDirection:"row", gap:2 }}>
+      {[1,2,3,4,5].map(star => (
+        <TouchableOpacity key={star} onPress={() => onRate && onRate(star)} disabled={!onRate}>
+          <Text style={{ fontSize:size, color: star <= value ? C.gold : "rgba(255,255,255,.15)" }}>★</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
+
+function RestaurantDetail({ resto, favs, onToggleFav, onBack, lang="fr" }) {
+  const [userRating, setUserRating] = useState(0)
+  const [ratings, setRatings] = useState({ viande:0, accueil:0, prix:0 })
+  const [reviews, setReviews] = useState([])
+  const [reviewText, setReviewText] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const auth = useAuth() || {}
+
+  useEffect(() => {
+    // Load existing ratings from Supabase
+    supabase.from("restaurant_ratings")
+      .select("rating,review,user_id,created_at,viande_rating,accueil_rating,prix_rating")
+      .eq("restaurant_id", resto.id)
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setReviews(data)
+          const avg = (key) => Math.round(data.filter(r=>r[key]>0).reduce((s,r)=>s+(r[key]||0),0) / (data.filter(r=>r[key]>0).length||1))
+          setRatings({ viande:avg("viande_rating"), accueil:avg("accueil_rating"), prix:avg("prix_rating") })
+        }
+      }).catch(() => {})
+    // Load user's own rating
+    if (auth.user) {
+      supabase.from("restaurant_ratings").select("rating").eq("restaurant_id", resto.id).eq("user_id", auth.user.id).single()
+        .then(({ data }) => { if (data) setUserRating(data.rating) }).catch(() => {})
+    }
+  }, [resto.id])
+
+  const submitRating = async (stars) => {
+    setUserRating(stars)
+    if (!auth.user || auth.isAnonymous) { Alert.alert(lang==="ar"?"تسجيل مطلوب":lang==="en"?"Login required":"Connexion requise", lang==="ar"?"سجّل دخولك لإضافة تقييم":lang==="en"?"Please log in to rate":"Connectez-vous pour noter"); return }
+    setSubmitting(true)
+    await supabase.from("restaurant_ratings").upsert({ restaurant_id: resto.id, user_id: auth.user.id, rating: stars, review: reviewText.trim()||null, updated_at: new Date().toISOString() }, { onConflict:"restaurant_id,user_id" }).catch(() => {})
+    setSubmitting(false)
+    setSubmitted(true)
+    setTimeout(() => setSubmitted(false), 2000)
+  }
+
+  const isFav = favs.includes(resto.id)
+  const overallRating = resto.rating || 0
+  const reviewCount = reviews.length
+
+  return (
+    <View style={{ flex:1 }}>
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={onBack} style={{ flexDirection:"row", alignItems:"center", gap:6 }}>
+          <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
+          <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour", lang)}</Text>
+        </TouchableOpacity>
+        <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"flex-start", marginTop:8 }}>
+          <View style={{ flex:1 }}>
+            <Text style={{ color:C.white, fontSize:20, fontWeight:"900" }}>🍽️ {resto.name}</Text>
+            {resto.halal_status && (
+              <View style={{ backgroundColor:C.green+"18", borderRadius:99, paddingHorizontal:10, paddingVertical:3, alignSelf:"flex-start", marginTop:6 }}>
+                <Text style={{ color:C.green, fontSize:10, fontWeight:"800" }}>HALAL {resto.halal_status==="verified" ? "✅ CERTIFIÉ" : ""}</Text>
+              </View>
+            )}
+          </View>
+          <TouchableOpacity onPress={() => onToggleFav(resto.id)} style={{ padding:8 }}>
+            <Text style={{ fontSize:24 }}>{isFav ? "❤️" : "🤍"}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <ScrollView style={{ flex:1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding:16 }}>
+        {/* Info principale */}
+        <View style={[styles.card, { padding:16, marginBottom:12 }]}>
+          {overallRating > 0 && (
+            <View style={{ flexDirection:"row", alignItems:"center", gap:8, marginBottom:12 }}>
+              <RatingStars value={Math.round(overallRating)} size={18} />
+              <Text style={{ color:C.gold, fontSize:16, fontWeight:"900" }}>{overallRating.toFixed(1)}</Text>
+              <Text style={{ color:C.muted, fontSize:12 }}>({reviewCount} {lang==="ar"?"تقييم":lang==="en"?"reviews":"avis"})</Text>
+            </View>
+          )}
+          {resto.address && (
+            <View style={{ flexDirection:"row", gap:8, marginBottom:8 }}>
+              <Text style={{ fontSize:14 }}>📍</Text>
+              <Text style={{ color:C.white, fontSize:13, flex:1 }}>{resto.address}</Text>
+            </View>
+          )}
+          {resto.cuisine_type && (
+            <View style={{ flexDirection:"row", gap:8, marginBottom:8 }}>
+              <Text style={{ fontSize:14 }}>🍴</Text>
+              <Text style={{ color:C.teal, fontSize:13 }}>{resto.cuisine_type}</Text>
+            </View>
+          )}
+          {resto.phone && (
+            <View style={{ flexDirection:"row", gap:8 }}>
+              <Text style={{ fontSize:14 }}>📞</Text>
+              <Text style={{ color:C.white, fontSize:13 }}>{resto.phone}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Actions */}
+        <View style={{ flexDirection:"row", gap:8, marginBottom:12 }}>
+          {resto.phone && (
+            <TouchableOpacity onPress={() => Linking.openURL("tel:"+resto.phone.replace(/\s/g,"")).catch(()=>{})}
+              style={{ flex:1, padding:12, borderRadius:10, borderWidth:1, borderColor:C.gold, alignItems:"center" }}>
+              <Text style={{ color:C.gold, fontSize:12, fontWeight:"700" }}>📞 {lang==="ar"?"اتصل":lang==="en"?"Call":"Appeler"}</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={() => Linking.openURL(resto.google_maps_url || "https://maps.google.com/?q="+encodeURIComponent(resto.address||resto.name)).catch(()=>{})}
+            style={{ flex:1, padding:12, borderRadius:10, borderWidth:1, borderColor:C.blue, alignItems:"center" }}>
+            <Text style={{ color:C.blue, fontSize:12, fontWeight:"700" }}>🗺️ {lang==="ar"?"توجيه":lang==="en"?"Directions":"Itinéraire"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => Share.share({ message:"🍽️ "+resto.name+"\n📍 "+(resto.address||"")+"\n\n📲 Trouvé sur FADJR: https://fadjr.app" }).catch(()=>{})}
+            style={{ flex:1, padding:12, borderRadius:10, borderWidth:1, borderColor:C.muted, alignItems:"center" }}>
+            <Text style={{ color:C.muted, fontSize:12, fontWeight:"700" }}>📤 {lang==="ar"?"شارك":lang==="en"?"Share":"Partager"}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Évaluations détaillées */}
+        {reviewCount > 0 && (
+          <View style={[styles.card, { padding:14, marginBottom:12 }]}>
+            <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:12 }}>⭐ {lang==="ar"?"التقييمات":lang==="en"?"Ratings":"Évaluations"}</Text>
+            {[["viande", lang==="ar"?"اللحم":lang==="en"?"Meat":"Viande halal"], ["accueil", lang==="ar"?"الاستقبال":lang==="en"?"Service":"Accueil"], ["prix", lang==="ar"?"السعر":lang==="en"?"Price":"Prix"]].map(([key, label]) => (
+              <View key={key} style={{ flexDirection:"row", alignItems:"center", gap:8, marginBottom:8 }}>
+                <Text style={{ color:C.muted, fontSize:11, width:80 }}>{label}</Text>
+                <View style={{ flex:1, height:4, backgroundColor:"rgba(255,255,255,.06)", borderRadius:99, overflow:"hidden" }}>
+                  <View style={{ width:(ratings[key]/5*100)+"%", height:"100%", backgroundColor:C.gold, borderRadius:99 }} />
+                </View>
+                <RatingStars value={ratings[key]} size={11} />
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Donner son avis */}
+        <View style={[styles.card, { padding:14, marginBottom:12 }]}>
+          <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:10 }}>{lang==="ar"?"قيّم هذا المطعم":lang==="en"?"Rate this restaurant":"Votre avis"}</Text>
+          <View style={{ alignItems:"center", marginBottom:12 }}>
+            <RatingStars value={userRating} onRate={submitRating} size={32} />
+            {userRating > 0 && <Text style={{ color:C.gold, fontSize:11, marginTop:6 }}>{["","😞 Décevant","😐 Passable","🙂 Bien","😊 Très bien","🤩 Excellent!"][userRating]}</Text>}
+          </View>
+          {userRating > 0 && !submitted && (
+            <TextInput value={reviewText} onChangeText={setReviewText} multiline numberOfLines={2}
+              placeholder={lang==="ar"?"أضف تعليقاً...":lang==="en"?"Add a comment...":"Ajoutez un commentaire..."}
+              placeholderTextColor={C.muted}
+              style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:10, color:C.white, fontSize:12, textAlignVertical:"top", marginBottom:8 }} />
+          )}
+          {submitted && <Text style={{ color:C.green, fontSize:12, textAlign:"center" }}>✅ {lang==="ar"?"شكراً!":lang==="en"?"Thank you!":"Merci !"}</Text>}
+        </View>
+
+        {/* Derniers avis */}
+        {reviews.filter(r=>r.review).length > 0 && (
+          <View style={{ marginBottom:12 }}>
+            <Text style={{ color:C.white, fontSize:13, fontWeight:"700", marginBottom:8 }}>💬 {lang==="ar"?"آخر التعليقات":lang==="en"?"Recent reviews":"Commentaires"}</Text>
+            {reviews.filter(r=>r.review).slice(0,3).map((r, i) => (
+              <View key={i} style={[styles.card, { padding:12, marginBottom:6 }]}>
+                <View style={{ flexDirection:"row", justifyContent:"space-between", marginBottom:4 }}>
+                  <RatingStars value={r.rating||0} size={12} />
+                  <Text style={{ color:C.muted, fontSize:9 }}>{new Date(r.created_at).toLocaleDateString()}</Text>
+                </View>
+                <Text style={{ color:C.white, fontSize:12, lineHeight:18 }}>{r.review}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  )
+}
+
 // ─── Écran Carte ──────────────────────────────────────────────────────────────
 function EcranCarte({ lang="fr" }) {
   const [restaurants, setRestaurants] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState(null)
+  const [detailView, setDetailView] = useState(null)
   const [userCity, setUserCity] = useState("Brussels")
   const [favs, setFavs] = useState([])
+  const auth = useAuth() || {}
 
-  // Load favorites
+  // Load favorites — cross-device si connecté, sinon AsyncStorage
   useEffect(() => {
-    AsyncStorage.getItem("fadjr_favs").then(d => { if (d) setFavs(JSON.parse(d)) }).catch(() => {})
-  }, [])
+    const loadFavs = async () => {
+      if (auth.user && !auth.isAnonymous) {
+        const { data } = await supabase.from("user_favorites").select("restaurant_id").eq("user_id", auth.user.id).catch(() => ({ data:null }))
+        if (data && data.length > 0) { setFavs(data.map(f=>f.restaurant_id)); return }
+      }
+      AsyncStorage.getItem("fadjr_favs").then(d => { if (d) setFavs(JSON.parse(d)) }).catch(() => {})
+    }
+    loadFavs()
+  }, [auth.user])
 
   // Fetch restaurants from Supabase based on GPS
   useEffect(() => {
@@ -1609,7 +1797,16 @@ function EcranCarte({ lang="fr" }) {
       updated = [...favs, id]
     }
     setFavs(updated)
+    // Persister local
     await AsyncStorage.setItem("fadjr_favs", JSON.stringify(updated))
+    // Sync Supabase cross-device si connecté
+    if (auth.user && !auth.isAnonymous) {
+      if (updated.includes(id)) {
+        await supabase.from("user_favorites").upsert({ user_id:auth.user.id, restaurant_id:id }, { onConflict:"user_id,restaurant_id" }).catch(() => {})
+      } else {
+        await supabase.from("user_favorites").delete().eq("user_id",auth.user.id).eq("restaurant_id",id).catch(() => {})
+      }
+    }
   }
 
   const filtered = restaurants.filter(c =>
@@ -1618,11 +1815,11 @@ function EcranCarte({ lang="fr" }) {
     (c.cuisine_type||"").toLowerCase().includes(search.toLowerCase())
   )
 
+  if (detailView) return (
+    <RestaurantDetail resto={detailView} favs={favs} onToggleFav={toggleFav} onBack={() => setDetailView(null)} lang={lang} />
+  )
+
   return (
-    <View style={{ flex:1 }}>
-      <View style={styles.screenHeader}>
-        <Text style={styles.sectionLabel}>{t("carteHalal",lang)} {userCity}</Text>
-        <TextInput value={search} onChangeText={setSearch} placeholder={t("chercherCommerce",lang)}
           placeholderTextColor={C.muted}
           style={{ backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:11, color:C.white, fontSize:13, marginTop:8 }} />
         <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{filtered.length} {lang==="ar"?"مطعم حلال":lang==="en"?"halal restaurants":lang==="tr"?"helal restoran":"restaurants halal"}</Text>
@@ -1633,16 +1830,16 @@ function EcranCarte({ lang="fr" }) {
           <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>{lang==="ar"?"جاري التحميل...":lang==="en"?"Loading...":lang==="tr"?"Yükleniyor...":"Chargement..."}</Text>
         </View>
       ) : (
-        <FlatList data={filtered} keyExtractor={c => c.id} contentContainerStyle={{ padding:16 }} showsVerticalScrollIndicator={false}
+        <FlatList data={filtered} keyExtractor={c => String(c.id)} contentContainerStyle={{ padding:16 }} showsVerticalScrollIndicator={false}
           renderItem={({ item:c }) => (
-            <TouchableOpacity onPress={() => setSelected(selected?.id===c.id ? null : c)}
-              style={[styles.card, { marginBottom:10, borderColor: selected?.id===c.id ? C.gold : C.border, backgroundColor: selected?.id===c.id ? "#1C1C35" : C.card }]}>
+            <TouchableOpacity onPress={() => setDetailView(c)}
+              style={[styles.card, { marginBottom:10, borderColor:favs.includes(c.id) ? C.gold+"60" : C.border }]}>
               <View style={{ flexDirection:"row", alignItems:"flex-start", gap:14, padding:14 }}>
                 <View style={{ width:44, height:44, borderRadius:10, backgroundColor:C.gold+"18", alignItems:"center", justifyContent:"center" }}>
                   <Text style={{ fontSize:22 }}>🍽️</Text>
                 </View>
                 <View style={{ flex:1 }}>
-                  <Text style={{ color: selected?.id===c.id ? C.gold : C.white, fontSize:14, fontWeight:"700" }}>{c.name}</Text>
+                  <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{c.name}</Text>
                   {c.rating > 0 && <Text style={{ color:C.gold, fontSize:11, marginTop:2 }}>{"★".repeat(Math.floor(c.rating))} {c.rating}</Text>}
                   <Text style={{ color:C.muted, fontSize:11, marginTop:3 }}>{c.address}</Text>
                   {c.cuisine_type && <Text style={{ color:C.teal, fontSize:10, marginTop:3 }}>{c.cuisine_type}</Text>}
@@ -1915,39 +2112,64 @@ function EcranCulture({ lang="fr" }) {
     }
   }, [selectedSourate, reciter])
 
-  // Audio player — opens native audio player
+  // Audio player — player interne via expo-audio
+  const audioPlayerRef = useRef(null)
   const [isPlayingAll, setIsPlayingAll] = useState(false)
 
-  const playAyah = async (audioUrl, ayahNum) => {
-    if (playingAyah === ayahNum) { setPlayingAyah(null); return }
-    setPlayingAyah(ayahNum)
-    Linking.openURL(audioUrl).catch(() => {})
-    // Auto-advance after estimated duration
-    setTimeout(() => {
-      setPlayingAyah(null)
-      if (isPlayingAll) {
-        const nextIdx = ayahs.findIndex(a => a.num === ayahNum) + 1
-        if (nextIdx < ayahs.length && ayahs[nextIdx].audio) {
-          setTimeout(() => playAyah(ayahs[nextIdx].audio, ayahs[nextIdx].num), 500)
-        } else {
-          setIsPlayingAll(false)
-        }
-      }
-    }, 8000)
+  const stopAudio = () => {
+    if (audioPlayerRef.current) {
+      try { audioPlayerRef.current.pause(); audioPlayerRef.current.remove() } catch(e) {}
+      audioPlayerRef.current = null
+    }
+    setPlayingAyah(null)
+    setIsPlayingAll(false)
   }
 
-  const playAllSurah = () => {
-    if (isPlayingAll) { setIsPlayingAll(false); setPlayingAyah(null); return }
-    if (ayahs.length > 0 && ayahs[0].audio) {
-      setIsPlayingAll(true)
-      // Play full surah audio via reciter URL
-      const surahUrl = `https://cdn.islamic.network/quran/audio-surah/128/${reciter.id.replace("ar.","")}/${selectedSourate.number}.mp3`
-      Linking.openURL(surahUrl).catch(() => {
-        // Fallback: play first ayah
-        playAyah(ayahs[0].audio, ayahs[0].num)
+  const playAyah = async (audioUrl, ayahNum) => {
+    if (playingAyah === ayahNum) { stopAudio(); return }
+    stopAudio()
+    setPlayingAyah(ayahNum)
+    try {
+      await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
+      const player = createAudioPlayer({ uri: audioUrl })
+      audioPlayerRef.current = player
+      player.play()
+      player.addListener('playingChange', (s) => {
+        if (s && !s.isPlaying && audioPlayerRef.current === player) {
+          setPlayingAyah(null)
+          audioPlayerRef.current = null
+        }
       })
+    } catch(e) {
+      setPlayingAyah(null)
+      Linking.openURL(audioUrl).catch(()=>{})
     }
   }
+
+  const playAllSurah = async () => {
+    if (isPlayingAll) { stopAudio(); return }
+    if (!selectedSourate) return
+    const surahUrl = `https://cdn.islamic.network/quran/audio-surah/128/${reciter.id.replace("ar.","")}/${selectedSourate.number}.mp3`
+    stopAudio()
+    setIsPlayingAll(true)
+    try {
+      await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
+      const player = createAudioPlayer({ uri: surahUrl })
+      audioPlayerRef.current = player
+      player.play()
+      player.addListener('playingChange', (s) => {
+        if (s && !s.isPlaying && audioPlayerRef.current === player) {
+          setIsPlayingAll(false)
+          audioPlayerRef.current = null
+        }
+      })
+    } catch(e) {
+      setIsPlayingAll(false)
+      Linking.openURL(surahUrl).catch(()=>{})
+    }
+  }
+
+  useEffect(() => { return () => stopAudio() }, [])
 
   const ITEMS = [
     { id:"coran", emoji:"📖", titre:t("coran",lang), desc:"114 "+t("sourates",lang)+" + audio", color:C.gold },

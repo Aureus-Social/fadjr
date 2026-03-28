@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, 'Helvetica Neue', sans-serif; }
+  body { width:430px; height:932px; background:#0A0A14; color:#F0EAD8; overflow:hidden; }
+  .status { display:flex; justify-content:space-between; align-items:center; padding:14px 20px 6px; font-size:15px; font-weight:600; }
+  .header { background:#0D0D20; padding:20px; border-bottom:1px solid rgba(201,168,76,0.15); }
+  .label { color:#5A5A7A; font-size:10px; letter-spacing:2px; font-weight:600; }
+  .title { color:#F0EAD8; font-size:18px; font-weight:900; margin-top:4px; }
+  .search { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:10px; padding:11px; color:#5A5A7A; font-size:13px; margin-top:8px; }
+  .count { color:#5A5A7A; font-size:11px; margin-top:6px; }
+  .content { padding:14px; overflow:hidden; }
+  .card { background:#12121E; border:1px solid rgba(201,168,76,0.15); border-radius:14px; margin-bottom:8px; }
+  .card.selected { background:#1C1C35; border-color:#C9A84C; }
+  .card-row { padding:14px; display:flex; gap:12px; }
+  .icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .name { color:#F0EAD8; font-size:14px; font-weight:700; }
+  .name.selected { color:#C9A84C; }
+  .stars { color:#C9A84C; font-size:11px; margin-top:2px; }
+  .addr { color:#5A5A7A; font-size:11px; margin-top:3px; }
+  .cuisine { color:#1ABC9C; font-size:10px; margin-top:3px; }
+  .badge { background:rgba(46,204,113,.18); border-radius:99px; padding:2px 8px; display:inline-block; margin-top:4px; }
+  .badge-text { color:#2ECC71; font-size:9px; font-weight:700; }
+  .detail { padding:12px 14px 14px; border-top:1px solid rgba(201,168,76,0.15); }
+  .detail-title { color:#C9A84C; font-size:12px; font-weight:700; margin-bottom:10px; }
+  .actions { display:flex; gap:8px; }
+  .action-btn { flex:1; padding:9px 8px; border-radius:8px; border:1px solid; text-align:center; font-size:11px; font-weight:700; }
+  .rating-section { background:#0D0D20; border-radius:10px; padding:12px; margin-top:10px; }
+  .rating-title { color:#C9A84C; font-size:11px; font-weight:700; margin-bottom:8px; }
+  .rating-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .rating-label { color:#5A5A7A; font-size:10px; width:60px; }
+  .rating-bar-bg { flex:1; height:4px; background:rgba(255,255,255,.08); border-radius:99px; }
+  .rating-bar { height:4px; border-radius:99px; background:#C9A84C; }
+  .rating-count { color:#5A5A7A; font-size:9px; width:25px; text-align:right; }
+  .tabbar { position:absolute; bottom:0; left:0; right:0; background:rgba(10,10,20,.97); border-top:1px solid rgba(201,168,76,0.15); padding:8px 0 20px; display:flex; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .tab-icon { font-size:22px; opacity:.4; }
+  .tab-icon.active { opacity:1; }
+  .tab-label { font-size:9px; color:#5A5A7A; }
+  .tab-label.active { color:#C9A84C; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="status">
+  <span>9:41</span>
+  <span>● ●●● 📶 🔋</span>
+</div>
+
+<div class="header">
+  <div class="label">CARTE HALAL BRUXELLES</div>
+  <div class="search">🔍 Chercher un commerce halal...</div>
+  <div class="count">48 restaurants halal • Bruxelles</div>
+</div>
+
+<div class="content">
+  <div class="card selected">
+    <div class="card-row">
+      <div class="icon" style="background:rgba(201,168,76,.18)">🍽️</div>
+      <div style="flex:1">
+        <div class="name selected">Le Sultane</div>
+        <div class="stars">★★★★★ 4.8 <span style="color:#5A5A7A;font-size:10px">(127 avis)</span></div>
+        <div class="addr">Chaussée de Wavre 142, Ixelles</div>
+        <div class="cuisine">Cuisine orientale, tagine, couscous</div>
+        <div class="badge"><span class="badge-text">HALAL CERTIFIÉ ✅</span></div>
+      </div>
+      <div style="color:#5A5A7A;font-size:11px">0.3 km</div>
+    </div>
+    <div class="detail">
+      <div class="actions">
+        <div class="action-btn" style="border-color:#C9A84C;color:#C9A84C">📞 Appeler</div>
+        <div class="action-btn" style="border-color:#3498DB;color:#3498DB">🗺️ Y aller</div>
+        <div class="action-btn" style="border-color:#2ECC71;color:#2ECC71">⭐ Favori</div>
+      </div>
+      <div class="rating-section">
+        <div class="rating-title">⭐ Évaluations</div>
+        <div class="rating-row"><div class="rating-label">Viande ★★★★★</div><div class="rating-bar-bg"><div class="rating-bar" style="width:92%"></div></div><div class="rating-count">92%</div></div>
+        <div class="rating-row"><div class="rating-label">Accueil ★★★★½</div><div class="rating-bar-bg"><div class="rating-bar" style="width:88%"></div></div><div class="rating-count">88%</div></div>
+        <div class="rating-row"><div class="rating-label">Prix ★★★★</div><div class="rating-bar-bg"><div class="rating-bar" style="width:78%"></div></div><div class="rating-count">78%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-row">
+      <div class="icon" style="background:rgba(231,76,60,.18)">🥩</div>
+      <div style="flex:1">
+        <div class="name">Boucherie Al Madina</div>
+        <div class="stars">★★★★½ 4.6</div>
+        <div class="addr">Rue Molenbeek 67, Molenbeek</div>
+        <div class="cuisine">Agneau, veau, poulet, merguez</div>
+        <div class="badge"><span class="badge-text">HALAL AVS ✅</span></div>
+      </div>
+      <div style="color:#5A5A7A;font-size:11px">0.7 km</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-row">
+      <div class="icon" style="background:rgba(139,94,60,.18)">📚</div>
+      <div style="flex:1">
+        <div class="name">Al Bouraq Books</div>
+        <div class="stars">★★★★★ 4.9</div>
+        <div class="addr">Rue de Flandre 88, Bruxelles</div>
+        <div class="cuisine">Coran, hadith, livres enfants</div>
+      </div>
+      <div style="color:#5A5A7A;font-size:11px">1.1 km</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab"><div class="tab-icon">🏠</div><div class="tab-label">ACCUEIL</div></div>
+  <div class="tab"><div class="tab-icon">🕌</div><div class="tab-label">PRIÈRE</div></div>
+  <div class="tab" style="position:relative">
+    <div style="position:absolute;top:0;left:25%;right:25%;height:2px;background:#C9A84C;border-radius:99px"></div>
+    <div class="tab-icon active">🗺️</div>
+    <div class="tab-label active">HALAL</div>
+  </div>
+  <div class="tab"><div class="tab-icon">📚</div><div class="tab-label">CULTURE</div></div>
+  <div class="tab"><div class="tab-icon">👤</div><div class="tab-label">PROFIL</div></div>
+</div>
+</body>
+</html>
