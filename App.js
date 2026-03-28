@@ -770,7 +770,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
               {prayedCount === 0 && <Text style={{ color:C.muted, fontSize:13, marginTop:8 }}>Que ta journée commence avec Fajr</Text>}
             </View>
             {NOTIF_PRAYERS.map((name, i) => {
-              const p = prayers.find(pr => pr.name === name)
+              const p = (prayers||[]).find(pr => pr.name === name)
               const done = prayedToday[name]
               return (
                 <TouchableOpacity key={name} onPress={() => onTogglePrayed(name)}
@@ -841,10 +841,13 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
             <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>🔊 {lang==="ar"?"اختر المؤذن":lang==="en"?"Choose Muezzin":lang==="tr"?"Müezzin Seç":"Choisir le Muezzin"}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {ADHAN_RECITERS.map(r => (
-                <TouchableOpacity key={r.id} onPress={() => {
+                <TouchableOpacity key={r.id} onPress={async () => {
                   AsyncStorage.setItem("fadjr_adhan", r.id)
                   Alert.alert("Adhan", r.name)
-                  Linking.openURL(r.url).catch(()=>{})
+                  try {
+                    const player = createAudioPlayer({ uri: r.url })
+                    player.play()
+                  } catch(e) {}
                 }}
                   style={{ paddingHorizontal:12, paddingVertical:10, borderRadius:10, marginRight:6, backgroundColor:C.card2, borderWidth:1, borderColor:C.border, alignItems:"center" }}>
                   <Text style={{ fontSize:20, marginBottom:4 }}>{r.flag}</Text>
@@ -1086,7 +1089,7 @@ function AIImam({ lang="fr" }) {
     try {
       const resp = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": "placeholder" },
+        headers: { "Content-Type": "application/json", "x-api-key": "placeholder", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 500,
@@ -1187,8 +1190,8 @@ function ModeRamadan({ prayers, lang="fr" }) {
     AsyncStorage.setItem("fadjr_ramadan_checklist", JSON.stringify(updated)).catch(() => {})
   }
 
-  const fajr = prayers.find(p => p.name === "Fajr")
-  const maghrib = prayers.find(p => p.name === "Maghrib")
+  const fajr = (prayers||[]).find(p => p.name === "Fajr")
+  const maghrib = (prayers||[]).find(p => p.name === "Maghrib")
 
   const TASKS = [
     { key:"suhoor", emoji:"🌅", label:{fr:"Suhoor pris",en:"Suhoor taken",ar:"تناول السحور",tr:"Sahur yapıldı"} },
@@ -3149,7 +3152,6 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
   const isAnonymous = auth.isAnonymous || !user
   const [profile, setProfile] = useState(null)
   const [loggingOut, setLoggingOut] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [notifCount, setNotifCount] = useState(0)
   const [showLangPicker, setShowLangPicker] = useState(false)
 
@@ -3395,7 +3397,7 @@ export default function App() {
     const fetchPrayers = async () => {
       try {
         const today = new Date()
-        const res = await fetch(`https://api.aladhan.com/v1/timings/${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}?latitude=50.8503&longitude=4.3517&method=3`)
+        const res = await fetch(`https://api.aladhan.com/v1/timings/${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}?latitude=${userLat}&longitude=${userLng}&method=${prayerMethod}`)
         const data = await res.json()
         if (data.code === 200) {
           const t = data.data.timings
@@ -3424,7 +3426,7 @@ export default function App() {
       } finally { setLoading(false) }
     }
     fetchPrayers()
-  }, [])
+  }, [userLat, userLng, prayerMethod])
 
   // ── Notifications setup ──
   useEffect(() => {
