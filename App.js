@@ -3562,6 +3562,6 @@ const styles = StyleSheet.create({
   pilierBtn: { backgroundColor:"#12121E", borderWidth:1, borderColor:"rgba(201,168,76,0.15)", borderRadius:12, padding:14, alignItems:"center" },
   subTabBtn: { flex:1, paddingVertical:8, alignItems:"center", borderRadius:9, backgroundColor:"rgba(255,255,255,.05)", borderBottomWidth:2, borderBottomColor:"transparent" },
   subTabActive: { backgroundColor:"rgba(201,168,76,.15)", borderBottomColor:"#C9A84C" },
-  tabBar: { flexDirection:"row", backgroundColor:"rgba(10,10,20,.97)", borderTopWidth:1, borderTopColor:"rgba(201,168,76,0.15)", paddingBottom:8, paddingTop:8 },
+  tabBar: { flexDirection:"row", backgroundColor:"rgba(10,10,20,.97)", borderTopWidth:1, borderTopColor:"rgba(201,168,76,0.15)", paddingBottom: Platform.OS === "android" ? 28 : 8, paddingTop:8 },
   tabItem: { flex:1, alignItems:"center", position:"relative" },
 })
