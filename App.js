@@ -1420,6 +1420,8 @@ function MosqueesProximite({ lang="fr" }) {
   const [error, setError] = useState(null)
   const [userCoords, setUserCoords] = useState(null)
   const [cityName, setCityName] = useState("")
+  const [manualCity, setManualCity] = useState("")
+  const [searchMode, setSearchMode] = useState("gps") // gps or manual
 
   const calcDist = (lat1, lon1, lat2, lon2) => {
     const R = 6371
@@ -1427,6 +1429,74 @@ function MosqueesProximite({ lang="fr" }) {
     const dLon = (lon2-lon1) * Math.PI/180
     const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2)
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  }
+
+  const searchMosques = async (lat, lng, city) => {
+    setLoading(true)
+    setMosques([])
+    try {
+      // Search with Overpass API for better results
+      const overpassQuery = `[out:json][timeout:15];(node["amenity"="place_of_worship"]["religion"="muslim"](around:25000,${lat},${lng});way["amenity"="place_of_worship"]["religion"="muslim"](around:25000,${lat},${lng}););out center 50;`
+      const resp = await fetch(
+        `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`,
+        { headers: { "User-Agent": "FADJR-App/1.0" } }
+      )
+      const data = await resp.json()
+      
+      if (data && data.elements && data.elements.length > 0) {
+        const sorted = data.elements.map(m => {
+          const mLat = m.lat || m.center?.lat
+          const mLng = m.lon || m.center?.lon
+          return {
+            name: m.tags?.name || m.tags?.["name:fr"] || m.tags?.["name:ar"] || (lang==="ar"?"مسجد":lang==="en"?"Mosque":"Mosquée"),
+            adresse: m.tags?.["addr:street"] ? `${m.tags["addr:housenumber"]||""} ${m.tags["addr:street"]}, ${m.tags["addr:city"]||""}`.trim() : "",
+            lat: mLat,
+            lng: mLng,
+            dist: calcDist(lat, lng, mLat, mLng),
+            phone: m.tags?.phone || m.tags?.["contact:phone"] || null
+          }
+        }).filter(m => m.lat && m.lng && m.dist <= 25).sort((a,b) => a.dist - b.dist)
+        setMosques(sorted)
+      } else {
+        // Fallback Nominatim
+        const resp2 = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=mosque+${encodeURIComponent(city)}&format=json&limit=50`,
+          { headers: { "User-Agent": "FADJR-App/1.0" } }
+        )
+        const data2 = await resp2.json()
+        if (data2 && data2.length > 0) {
+          const sorted2 = data2.map(m => ({
+            name: m.display_name.split(",")[0],
+            adresse: m.display_name.split(",").slice(1,3).join(",").trim(),
+            lat: parseFloat(m.lat),
+            lng: parseFloat(m.lon),
+            dist: calcDist(lat, lng, parseFloat(m.lat), parseFloat(m.lon))
+          })).filter(m => m.dist <= 25).sort((a,b) => a.dist - b.dist)
+          setMosques(sorted2)
+        }
+      }
+      setCityName(city)
+      setLoading(false)
+    } catch(e) { setError(lang==="en"?"Error":"Erreur de chargement"); setLoading(false) }
+  }
+
+  const searchByCity = async () => {
+    if (!manualCity.trim()) return
+    setLoading(true)
+    try {
+      const geoResp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(manualCity)}&format=json&limit=1`, { headers: { "User-Agent": "FADJR-App/1.0" } })
+      const geoData = await geoResp.json()
+      if (geoData && geoData.length > 0) {
+        const lat = parseFloat(geoData[0].lat)
+        const lng = parseFloat(geoData[0].lon)
+        setUserCoords({ lat, lng })
+        setSearchMode("manual")
+        await searchMosques(lat, lng, manualCity.trim())
+      } else {
+        setError(lang==="en"?"City not found":"Ville non trouvée")
+        setLoading(false)
+      }
+    } catch(e) { setError(lang==="en"?"Error":"Erreur"); setLoading(false) }
   }
 
   useEffect(() => {
@@ -1439,30 +1509,13 @@ function MosqueesProximite({ lang="fr" }) {
         const lng = loc.coords.longitude
         setUserCoords({ lat, lng })
         
-        // Get city
+        let city = ""
         try {
           const [geo] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng })
-          if (geo?.city) setCityName(geo.city)
+          if (geo?.city) city = geo.city
         } catch(e) {}
 
-        // Search mosques using Nominatim (OpenStreetMap) — free, no API key
-        const resp = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=mosque&format=json&limit=30&viewbox=${lng-0.15},${lat+0.15},${lng+0.15},${lat-0.15}&bounded=1`,
-          { headers: { "User-Agent": "FADJR-App/1.0" } }
-        )
-        const data = await resp.json()
-        
-        if (data && data.length > 0) {
-          const sorted = data.map(m => ({
-            name: m.display_name.split(",")[0],
-            adresse: m.display_name.split(",").slice(1,3).join(",").trim(),
-            lat: parseFloat(m.lat),
-            lng: parseFloat(m.lon),
-            dist: calcDist(lat, lng, parseFloat(m.lat), parseFloat(m.lon))
-          })).filter(m => m.dist <= 25).sort((a,b) => a.dist - b.dist)
-          setMosques(sorted)
-        }
-        setLoading(false)
+        await searchMosques(lat, lng, city)
       } catch(e) { setError(lang==="en"?"Error":"Erreur de chargement"); setLoading(false) }
     })()
   }, [])
@@ -1477,7 +1530,23 @@ function MosqueesProximite({ lang="fr" }) {
 
   return (
     <View>
-      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:4 }}>{cityName} — {mosques.length} {lang==="ar"?"مسجد":lang==="en"?"mosques":"mosquees"} ({lang==="ar"?"ضمن 25 كم":lang==="en"?"within 25km":"dans un rayon de 25km"})</Text>
+      <View style={{ flexDirection:"row", gap:8, marginBottom:10 }}>
+        <TextInput value={manualCity} onChangeText={setManualCity}
+          placeholder={lang==="ar"?"ابحث عن مدينة...":lang==="en"?"Search city...":"Chercher une ville..."}
+          placeholderTextColor={C.muted}
+          style={{ flex:1, backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:10, color:C.white, fontSize:13 }}
+          onSubmitEditing={searchByCity} />
+        <TouchableOpacity onPress={searchByCity} style={{ backgroundColor:C.gold, borderRadius:10, paddingHorizontal:14, alignItems:"center", justifyContent:"center" }}>
+          <Text style={{ color:C.bg, fontSize:13, fontWeight:"800" }}>🔍</Text>
+        </TouchableOpacity>
+      </View>
+      {searchMode==="manual" && userCoords && (
+        <TouchableOpacity onPress={() => { setSearchMode("gps"); setManualCity(""); setLoading(true); Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).then(loc => { setUserCoords({ lat:loc.coords.latitude, lng:loc.coords.longitude }); searchMosques(loc.coords.latitude, loc.coords.longitude, cityName) }).catch(()=>setLoading(false)) }}
+          style={{ marginBottom:8 }}>
+          <Text style={{ color:C.teal, fontSize:11 }}>📍 {lang==="en"?"Back to my location":"Revenir à ma position"}</Text>
+        </TouchableOpacity>
+      )}
+      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:4 }}>{cityName} — {mosques.length} {lang==="ar"?"مسجد":lang==="en"?"mosques":"mosquées"} ({lang==="ar"?"ضمن 25 كم":lang==="en"?"within 25km":"dans un rayon de 25km"})</Text>
       <Text style={{ color:C.muted, fontSize:10, marginBottom:12 }}>{lang==="ar"?"اضغط للتوجيه":lang==="en"?"Tap for directions":"Appuyez pour le GPS"}</Text>
       {mosques.map((m, i) => (
         <TouchableOpacity key={i} onPress={() => Linking.openURL("https://maps.google.com/?daddr="+m.lat+","+m.lng).catch(()=>{})}
@@ -1767,26 +1836,14 @@ function EcranCarte({ lang="fr" }) {
         }
         setUserCity(cityName)
         
-        // Find city in Supabase
-        const { data: cities } = await supabase.from("cities").select("id,name").ilike("name", "%"+cityName+"%").limit(1)
-        let cityId = cities?.[0]?.id
+        // Load ALL restaurants from all cities
+        const { data: restos } = await supabase
+          .from("restaurants")
+          .select("id,name,address,phone,rating,latitude,longitude,halal_status,cuisine_type,google_maps_url")
+          .order("rating", { ascending: false })
+          .limit(500)
         
-        // Fallback to Brussels
-        if (!cityId) {
-          const { data: bxl } = await supabase.from("cities").select("id").eq("name","Brussels").limit(1)
-          cityId = bxl?.[0]?.id
-        }
-        
-        if (cityId) {
-          const { data: restos } = await supabase
-            .from("restaurants")
-            .select("id,name,address,phone,rating,latitude,longitude,halal_status,cuisine_type,google_maps_url")
-            .eq("city_id", cityId)
-            .order("rating", { ascending: false })
-            .limit(50)
-          
-          if (restos) setRestaurants(restos)
-        }
+        if (restos) setRestaurants(restos)
         setLoading(false)
       } catch(e) { setLoading(false) }
     })()
@@ -2125,6 +2182,7 @@ function EcranCulture({ lang="fr" }) {
 
   const stopAudio = () => {
     if (audioPlayerRef.current) {
+      try { if (audioPlayerRef.current._checkInterval) clearInterval(audioPlayerRef.current._checkInterval) } catch(e) {}
       try { audioPlayerRef.current.pause(); audioPlayerRef.current.remove() } catch(e) {}
       audioPlayerRef.current = null
     }
@@ -2141,12 +2199,20 @@ function EcranCulture({ lang="fr" }) {
       const player = createAudioPlayer({ uri: audioUrl })
       audioPlayerRef.current = player
       player.play()
-      player.addListener('playingChange', (s) => {
-        if (s && !s.isPlaying && audioPlayerRef.current === player) {
-          setPlayingAyah(null)
-          audioPlayerRef.current = null
-        }
-      })
+      // expo-audio 0.3.5: poll status to detect end
+      const checkInterval = setInterval(() => {
+        try {
+          if (player.currentStatus && !player.currentStatus.isPlaying && player.currentStatus.currentTime > 0) {
+            clearInterval(checkInterval)
+            if (audioPlayerRef.current === player) {
+              setPlayingAyah(null)
+              try { player.remove() } catch(e) {}
+              audioPlayerRef.current = null
+            }
+          }
+        } catch(e) { clearInterval(checkInterval) }
+      }, 500)
+      player._checkInterval = checkInterval
     } catch(e) {
       setPlayingAyah(null)
       Linking.openURL(audioUrl).catch(()=>{})
@@ -2164,12 +2230,19 @@ function EcranCulture({ lang="fr" }) {
       const player = createAudioPlayer({ uri: surahUrl })
       audioPlayerRef.current = player
       player.play()
-      player.addListener('playingChange', (s) => {
-        if (s && !s.isPlaying && audioPlayerRef.current === player) {
-          setIsPlayingAll(false)
-          audioPlayerRef.current = null
-        }
-      })
+      const checkInterval = setInterval(() => {
+        try {
+          if (player.currentStatus && !player.currentStatus.isPlaying && player.currentStatus.currentTime > 0) {
+            clearInterval(checkInterval)
+            if (audioPlayerRef.current === player) {
+              setIsPlayingAll(false)
+              try { player.remove() } catch(e) {}
+              audioPlayerRef.current = null
+            }
+          }
+        } catch(e) { clearInterval(checkInterval) }
+      }, 500)
+      player._checkInterval = checkInterval
     } catch(e) {
       setIsPlayingAll(false)
       Linking.openURL(surahUrl).catch(()=>{})

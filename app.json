@@ -94,6 +94,10 @@
         "NSPrivacyTracking": false
       }
     },
+    "androidNavigationBar": {
+      "backgroundColor": "#07070F",
+      "barStyle": "light-content"
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
