@@ -177,6 +177,27 @@ const T = {
   siraTitle:{fr:"La Sira du Prophete ﷺ",en:"Life of the Prophet ﷺ",ar:"سيرة النبي ﷺ",tr:"Peygamberin Hayatı ﷺ",de:"Leben des Propheten ﷺ",nl:"Leven van de Profeet ﷺ",es:"La Sira del Profeta ﷺ",id:"Sirah Nabi ﷺ",ur:"سیرت النبی ﷺ",ms:"Sirah Nabi ﷺ",it:"La Sira del Profeta ﷺ",pt:"A Sira do Profeta ﷺ"},
   noms99Title:{fr:"Les 99 Noms d'Allah",en:"99 Names of Allah",ar:"أسماء الله الحسنى",tr:"Allah'ın 99 İsmi",de:"Die 99 Namen Allahs",nl:"De 99 Namen van Allah",es:"Los 99 Nombres de Allah",id:"99 Nama Allah",ur:"اللہ کے 99 نام",ms:"99 Nama Allah",it:"I 99 Nomi di Allah",pt:"Os 99 Nomes de Allah"},
   quoiFaire:{fr:"Quoi faire?",en:"What to do?",ar:"ماذا تفعل؟",tr:"Ne yapmalı?",de:"Was tun?",nl:"Wat doen?",es:"¿Qué hacer?",id:"Apa yang harus dilakukan?",ur:"کیا کرنا ہے؟",ms:"Apa yang perlu dilakukan?",it:"Cosa fare?",pt:"O que fazer?"},
+  descKhatam:{fr:"Tracker lecture Coran",en:"Quran reading tracker",ar:"متتبع قراءة القرآن",tr:"Kur'an okuma takipçisi",de:"Koran-Lese-Tracker",nl:"Koran lezing tracker",es:"Seguimiento de lectura del Corán",id:"Pelacak bacaan Al-Quran",ur:"قرآن پڑھنے کا ٹریکر",ms:"Penjejak bacaan Al-Quran",it:"Tracker lettura Corano",pt:"Rastreador de leitura do Alcorão"},
+  descLive:{fr:"Stream en direct",en:"Live stream",ar:"بث مباشر",tr:"Canlı yayın",de:"Livestream",nl:"Livestream",es:"Transmisión en vivo",id:"Siaran langsung",ur:"لائیو سٹریم",ms:"Siaran langsung",it:"Diretta streaming",pt:"Transmissão ao vivo"},
+  descJournal:{fr:"Journal spirituel",en:"Your spiritual diary",ar:"يومياتك الروحية",tr:"Ruhani günlüğünüz",de:"Spirituelles Tagebuch",nl:"Spiritueel dagboek",es:"Diario espiritual",id:"Jurnal spiritual",ur:"روحانی ڈائری",ms:"Jurnal rohani",it:"Diario spirituale",pt:"Diário espiritual"},
+  descInspiration:{fr:"Verset & dhikr du jour",en:"Daily verse & dhikr",ar:"آية وذكر اليوم",tr:"Günün ayeti ve zikri",de:"Vers & Dhikr des Tages",nl:"Vers & dhikr van de dag",es:"Verso y dhikr del día",id:"Ayat & dzikir hari ini",ur:"آج کی آیت اور ذکر",ms:"Ayat & zikir hari ini",it:"Versetto e dhikr del giorno",pt:"Versículo e dhikr do dia"},
+  descHifz:{fr:"Memoriser le Coran",en:"Quran memorization",ar:"حفظ القرآن",tr:"Kur'an ezberleme",de:"Koran auswendig lernen",nl:"Koran memoriseren",es:"Memorización del Corán",id:"Hafalan Al-Quran",ur:"قرآن حفظ",ms:"Hafazan Al-Quran",it:"Memorizzazione del Corano",pt:"Memorização do Alcorão"},
+  descRamadan:{fr:"Mode Ramadan",en:"Ramadan mode",ar:"وضع رمضان",tr:"Ramazan modu",de:"Ramadan-Modus",nl:"Ramadan modus",es:"Modo Ramadán",id:"Mode Ramadan",ur:"رمضان موڈ",ms:"Mod Ramadan",it:"Modalità Ramadan",pt:"Modo Ramadã"},
+  descAiImam:{fr:"Posez votre question",en:"Ask your question",ar:"اسأل سؤالك",tr:"Sorunuzu sorun",de:"Stellen Sie Ihre Frage",nl:"Stel uw vraag",es:"Haga su pregunta",id:"Ajukan pertanyaan Anda",ur:"اپنا سوال پوچھیں",ms:"Tanya soalan anda",it:"Fai la tua domanda",pt:"Faça sua pergunta"},
+  descArticles:{fr:"Articles islamiques",en:"Islamic articles",ar:"مقالات إسلامية",tr:"İslami makaleler",de:"Islamische Artikel",nl:"Islamitische artikelen",es:"Artículos islámicos",id:"Artikel Islam",ur:"اسلامی مضامین",ms:"Artikel Islam",it:"Articoli islamici",pt:"Artigos islâmicos"},
+  descCommunity:{fr:"Contenu quotidien",en:"Daily content",ar:"محتوى يومي",tr:"Günlük içerik",de:"Täglicher Inhalt",nl:"Dagelijkse inhoud",es:"Contenido diario",id:"Konten harian",ur:"روزانہ مواد",ms:"Kandungan harian",it:"Contenuto quotidiano",pt:"Conteúdo diário"},
+  descAmbiance:{fr:"Sons apaisants + Coran",en:"Relaxation + Quran",ar:"استرخاء + قرآن",tr:"Rahatlama + Kur'an",de:"Entspannung + Koran",nl:"Ontspanning + Koran",es:"Relajación + Corán",id:"Relaksasi + Al-Quran",ur:"آرام + قرآن",ms:"Relaksasi + Al-Quran",it:"Relax + Corano",pt:"Relaxamento + Alcorão"},
+  cliquezEvenement:{fr:"Cliquez sur un evenement pour en savoir plus",en:"Click an event to learn more",ar:"انقر على حدث لمعرفة المزيد",tr:"Daha fazla bilgi için bir olaya tıklayın",de:"Klicken Sie auf ein Ereignis",nl:"Klik op een evenement",es:"Haga clic en un evento",id:"Klik acara untuk info",ur:"مزید جاننے کے لیے واقعہ پر کلک کریں",ms:"Klik acara untuk maklumat lanjut",it:"Clicca su un evento",pt:"Clique num evento"},
+  journalSpirituel:{fr:"Journal Spirituel",en:"Spiritual Journal",ar:"يوميات روحية",tr:"Ruhani Günlük",de:"Spirituelles Tagebuch",nl:"Spiritueel Dagboek",es:"Diario Espiritual",id:"Jurnal Spiritual",ur:"روحانی ڈائری",ms:"Jurnal Rohani",it:"Diario Spirituale",pt:"Diário Espiritual"},
+  inspirationJour:{fr:"Inspiration du jour",en:"Daily Inspiration",ar:"إلهام اليوم",tr:"Günün İlhamı",de:"Tägliche Inspiration",nl:"Dagelijkse Inspiratie",es:"Inspiración del día",id:"Inspirasi Hari Ini",ur:"آج کا الہام",ms:"Inspirasi Hari Ini",it:"Ispirazione del giorno",pt:"Inspiração do dia"},
+  articlesIslamiques:{fr:"Articles Islamiques",en:"Islamic Articles",ar:"مقالات إسلامية",tr:"İslami Makaleler",de:"Islamische Artikel",nl:"Islamitische Artikelen",es:"Artículos Islámicos",id:"Artikel Islam",ur:"اسلامی مضامین",ms:"Artikel Islam",it:"Articoli Islamici",pt:"Artigos Islâmicos"},
+  memorisationCoran:{fr:"Memorisation du Coran",en:"Quran Memorization",ar:"حفظ القرآن",tr:"Kur'an Ezberleme",de:"Koran Memorisierung",nl:"Koran Memorisatie",es:"Memorización del Corán",id:"Hafalan Al-Quran",ur:"حفظ قرآن",ms:"Hafazan Al-Quran",it:"Memorizzazione Corano",pt:"Memorização do Alcorão"},
+  modeRamadan:{fr:"Mode Ramadan",en:"Ramadan Mode",ar:"وضع رمضان",tr:"Ramazan Modu",de:"Ramadan-Modus",nl:"Ramadan Modus",es:"Modo Ramadán",id:"Mode Ramadan",ur:"رمضان موڈ",ms:"Mod Ramadan",it:"Modalità Ramadan",pt:"Modo Ramadã"},
+  sonsApaisants:{fr:"Sons Apaisants",en:"Calming Sounds",ar:"أصوات هادئة",tr:"Sakinleştirici Sesler",de:"Beruhigende Klänge",nl:"Rustgevende Geluiden",es:"Sonidos Relajantes",id:"Suara Menenangkan",ur:"پرسکون آوازیں",ms:"Bunyi Menenangkan",it:"Suoni Rilassanti",pt:"Sons Relaxantes"},
+  calculerZakatBtn:{fr:"Calculer ma Zakat",en:"Calculate Zakat",ar:"حساب الزكاة",tr:"Zekat Hesapla",de:"Zakat berechnen",nl:"Zakat berekenen",es:"Calcular Zakat",id:"Hitung Zakat",ur:"زکوٰۃ کا حساب لگائیں",ms:"Kira Zakat",it:"Calcola Zakat",pt:"Calcular Zakat"},
+  rappelsPriere:{fr:"Rappels de priere",en:"Prayer reminders",ar:"تذكيرات الصلاة",tr:"Namaz hatırlatıcıları",de:"Gebetserinnerungen",nl:"Gebedherinneringen",es:"Recordatorios de oración",id:"Pengingat sholat",ur:"نماز کی یاددہانی",ms:"Peringatan solat",it:"Promemoria preghiera",pt:"Lembretes de oração"},
+  superAppHalal:{fr:"Super-app halal",en:"The complete Islamic app",ar:"التطبيق الإسلامي الشامل",tr:"Kapsamlı İslami uygulama",de:"Die komplette islamische App",nl:"De complete islamitische app",es:"La app islámica completa",id:"Aplikasi Islam lengkap",ur:"مکمل اسلامی ایپ",ms:"Aplikasi Islam lengkap",it:"L'app islamica completa",pt:"O app islâmico completo"},
+  seDeconnecter:{fr:"Se deconnecter",en:"Sign out",ar:"تسجيل الخروج",tr:"Çıkış",de:"Abmelden",nl:"Uitloggen",es:"Cerrar sesión",id:"Keluar",ur:"لاگ آؤٹ",ms:"Log keluar",it:"Disconnetti",pt:"Sair"},
 
 }
 const t = (key, lang) => (T[key] && T[key][lang]) || (T[key] && T[key]["fr"]) || key
@@ -480,16 +501,13 @@ async function schedulePrayerNotifications(prayers) {
   const granted = await requestNotifPermission()
   if (!granted) return false
 
-  const now = new Date()
   let scheduled = 0
 
   for (const p of prayers) {
     if (!NOTIF_PRAYERS.includes(p.name)) continue
     const [h, m] = p.time.split(":").map(Number)
-    const trigger = new Date()
-    trigger.setHours(h, m, 0, 0)
-    if (trigger <= now) continue // déjà passée aujourd'hui
-
+    
+    // Use daily repeating trigger at the prayer time
     await Notifications.scheduleNotificationAsync({
       content: {
         title: `${p.emoji} ${p.name} — il est l'heure`,
@@ -497,7 +515,7 @@ async function schedulePrayerNotifications(prayers) {
         sound: true,
         data: { prayer: p.name },
       },
-      trigger: { date: trigger },
+      trigger: { hour: h, minute: m, repeats: true },
     })
     scheduled++
   }
@@ -2403,16 +2421,16 @@ function EcranCulture({ lang="fr" }) {
     { id:"arabe", emoji:"🖋️", titre:t("arabe",lang), desc:t("descArabe",lang), color:C.teal },
     { id:"calendrier", emoji:"📅", titre:t("calendrier",lang), desc:t("descCalendrier",lang), color:C.red },
     { id:"chahada", emoji:"☝️", titre:t("chahada",lang), desc:t("descChahada",lang), color:C.gold },
-    { id:"khatam", emoji:"✅", titre:t("khatam",lang), desc:lang==="fr"?"Tracker lecture Coran":lang==="en"?"Quran reading tracker":lang==="ar"?"متتبع قراءة القرآن":"Khatam", color:C.green },
-    { id:"mecca", emoji:"🕋", titre:t("liveMecque",lang), desc:lang==="fr"?"Stream en direct":lang==="en"?"Live stream":lang==="ar"?"بث مباشر":"Live", color:C.brown },
-    { id:"journal", emoji:"📓", titre:lang==="ar"?"يوميات":lang==="en"?"Journal":"Journal", desc:lang==="ar"?"يومياتك الروحية":lang==="en"?"Your spiritual diary":"Journal spirituel", color:C.purple },
-    { id:"inspiration", emoji:"💡", titre:lang==="ar"?"إلهام":lang==="en"?"Inspiration":"Inspiration", desc:lang==="ar"?"آية وذكر اليوم":lang==="en"?"Daily verse & dhikr":"Verset & dhikr du jour", color:C.green },
-    { id:"hifz", emoji:"🧠", titre:lang==="ar"?"حفظ":lang==="en"?"Memorize":"Memorisation", desc:lang==="ar"?"حفظ القرآن":lang==="en"?"Quran memorization":"Memoriser le Coran", color:C.blue },
-    { id:"ramadan", emoji:"🌙", titre:lang==="ar"?"رمضان":lang==="en"?"Ramadan":"Ramadan", desc:lang==="ar"?"وضع رمضان":lang==="en"?"Ramadan mode":"Mode Ramadan", color:C.gold },
-    { id:"aiimam", emoji:"🤖", titre:lang==="ar"?"اسأل الإمام":lang==="en"?"AI Imam":"AI Imam", desc:lang==="ar"?"اسأل سؤالك":lang==="en"?"Ask your question":"Posez votre question", color:C.green },
-    { id:"articles", emoji:"📰", titre:lang==="ar"?"مقالات":lang==="en"?"Articles":"Articles", desc:lang==="ar"?"مقالات إسلامية":lang==="en"?"Islamic articles":"Articles islamiques", color:C.red },
-    { id:"community", emoji:"🕌", titre:lang==="ar"?"المجتمع":lang==="en"?"Community":"Communaute", desc:lang==="ar"?"محتوى يومي":lang==="en"?"Daily content":"Contenu quotidien", color:C.teal },
-    { id:"ambiance", emoji:"🎵", titre:lang==="ar"?"أصوات":lang==="en"?"Sounds":"Ambiance", desc:lang==="ar"?"استرخاء + قرآن":lang==="en"?"Relaxation + Quran":"Sons apaisants + Coran", color:C.teal },
+    { id:"khatam", emoji:"✅", titre:t("khatam",lang), desc:t("descKhatam",lang), color:C.green },
+    { id:"mecca", emoji:"🕋", titre:t("liveMecque",lang), desc:t("descLive",lang), color:C.brown },
+    { id:"journal", emoji:"📓", titre:t("journal",lang), desc:t("descJournal",lang), color:C.purple },
+    { id:"inspiration", emoji:"💡", titre:t("inspiration",lang), desc:t("descInspiration",lang), color:C.green },
+    { id:"hifz", emoji:"🧠", titre:t("memorisation",lang), desc:t("descHifz",lang), color:C.blue },
+    { id:"ramadan", emoji:"🌙", titre:t("ramadan",lang), desc:t("descRamadan",lang), color:C.gold },
+    { id:"aiimam", emoji:"🤖", titre:t("askAiImam",lang), desc:t("descAiImam",lang), color:C.green },
+    { id:"articles", emoji:"📰", titre:t("articles",lang), desc:t("descArticles",lang), color:C.red },
+    { id:"community", emoji:"🕌", titre:t("communaute",lang), desc:t("descCommunity",lang), color:C.teal },
+    { id:"ambiance", emoji:"🎵", titre:t("ambiance",lang), desc:t("descAmbiance",lang), color:C.teal },
   ]
 
   // ── CORAN ──
@@ -2609,7 +2627,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌟 {t("siraTitle",lang)}</Text>
-        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{lang==="ar"?"انقر على حدث لمعرفة المزيد":lang==="en"?"Click an event to learn more":lang==="tr"?"Daha fazla bilgi için bir olaya tıklayın":"Cliquez sur un evenement pour en savoir plus"}</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{t("cliquezEvenement",lang)}</Text>
       </View>
       <FlatList data={SIRA_EVENTS} keyExtractor={(_, i) => String(i)}
         contentContainerStyle={{ padding:16, gap:10 }}
@@ -2805,7 +2823,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☪️ {t("noms99Title",lang)}</Text>
-        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{lang==="ar"?"الأسماء الأكثر جمالاً":lang==="en"?"The Most Beautiful Names":lang==="tr"?"En Güzel İsimler":"Asma ul Husna — Les plus beaux noms"}</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{t("noms99Title",lang)}</Text>
       </View>
       <FlatList data={ASMA_UL_HUSNA} keyExtractor={n => String(n.num)} numColumns={3}
         contentContainerStyle={{ padding:12, gap:6 }}
@@ -2907,7 +2925,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📓 {lang==="ar"?"يوميات روحية":lang==="en"?"Spiritual Journal":"Journal Spirituel"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📓 {t("journalSpirituel",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <JournalSpirituel lang={lang} />
@@ -2923,7 +2941,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>💡 {lang==="ar"?"إلهام اليوم":lang==="en"?"Daily Inspiration":"Inspiration du jour"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>💡 {t("inspirationJour",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <InspirationQuotidienne />
@@ -2939,7 +2957,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕌 {lang==="ar"?"المجتمع":lang==="en"?"Community":"Communaute"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🕌 {t("communaute",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <CommunityFeed lang={lang} />
@@ -2956,7 +2974,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
         <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🤖 AI Imam</Text>
-        <Text style={{ color:C.muted, fontSize:11, marginTop:4 }}>{lang==="ar"?"اسأل أي سؤال إسلامي":lang==="en"?"Ask any Islamic question":"Posez n'importe quelle question islamique"}</Text>
+        <Text style={{ color:C.muted, fontSize:11, marginTop:4 }}>{t("descAiImam",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <AIImam lang={lang} />
@@ -2972,7 +2990,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📰 {lang==="ar"?"مقالات إسلامية":lang==="en"?"Islamic Articles":"Articles Islamiques"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>📰 {t("articlesIslamiques",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <ArticlesIslamiques lang={lang} />
@@ -2988,7 +3006,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🧠 {lang==="ar"?"حفظ القرآن":lang==="en"?"Quran Memorization":"Memorisation du Coran"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🧠 {t("memorisationCoran",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <HifzTracker lang={lang} />
@@ -3004,7 +3022,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌙 {lang==="ar"?"وضع رمضان":lang==="en"?"Ramadan Mode":"Mode Ramadan"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌙 {t("modeRamadan",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <ModeRamadan prayers={[]} lang={lang} />
@@ -3020,7 +3038,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang)}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🎵 {lang==="ar"?"أصوات هادئة":lang==="en"?"Calming Sounds":"Sons Apaisants"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🎵 {t("sonsApaisants",lang)}</Text>
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         <SonAmbiance lang={lang} />
@@ -3113,7 +3131,7 @@ function EcranFinance({ lang="fr" }) {
             style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:12, color:C.white, fontSize:16, marginBottom:12 }} />
           <TouchableOpacity onPress={calculateZakat}
             style={{ backgroundColor:C.gold, borderRadius:10, padding:14, alignItems:"center" }}>
-            <Text style={{ color:C.bg, fontSize:15, fontWeight:"900" }}>{lang==="ar"?"حساب الزكاة":lang==="en"?"Calculate Zakat":lang==="tr"?"Zekat Hesapla":"Calculer ma Zakat"}</Text>
+            <Text style={{ color:C.bg, fontSize:15, fontWeight:"900" }}>{t("calculerZakatBtn",lang)}</Text>
           </TouchableOpacity>
         </View>
         {zakatResult && (
@@ -3448,7 +3466,7 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
 
         {/* Notifications toggle */}
         <View style={[styles.card, { marginBottom:12 }]}>
-          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:4 }}>🔔 {lang==="ar"?"تذكيرات الصلاة":lang==="en"?"Prayer reminders":lang==="tr"?"Namaz hatırlatıcıları":"Rappels de priere"}</Text>
+          <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:4 }}>🔔 {t("rappelsPriere",lang)}</Text>
           <Text style={{ color:C.muted, fontSize:12, marginBottom:12 }}>Notification avant chaque priere quotidienne</Text>
           <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"center" }}>
             <Text style={{ color: notifEnabled ? C.green : C.muted, fontSize:13 }}>
@@ -3489,7 +3507,7 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
         {[
           ["Version","FADJR v2.2"],
           ["Email", displayEmail],
-          ["A propos",lang==="ar"?"التطبيق الإسلامي الشامل":lang==="en"?"The complete Islamic app":"Super-app halal"],
+          ["A propos",t("superAppHalal",lang)],
         ].map(([label,desc],i) => (
           <View key={i} style={{ flexDirection:"row", alignItems:"center", gap:14, paddingVertical:14, borderBottomWidth:1, borderBottomColor:C.border }}>
             <View style={{ flex:1 }}>
@@ -3505,7 +3523,7 @@ function EcranProfil({ prayedToday={}, notifEnabled=false, onToggleNotif=()=>{},
           style={{ marginTop:24, backgroundColor:"rgba(231,76,60,.1)", borderWidth:1, borderColor:"rgba(231,76,60,.3)", borderRadius:12, paddingVertical:13, alignItems:"center" }}>
           {loggingOut
             ? <ActivityIndicator color={C.red} size="small" />
-            : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>{lang==="ar"?"تسجيل الخروج":lang==="en"?"Sign out":lang==="tr"?"Çıkış":"Se deconnecter"}</Text>
+            : <Text style={{ color:C.red, fontSize:14, fontWeight:"700" }}>{t("seDeconnecter",lang)}</Text>
           }
         </TouchableOpacity>
       </View>
