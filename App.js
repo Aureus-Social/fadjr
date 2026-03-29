@@ -12,6 +12,7 @@ import * as Device from 'expo-device'
 import * as Location from 'expo-location'
 import * as Updates from 'expo-updates'
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio'
+import * as NavigationBar from 'expo-navigation-bar'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
@@ -3373,6 +3374,13 @@ export default function App() {
       } catch (e) {}
     }
     checkUpdate()
+  }, [])
+  // ── Android nav bar dark ──
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      NavigationBar.setBackgroundColorAsync("#07070F").catch(() => {})
+      NavigationBar.setButtonStyleAsync("light").catch(() => {})
+    }
   }, [])
   const [prayers, setPrayers] = useState([])
   const [city, setCity] = useState("Bruxelles")
