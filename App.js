@@ -2226,7 +2226,7 @@ function EcranCulture({ lang="fr" }) {
           // Timeout: if never starts playing after 10s, skip
           if (!hasStartedPlaying) {
             stuckCount++
-            if (stuckCount > 20) {
+            if (stuckCount > 67) {
               clearInterval(checkInterval)
               try { player.remove() } catch(e) {}
               audioPlayerRef.current = null
@@ -2234,7 +2234,7 @@ function EcranCulture({ lang="fr" }) {
             }
           }
         } catch(e) { clearInterval(checkInterval); if (onEnd) onEnd() }
-      }, 500)
+      }, 150)
       player._checkInterval = checkInterval
     } catch(e) { if (onEnd) onEnd() }
   }
