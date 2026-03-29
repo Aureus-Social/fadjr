@@ -932,7 +932,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
                   AsyncStorage.setItem("fadjr_adhan", r.id)
                   Alert.alert("Adhan", r.name)
                   try {
-                    await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
+                    await setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true })
                     const player = createAudioPlayer({ uri: r.url })
                     player.play()
                   } catch(e) {}
@@ -2311,7 +2311,7 @@ function EcranCulture({ lang="fr" }) {
 
   const playOneAudio = async (url, onEnd) => {
     try {
-      await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
+      await setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true })
       const player = createAudioPlayer({ uri: url })
       audioPlayerRef.current = player
       player.play()
@@ -3559,7 +3559,7 @@ export default function App() {
       NavigationBar.setButtonStyleAsync("light").catch(() => {})
     }
     // ── iOS audio mode — required for audio playback ──
-    setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true }).catch(() => {})
+    setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true }).catch(() => {})
   }, [])
   const [prayers, setPrayers] = useState([])
   const [city, setCity] = useState("Bruxelles")
