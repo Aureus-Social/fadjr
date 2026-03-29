@@ -109,7 +109,63 @@ const T = {
   aujourdhui:{fr:"AUJOURD'HUI",en:"TODAY",ar:"اليوم",tr:"BUGÜN",de:"HEUTE",nl:"VANDAAG",es:"HOY",id:"HARI INI",ur:"آج",ms:"HARI INI",it:"OGGI",pt:"HOJE"},
   evenements:{fr:"Evenements islamiques",en:"Islamic events",ar:"المناسبات الإسلامية",tr:"İslami etkinlikler",de:"Islamische Ereignisse",nl:"Islamitische evenementen",es:"Eventos islámicos",id:"Peristiwa Islam",ur:"اسلامی واقعات",ms:"Peristiwa Islam",it:"Eventi islamici",pt:"Eventos islâmicos"},
   sourates:{fr:"sourates",en:"surahs",ar:"سور",tr:"sure",de:"Suren",nl:"soera's",es:"suras",id:"surah",ur:"سورتیں",ms:"surah",it:"sure",pt:"suratas"},
-  versets:{fr:"versets",en:"verses",ar:"آيات",tr:"ayet",de:"Verse",nl:"verzen",es:"versos",id:"ayat",ur:"آیات",ms:"ayat",it:"versetti",pt:"versículos"},
+  versets:{fr:"versets",en:"verses",ar:"آيات",tr:"ayet",de:"Verse",nl:"verzen",es:"versos",id:"ayat",ur:"آیات",ms:"ayat",it:"versetti",pt:"versículos"},  // ── Inline translations (12 langues) ──
+  commentTeSensTu:{fr:"Comment te sens-tu aujourd'hui?",en:"How are you today?",ar:"كيف حالك اليوم؟",tr:"Bugün nasılsın?",de:"Wie geht es dir heute?",nl:"Hoe voel je je vandaag?",es:"¿Cómo te sientes hoy?",id:"Bagaimana kabarmu hari ini?",ur:"آج آپ کیسے ہیں؟",ms:"Apa khabar hari ini?",it:"Come stai oggi?",pt:"Como você está hoje?"},
+  ecrisIci:{fr:"Ecris ici...",en:"Write here...",ar:"اكتب هنا...",tr:"Buraya yaz...",de:"Schreib hier...",nl:"Schrijf hier...",es:"Escribe aquí...",id:"Tulis di sini...",ur:"یہاں لکھیں...",ms:"Tulis di sini...",it:"Scrivi qui...",pt:"Escreva aqui..."},
+  enregistrer:{fr:"Enregistrer",en:"Save",ar:"احفظ",tr:"Kaydet",de:"Speichern",nl:"Opslaan",es:"Guardar",id:"Simpan",ur:"محفوظ کریں",ms:"Simpan",it:"Salva",pt:"Salvar"},
+  partager:{fr:"Partager",en:"Share",ar:"شارك",tr:"Paylaş",de:"Teilen",nl:"Delen",es:"Compartir",id:"Bagikan",ur:"شیئر کریں",ms:"Kongsi",it:"Condividi",pt:"Compartilhar"},
+  seConnecter:{fr:"SE CONNECTER",en:"SIGN IN",ar:"تسجيل الدخول",tr:"GİRİŞ YAP",de:"ANMELDEN",nl:"INLOGGEN",es:"INICIAR SESIÓN",id:"MASUK",ur:"لاگ ان",ms:"LOG MASUK",it:"ACCEDI",pt:"ENTRAR"},
+  creerCompte:{fr:"CREER MON COMPTE",en:"CREATE ACCOUNT",ar:"إنشاء حساب",tr:"HESAP OLUŞTUR",de:"KONTO ERSTELLEN",nl:"ACCOUNT AANMAKEN",es:"CREAR CUENTA",id:"BUAT AKUN",ur:"اکاؤنٹ بنائیں",ms:"BUAT AKAUN",it:"CREA ACCOUNT",pt:"CRIAR CONTA"},
+  defiDuJour:{fr:"Defi du jour",en:"Today's Challenge",ar:"تحدي اليوم",tr:"Günün meydan okuması",de:"Herausforderung des Tages",nl:"Uitdaging van de dag",es:"Desafío del día",id:"Tantangan hari ini",ur:"آج کا چیلنج",ms:"Cabaran hari ini",it:"Sfida del giorno",pt:"Desafio do dia"},
+  finance:{fr:"Finance",en:"Finance",ar:"مالية",tr:"Finans",de:"Finanzen",nl:"Financiën",es:"Finanzas",id:"Keuangan",ur:"مالیات",ms:"Kewangan",it:"Finanza",pt:"Finanças"},
+  voyage:{fr:"Voyage",en:"Travel",ar:"سفر",tr:"Seyahat",de:"Reisen",nl:"Reizen",es:"Viaje",id:"Wisata",ur:"سفر",ms:"Pelancongan",it:"Viaggio",pt:"Viagem"},
+  accomplie:{fr:"accomplie",en:"done",ar:"تم",tr:"tamam",de:"erledigt",nl:"klaar",es:"hecho",id:"selesai",ur:"مکمل",ms:"selesai",it:"fatto",pt:"feito"},
+  prochaine:{fr:"prochaine",en:"next",ar:"التالية",tr:"sıradaki",de:"nächstes",nl:"volgende",es:"siguiente",id:"selanjutnya",ur:"اگلی",ms:"seterusnya",it:"prossima",pt:"próxima"},
+  choisirMuezzin:{fr:"Choisir le Muezzin",en:"Choose Muezzin",ar:"اختر المؤذن",tr:"Müezzin Seç",de:"Muezzin wählen",nl:"Kies Muezzin",es:"Elegir Muezzin",id:"Pilih Muadzin",ur:"مؤذن منتخب کریں",ms:"Pilih Muazzin",it:"Scegli Muezzin",pt:"Escolher Muezzin"},
+  reinitialiser:{fr:"Reinitialiser",en:"Reset",ar:"إعادة تعيين",tr:"Sıfırla",de:"Zurücksetzen",nl:"Resetten",es:"Reiniciar",id:"Reset",ur:"ری سیٹ",ms:"Set semula",it:"Ripristina",pt:"Reiniciar"},
+  askAiImam:{fr:"Posez votre question",en:"Ask AI Imam",ar:"اسأل الإمام الذكي",tr:"Yapay Zeka İmamına Sor",de:"Frage den KI-Imam",nl:"Vraag AI Imam",es:"Pregunta al Imán IA",id:"Tanya AI Imam",ur:"اے آئی امام سے پوچھیں",ms:"Tanya AI Imam",it:"Chiedi all'Imam IA",pt:"Pergunte ao Imam IA"},
+  tapezQuestion:{fr:"Tapez votre question...",en:"Type your question...",ar:"اكتب سؤالك...",tr:"Sorunuzu yazın...",de:"Frage eingeben...",nl:"Typ je vraag...",es:"Escribe tu pregunta...",id:"Ketik pertanyaan...",ur:"اپنا سوال لکھیں...",ms:"Taip soalan anda...",it:"Scrivi la domanda...",pt:"Digite sua pergunta..."},
+  demander:{fr:"Demander",en:"Ask",ar:"اسأل",tr:"Sor",de:"Fragen",nl:"Vragen",es:"Preguntar",id:"Tanya",ur:"پوچھیں",ms:"Tanya",it:"Chiedi",pt:"Perguntar"},
+  questionsPrecedentes:{fr:"Questions precedentes",en:"Previous questions",ar:"الأسئلة السابقة",tr:"Önceki sorular",de:"Frühere Fragen",nl:"Eerdere vragen",es:"Preguntas anteriores",id:"Pertanyaan sebelumnya",ur:"پچھلے سوالات",ms:"Soalan sebelumnya",it:"Domande precedenti",pt:"Perguntas anteriores"},
+  chargement:{fr:"Chargement...",en:"Loading...",ar:"جاري التحميل...",tr:"Yükleniyor...",de:"Laden...",nl:"Laden...",es:"Cargando...",id:"Memuat...",ur:"لوڈ ہو رہا ہے...",ms:"Memuatkan...",it:"Caricamento...",pt:"Carregando..."},
+  recherche:{fr:"Recherche des mosquees...",en:"Searching...",ar:"جاري البحث...",tr:"Aranıyor...",de:"Suche...",nl:"Zoeken...",es:"Buscando...",id:"Mencari...",ur:"تلاش ہو رہی ہے...",ms:"Mencari...",it:"Ricerca...",pt:"Procurando..."},
+  activezGPS:{fr:"Activez le GPS",en:"Please enable GPS",ar:"يرجى تفعيل GPS",tr:"GPS'i etkinleştirin",de:"Bitte GPS aktivieren",nl:"GPS inschakelen",es:"Active el GPS",id:"Aktifkan GPS",ur:"GPS فعال کریں",ms:"Aktifkan GPS",it:"Attiva il GPS",pt:"Ative o GPS"},
+  erreur:{fr:"Erreur de chargement",en:"Error",ar:"خطأ في التحميل",tr:"Yükleme hatası",de:"Ladefehler",nl:"Laadfout",es:"Error de carga",id:"Kesalahan memuat",ur:"لوڈنگ ایرر",ms:"Ralat memuatkan",it:"Errore di caricamento",pt:"Erro ao carregar"},
+  methodCalcul:{fr:"Methode de calcul",en:"Calculation Method",ar:"طريقة الحساب",tr:"Hesaplama yöntemi",de:"Berechnungsmethode",nl:"Berekeningsmethode",es:"Método de cálculo",id:"Metode perhitungan",ur:"حساب کا طریقہ",ms:"Kaedah pengiraan",it:"Metodo di calcolo",pt:"Método de cálculo"},
+  villeNonTrouvee:{fr:"Ville non trouvée",en:"City not found",ar:"المدينة غير موجودة",tr:"Şehir bulunamadı",de:"Stadt nicht gefunden",nl:"Stad niet gevonden",es:"Ciudad no encontrada",id:"Kota tidak ditemukan",ur:"شہر نہیں ملا",ms:"Bandar tidak ditemui",it:"Città non trovata",pt:"Cidade não encontrada"},
+  chercherVille:{fr:"Chercher une ville...",en:"Search city...",ar:"ابحث عن مدينة...",tr:"Şehir ara...",de:"Stadt suchen...",nl:"Zoek stad...",es:"Buscar ciudad...",id:"Cari kota...",ur:"شہر تلاش کریں...",ms:"Cari bandar...",it:"Cerca città...",pt:"Procurar cidade..."},
+  revenirPosition:{fr:"Revenir à ma position",en:"Back to my location",ar:"العودة لموقعي",tr:"Konumuma dön",de:"Zurück zu meinem Standort",nl:"Terug naar mijn locatie",es:"Volver a mi ubicación",id:"Kembali ke lokasi saya",ur:"اپنے مقام پر واپس",ms:"Kembali ke lokasi saya",it:"Torna alla mia posizione",pt:"Voltar à minha localização"},
+  mosquees:{fr:"mosquées",en:"mosques",ar:"مسجد",tr:"cami",de:"Moscheen",nl:"moskeeën",es:"mezquitas",id:"masjid",ur:"مسجد",ms:"masjid",it:"moschee",pt:"mesquitas"},
+  dans25km:{fr:"dans un rayon de 25km",en:"within 25km",ar:"ضمن 25 كم",tr:"25km içinde",de:"im Umkreis von 25km",nl:"binnen 25km",es:"en un radio de 25km",id:"dalam radius 25km",ur:"25 کلومیٹر کے اندر",ms:"dalam radius 25km",it:"entro 25km",pt:"num raio de 25km"},
+  appuyezGPS:{fr:"Appuyez pour le GPS",en:"Tap for directions",ar:"اضغط للتوجيه",tr:"Yol tarifi için dokunun",de:"Tippen für Navigation",nl:"Tik voor routebeschrijving",es:"Toca para dirección",id:"Ketuk untuk petunjuk arah",ur:"سمت کے لئے ٹیپ کریں",ms:"Ketik untuk arah",it:"Tocca per indicazioni",pt:"Toque para direções"},
+  aucuneMosquee:{fr:"Aucune mosquee trouvee",en:"No mosques found",ar:"لم يتم العثور على مساجد",tr:"Cami bulunamadı",de:"Keine Moscheen gefunden",nl:"Geen moskeeën gevonden",es:"No se encontraron mezquitas",id:"Masjid tidak ditemukan",ur:"کوئی مسجد نہیں ملی",ms:"Tiada masjid ditemui",it:"Nessuna moschea trovata",pt:"Nenhuma mesquita encontrada"},
+  restaurantsHalal:{fr:"restaurants halal",en:"halal restaurants",ar:"مطعم حلال",tr:"helal restoran",de:"Halal-Restaurants",nl:"halal restaurants",es:"restaurantes halal",id:"restoran halal",ur:"حلال ریستوران",ms:"restoran halal",it:"ristoranti halal",pt:"restaurantes halal"},
+  connexionRequise:{fr:"Connexion requise",en:"Login required",ar:"تسجيل مطلوب",tr:"Giriş gerekli",de:"Anmeldung erforderlich",nl:"Inloggen vereist",es:"Inicio de sesión requerido",id:"Login diperlukan",ur:"لاگ ان ضروری ہے",ms:"Log masuk diperlukan",it:"Accesso richiesto",pt:"Login necessário"},
+  connectezPourNoter:{fr:"Connectez-vous pour noter",en:"Please log in to rate",ar:"سجّل دخولك لإضافة تقييم",tr:"Oy vermek için giriş yapın",de:"Melden Sie sich an, um zu bewerten",nl:"Log in om te beoordelen",es:"Inicia sesión para calificar",id:"Masuk untuk menilai",ur:"ریٹ کرنے کے لئے لاگ ان کریں",ms:"Log masuk untuk menilai",it:"Accedi per votare",pt:"Faça login para avaliar"},
+  telechargerApp:{fr:"Telecharge l'app FADJR",en:"Download FADJR app",ar:"حمّل تطبيق FADJR",tr:"FADJR uygulamasını indir",de:"FADJR App herunterladen",nl:"Download FADJR app",es:"Descarga la app FADJR",id:"Unduh aplikasi FADJR",ur:"FADJR ایپ ڈاؤنلوڈ کریں",ms:"Muat turun aplikasi FADJR",it:"Scarica l'app FADJR",pt:"Baixe o app FADJR"},
+  accompli:{fr:"accompli",en:"completed",ar:"مكتمل",tr:"tamamlandı",de:"abgeschlossen",nl:"voltooid",es:"completado",id:"selesai",ur:"مکمل",ms:"selesai",it:"completato",pt:"concluído"},
+  progressionHifz:{fr:"Progression Hifz",en:"Memorization Progress",ar:"تقدم الحفظ",tr:"Hıfız İlerlemesi",de:"Hifz-Fortschritt",nl:"Hifz Voortgang",es:"Progreso Hifz",id:"Kemajuan Hafalan",ur:"حفظ پیشرفت",ms:"Kemajuan Hifz",it:"Progresso Hifz",pt:"Progresso Hifz"},
+  memorise:{fr:"memorise",en:"memorized",ar:"مكتمل",tr:"ezberlendi",de:"auswendig gelernt",nl:"gememoriseerd",es:"memorizado",id:"dihafal",ur:"حفظ",ms:"dihafal",it:"memorizzato",pt:"memorizado"},
+  commencerSourates:{fr:"Commence par les courtes sourates",en:"Start with short surahs",ar:"ابدأ بالسور القصيرة",tr:"Kısa surelerle başla",de:"Beginne mit kurzen Suren",nl:"Begin met korte soera's",es:"Empieza con las suras cortas",id:"Mulai dengan surah pendek",ur:"چھوٹی سورتوں سے شروع کریں",ms:"Mulakan dengan surah pendek",it:"Inizia con le sure brevi",pt:"Comece pelas suratas curtas"},
+  misAJour:{fr:"Mis a jour",en:"Updated",ar:"تم التحديث",tr:"Güncellendi",de:"Aktualisiert",nl:"Bijgewerkt",es:"Actualizado",id:"Diperbarui",ur:"اپ ڈیٹ ہوا",ms:"Dikemaskini",it:"Aggiornato",pt:"Atualizado"},
+  relancezApp:{fr:"Relancez l'app pour appliquer",en:"Restart app to apply",ar:"أعد تشغيل التطبيق",tr:"Uygulamayı yeniden başlatın",de:"App neu starten",nl:"Herstart de app",es:"Reinicia la app",id:"Mulai ulang aplikasi",ur:"ایپ دوبارہ شروع کریں",ms:"Mulakan semula aplikasi",it:"Riavvia l'app",pt:"Reinicie o app"},
+  detendezVous:{fr:"Detendez-vous avec des sons apaisants et le Coran",en:"Relax with calming sounds & Quran",ar:"استرخ مع أصوات هادئة وقرآن",tr:"Sakinleştirici sesler ve Kuran ile rahatla",de:"Entspannen Sie sich mit beruhigenden Klängen und Koran",nl:"Ontspan met rustgevende geluiden en Koran",es:"Relájate con sonidos y el Corán",id:"Rileks dengan suara dan Al-Quran",ur:"پرسکون آوازوں اور قرآن سے آرام کریں",ms:"Berehat dengan bunyi dan Al-Quran",it:"Rilassati con suoni e Corano",pt:"Relaxe com sons e o Alcorão"},
+  avis:{fr:"avis",en:"reviews",ar:"تقييم",tr:"yorum",de:"Bewertungen",nl:"beoordelingen",es:"opiniones",id:"ulasan",ur:"جائزے",ms:"ulasan",it:"recensioni",pt:"avaliações"},
+  appeler:{fr:"Appeler",en:"Call",ar:"اتصل",tr:"Ara",de:"Anrufen",nl:"Bellen",es:"Llamar",id:"Telepon",ur:"کال کریں",ms:"Hubungi",it:"Chiama",pt:"Ligar"},
+  itineraire:{fr:"Itinéraire",en:"Directions",ar:"توجيه",tr:"Yol tarifi",de:"Route",nl:"Route",es:"Dirección",id:"Petunjuk arah",ur:"سمت",ms:"Arah",it:"Indicazioni",pt:"Direções"},
+  evaluations:{fr:"Évaluations",en:"Ratings",ar:"التقييمات",tr:"Değerlendirmeler",de:"Bewertungen",nl:"Beoordelingen",es:"Calificaciones",id:"Penilaian",ur:"تشخیصات",ms:"Penilaian",it:"Valutazioni",pt:"Avaliações"},
+  votreAvis:{fr:"Votre avis",en:"Rate this restaurant",ar:"قيّم هذا المطعم",tr:"Bu restoranı değerlendirin",de:"Bewerten Sie dieses Restaurant",nl:"Beoordeel dit restaurant",es:"Califica este restaurante",id:"Nilai restoran ini",ur:"اس ریستوران کی درجہ بندی کریں",ms:"Nilai restoran ini",it:"Valuta questo ristorante",pt:"Avalie este restaurante"},
+  ajouterCommentaire:{fr:"Ajoutez un commentaire...",en:"Add a comment...",ar:"أضف تعليقاً...",tr:"Yorum ekleyin...",de:"Kommentar hinzufügen...",nl:"Commentaar toevoegen...",es:"Añadir comentario...",id:"Tambahkan komentar...",ur:"تبصرہ شامل کریں...",ms:"Tambah ulasan...",it:"Aggiungi commento...",pt:"Adicionar comentário..."},
+  merci:{fr:"Merci !",en:"Thank you!",ar:"شكراً!",tr:"Teşekkürler!",de:"Danke!",nl:"Bedankt!",es:"¡Gracias!",id:"Terima kasih!",ur:"شکریہ!",ms:"Terima kasih!",it:"Grazie!",pt:"Obrigado!"},
+  commentaires:{fr:"Commentaires",en:"Recent reviews",ar:"آخر التعليقات",tr:"Son yorumlar",de:"Kommentare",nl:"Reacties",es:"Comentarios",id:"Komentar terbaru",ur:"حالیہ جائزے",ms:"Ulasan terkini",it:"Commenti recenti",pt:"Comentários recentes"},
+  descTajwid:{fr:"Regles de recitation",en:"Recitation rules",ar:"قواعد التلاوة",tr:"Okuma kuralları",de:"Rezitationsregeln",nl:"Recitatieregels",es:"Reglas de recitación",id:"Aturan membaca",ur:"تلاوت کے اصول",ms:"Peraturan bacaan",it:"Regole di recitazione",pt:"Regras de recitação"},
+  descSira:{fr:"Vie du Prophete ﷺ",en:"Life of the Prophet ﷺ",ar:"حياة النبي ﷺ",tr:"Peygamberin Hayatı ﷺ",de:"Leben des Propheten ﷺ",nl:"Leven van de Profeet ﷺ",es:"Vida del Profeta ﷺ",id:"Kehidupan Nabi ﷺ",ur:"نبی ﷺ کی زندگی",ms:"Kehidupan Nabi ﷺ",it:"Vita del Profeta ﷺ",pt:"Vida do Profeta ﷺ"},
+  descFiqh:{fr:"Jurisprudence pratique",en:"Practical jurisprudence",ar:"الفقه العملي",tr:"Pratik fıkıh",de:"Praktische Rechtswissenschaft",nl:"Praktische jurisprudentie",es:"Jurisprudencia práctica",id:"Fikih praktis",ur:"عملی فقہ",ms:"Fiqh praktikal",it:"Giurisprudenza pratica",pt:"Jurisprudência prática"},
+  descArabe:{fr:"Cours interactifs",en:"Interactive lessons",ar:"دروس تفاعلية",tr:"İnteraktif dersler",de:"Interaktive Kurse",nl:"Interactieve lessen",es:"Lecciones interactivas",id:"Pelajaran interaktif",ur:"انٹرایکٹو اسباق",ms:"Pelajaran interaktif",it:"Lezioni interattive",pt:"Aulas interativas"},
+  descCalendrier:{fr:"Date hijri + evenements",en:"Hijri date + events",ar:"التاريخ الهجري + الأحداث",tr:"Hicri tarih + etkinlikler",de:"Hijri-Datum + Ereignisse",nl:"Hijri-datum + evenementen",es:"Fecha hiyri + eventos",id:"Tanggal hijriah + acara",ur:"ہجری تاریخ + واقعات",ms:"Tarikh hijrah + acara",it:"Data hijri + eventi",pt:"Data hijri + eventos"},
+  descChahada:{fr:"La profession de foi",en:"Declaration of faith",ar:"الشهادة",tr:"İman beyanı",de:"Glaubensbekenntnis",nl:"Geloofsbelijdenis",es:"Profesión de fe",id:"Syahadat",ur:"کلمہ شہادت",ms:"Pengakuan iman",it:"Professione di fede",pt:"Profissão de fé"},
+  erreurImam:{fr:"Desole, je ne peux pas repondre pour le moment. Consultez votre imam local.",en:"Sorry, I cannot answer now. Consult your local imam.",ar:"آسف، لا يمكنني الرد الآن. استشر إمامك المحلي.",tr:"Üzgünüm, şu anda cevaplayamıyorum. Yerel imamınıza danışın.",de:"Entschuldigung, ich kann gerade nicht antworten. Fragen Sie Ihren lokalen Imam.",nl:"Sorry, ik kan nu niet antwoorden. Raadpleeg uw lokale imam.",es:"Lo siento, no puedo responder ahora. Consulte a su imán local.",id:"Maaf, saya tidak bisa menjawab sekarang. Konsultasikan dengan imam lokal.",ur:"معذرت، ابھی جواب نہیں دے سکتا۔ اپنے مقامی امام سے مشورہ کریں۔",ms:"Maaf, saya tidak dapat menjawab sekarang. Rujuk imam tempatan anda.",it:"Mi dispiace, non posso rispondere ora. Consulta il tuo imam locale.",pt:"Desculpe, não posso responder agora. Consulte seu imã local."},
+
 }
 const t = (key, lang) => (T[key] && T[key][lang]) || (T[key] && T[key]["fr"]) || key
 
@@ -217,7 +273,7 @@ function JournalSpirituel({ lang="fr" }) {
   return (
     <View>
       <View style={[styles.card, { padding:14, marginBottom:12 }]}>
-        <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>{lang==="ar"?"كيف حالك اليوم؟":lang==="en"?"How are you today?":"Comment te sens-tu aujourd'hui?"}</Text>
+        <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>{t("commentTeSensTu",lang)}</Text>
         <View style={{ flexDirection:"row", gap:8, marginBottom:10 }}>
           {["🤲","😊","😔","🙏","💪","❤️"].map(e => (
             <TouchableOpacity key={e} onPress={() => setMood(e)}
@@ -226,10 +282,10 @@ function JournalSpirituel({ lang="fr" }) {
             </TouchableOpacity>
           ))}
         </View>
-        <TextInput value={text} onChangeText={setText} placeholder={lang==="ar"?"اكتب هنا...":lang==="en"?"Write here...":"Ecris ici..."} placeholderTextColor={C.muted}
+        <TextInput value={text} onChangeText={setText} placeholder={t("ecrisIci",lang)} placeholderTextColor={C.muted}
           multiline numberOfLines={3} style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:12, color:C.white, fontSize:13, textAlignVertical:"top", minHeight:80 }} />
         <TouchableOpacity onPress={addEntry} style={{ backgroundColor:C.gold, borderRadius:10, padding:12, alignItems:"center", marginTop:10 }}>
-          <Text style={{ color:C.bg, fontSize:14, fontWeight:"900" }}>{lang==="ar"?"احفظ":lang==="en"?"Save":"Enregistrer"}</Text>
+          <Text style={{ color:C.bg, fontSize:14, fontWeight:"900" }}>{t("enregistrer",lang)}</Text>
         </TouchableOpacity>
       </View>
       {entries.map(e => (
@@ -278,7 +334,7 @@ function ShareStoryCard({ text, source, lang="fr" }) {
       "📖 " + text + "\n\n" +
       (source ? "— " + source + "\n\n" : "") +
       "━━━━━━━━━━━━━━━━━━\n" +
-      "📲 " + (lang==="ar"?"حمّل تطبيق FADJR":lang==="en"?"Download FADJR app":"Telecharge l'app FADJR") + "\n" +
+      "📲 " + (t("telechargerApp",lang)) + "\n" +
       "🍎 iOS: https://testflight.apple.com/join/FADJR\n" +
       "🤖 Android: https://play.google.com/store/apps/details?id=com.aureus.fadjr\n" +
       "🌐 https://fadjr.app\n" +
@@ -292,7 +348,7 @@ function ShareStoryCard({ text, source, lang="fr" }) {
     <TouchableOpacity onPress={shareStory}
       style={{ flexDirection:"row", alignItems:"center", gap:6, paddingVertical:6, paddingHorizontal:10, borderRadius:99, backgroundColor:C.gold+"15", borderWidth:1, borderColor:C.gold+"30", alignSelf:"flex-start" }}>
       <Text style={{ fontSize:12 }}>📤</Text>
-      <Text style={{ color:C.gold, fontSize:11, fontWeight:"700" }}>{lang==="ar"?"شارك":lang==="en"?"Share":"Partager"}</Text>
+      <Text style={{ color:C.gold, fontSize:11, fontWeight:"700" }}>{t("partager",lang)}</Text>
     </TouchableOpacity>
   )
 }
@@ -544,7 +600,7 @@ function EcranAuth({ lang="fr" }) {
           {loading
             ? <ActivityIndicator color="#0A0A14" />
             : <Text style={{ color:"#0A0A14", fontSize:15, fontWeight:"900", letterSpacing:1 }}>
-                {mode === "login" ? (lang==="ar"?"تسجيل الدخول":lang==="en"?"SIGN IN":lang==="tr"?"GİRİŞ YAP":"SE CONNECTER") : (lang==="ar"?"إنشاء حساب":lang==="en"?"CREATE ACCOUNT":lang==="tr"?"HESAP OLUŞTUR":"CREER MON COMPTE")}
+                {mode === "login" ? (t("seConnecter",lang)) : (t("creerCompte",lang))}
               </Text>
           }
         </TouchableOpacity>
@@ -614,7 +670,7 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
         <StreakBadges prayedToday={prayedToday || {}} />
         {/* Daily Challenge */}
         <View style={[styles.card, { padding:14, marginBottom:16, borderLeftWidth:3, borderLeftColor:C.green }]}>
-          <Text style={{ color:C.green, fontSize:12, fontWeight:"700", marginBottom:4 }}>🎯 {lang==="ar"?"تحدي اليوم":lang==="en"?"Today's Challenge":"Defi du jour"}</Text>
+          <Text style={{ color:C.green, fontSize:12, fontWeight:"700", marginBottom:4 }}>🎯 {t("defiDuJour",lang)}</Text>
           <Text style={{ color:C.white, fontSize:14, fontWeight:"600" }}>
             {["Lire Sourate Al-Kahf","Faire 100 Istighfar","Donner une Sadaqa","Prier 2 rakat Doha","Lire 1 page de Coran","Apprendre 1 nouveau hadith","Faire le dhikr apres chaque priere"][new Date().getDay()]}
           </Text>
@@ -623,8 +679,8 @@ function EcranAccueil({ prayers, city, nextPrayer, timeToNext, setTab, hijriDate
         <Text style={styles.sectionLabel}>{t("explorer",lang)}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom:16 }}>
           {[
-            { id:"finance", emoji:"💰", label:lang==="ar"?"مالية":lang==="en"?"Finance":"Finance", color:C.gold },
-            { id:"voyage", emoji:"✈️", label:lang==="ar"?"سفر":lang==="en"?"Travel":"Voyage", color:C.blue },
+            { id:"finance", emoji:"💰", label:t("finance",lang), color:C.gold },
+            { id:"voyage", emoji:"✈️", label:t("voyage",lang), color:C.blue },
           ].map(item => (
             <TouchableOpacity key={item.id} onPress={() => setTab(item.id)}
               style={[styles.card, { paddingHorizontal:20, paddingVertical:14, marginRight:8, borderTopWidth:2, borderTopColor:item.color, flexDirection:"row", alignItems:"center", gap:8 }]}>
@@ -748,8 +804,8 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
               </View>
               <View style={{ alignItems:"flex-end" }}>
                 <Text style={{ color: isPrayed ? C.green : isNext ? C.gold : C.white, fontSize:22, fontWeight:"900" }}>{p.time}</Text>
-                {isPrayed && <Text style={{ color:C.green, fontSize:10, marginTop:2 }}>{lang==="ar"?"تم":lang==="en"?"done":lang==="tr"?"tamam":"accomplie"}</Text>}
-                {!isPrayed && isNext && <Text style={{ color:C.gold, fontSize:10, marginTop:2 }}>{lang==="ar"?"التالية":lang==="en"?"next":lang==="tr"?"sıradaki":"prochaine"}</Text>}
+                {isPrayed && <Text style={{ color:C.green, fontSize:10, marginTop:2 }}>{t("accomplie",lang)}</Text>}
+                {!isPrayed && isNext && <Text style={{ color:C.gold, fontSize:10, marginTop:2 }}>{t("prochaine",lang)}</Text>}
               </View>
               <TouchableOpacity onPress={(e) => { e.stopPropagation && e.stopPropagation(); const k="fadjr_bell_"+p.name; AsyncStorage.getItem(k).then(v => { const nv=v==="off"?"on":"off"; AsyncStorage.setItem(k,nv); Alert.alert(nv==="on"?"🔔":"🔕", p.name+" — "+(nv==="on"?"Activé":"Désactivé")) }).catch(()=>{}) }}
                 style={{ paddingLeft:8 }}>
@@ -839,7 +895,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
         {/* ── Adhan Recitateur (dans Horaires) ── */}
         {subTab==="horaires" && (
           <View style={[styles.card, { padding:14, marginTop:10 }]}>
-            <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>🔊 {lang==="ar"?"اختر المؤذن":lang==="en"?"Choose Muezzin":lang==="tr"?"Müezzin Seç":"Choisir le Muezzin"}</Text>
+            <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:8 }}>🔊 {t("choisirMuezzin",lang)}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {ADHAN_RECITERS.map(r => (
                 <TouchableOpacity key={r.id} onPress={async () => {
@@ -985,7 +1041,7 @@ function TasbihCounter({ lang="fr" }) {
         ))}
       </View>
       <TouchableOpacity onPress={reset} style={{ padding:10 }}>
-        <Text style={{ color:C.muted, fontSize:12 }}>{lang==="ar"?"إعادة تعيين":lang==="en"?"Reset":lang==="tr"?"Sıfırla":"Reinitialiser"}</Text>
+        <Text style={{ color:C.muted, fontSize:12 }}>{t("reinitialiser",lang)}</Text>
       </TouchableOpacity>
     </View>
   )
@@ -1105,7 +1161,7 @@ function AIImam({ lang="fr" }) {
       setHistory(newHistory)
       AsyncStorage.setItem("fadjr_ai_history", JSON.stringify(newHistory)).catch(() => {})
     } catch(e) {
-      setAnswer(lang==="ar"?"آسف، لا يمكنني الرد الآن. استشر إمامك المحلي.":lang==="en"?"Sorry, I cannot answer now. Consult your local imam.":"Desole, je ne peux pas repondre pour le moment. Consultez votre imam local.")
+      setAnswer(t("erreurImam",lang))
     }
     setLoading(false)
     setQuestion("")
@@ -1114,14 +1170,14 @@ function AIImam({ lang="fr" }) {
   return (
     <View>
       <View style={[styles.card, { padding:14, marginBottom:12, borderWidth:1, borderColor:C.gold+"40" }]}>
-        <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>🤖 {lang==="ar"?"اسأل الإمام الذكي":lang==="en"?"Ask AI Imam":"Posez votre question"}</Text>
+        <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>🤖 {t("askAiImam",lang)}</Text>
         <TextInput value={question} onChangeText={setQuestion}
-          placeholder={lang==="ar"?"اكتب سؤالك...":lang==="en"?"Type your question...":"Tapez votre question..."}
+          placeholder={t("tapezQuestion",lang)}
           placeholderTextColor={C.muted} multiline
           style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:12, color:C.white, fontSize:13, minHeight:60, textAlignVertical:"top" }} />
         <TouchableOpacity onPress={askImam} disabled={loading}
           style={{ backgroundColor:C.gold, borderRadius:10, padding:12, alignItems:"center", marginTop:8 }}>
-          {loading ? <ActivityIndicator color={C.bg} /> : <Text style={{ color:C.bg, fontSize:14, fontWeight:"900" }}>{lang==="ar"?"اسأل":lang==="en"?"Ask":"Demander"}</Text>}
+          {loading ? <ActivityIndicator color={C.bg} /> : <Text style={{ color:C.bg, fontSize:14, fontWeight:"900" }}>{t("demander",lang)}</Text>}
         </TouchableOpacity>
       </View>
       {answer ? (
@@ -1130,7 +1186,7 @@ function AIImam({ lang="fr" }) {
         </View>
       ) : null}
       {history.length > 0 && (
-        <Text style={{ color:C.muted, fontSize:12, fontWeight:"700", marginBottom:8 }}>{lang==="ar"?"الأسئلة السابقة":lang==="en"?"Previous questions":"Questions precedentes"}</Text>
+        <Text style={{ color:C.muted, fontSize:12, fontWeight:"700", marginBottom:8 }}>{t("questionsPrecedentes",lang)}</Text>
       )}
       {history.map((h, i) => (
         <TouchableOpacity key={i} onPress={() => setAnswer(h.a)}
@@ -1225,7 +1281,7 @@ function ModeRamadan({ prayers, lang="fr" }) {
       {/* Progress */}
       <View style={[styles.card, { padding:14, marginBottom:14, alignItems:"center" }]}>
         <Text style={{ color:C.gold, fontSize:28, fontWeight:"900" }}>{pct}%</Text>
-        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{completed}/{TASKS.length} {lang==="ar"?"مكتمل":lang==="en"?"completed":"accompli"}</Text>
+        <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{completed}/{TASKS.length} {t("accompli",lang)}</Text>
         <View style={{ width:"100%", height:6, backgroundColor:C.card2, borderRadius:99, marginTop:10, overflow:"hidden" }}>
           <View style={{ width:pct+"%", height:"100%", backgroundColor:C.gold, borderRadius:99 }} />
         </View>
@@ -1271,15 +1327,15 @@ function HifzTracker({ lang="fr" }) {
   return (
     <View>
       <View style={[styles.card, { padding:16, alignItems:"center", marginBottom:14, borderWidth:1, borderColor:C.gold+"40" }]}>
-        <Text style={{ color:C.gold, fontSize:12, fontWeight:"700", marginBottom:6 }}>{lang==="ar"?"تقدم الحفظ":lang==="en"?"Memorization Progress":"Progression Hifz"}</Text>
+        <Text style={{ color:C.gold, fontSize:12, fontWeight:"700", marginBottom:6 }}>{t("progressionHifz",lang)}</Text>
         <Text style={{ color:C.white, fontSize:36, fontWeight:"900" }}>{totalMemo}/114</Text>
         <View style={{ width:"100%", height:8, backgroundColor:C.card2, borderRadius:99, marginTop:10, overflow:"hidden" }}>
           <View style={{ width:pct+"%", height:"100%", backgroundColor:C.green, borderRadius:99 }} />
         </View>
-        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{pct}% {lang==="ar"?"مكتمل":lang==="en"?"memorized":"memorise"}</Text>
+        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{pct}% {t("memorise",lang)}</Text>
       </View>
 
-      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>{lang==="ar"?"ابدأ بالسور القصيرة":lang==="en"?"Start with short surahs":"Commence par les courtes sourates"}</Text>
+      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:8 }}>{t("commencerSourates",lang)}</Text>
       {SHORT_SURAHS.map(num => (
         <TouchableOpacity key={num} onPress={() => toggleMemo(num)}
           style={[styles.card, { flexDirection:"row", alignItems:"center", gap:10, padding:10, marginBottom:4, backgroundColor: memorized[num] ? C.green+"15" : C.card }]}>
@@ -1315,12 +1371,12 @@ function PrayerSettings({ lang="fr" }) {
   const selectMethod = (id) => {
     setMethod(id)
     AsyncStorage.setItem("fadjr_prayer_method", String(id)).catch(() => {})
-    Alert.alert(lang==="ar"?"تم التحديث":lang==="en"?"Updated":"Mis a jour", lang==="ar"?"أعد تشغيل التطبيق":lang==="en"?"Restart app to apply":"Relancez l'app pour appliquer")
+    Alert.alert(t("misAJour",lang), t("relancezApp",lang))
   }
 
   return (
     <View>
-      <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:10 }}>{lang==="ar"?"طريقة الحساب":lang==="en"?"Calculation Method":"Methode de calcul"}</Text>
+      <Text style={{ color:C.white, fontSize:14, fontWeight:"700", marginBottom:10 }}>{t("methodCalcul",lang)}</Text>
       {METHODS.map(m => (
         <TouchableOpacity key={m.id} onPress={() => selectMethod(m.id)}
           style={[styles.card, { padding:12, marginBottom:6, flexDirection:"row", alignItems:"center", gap:10, backgroundColor: method===m.id ? C.gold+"15" : C.card, borderWidth:1, borderColor: method===m.id ? C.gold : C.border }]}>
@@ -1347,7 +1403,7 @@ function SonAmbiance({ lang="fr" }) {
 
   return (
     <View>
-      <Text style={{ color:C.muted, fontSize:12, marginBottom:12 }}>{lang==="ar"?"استرخ مع أصوات هادئة وقرآن":lang==="en"?"Relax with calming sounds & Quran":"Detendez-vous avec des sons apaisants et le Coran"}</Text>
+      <Text style={{ color:C.muted, fontSize:12, marginBottom:12 }}>{t("detendezVous",lang)}</Text>
       {SOUNDS.map(s => (
         <TouchableOpacity key={s.id} onPress={() => Linking.openURL(s.url).catch(()=>{})}
           style={[styles.card, { padding:14, marginBottom:8, flexDirection:"row", alignItems:"center", gap:12 }]}>
@@ -1449,7 +1505,7 @@ function MosqueesProximite({ lang="fr" }) {
           const mLat = m.lat || m.center?.lat
           const mLng = m.lon || m.center?.lon
           return {
-            name: m.tags?.name || m.tags?.["name:fr"] || m.tags?.["name:ar"] || (lang==="ar"?"مسجد":lang==="en"?"Mosque":"Mosquée"),
+            name: m.tags?.name || m.tags?.["name:fr"] || m.tags?.["name:ar"] || (t("mosquees",lang)),
             adresse: m.tags?.["addr:street"] ? `${m.tags["addr:housenumber"]||""} ${m.tags["addr:street"]}, ${m.tags["addr:city"]||""}`.trim() : "",
             lat: mLat,
             lng: mLng,
@@ -1478,7 +1534,7 @@ function MosqueesProximite({ lang="fr" }) {
       }
       setCityName(city)
       setLoading(false)
-    } catch(e) { setError(lang==="en"?"Error":"Erreur de chargement"); setLoading(false) }
+    } catch(e) { setError(t("erreur",lang)); setLoading(false) }
   }
 
   const searchByCity = async () => {
@@ -1494,17 +1550,17 @@ function MosqueesProximite({ lang="fr" }) {
         setSearchMode("manual")
         await searchMosques(lat, lng, manualCity.trim())
       } else {
-        setError(lang==="en"?"City not found":"Ville non trouvée")
+        setError(t("villeNonTrouvee",lang))
         setLoading(false)
       }
-    } catch(e) { setError(lang==="en"?"Error":"Erreur"); setLoading(false) }
+    } catch(e) { setError(t("erreur",lang)); setLoading(false) }
   }
 
   useEffect(() => {
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync()
-        if (status !== "granted") { setError(lang==="ar"?"يرجى تفعيل GPS":lang==="en"?"Please enable GPS":"Activez le GPS"); setLoading(false); return }
+        if (status !== "granted") { setError(t("activezGPS",lang)); setLoading(false); return }
         const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High })
         const lat = loc.coords.latitude
         const lng = loc.coords.longitude
@@ -1517,14 +1573,14 @@ function MosqueesProximite({ lang="fr" }) {
         } catch(e) {}
 
         await searchMosques(lat, lng, city)
-      } catch(e) { setError(lang==="en"?"Error":"Erreur de chargement"); setLoading(false) }
+      } catch(e) { setError(t("erreur",lang)); setLoading(false) }
     })()
   }, [])
 
   if (loading) return (
     <View style={{ alignItems:"center", paddingTop:40 }}>
       <ActivityIndicator size="large" color={C.gold} />
-      <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>{lang==="ar"?"جاري البحث...":lang==="en"?"Searching...":"Recherche des mosquees..."}</Text>
+      <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>{t("recherche",lang)}</Text>
     </View>
   )
   if (error) return <Text style={{ color:C.red, textAlign:"center", marginTop:40, fontSize:14 }}>{error}</Text>
@@ -1533,7 +1589,7 @@ function MosqueesProximite({ lang="fr" }) {
     <View>
       <View style={{ flexDirection:"row", gap:8, marginBottom:10 }}>
         <TextInput value={manualCity} onChangeText={setManualCity}
-          placeholder={lang==="ar"?"ابحث عن مدينة...":lang==="en"?"Search city...":"Chercher une ville..."}
+          placeholder={t("chercherVille",lang)}
           placeholderTextColor={C.muted}
           style={{ flex:1, backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:10, color:C.white, fontSize:13 }}
           onSubmitEditing={searchByCity} />
@@ -1544,11 +1600,11 @@ function MosqueesProximite({ lang="fr" }) {
       {searchMode==="manual" && userCoords && (
         <TouchableOpacity onPress={() => { setSearchMode("gps"); setManualCity(""); setLoading(true); Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }).then(loc => { setUserCoords({ lat:loc.coords.latitude, lng:loc.coords.longitude }); searchMosques(loc.coords.latitude, loc.coords.longitude, cityName) }).catch(()=>setLoading(false)) }}
           style={{ marginBottom:8 }}>
-          <Text style={{ color:C.teal, fontSize:11 }}>📍 {lang==="en"?"Back to my location":"Revenir à ma position"}</Text>
+          <Text style={{ color:C.teal, fontSize:11 }}>📍 {t("revenirPosition",lang)}</Text>
         </TouchableOpacity>
       )}
-      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:4 }}>{cityName} — {mosques.length} {lang==="ar"?"مسجد":lang==="en"?"mosques":"mosquées"} ({lang==="ar"?"ضمن 25 كم":lang==="en"?"within 25km":"dans un rayon de 25km"})</Text>
-      <Text style={{ color:C.muted, fontSize:10, marginBottom:12 }}>{lang==="ar"?"اضغط للتوجيه":lang==="en"?"Tap for directions":"Appuyez pour le GPS"}</Text>
+      <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:4 }}>{cityName} — {mosques.length} {t("mosquees",lang)} ({t("dans25km",lang)})</Text>
+      <Text style={{ color:C.muted, fontSize:10, marginBottom:12 }}>{t("appuyezGPS",lang)}</Text>
       {mosques.map((m, i) => (
         <TouchableOpacity key={i} onPress={() => Linking.openURL("https://maps.google.com/?daddr="+m.lat+","+m.lng).catch(()=>{})}
           style={[styles.card, { padding:12, marginBottom:6, flexDirection:"row", alignItems:"center", gap:10 }]}>
@@ -1560,7 +1616,7 @@ function MosqueesProximite({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:12, fontWeight:"700" }}>{m.dist.toFixed(1)} km</Text>
         </TouchableOpacity>
       ))}
-      {mosques.length === 0 && <Text style={{ color:C.muted, fontSize:13, textAlign:"center", marginTop:20 }}>{lang==="ar"?"لم يتم العثور على مساجد":lang==="en"?"No mosques found":"Aucune mosquee trouvee"}</Text>}
+      {mosques.length === 0 && <Text style={{ color:C.muted, fontSize:13, textAlign:"center", marginTop:20 }}>{t("aucuneMosquee",lang)}</Text>}
     </View>
   )
 }
@@ -1666,7 +1722,7 @@ function RestaurantDetail({ resto, favs, onToggleFav, onBack, lang="fr" }) {
 
   const submitRating = async (stars) => {
     setUserRating(stars)
-    if (!auth.user || auth.isAnonymous) { Alert.alert(lang==="ar"?"تسجيل مطلوب":lang==="en"?"Login required":"Connexion requise", lang==="ar"?"سجّل دخولك لإضافة تقييم":lang==="en"?"Please log in to rate":"Connectez-vous pour noter"); return }
+    if (!auth.user || auth.isAnonymous) { Alert.alert(t("connexionRequise",lang), t("connectezPourNoter",lang)); return }
     setSubmitting(true)
     await supabase.from("restaurant_ratings").upsert({ restaurant_id: resto.id, user_id: auth.user.id, rating: stars, review: reviewText.trim()||null, updated_at: new Date().toISOString() }, { onConflict:"restaurant_id,user_id" }).catch(() => {})
     setSubmitting(false)
@@ -1707,7 +1763,7 @@ function RestaurantDetail({ resto, favs, onToggleFav, onBack, lang="fr" }) {
             <View style={{ flexDirection:"row", alignItems:"center", gap:8, marginBottom:12 }}>
               <RatingStars value={Math.round(overallRating)} size={18} />
               <Text style={{ color:C.gold, fontSize:16, fontWeight:"900" }}>{overallRating.toFixed(1)}</Text>
-              <Text style={{ color:C.muted, fontSize:12 }}>({reviewCount} {lang==="ar"?"تقييم":lang==="en"?"reviews":"avis"})</Text>
+              <Text style={{ color:C.muted, fontSize:12 }}>({reviewCount} {t("avis",lang)})</Text>
             </View>
           )}
           {resto.address && (
@@ -1735,23 +1791,23 @@ function RestaurantDetail({ resto, favs, onToggleFav, onBack, lang="fr" }) {
           {resto.phone && (
             <TouchableOpacity onPress={() => Linking.openURL("tel:"+resto.phone.replace(/\s/g,"")).catch(()=>{})}
               style={{ flex:1, padding:12, borderRadius:10, borderWidth:1, borderColor:C.gold, alignItems:"center" }}>
-              <Text style={{ color:C.gold, fontSize:12, fontWeight:"700" }}>📞 {lang==="ar"?"اتصل":lang==="en"?"Call":"Appeler"}</Text>
+              <Text style={{ color:C.gold, fontSize:12, fontWeight:"700" }}>📞 {t("appeler",lang)}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={() => Linking.openURL(resto.google_maps_url || "https://maps.google.com/?q="+encodeURIComponent(resto.address||resto.name)).catch(()=>{})}
             style={{ flex:1, padding:12, borderRadius:10, borderWidth:1, borderColor:C.blue, alignItems:"center" }}>
-            <Text style={{ color:C.blue, fontSize:12, fontWeight:"700" }}>🗺️ {lang==="ar"?"توجيه":lang==="en"?"Directions":"Itinéraire"}</Text>
+            <Text style={{ color:C.blue, fontSize:12, fontWeight:"700" }}>🗺️ {t("itineraire",lang)}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => Share.share({ message:"🍽️ "+resto.name+"\n📍 "+(resto.address||"")+"\n\n📲 Trouvé sur FADJR: https://fadjr.app" }).catch(()=>{})}
             style={{ flex:1, padding:12, borderRadius:10, borderWidth:1, borderColor:C.muted, alignItems:"center" }}>
-            <Text style={{ color:C.muted, fontSize:12, fontWeight:"700" }}>📤 {lang==="ar"?"شارك":lang==="en"?"Share":"Partager"}</Text>
+            <Text style={{ color:C.muted, fontSize:12, fontWeight:"700" }}>📤 {t("partager",lang)}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Évaluations détaillées */}
         {reviewCount > 0 && (
           <View style={[styles.card, { padding:14, marginBottom:12 }]}>
-            <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:12 }}>⭐ {lang==="ar"?"التقييمات":lang==="en"?"Ratings":"Évaluations"}</Text>
+            <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:12 }}>⭐ {t("evaluations",lang)}</Text>
             {[["viande", lang==="ar"?"اللحم":lang==="en"?"Meat":"Viande halal"], ["accueil", lang==="ar"?"الاستقبال":lang==="en"?"Service":"Accueil"], ["prix", lang==="ar"?"السعر":lang==="en"?"Price":"Prix"]].map(([key, label]) => (
               <View key={key} style={{ flexDirection:"row", alignItems:"center", gap:8, marginBottom:8 }}>
                 <Text style={{ color:C.muted, fontSize:11, width:80 }}>{label}</Text>
@@ -1766,24 +1822,24 @@ function RestaurantDetail({ resto, favs, onToggleFav, onBack, lang="fr" }) {
 
         {/* Donner son avis */}
         <View style={[styles.card, { padding:14, marginBottom:12 }]}>
-          <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:10 }}>{lang==="ar"?"قيّم هذا المطعم":lang==="en"?"Rate this restaurant":"Votre avis"}</Text>
+          <Text style={{ color:C.gold, fontSize:13, fontWeight:"700", marginBottom:10 }}>{t("votreAvis",lang)}</Text>
           <View style={{ alignItems:"center", marginBottom:12 }}>
             <RatingStars value={userRating} onRate={submitRating} size={32} />
             {userRating > 0 && <Text style={{ color:C.gold, fontSize:11, marginTop:6 }}>{["","😞 Décevant","😐 Passable","🙂 Bien","😊 Très bien","🤩 Excellent!"][userRating]}</Text>}
           </View>
           {userRating > 0 && !submitted && (
             <TextInput value={reviewText} onChangeText={setReviewText} multiline numberOfLines={2}
-              placeholder={lang==="ar"?"أضف تعليقاً...":lang==="en"?"Add a comment...":"Ajoutez un commentaire..."}
+              placeholder={t("ajouterCommentaire",lang)}
               placeholderTextColor={C.muted}
               style={{ backgroundColor:C.card2, borderWidth:1, borderColor:C.border, borderRadius:10, padding:10, color:C.white, fontSize:12, textAlignVertical:"top", marginBottom:8 }} />
           )}
-          {submitted && <Text style={{ color:C.green, fontSize:12, textAlign:"center" }}>✅ {lang==="ar"?"شكراً!":lang==="en"?"Thank you!":"Merci !"}</Text>}
+          {submitted && <Text style={{ color:C.green, fontSize:12, textAlign:"center" }}>✅ {t("merci",lang)}</Text>}
         </View>
 
         {/* Derniers avis */}
         {reviews.filter(r=>r.review).length > 0 && (
           <View style={{ marginBottom:12 }}>
-            <Text style={{ color:C.white, fontSize:13, fontWeight:"700", marginBottom:8 }}>💬 {lang==="ar"?"آخر التعليقات":lang==="en"?"Recent reviews":"Commentaires"}</Text>
+            <Text style={{ color:C.white, fontSize:13, fontWeight:"700", marginBottom:8 }}>💬 {t("commentaires",lang)}</Text>
             {reviews.filter(r=>r.review).slice(0,3).map((r, i) => (
               <View key={i} style={[styles.card, { padding:12, marginBottom:6 }]}>
                 <View style={{ flexDirection:"row", justifyContent:"space-between", marginBottom:4 }}>
@@ -1887,12 +1943,12 @@ function EcranCarte({ lang="fr" }) {
         <TextInput value={search} onChangeText={setSearch} placeholder={t("chercherCommerce",lang)}
           placeholderTextColor={C.muted}
           style={{ backgroundColor:C.card, borderWidth:1, borderColor:C.border, borderRadius:10, padding:11, color:C.white, fontSize:13, marginTop:8 }} />
-        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{filtered.length} {lang==="ar"?"مطعم حلال":lang==="en"?"halal restaurants":lang==="tr"?"helal restoran":"restaurants halal"}</Text>
+        <Text style={{ color:C.muted, fontSize:11, marginTop:6 }}>{filtered.length} {t("restaurantsHalal",lang)}</Text>
       </View>
       {loading ? (
         <View style={{ flex:1, alignItems:"center", justifyContent:"center" }}>
           <ActivityIndicator size="large" color={C.gold} />
-          <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>{lang==="ar"?"جاري التحميل...":lang==="en"?"Loading...":lang==="tr"?"Yükleniyor...":"Chargement..."}</Text>
+          <Text style={{ color:C.muted, fontSize:12, marginTop:10 }}>{t("chargement",lang)}</Text>
         </View>
       ) : (
         <FlatList data={filtered} keyExtractor={c => String(c.id)} contentContainerStyle={{ padding:16 }} showsVerticalScrollIndicator={false}
@@ -2353,12 +2409,12 @@ function EcranCulture({ lang="fr" }) {
     { id:"coran", emoji:"📖", titre:t("coran",lang), desc:"114 "+t("sourates",lang)+" + audio", color:C.gold },
     { id:"hadith", emoji:"📚", titre:t("hadiths",lang), desc:"Nawawi, Bukhari, Muslim", color:C.brown },
     { id:"asma", emoji:"☪️", titre:t("noms99",lang), desc:"Asma ul Husna", color:C.gold },
-    { id:"tajwid", emoji:"🎓", titre:t("tajwid",lang), desc:lang==="fr"?"Regles de recitation":lang==="en"?"Recitation rules":lang==="ar"?"قواعد التلاوة":lang==="tr"?"Okuma kuralları":"Tajwid", color:C.green },
-    { id:"sira", emoji:"🌟", titre:t("sira",lang), desc:lang==="fr"?"Vie du Prophete ﷺ":lang==="en"?"Life of the Prophet ﷺ":lang==="ar"?"حياة النبي ﷺ":lang==="tr"?"Peygamberin Hayatı ﷺ":"Sira", color:C.purple },
-    { id:"fiqh", emoji:"🕌", titre:t("fiqh",lang), desc:lang==="fr"?"Jurisprudence pratique":lang==="en"?"Practical jurisprudence":lang==="ar"?"الفقه العملي":lang==="tr"?"Pratik fıkıh":"Fiqh", color:C.blue },
-    { id:"arabe", emoji:"🖋️", titre:t("arabe",lang), desc:lang==="fr"?"Cours interactifs":lang==="en"?"Interactive lessons":lang==="ar"?"دروس تفاعلية":lang==="tr"?"İnteraktif dersler":"Cours", color:C.teal },
-    { id:"calendrier", emoji:"📅", titre:t("calendrier",lang), desc:lang==="fr"?"Date hijri + evenements":lang==="en"?"Hijri date + events":lang==="ar"?"التاريخ الهجري + الأحداث":"Calendrier", color:C.red },
-    { id:"chahada", emoji:"☝️", titre:t("chahada",lang), desc:lang==="fr"?"La profession de foi":lang==="en"?"Declaration of faith":lang==="ar"?"الشهادة":"Chahada", color:C.gold },
+    { id:"tajwid", emoji:"🎓", titre:t("tajwid",lang), desc:t("descTajwid",lang), color:C.green },
+    { id:"sira", emoji:"🌟", titre:t("sira",lang), desc:t("descSira",lang), color:C.purple },
+    { id:"fiqh", emoji:"🕌", titre:t("fiqh",lang), desc:t("descFiqh",lang), color:C.blue },
+    { id:"arabe", emoji:"🖋️", titre:t("arabe",lang), desc:t("descArabe",lang), color:C.teal },
+    { id:"calendrier", emoji:"📅", titre:t("calendrier",lang), desc:t("descCalendrier",lang), color:C.red },
+    { id:"chahada", emoji:"☝️", titre:t("chahada",lang), desc:t("descChahada",lang), color:C.gold },
     { id:"khatam", emoji:"✅", titre:t("khatam",lang), desc:lang==="fr"?"Tracker lecture Coran":lang==="en"?"Quran reading tracker":lang==="ar"?"متتبع قراءة القرآن":"Khatam", color:C.green },
     { id:"mecca", emoji:"🕋", titre:t("liveMecque",lang), desc:lang==="fr"?"Stream en direct":lang==="en"?"Live stream":lang==="ar"?"بث مباشر":"Live", color:C.brown },
     { id:"journal", emoji:"📓", titre:lang==="ar"?"يوميات":lang==="en"?"Journal":"Journal", desc:lang==="ar"?"يومياتك الروحية":lang==="en"?"Your spiritual diary":"Journal spirituel", color:C.purple },
