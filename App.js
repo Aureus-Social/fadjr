@@ -1894,14 +1894,38 @@ function EcranCarte({ lang="fr" }) {
         }
         setUserCity(cityName)
         
-        // Load ALL restaurants from all cities
-        const { data: restos } = await supabase
-          .from("restaurants")
-          .select("id,name,address,phone,rating,latitude,longitude,halal_status,cuisine_type,google_maps_url")
-          .order("rating", { ascending: false })
-          .limit(500)
+        // Load restaurants for user's city (GPS-based)
+        let restos = []
+        // First try exact city match
+        const { data: cities } = await supabase.from("cities").select("id,name").ilike("name", "%"+cityName+"%").limit(1)
+        let cityId = cities?.[0]?.id
         
-        if (restos) setRestaurants(restos)
+        if (cityId) {
+          const { data } = await supabase
+            .from("restaurants")
+            .select("id,name,address,phone,rating,latitude,longitude,halal_status,cuisine_type,google_maps_url")
+            .eq("city_id", cityId)
+            .order("rating", { ascending: false })
+            .limit(100)
+          if (data) restos = data
+        }
+        
+        // If no results, try Brussels as fallback
+        if (restos.length === 0) {
+          const { data: bxl } = await supabase.from("cities").select("id").eq("name","Brussels").limit(1)
+          if (bxl?.[0]?.id) {
+            const { data } = await supabase
+              .from("restaurants")
+              .select("id,name,address,phone,rating,latitude,longitude,halal_status,cuisine_type,google_maps_url")
+              .eq("city_id", bxl[0].id)
+              .order("rating", { ascending: false })
+              .limit(100)
+            if (data) restos = data
+            setUserCity("Brussels")
+          }
+        }
+        
+        setRestaurants(restos)
         setLoading(false)
       } catch(e) { setLoading(false) }
     })()
@@ -2083,14 +2107,14 @@ const SIRA_EVENTS = [
   { annee:"632", titre:"Deces du Prophete ﷺ", desc:"12 Rabi Al-Awal, Medine", emoji:"🤲", detail:"Le Prophete ﷺ tomba malade avec une forte fievre. Il demanda a Abu Bakr de diriger les prieres. Le 12 Rabi Al-Awal an 11, il rendit son dernier souffle, la tete sur les genoux d'Aisha. Ses derniers mots furent: 'Vers le Compagnon Supreme' (Ar-Rafiq al-A'la). Il fut enterre dans la chambre d'Aisha, ou se trouve aujourd'hui la Mosquee du Prophete a Medine." },
 ]
 const FIQH_BASES = [
-  { titre:"La priere (Salat)", desc:"Conditions, piliers, obligations et sunnahs", emoji:"🕌" },
-  { titre:"Les ablutions (Wudu)", desc:"Obligations, sunnahs et annulants", emoji:"💧" },
-  { titre:"Le jeune (Siyam)", desc:"Ramadan, excuses valables, rattrapage", emoji:"🌙" },
-  { titre:"La zakat", desc:"Nisab, taux, beneficiaires, calcul", emoji:"💰" },
-  { titre:"Le Hajj", desc:"Piliers, obligations, rites Omra et Hajj", emoji:"🕋" },
-  { titre:"Alimentation halal", desc:"Interdits, regles d'abattage", emoji:"🍖" },
-  { titre:"Le mariage (Nikah)", desc:"Conditions, droits des epoux", emoji:"💍" },
-  { titre:"Transactions (Muamalat)", desc:"Interdiction du riba, vente licite", emoji:"📜" },
+  { titre:{fr:"La priere (Salat)",en:"Prayer (Salat)",ar:"الصلاة",tr:"Namaz"}, desc:{fr:"Conditions, piliers, obligations et sunnahs",en:"Conditions, pillars, obligations and sunnahs",ar:"شروط وأركان وواجبات وسنن",tr:"Şartlar, rükünler ve sünnetler"}, emoji:"🕌", detail:{fr:"La priere est le 2e pilier de l'Islam. 5 prieres obligatoires par jour : Fajr (2 rak'at), Dhuhr (4), Asr (4), Maghrib (3), Isha (4). Conditions : etre musulman, pubere, sain d'esprit, en etat de purete, direction de la Qibla, couvrir la 'awra, entree de l'heure. Piliers : takbirat al-ihram, recitation de la Fatiha, ruku (inclinaison), sujud (prosternation), tachahoud final, salam. Obligations : dire 'Subhana Rabbi al-Adhim' dans le ruku, 'Subhana Rabbi al-A'la' dans le sujud, premier tachahoud. Annulants : manger/boire, rire, parler, tourner le dos a la Qibla.",en:"Prayer is the 2nd pillar of Islam. 5 daily prayers: Fajr (2 rak'at), Dhuhr (4), Asr (4), Maghrib (3), Isha (4). Conditions: being Muslim, puberty, sanity, ritual purity, facing Qibla, covering 'awra, prayer time. Pillars: opening takbir, reciting Al-Fatiha, bowing (ruku), prostration (sujud), final tashahhud, salam. Obligations: saying 'Subhana Rabbi al-Adhim' in ruku, 'Subhana Rabbi al-A'la' in sujud, first tashahhud. Nullifiers: eating/drinking, laughing, speaking, turning away from Qibla.",ar:"الصلاة الركن الثاني من أركان الإسلام. 5 صلوات يومية: الفجر (ركعتان)، الظهر (4)، العصر (4)، المغرب (3)، العشاء (4).",tr:"Namaz İslam'ın 2. şartıdır. Günde 5 vakit: Sabah (2 rekat), Öğle (4), İkindi (4), Akşam (3), Yatsı (4)."}},
+  { titre:{fr:"Les ablutions (Wudu)",en:"Ablutions (Wudu)",ar:"الوضوء",tr:"Abdest"}, desc:{fr:"Obligations, sunnahs et annulants",en:"Obligations, sunnahs and nullifiers",ar:"واجبات وسنن ونواقض",tr:"Farzlar, sünnetler ve bozanlar"}, emoji:"💧", detail:{fr:"Obligations du wudu : intention, laver le visage, laver les mains/avant-bras jusqu'aux coudes, essuyer la tete, laver les pieds jusqu'aux chevilles, respecter l'ordre. Sunnahs : bismillah, se laver les mains 3 fois, rincer la bouche, aspirer l'eau par le nez, laver chaque membre 3 fois, commencer par la droite. Annulants : tout ce qui sort des 2 voies naturelles, perte de connaissance, sommeil profond, toucher les parties intimes sans barriere.",en:"Obligations: intention, washing the face, washing hands/forearms to elbows, wiping the head, washing feet to ankles, maintaining order. Sunnahs: bismillah, washing hands 3 times, rinsing mouth, sniffing water into nose, washing each limb 3 times, starting with right. Nullifiers: anything exiting natural passages, loss of consciousness, deep sleep, touching private parts without barrier.",ar:"فرائض الوضوء: النية، غسل الوجه، غسل اليدين إلى المرفقين، مسح الرأس، غسل الرجلين.",tr:"Farzları: niyet, yüz yıkama, kolları dirseklere kadar yıkama, başı meshetme, ayakları yıkama."}},
+  { titre:{fr:"Le jeune (Siyam)",en:"Fasting (Siyam)",ar:"الصيام",tr:"Oruç"}, desc:{fr:"Ramadan, excuses valables, rattrapage",en:"Ramadan, valid excuses, making up",ar:"رمضان والأعذار والقضاء",tr:"Ramazan, geçerli mazeretler"}, emoji:"🌙", detail:{fr:"Le jeune du Ramadan est le 4e pilier. Du Fajr au Maghrib : s'abstenir de manger, boire, relations intimes. Excuses valables : voyage, maladie, grossesse/allaitement, menstruation. Jours a rattraper apres Ramadan. Jeunes surrerogatoires recommandes : lundi/jeudi, 13-14-15 de chaque mois, 6 jours de Shawwal, jour de Arafat. Suhoor (repas avant l'aube) est une sunnah. Rompre le jeune avec des dattes et de l'eau est recommande.",en:"Ramadan fasting is the 4th pillar. From Fajr to Maghrib: abstain from eating, drinking, intimacy. Valid excuses: travel, illness, pregnancy/breastfeeding, menstruation. Days to make up after Ramadan. Recommended voluntary fasts: Monday/Thursday, 13-14-15 of each month, 6 days of Shawwal, day of Arafat.",ar:"صيام رمضان الركن الرابع. من الفجر إلى المغرب: الامتناع عن الطعام والشراب.",tr:"Ramazan orucu 4. rükündür. İmsak'tan iftara kadar yeme-içme ve cinsel ilişkiden kaçınma."}},
+  { titre:{fr:"La zakat",en:"Zakat",ar:"الزكاة",tr:"Zekat"}, desc:{fr:"Nisab, taux, beneficiaires, calcul",en:"Nisab, rates, beneficiaries, calculation",ar:"النصاب والمقدار والمستحقون",tr:"Nisap, oranlar, hak sahipleri"}, emoji:"💰", detail:{fr:"3e pilier de l'Islam. Obligatoire quand la richesse depasse le nisab pendant 1 an lunaire. Nisab or : 85g d'or. Nisab argent : 595g d'argent. Taux general : 2.5% sur l'epargne, marchandises, investissements. 8 categories de beneficiaires (Sourate At-Tawba 9:60) : les pauvres, les necessiteux, ceux qui la collectent, les coeurs a reconcilier, les esclaves, les endettes, dans le sentier d'Allah, le voyageur en detresse.",en:"3rd pillar of Islam. Obligatory when wealth exceeds nisab for 1 lunar year. Gold nisab: 85g. Silver nisab: 595g. General rate: 2.5% on savings, merchandise, investments. 8 categories of beneficiaries (Surah At-Tawba 9:60).",ar:"الركن الثالث من أركان الإسلام. تجب عند بلوغ النصاب.",tr:"İslam'ın 3. şartı. Nisap miktarına ulaşan ve üzerinden bir yıl geçen maldan verilir."}},
+  { titre:{fr:"Le Hajj",en:"Hajj",ar:"الحج",tr:"Hac"}, desc:{fr:"Piliers, obligations, rites Omra et Hajj",en:"Pillars, obligations, Umrah and Hajj rites",ar:"أركان وواجبات ومناسك العمرة والحج",tr:"Rükünler, hac ve umre menasiki"}, emoji:"🕋", detail:{fr:"5e pilier, obligatoire une fois dans la vie pour ceux qui en ont les moyens. Piliers du Hajj : ihram, station a Arafat (9 Dhul Hijja), tawaf al-ifadha, sa'y entre Safa et Marwa. Obligations : ihram depuis le miqat, rester a Arafat jusqu'au coucher du soleil, passer la nuit a Muzdalifa, lapider les jamarats, raser/couper les cheveux, tawaf d'adieu. Omra : ihram, tawaf, sa'y, rasage/coupe. La Omra peut se faire toute l'annee.",en:"5th pillar, obligatory once in a lifetime for those who can. Pillars: ihram, standing at Arafat, tawaf al-ifadha, sa'y between Safa and Marwa. Obligations: ihram from miqat, staying at Arafat until sunset, overnight at Muzdalifa, stoning jamaraat, shaving/cutting hair, farewell tawaf.",ar:"الركن الخامس، واجب مرة في العمر لمن استطاع.",tr:"5. şart, gücü yetenlere ömürde bir kez farzdır."}},
+  { titre:{fr:"Alimentation halal",en:"Halal Food",ar:"الطعام الحلال",tr:"Helal Gıda"}, desc:{fr:"Interdits, regles d'abattage",en:"Prohibitions, slaughter rules",ar:"المحرمات وقواعد الذبح",tr:"Yasaklar, kesim kuralları"}, emoji:"🍖", detail:{fr:"Interdits : porc et ses derives, sang, animal mort sans abattage, alcool, animal sacrifie a autre qu'Allah. Regles d'abattage halal : bismillah, couper la gorge/jugulaire/trachee en une fois, lame aiguisee, animal vivant, vider le sang. Gelatin de porc, alcool dans la cuisine, E-numbers a verifier (E120, E441, E542 souvent non-halal). Fruits de mer : halal selon la majorite des savants.",en:"Prohibited: pork and derivatives, blood, animals dead without slaughter, alcohol, animals sacrificed to other than Allah. Halal slaughter rules: bismillah, cut throat/jugular/trachea, sharp blade, living animal, drain blood.",ar:"المحرمات: الخنزير ومشتقاته، الدم، الميتة، الخمر.",tr:"Yasaklar: domuz ve türevleri, kan, usulsüz kesilmiş hayvan, alkol."}},
+  { titre:{fr:"Le mariage (Nikah)",en:"Marriage (Nikah)",ar:"النكاح",tr:"Nikah"}, desc:{fr:"Conditions, droits des epoux",en:"Conditions, rights of spouses",ar:"شروط وحقوق الزوجين",tr:"Şartlar, eşlerin hakları"}, emoji:"💍", detail:{fr:"Conditions : consentement des deux parties, wali (tuteur) pour la femme, 2 temoins, mahr (dot). Droits du mari : obeissance dans le bien, respect. Droits de la femme : nafaqa (entretien), logement, bon traitement, mahr. Droits communs : fidelite, respect mutuel, bonne cohabitation. Le divorce (talaq) est le halal le plus deteste d'Allah. Iddah (periode d'attente) : 3 cycles menstruels apres divorce, 4 mois et 10 jours apres deces du mari.",en:"Conditions: consent of both parties, wali (guardian) for the woman, 2 witnesses, mahr (dowry). Husband's rights: obedience in good, respect. Wife's rights: nafaqa (maintenance), housing, good treatment, mahr. Divorce (talaq) is the most hated halal thing to Allah.",ar:"شروط: رضا الطرفين، ولي، شاهدان، مهر.",tr:"Şartlar: her iki tarafın rızası, veli, 2 şahit, mehir."}},
+  { titre:{fr:"Transactions (Muamalat)",en:"Transactions (Muamalat)",ar:"المعاملات",tr:"Muamelat"}, desc:{fr:"Interdiction du riba, vente licite",en:"Prohibition of riba, lawful trade",ar:"تحريم الربا والبيع الحلال",tr:"Faiz yasağı, helal ticaret"}, emoji:"📜", detail:{fr:"Le riba (interet/usure) est strictement interdit (Sourate Al-Baqara 2:275). Types interdits : pret avec interet, vente avec incertitude excessive (gharar), jeux de hasard (maysir). Alternatives islamiques : murabaha (vente avec marge), ijara (location-vente), musharaka (partenariat), mudaraba (capital + travail). La vente doit etre transparente : pas de tromperie, pas de defaut cache, pas de speculation excessive. Le commerce est encourage : 'Le commercant honnete sera avec les prophetes' (hadith).",en:"Riba (interest/usury) is strictly forbidden (Surah Al-Baqara 2:275). Prohibited: loans with interest, excessive uncertainty (gharar), gambling (maysir). Islamic alternatives: murabaha, ijara, musharaka, mudaraba.",ar:"الربا محرم (البقرة 275). البدائل: المرابحة، الإجارة، المشاركة.",tr:"Faiz kesinlikle haramdır (Bakara 275). Alternatifler: murabaha, icara, müşareke."}},
 ]
 const ARABE_LECONS = [
   { titre:"Alphabet", items:[{ar:"أ",rom:"Alif"},{ar:"ب",rom:"Ba"},{ar:"ت",rom:"Ta"},{ar:"ث",rom:"Tha"},{ar:"ج",rom:"Jim"},{ar:"ح",rom:"Ha"},{ar:"خ",rom:"Kha"},{ar:"د",rom:"Dal"},{ar:"ذ",rom:"Dhal"},{ar:"ر",rom:"Ra"},{ar:"ز",rom:"Zay"},{ar:"س",rom:"Sin"},{ar:"ش",rom:"Shin"},{ar:"ص",rom:"Sad"},{ar:"ض",rom:"Dad"},{ar:"ط",rom:"Ta"},{ar:"ظ",rom:"Dha"},{ar:"ع",rom:"Ayn"},{ar:"غ",rom:"Ghayn"},{ar:"ف",rom:"Fa"},{ar:"ق",rom:"Qaf"},{ar:"ك",rom:"Kaf"},{ar:"ل",rom:"Lam"},{ar:"م",rom:"Mim"},{ar:"ن",rom:"Nun"},{ar:"ه",rom:"Ha"},{ar:"و",rom:"Waw"},{ar:"ي",rom:"Ya"}], emoji:"أ", color:C.gold },
@@ -2602,17 +2626,28 @@ function EcranCulture({ lang="fr" }) {
       </View>
       <FlatList data={FIQH_BASES} keyExtractor={(_, i) => String(i)}
         contentContainerStyle={{ padding:16, gap:10 }}
-        renderItem={({ item }) => (
-          <View style={[styles.card, { padding:14, flexDirection:"row", gap:12, alignItems:"center" }]}>
-            <View style={{ width:44, height:44, borderRadius:12, backgroundColor:C.blue+"20", alignItems:"center", justifyContent:"center" }}>
-              <Text style={{ fontSize:20 }}>{item.emoji}</Text>
+        renderItem={({ item, index }) => {
+          const expanded = revealedItems[`fiqh_${index}`]
+          return (
+          <TouchableOpacity onPress={() => setRevealedItems(p => ({...p, [`fiqh_${index}`]:!p[`fiqh_${index}`]}))}
+            style={[styles.card, { padding:14 }]}>
+            <View style={{ flexDirection:"row", gap:12, alignItems:"center" }}>
+              <View style={{ width:44, height:44, borderRadius:12, backgroundColor:C.blue+"20", alignItems:"center", justifyContent:"center" }}>
+                <Text style={{ fontSize:20 }}>{item.emoji}</Text>
+              </View>
+              <View style={{ flex:1 }}>
+                <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{typeof item.titre==="object" ? (item.titre[lang]||item.titre.fr) : item.titre}</Text>
+                <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{typeof item.desc==="object" ? (item.desc[lang]||item.desc.fr) : item.desc}</Text>
+              </View>
+              <Text style={{ color:C.gold, fontSize:16 }}>{expanded ? "▼" : "▶"}</Text>
             </View>
-            <View style={{ flex:1 }}>
-              <Text style={{ color:C.white, fontSize:14, fontWeight:"700" }}>{typeof item.titre==="object" ? (item.titre[lang]||item.titre.fr) : item.titre}</Text>
-              <Text style={{ color:C.muted, fontSize:12, marginTop:4, lineHeight:18 }}>{typeof item.desc==="object" ? ((item.desc[lang]||item.desc.fr)||"").substring(0,80)+"..." : item.desc}</Text>
-            </View>
-          </View>
-        )} />
+            {expanded && item.detail && (
+              <View style={{ marginTop:12, paddingTop:12, borderTopWidth:1, borderTopColor:C.border }}>
+                <Text style={{ color:C.white, fontSize:13, lineHeight:22 }}>{typeof item.detail==="object" ? (item.detail[lang]||item.detail.fr) : item.detail}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        )}} />
     </View>
   )
 
@@ -2829,9 +2864,9 @@ function EcranCulture({ lang="fr" }) {
       </View>
       <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
         {[
-          { titre:"🕋 Makkah Live — Al Haram", desc:"Stream en direct de la Mosquee Al-Haram", url:"https://www.youtube.com/@alaboralmakkah/live", color:C.gold },
-          { titre:"🕌 Madinah Live — Al-Masjid An-Nabawi", desc:"Stream en direct de la Mosquee du Prophete ﷺ", url:"https://www.youtube.com/@alaboralmadinah/live", color:C.green },
-          { titre:"📺 Quran TV — Recitation 24/7", desc:"Recitation du Coran en continu", url:"https://www.youtube.com/@QuranHD/live", color:C.blue },
+          { titre:"🕋 Makkah Live — Al Haram", desc:t("liveMecque",lang), url:"https://www.youtube.com/watch?v=P4m1xlS1fiA", color:C.gold },
+          { titre:"🕌 Madinah Live — Al-Masjid An-Nabawi", desc:"Stream en direct", url:"https://www.youtube.com/watch?v=VJdqFpVXbYg", color:C.green },
+          { titre:"📺 Quran TV — Recitation 24/7", desc:"Recitation du Coran en continu", url:"https://www.youtube.com/watch?v=WpSdIX8nPnw", color:C.blue },
         ].map((stream, i) => (
           <TouchableOpacity key={i} onPress={() => Linking.openURL(stream.url).catch(() => {})}
             style={[styles.card, { padding:16, marginBottom:10, borderLeftWidth:3, borderLeftColor:stream.color }]}>
