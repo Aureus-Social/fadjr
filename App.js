@@ -2057,14 +2057,6 @@ const QURAN_RECITERS = [
   { id:"ar.saoodshuraym", name:"Saud Ash-Shuraym", short:"Shuraym", flag:"🇸🇦" },
   { id:"ar.aymanswoaid", name:"Ayman Sowaid", short:"Sowaid", flag:"🇸🇦" },
 ]
-  { id:"ar.shaatree", name:"Abu Bakr Al-Shatri", flag:"🇸🇦" },
-  { id:"ar.ahmedajamy", name:"Ahmed Al-Ajamy", flag:"🇸🇦" },
-  { id:"ar.mahermuaiqly", name:"Maher Al-Muaiqly", flag:"🇸🇦" },
-  { id:"ar.hudhaify", name:"Ali Al-Hudhaify", flag:"🇸🇦" },
-  { id:"ar.muhammadayyoub", name:"Muhammad Ayyoub", flag:"🇸🇦" },
-  { id:"ar.parhizgar", name:"Ibrahim Al-Akhdar", flag:"🇸🇦" },
-  { id:"ar.muhammadjibreel", name:"Muhammad Jibreel", flag:"🇪🇬" },
-]
 const TAJWID_REGLES = [
   { titre:"Noon Sakinah", desc:"Les 4 regles : Izhar, Idgham, Iqlab, Ikhfa", emoji:"🔤" },
   { titre:"Meem Sakinah", desc:"Idgham Shafawi, Ikhfa Shafawi, Izhar Shafawi", emoji:"📝" },
