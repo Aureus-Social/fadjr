@@ -2273,29 +2273,39 @@ function EcranCulture({ lang="fr" }) {
       
       let hasStartedPlaying = false
       let stuckCount = 0
+      let notPlayingCount = 0
+      let playStartTime = 0
       const checkInterval = setInterval(() => {
         try {
           const status = player.currentStatus
           if (!status) return
           if (status.isPlaying) {
             hasStartedPlaying = true
+            if (!playStartTime) playStartTime = Date.now()
             stuckCount = 0
+            notPlayingCount = 0
           }
           if (hasStartedPlaying && !status.isPlaying) {
-            clearInterval(checkInterval)
-            try { player.remove() } catch(e) {}
-            // If we preloaded, use it immediately
-            if (preloaded && nextPlayerRef.current) {
-              audioPlayerRef.current = nextPlayerRef.current
-              nextPlayerRef.current = null
-            } else {
-              audioPlayerRef.current = null
+            const elapsed = Date.now() - playStartTime
+            // Must have played at least 1.5s AND not playing for 3 consecutive checks
+            // Also check if we're near the end (duration available)
+            const nearEnd = status.duration && status.currentTime >= status.duration - 0.3
+            notPlayingCount++
+            if (nearEnd || (elapsed > 1500 && notPlayingCount >= 3)) {
+              clearInterval(checkInterval)
+              try { player.remove() } catch(e) {}
+              if (preloaded && nextPlayerRef.current) {
+                audioPlayerRef.current = nextPlayerRef.current
+                nextPlayerRef.current = null
+              } else {
+                audioPlayerRef.current = null
+              }
+              if (onEnd) onEnd(preloaded)
             }
-            if (onEnd) onEnd(preloaded)
           }
           if (!hasStartedPlaying) {
             stuckCount++
-            if (stuckCount > 67) {
+            if (stuckCount > 50) {
               clearInterval(checkInterval)
               try { player.remove() } catch(e) {}
               audioPlayerRef.current = null
@@ -2303,7 +2313,7 @@ function EcranCulture({ lang="fr" }) {
             }
           }
         } catch(e) { clearInterval(checkInterval); if (onEnd) onEnd(false) }
-      }, 150)
+      }, 200)
       player._checkInterval = checkInterval
     } catch(e) { if (onEnd) onEnd(false) }
   }
@@ -2349,23 +2359,30 @@ function EcranCulture({ lang="fr" }) {
           }
           let hasStartedPlaying = false
           let stuckCount = 0
+          let notPlayingCount = 0
+          let playStartTime = 0
           const checkInterval = setInterval(() => {
             try {
               const status = audioPlayerRef.current?.currentStatus
               if (!status) return
-              if (status.isPlaying) { hasStartedPlaying = true; stuckCount = 0 }
+              if (status.isPlaying) { hasStartedPlaying = true; if (!playStartTime) playStartTime = Date.now(); stuckCount = 0; notPlayingCount = 0 }
               if (hasStartedPlaying && !status.isPlaying) {
-                clearInterval(checkInterval)
-                try { audioPlayerRef.current?.remove() } catch(e) {}
-                if (preloaded && nextPlayerRef.current) {
-                  audioPlayerRef.current = nextPlayerRef.current
-                  nextPlayerRef.current = null
-                } else { audioPlayerRef.current = null }
-                playNext(preloaded)
+                const elapsed = Date.now() - playStartTime
+                const nearEnd = status.duration && status.currentTime >= status.duration - 0.3
+                notPlayingCount++
+                if (nearEnd || (elapsed > 1500 && notPlayingCount >= 3)) {
+                  clearInterval(checkInterval)
+                  try { audioPlayerRef.current?.remove() } catch(e) {}
+                  if (preloaded && nextPlayerRef.current) {
+                    audioPlayerRef.current = nextPlayerRef.current
+                    nextPlayerRef.current = null
+                  } else { audioPlayerRef.current = null }
+                  playNext(preloaded)
+                }
               }
-              if (!hasStartedPlaying) { stuckCount++; if (stuckCount > 67) { clearInterval(checkInterval); playNext(false) } }
+              if (!hasStartedPlaying) { stuckCount++; if (stuckCount > 50) { clearInterval(checkInterval); playNext(false) } }
             } catch(e) { clearInterval(checkInterval); playNext(false) }
-          }, 150)
+          }, 200)
           if (audioPlayerRef.current) audioPlayerRef.current._checkInterval = checkInterval
         } else {
           playOneAudio(next.audio, playNext, peekNext)
