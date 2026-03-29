@@ -1992,11 +1992,15 @@ const HADITHS_MUSLIM = [
   { num:10, ar:"كل معروف صدقة", fr:"Tout acte de bien est une aumone", source:"Sahih Muslim" },
 ]
 const QURAN_RECITERS = [
-  { id:"ar.alafasy", name:"Mishary Al-Afasy", flag:"🇰🇼" },
-  { id:"ar.abdulbasit", name:"Abdul Basit Abdus Samad", flag:"🇪🇬" },
-  { id:"ar.husary", name:"Mahmoud Khalil Al-Husary", flag:"🇪🇬" },
-  { id:"ar.minshawi", name:"Mohamed Siddiq Al-Minshawi", flag:"🇪🇬" },
-  { id:"ar.abdulsamad", name:"Abdul Samad", flag:"🇪🇬" },
+  { id:"ar.alafasy", name:"Mishary Al-Afasy", short:"Al-Afasy", flag:"🇰🇼" },
+  { id:"ar.abdulsamad", name:"Abdul Basit", short:"Samad", flag:"🇪🇬" },
+  { id:"ar.husary", name:"Mahmoud Al-Husary", short:"Al-Husary", flag:"🇪🇬" },
+  { id:"ar.minshawi", name:"Al-Minshawi", short:"Minshawi", flag:"🇪🇬" },
+  { id:"ar.hanirifai", name:"Hani Ar-Rifai", short:"Ar-Rifai", flag:"🇸🇦" },
+  { id:"ar.mahermuaiqly", name:"Maher Al-Muaiqly", short:"Muaiqly", flag:"🇸🇦" },
+  { id:"ar.saoodshuraym", name:"Saud Ash-Shuraym", short:"Shuraym", flag:"🇸🇦" },
+  { id:"ar.aymanswoaid", name:"Ayman Sowaid", short:"Sowaid", flag:"🇸🇦" },
+]
   { id:"ar.shaatree", name:"Abu Bakr Al-Shatri", flag:"🇸🇦" },
   { id:"ar.ahmedajamy", name:"Ahmed Al-Ajamy", flag:"🇸🇦" },
   { id:"ar.mahermuaiqly", name:"Maher Al-Muaiqly", flag:"🇸🇦" },
@@ -2394,7 +2398,7 @@ function EcranCulture({ lang="fr" }) {
           {QURAN_RECITERS.map(r => (
             <TouchableOpacity key={r.id} onPress={() => setReciter(r)}
               style={{ paddingHorizontal:10, paddingVertical:5, borderRadius:99, marginRight:6, backgroundColor: reciter.id===r.id ? C.gold+"30" : C.card2, borderWidth:1, borderColor: reciter.id===r.id ? C.gold : C.border }}>
-              <Text style={{ color: reciter.id===r.id ? C.gold : C.muted, fontSize:10, fontWeight:"700" }}>{r.flag} {r.name.split(" ").slice(-1)[0]}</Text>
+              <Text style={{ color: reciter.id===r.id ? C.gold : C.muted, fontSize:10, fontWeight:"700" }}>{r.flag} {r.short}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
