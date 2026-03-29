@@ -2188,6 +2188,10 @@ function EcranCulture({ lang="fr" }) {
 
   const stopAudio = () => {
     playQueueRef.current = []
+    if (nextPlayerRef.current) {
+      try { nextPlayerRef.current.remove() } catch(e) {}
+      nextPlayerRef.current = null
+    }
     if (audioPlayerRef.current) {
       try { if (audioPlayerRef.current._checkInterval) clearInterval(audioPlayerRef.current._checkInterval) } catch(e) {}
       try { audioPlayerRef.current.pause(); audioPlayerRef.current.remove() } catch(e) {}
@@ -2197,46 +2201,59 @@ function EcranCulture({ lang="fr" }) {
     setIsPlayingAll(false)
   }
 
-  const playOneAudio = async (url, onEnd) => {
+  const nextPlayerRef = useRef(null)
+
+  const playOneAudio = async (url, onEnd, nextUrl) => {
     try {
       await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
       const player = createAudioPlayer({ uri: url })
       audioPlayerRef.current = player
       player.play()
+      
+      // Preload next verse immediately for seamless transition
+      let preloaded = false
+      if (nextUrl) {
+        try {
+          nextPlayerRef.current = createAudioPlayer({ uri: nextUrl })
+          preloaded = true
+        } catch(e) {}
+      }
+      
       let hasStartedPlaying = false
-      let lastTime = -1
       let stuckCount = 0
       const checkInterval = setInterval(() => {
         try {
           const status = player.currentStatus
           if (!status) return
-          // Wait until audio actually starts playing
           if (status.isPlaying) {
             hasStartedPlaying = true
             stuckCount = 0
-            lastTime = status.currentTime || 0
           }
-          // Only detect end AFTER audio has started playing
           if (hasStartedPlaying && !status.isPlaying) {
             clearInterval(checkInterval)
             try { player.remove() } catch(e) {}
-            audioPlayerRef.current = null
-            if (onEnd) onEnd()
+            // If we preloaded, use it immediately
+            if (preloaded && nextPlayerRef.current) {
+              audioPlayerRef.current = nextPlayerRef.current
+              nextPlayerRef.current = null
+            } else {
+              audioPlayerRef.current = null
+            }
+            if (onEnd) onEnd(preloaded)
           }
-          // Timeout: if never starts playing after 10s, skip
           if (!hasStartedPlaying) {
             stuckCount++
             if (stuckCount > 67) {
               clearInterval(checkInterval)
               try { player.remove() } catch(e) {}
               audioPlayerRef.current = null
-              if (onEnd) onEnd()
+              if (onEnd) onEnd(false)
             }
           }
-        } catch(e) { clearInterval(checkInterval); if (onEnd) onEnd() }
+        } catch(e) { clearInterval(checkInterval); if (onEnd) onEnd(false) }
       }, 150)
       player._checkInterval = checkInterval
-    } catch(e) { if (onEnd) onEnd() }
+    } catch(e) { if (onEnd) onEnd(false) }
   }
 
   const playAyah = async (audioUrl, ayahNum) => {
@@ -2250,7 +2267,7 @@ function EcranCulture({ lang="fr" }) {
     if (startIdx === -1) return
     playQueueRef.current = ayahs.slice(startIdx).map(a => ({ num: a.num, audio: a.audio }))
 
-    const playNext = () => {
+    const playNext = (wasPreloaded) => {
       const next = playQueueRef.current.shift()
       if (!next) {
         // Surah finished — if continuous mode, go to next surah
@@ -2268,15 +2285,47 @@ function EcranCulture({ lang="fr" }) {
         return
       }
       setPlayingAyah(next.num)
+      const peekNext = playQueueRef.current.length > 0 ? playQueueRef.current[0].audio : null
       if (next.audio) {
-        playOneAudio(next.audio, playNext)
-      } else { playNext() }
+        // If this verse was preloaded, just play the preloaded player
+        if (wasPreloaded && audioPlayerRef.current) {
+          audioPlayerRef.current.play()
+          // Preload the one after
+          let preloaded = false
+          if (peekNext) {
+            try { nextPlayerRef.current = createAudioPlayer({ uri: peekNext }); preloaded = true } catch(e) {}
+          }
+          let hasStartedPlaying = false
+          let stuckCount = 0
+          const checkInterval = setInterval(() => {
+            try {
+              const status = audioPlayerRef.current?.currentStatus
+              if (!status) return
+              if (status.isPlaying) { hasStartedPlaying = true; stuckCount = 0 }
+              if (hasStartedPlaying && !status.isPlaying) {
+                clearInterval(checkInterval)
+                try { audioPlayerRef.current?.remove() } catch(e) {}
+                if (preloaded && nextPlayerRef.current) {
+                  audioPlayerRef.current = nextPlayerRef.current
+                  nextPlayerRef.current = null
+                } else { audioPlayerRef.current = null }
+                playNext(preloaded)
+              }
+              if (!hasStartedPlaying) { stuckCount++; if (stuckCount > 67) { clearInterval(checkInterval); playNext(false) } }
+            } catch(e) { clearInterval(checkInterval); playNext(false) }
+          }, 150)
+          if (audioPlayerRef.current) audioPlayerRef.current._checkInterval = checkInterval
+        } else {
+          playOneAudio(next.audio, playNext, peekNext)
+        }
+      } else { playNext(false) }
     }
 
     // Start playing first in queue
     const first = playQueueRef.current.shift()
+    const peekFirst = playQueueRef.current.length > 0 ? playQueueRef.current[0].audio : null
     if (first && first.audio) {
-      playOneAudio(first.audio, playNext)
+      playOneAudio(first.audio, playNext, peekFirst)
     }
   }
 
