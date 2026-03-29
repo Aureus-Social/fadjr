@@ -1,9 +1,6 @@
 name: EAS Build (iOS + Android)
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -13,46 +10,40 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - name: Install dependencies
-        run: npm install
-
+        run: npm install --legacy-peer-deps
       - name: Setup EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-
       - name: Build Android AAB (production)
         run: eas build --platform android --profile production --non-interactive
 
   build-ios:
-    name: Build iOS IPA (Production)
+    name: Build iOS IPA + Submit TestFlight
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
       - name: Install dependencies
-        run: npm install
-
+        run: npm install --legacy-peer-deps
       - name: Setup EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-
       - name: Build iOS IPA (production)
         run: eas build --platform ios --profile production --non-interactive
+      - name: Submit to TestFlight
+        run: eas submit --platform ios --latest --non-interactive
