@@ -2180,8 +2180,14 @@ function EcranCulture({ lang="fr" }) {
   // Audio player — player interne via expo-audio
   const audioPlayerRef = useRef(null)
   const [isPlayingAll, setIsPlayingAll] = useState(false)
+  const [continuousMode, setContinuousMode] = useState(false)
+  const playQueueRef = useRef([])
+  const continuousModeRef = useRef(false)
+
+  useEffect(() => { continuousModeRef.current = continuousMode }, [continuousMode])
 
   const stopAudio = () => {
+    playQueueRef.current = []
     if (audioPlayerRef.current) {
       try { if (audioPlayerRef.current._checkInterval) clearInterval(audioPlayerRef.current._checkInterval) } catch(e) {}
       try { audioPlayerRef.current.pause(); audioPlayerRef.current.remove() } catch(e) {}
@@ -2191,66 +2197,82 @@ function EcranCulture({ lang="fr" }) {
     setIsPlayingAll(false)
   }
 
-  const playAyah = async (audioUrl, ayahNum) => {
-    if (playingAyah === ayahNum) { stopAudio(); return }
-    stopAudio()
-    setPlayingAyah(ayahNum)
+  const playOneAudio = async (url, onEnd) => {
     try {
       await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
-      const player = createAudioPlayer({ uri: audioUrl })
+      const player = createAudioPlayer({ uri: url })
       audioPlayerRef.current = player
       player.play()
-      // expo-audio 0.3.5: poll status to detect end
       const checkInterval = setInterval(() => {
         try {
           if (player.currentStatus && !player.currentStatus.isPlaying && player.currentStatus.currentTime > 0) {
             clearInterval(checkInterval)
-            if (audioPlayerRef.current === player) {
-              setPlayingAyah(null)
-              try { player.remove() } catch(e) {}
-              audioPlayerRef.current = null
-            }
+            try { player.remove() } catch(e) {}
+            audioPlayerRef.current = null
+            if (onEnd) onEnd()
           }
         } catch(e) { clearInterval(checkInterval) }
       }, 500)
       player._checkInterval = checkInterval
-    } catch(e) {
-      setPlayingAyah(null)
-      Linking.openURL(audioUrl).catch(()=>{})
+    } catch(e) { if (onEnd) onEnd() }
+  }
+
+  const playAyah = async (audioUrl, ayahNum) => {
+    if (playingAyah === ayahNum && !isPlayingAll) { stopAudio(); return }
+    stopAudio()
+    setPlayingAyah(ayahNum)
+    setIsPlayingAll(true)
+
+    // Build queue from this ayah to end of surah
+    const startIdx = ayahs.findIndex(a => a.num === ayahNum)
+    if (startIdx === -1) return
+    playQueueRef.current = ayahs.slice(startIdx).map(a => ({ num: a.num, audio: a.audio }))
+
+    const playNext = () => {
+      const next = playQueueRef.current.shift()
+      if (!next) {
+        // Surah finished — if continuous mode, go to next surah
+        if (continuousModeRef.current && selectedSourate && selectedSourate.number < 114) {
+          const nextSurah = sourates.find(s => s.number === selectedSourate.number + 1)
+          if (nextSurah) {
+            setPlayingAyah(null)
+            setIsPlayingAll(false)
+            setSelectedSourate(nextSurah)
+          } else { setPlayingAyah(null); setIsPlayingAll(false) }
+        } else {
+          setPlayingAyah(null)
+          setIsPlayingAll(false)
+        }
+        return
+      }
+      setPlayingAyah(next.num)
+      if (next.audio) {
+        playOneAudio(next.audio, playNext)
+      } else { playNext() }
+    }
+
+    // Start playing first in queue
+    const first = playQueueRef.current.shift()
+    if (first && first.audio) {
+      playOneAudio(first.audio, playNext)
     }
   }
 
   const playAllSurah = async () => {
     if (isPlayingAll) { stopAudio(); return }
-    if (!selectedSourate) return
-    const surahUrl = `https://cdn.islamic.network/quran/audio-surah/128/${reciter.id.replace("ar.","")}/${selectedSourate.number}.mp3`
-    stopAudio()
-    setIsPlayingAll(true)
-    try {
-      await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
-      const player = createAudioPlayer({ uri: surahUrl })
-      audioPlayerRef.current = player
-      player.play()
-      const checkInterval = setInterval(() => {
-        try {
-          if (player.currentStatus && !player.currentStatus.isPlaying && player.currentStatus.currentTime > 0) {
-            clearInterval(checkInterval)
-            if (audioPlayerRef.current === player) {
-              setIsPlayingAll(false)
-              try { player.remove() } catch(e) {}
-              audioPlayerRef.current = null
-            }
-          }
-        } catch(e) { clearInterval(checkInterval) }
-      }, 500)
-      player._checkInterval = checkInterval
-    } catch(e) {
-      setIsPlayingAll(false)
-      Linking.openURL(surahUrl).catch(()=>{})
-    }
+    if (!selectedSourate || ayahs.length === 0) return
+    playAyah(ayahs[0].audio, ayahs[0].num)
   }
 
+  // Auto-play from verse 1 when new surah loads in continuous mode
+  useEffect(() => {
+    if (continuousModeRef.current && ayahs.length > 0 && !isPlayingAll && selectedSourate) {
+      setTimeout(() => playAyah(ayahs[0].audio, ayahs[0].num), 300)
+    }
+  }, [ayahs])
+
   useEffect(() => { return () => stopAudio() }, [])
+
 
   const ITEMS = [
     { id:"coran", emoji:"📖", titre:t("coran",lang), desc:"114 "+t("sourates",lang)+" + audio", color:C.gold },
@@ -2290,6 +2312,13 @@ function EcranCulture({ lang="fr" }) {
             <Text style={{ color: isPlayingAll ? C.red : C.gold, fontSize:13, fontWeight:"800" }}>{isPlayingAll ? "⏹ Stop" : "▶️ "+(lang==="ar"?"استمع للسورة":lang==="en"?"Listen to surah":lang==="tr"?"Sureyi dinle":"Ecouter la sourate")}</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity onPress={() => setContinuousMode(!continuousMode)}
+          style={{ flexDirection:"row", alignItems:"center", gap:8, marginBottom:6, paddingVertical:4 }}>
+          <View style={{ width:18, height:18, borderRadius:4, borderWidth:1.5, borderColor: continuousMode ? C.green : C.muted, backgroundColor: continuousMode ? C.green+"30" : "transparent", alignItems:"center", justifyContent:"center" }}>
+            {continuousMode && <Text style={{ color:C.green, fontSize:11, fontWeight:"900" }}>✓</Text>}
+          </View>
+          <Text style={{ color: continuousMode ? C.green : C.muted, fontSize:11, fontWeight:"600" }}>{lang==="ar"?"قراءة متواصلة":lang==="en"?"Continuous (next surah auto)":lang==="tr"?"Sürekli okuma":"Lecture continue (sourate suivante auto)"}</Text>
+        </TouchableOpacity>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:6 }}>
           {QURAN_RECITERS.map(r => (
             <TouchableOpacity key={r.id} onPress={() => setReciter(r)}
