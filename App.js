@@ -11,7 +11,7 @@ import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
 import * as Location from 'expo-location'
 import * as Updates from 'expo-updates'
-import { Audio } from 'expo-av'
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio'
 import * as NavigationBar from 'expo-navigation-bar'
 
 // ─── Notifications handler (foreground) ──────────────────────────────────────
@@ -902,9 +902,9 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
                   AsyncStorage.setItem("fadjr_adhan", r.id)
                   Alert.alert("Adhan", r.name)
                   try {
-                    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true, staysActiveInBackground: true })
-                    const { sound } = await Audio.Sound.createAsync({ uri: r.url })
-                    await sound.playAsync()
+                    await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
+                    const player = createAudioPlayer({ uri: r.url })
+                    player.play()
                   } catch(e) {}
                 }}
                   style={{ paddingHorizontal:12, paddingVertical:10, borderRadius:10, marginRight:6, backgroundColor:C.card2, borderWidth:1, borderColor:C.border, alignItems:"center" }}>
@@ -2230,7 +2230,7 @@ function EcranCulture({ lang="fr" }) {
     }
   }, [selectedSourate, reciter])
 
-  // Audio player — expo-av (stable iOS + Android)
+  // Audio player — expo-audio
   const audioPlayerRef = useRef(null)
   const [isPlayingAll, setIsPlayingAll] = useState(false)
   const [continuousMode, setContinuousMode] = useState(false)
@@ -2239,11 +2239,12 @@ function EcranCulture({ lang="fr" }) {
 
   useEffect(() => { continuousModeRef.current = continuousMode }, [continuousMode])
 
-  const stopAudio = async () => {
+  const stopAudio = () => {
     playQueueRef.current = []
     if (audioPlayerRef.current) {
-      try { await audioPlayerRef.current.stopAsync() } catch(e) {}
-      try { await audioPlayerRef.current.unloadAsync() } catch(e) {}
+      try { if (audioPlayerRef.current._checkInterval) clearInterval(audioPlayerRef.current._checkInterval) } catch(e) {}
+      try { audioPlayerRef.current.pause() } catch(e) {}
+      try { audioPlayerRef.current.remove() } catch(e) {}
       audioPlayerRef.current = null
     }
     setPlayingAyah(null)
@@ -2252,22 +2253,53 @@ function EcranCulture({ lang="fr" }) {
 
   const playOneAudio = async (url, onEnd) => {
     try {
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true, staysActiveInBackground: true })
-      const { sound } = await Audio.Sound.createAsync({ uri: url }, { shouldPlay: true })
-      audioPlayerRef.current = sound
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.didJustFinish) {
-          sound.unloadAsync().catch(() => {})
-          audioPlayerRef.current = null
-          if (onEnd) onEnd()
-        }
-      })
+      await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
+      const player = createAudioPlayer({ uri: url })
+      audioPlayerRef.current = player
+      player.play()
+      let hasStartedPlaying = false
+      let notPlayingCount = 0
+      let playStartTime = 0
+      let stuckCount = 0
+      const checkInterval = setInterval(() => {
+        try {
+          const status = player.currentStatus
+          if (!status) return
+          if (status.isPlaying) {
+            hasStartedPlaying = true
+            if (!playStartTime) playStartTime = Date.now()
+            stuckCount = 0
+            notPlayingCount = 0
+          }
+          if (hasStartedPlaying && !status.isPlaying) {
+            const elapsed = Date.now() - playStartTime
+            notPlayingCount++
+            // Must have played at least 2s AND 3 consecutive not-playing checks
+            if (elapsed > 2000 && notPlayingCount >= 3) {
+              clearInterval(checkInterval)
+              try { player.remove() } catch(e) {}
+              audioPlayerRef.current = null
+              if (onEnd) onEnd()
+            }
+          }
+          if (!hasStartedPlaying) {
+            stuckCount++
+            if (stuckCount > 50) { // 10s timeout
+              clearInterval(checkInterval)
+              try { player.remove() } catch(e) {}
+              audioPlayerRef.current = null
+              if (onEnd) onEnd()
+            }
+          }
+        } catch(e) { clearInterval(checkInterval); if (onEnd) onEnd() }
+      }, 200)
+      player._checkInterval = checkInterval
     } catch(e) { if (onEnd) onEnd() }
   }
 
   const playAyah = async (audioUrl, ayahNum) => {
-    if (playingAyah === ayahNum && !isPlayingAll) { await stopAudio(); return }
-    await stopAudio()
+    if (playingAyah === ayahNum && !isPlayingAll) { stopAudio(); return }
+    stopAudio()
     setPlayingAyah(ayahNum)
     setIsPlayingAll(true)
 
@@ -2305,7 +2337,7 @@ function EcranCulture({ lang="fr" }) {
   }
 
   const playAllSurah = async () => {
-    if (isPlayingAll) { await stopAudio(); return }
+    if (isPlayingAll) { stopAudio(); return }
     if (!selectedSourate || ayahs.length === 0) return
     playAyah(ayahs[0].audio, ayahs[0].num)
   }
@@ -3458,7 +3490,7 @@ export default function App() {
       NavigationBar.setButtonStyleAsync("light").catch(() => {})
     }
     // ── iOS audio mode — required for audio playback ──
-    Audio.setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true, staysActiveInBackground: true }).catch(() => {})
+    setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true }).catch(() => {})
   }, [])
   const [prayers, setPrayers] = useState([])
   const [city, setCity] = useState("Bruxelles")
