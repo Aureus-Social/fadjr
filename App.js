@@ -902,6 +902,7 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
                   AsyncStorage.setItem("fadjr_adhan", r.id)
                   Alert.alert("Adhan", r.name)
                   try {
+                    await setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true })
                     const player = createAudioPlayer({ uri: r.url })
                     player.play()
                   } catch(e) {}
@@ -3550,6 +3551,8 @@ export default function App() {
       NavigationBar.setBackgroundColorAsync("#07070F").catch(() => {})
       NavigationBar.setButtonStyleAsync("light").catch(() => {})
     }
+    // ── iOS audio mode — required for audio playback ──
+    setAudioModeAsync({ playsInSilentModeIOS: true, shouldDuckAndroid: true }).catch(() => {})
   }, [])
   const [prayers, setPrayers] = useState([])
   const [city, setCity] = useState("Bruxelles")
