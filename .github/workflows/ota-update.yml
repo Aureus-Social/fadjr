@@ -23,7 +23,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -31,7 +31,7 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-     - name: Push OTA update (preview)
+      - name: Push OTA update (preview)
         run: eas update --branch preview --message "${{ github.event.head_commit.message }}" --non-interactive
 
       - name: Push OTA update (production)
