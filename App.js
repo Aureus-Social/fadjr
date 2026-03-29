@@ -2203,15 +2203,37 @@ function EcranCulture({ lang="fr" }) {
       const player = createAudioPlayer({ uri: url })
       audioPlayerRef.current = player
       player.play()
+      let hasStartedPlaying = false
+      let lastTime = -1
+      let stuckCount = 0
       const checkInterval = setInterval(() => {
         try {
-          if (player.currentStatus && !player.currentStatus.isPlaying && player.currentStatus.currentTime > 0) {
+          const status = player.currentStatus
+          if (!status) return
+          // Wait until audio actually starts playing
+          if (status.isPlaying) {
+            hasStartedPlaying = true
+            stuckCount = 0
+            lastTime = status.currentTime || 0
+          }
+          // Only detect end AFTER audio has started playing
+          if (hasStartedPlaying && !status.isPlaying) {
             clearInterval(checkInterval)
             try { player.remove() } catch(e) {}
             audioPlayerRef.current = null
             if (onEnd) onEnd()
           }
-        } catch(e) { clearInterval(checkInterval) }
+          // Timeout: if never starts playing after 10s, skip
+          if (!hasStartedPlaying) {
+            stuckCount++
+            if (stuckCount > 20) {
+              clearInterval(checkInterval)
+              try { player.remove() } catch(e) {}
+              audioPlayerRef.current = null
+              if (onEnd) onEnd()
+            }
+          }
+        } catch(e) { clearInterval(checkInterval); if (onEnd) onEnd() }
       }, 500)
       player._checkInterval = checkInterval
     } catch(e) { if (onEnd) onEnd() }
