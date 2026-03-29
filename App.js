@@ -165,6 +165,18 @@ const T = {
   descCalendrier:{fr:"Date hijri + evenements",en:"Hijri date + events",ar:"التاريخ الهجري + الأحداث",tr:"Hicri tarih + etkinlikler",de:"Hijri-Datum + Ereignisse",nl:"Hijri-datum + evenementen",es:"Fecha hiyri + eventos",id:"Tanggal hijriah + acara",ur:"ہجری تاریخ + واقعات",ms:"Tarikh hijrah + acara",it:"Data hijri + eventi",pt:"Data hijri + eventos"},
   descChahada:{fr:"La profession de foi",en:"Declaration of faith",ar:"الشهادة",tr:"İman beyanı",de:"Glaubensbekenntnis",nl:"Geloofsbelijdenis",es:"Profesión de fe",id:"Syahadat",ur:"کلمہ شہادت",ms:"Pengakuan iman",it:"Professione di fede",pt:"Profissão de fé"},
   erreurImam:{fr:"Desole, je ne peux pas repondre pour le moment. Consultez votre imam local.",en:"Sorry, I cannot answer now. Consult your local imam.",ar:"آسف، لا يمكنني الرد الآن. استشر إمامك المحلي.",tr:"Üzgünüm, şu anda cevaplayamıyorum. Yerel imamınıza danışın.",de:"Entschuldigung, ich kann gerade nicht antworten. Fragen Sie Ihren lokalen Imam.",nl:"Sorry, ik kan nu niet antwoorden. Raadpleeg uw lokale imam.",es:"Lo siento, no puedo responder ahora. Consulte a su imán local.",id:"Maaf, saya tidak bisa menjawab sekarang. Konsultasikan dengan imam lokal.",ur:"معذرت، ابھی جواب نہیں دے سکتا۔ اپنے مقامی امام سے مشورہ کریں۔",ms:"Maaf, saya tidak dapat menjawab sekarang. Rujuk imam tempatan anda.",it:"Mi dispiace, non posso rispondere ora. Consulta il tuo imam locale.",pt:"Desculpe, não posso responder agora. Consulte seu imã local."},
+  ecouterSourate:{fr:"Ecouter la sourate",en:"Listen to surah",ar:"استمع للسورة",tr:"Sureyi dinle",de:"Sure anhören",nl:"Soera beluisteren",es:"Escuchar la sura",id:"Dengarkan surah",ur:"سورت سنیں",ms:"Dengar surah",it:"Ascolta la sura",pt:"Ouvir a surata"},
+  lectureContinue:{fr:"Lecture continue (sourate suivante auto)",en:"Continuous (next surah auto)",ar:"قراءة متواصلة",tr:"Sürekli okuma",de:"Fortlaufend (nächste Sure auto)",nl:"Doorlopend (volgende soera auto)",es:"Lectura continua",id:"Berkelanjutan (surah berikutnya otomatis)",ur:"مسلسل (اگلی سورت خودکار)",ms:"Berterusan (surah seterusnya auto)",it:"Lettura continua",pt:"Leitura contínua"},
+  journal:{fr:"Journal",en:"Journal",ar:"يوميات",tr:"Günlük",de:"Tagebuch",nl:"Dagboek",es:"Diario",id:"Jurnal",ur:"ڈائری",ms:"Jurnal",it:"Diario",pt:"Diário"},
+  inspiration:{fr:"Inspiration",en:"Inspiration",ar:"إلهام",tr:"İlham",de:"Inspiration",nl:"Inspiratie",es:"Inspiración",id:"Inspirasi",ur:"الہام",ms:"Inspirasi",it:"Ispirazione",pt:"Inspiração"},
+  memorisation:{fr:"Memorisation",en:"Memorize",ar:"حفظ",tr:"Ezberleme",de:"Auswendiglernen",nl:"Memoriseren",es:"Memorización",id:"Hafalan",ur:"حفظ",ms:"Hafazan",it:"Memorizzazione",pt:"Memorização"},
+  ramadan:{fr:"Ramadan",en:"Ramadan",ar:"رمضان",tr:"Ramazan",de:"Ramadan",nl:"Ramadan",es:"Ramadán",id:"Ramadan",ur:"رمضان",ms:"Ramadan",it:"Ramadan",pt:"Ramadã"},
+  articles:{fr:"Articles",en:"Articles",ar:"مقالات",tr:"Makaleler",de:"Artikel",nl:"Artikelen",es:"Artículos",id:"Artikel",ur:"مضامین",ms:"Artikel",it:"Articoli",pt:"Artigos"},
+  communaute:{fr:"Communaute",en:"Community",ar:"المجتمع",tr:"Topluluk",de:"Gemeinschaft",nl:"Gemeenschap",es:"Comunidad",id:"Komunitas",ur:"کمیونٹی",ms:"Komuniti",it:"Comunità",pt:"Comunidade"},
+  ambiance:{fr:"Ambiance",en:"Sounds",ar:"أصوات",tr:"Sesler",de:"Klänge",nl:"Geluiden",es:"Sonidos",id:"Suara",ur:"آوازیں",ms:"Bunyi",it:"Suoni",pt:"Sons"},
+  siraTitle:{fr:"La Sira du Prophete ﷺ",en:"Life of the Prophet ﷺ",ar:"سيرة النبي ﷺ",tr:"Peygamberin Hayatı ﷺ",de:"Leben des Propheten ﷺ",nl:"Leven van de Profeet ﷺ",es:"La Sira del Profeta ﷺ",id:"Sirah Nabi ﷺ",ur:"سیرت النبی ﷺ",ms:"Sirah Nabi ﷺ",it:"La Sira del Profeta ﷺ",pt:"A Sira do Profeta ﷺ"},
+  noms99Title:{fr:"Les 99 Noms d'Allah",en:"99 Names of Allah",ar:"أسماء الله الحسنى",tr:"Allah'ın 99 İsmi",de:"Die 99 Namen Allahs",nl:"De 99 Namen van Allah",es:"Los 99 Nombres de Allah",id:"99 Nama Allah",ur:"اللہ کے 99 نام",ms:"99 Nama Allah",it:"I 99 Nomi di Allah",pt:"Os 99 Nomes de Allah"},
+  quoiFaire:{fr:"Quoi faire?",en:"What to do?",ar:"ماذا تفعل؟",tr:"Ne yapmalı?",de:"Was tun?",nl:"Wat doen?",es:"¿Qué hacer?",id:"Apa yang harus dilakukan?",ur:"کیا کرنا ہے؟",ms:"Apa yang perlu dilakukan?",it:"Cosa fare?",pt:"O que fazer?"},
 
 }
 const t = (key, lang) => (T[key] && T[key][lang]) || (T[key] && T[key]["fr"]) || key
@@ -2412,7 +2424,7 @@ function EcranCulture({ lang="fr" }) {
         <View style={{ flexDirection:"row", gap:8, marginTop:10, marginBottom:6 }}>
           <TouchableOpacity onPress={playAllSurah}
             style={{ flex:1, padding:10, borderRadius:10, backgroundColor: isPlayingAll ? C.red+"25" : C.gold+"25", borderWidth:1, borderColor: isPlayingAll ? C.red : C.gold, alignItems:"center" }}>
-            <Text style={{ color: isPlayingAll ? C.red : C.gold, fontSize:13, fontWeight:"800" }}>{isPlayingAll ? "⏹ Stop" : "▶️ "+(lang==="ar"?"استمع للسورة":lang==="en"?"Listen to surah":lang==="tr"?"Sureyi dinle":"Ecouter la sourate")}</Text>
+            <Text style={{ color: isPlayingAll ? C.red : C.gold, fontSize:13, fontWeight:"800" }}>{isPlayingAll ? "⏹ Stop" : "▶️ "+(t("ecouterSourate",lang))}</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => setContinuousMode(!continuousMode)}
@@ -2420,7 +2432,7 @@ function EcranCulture({ lang="fr" }) {
           <View style={{ width:18, height:18, borderRadius:4, borderWidth:1.5, borderColor: continuousMode ? C.green : C.muted, backgroundColor: continuousMode ? C.green+"30" : "transparent", alignItems:"center", justifyContent:"center" }}>
             {continuousMode && <Text style={{ color:C.green, fontSize:11, fontWeight:"900" }}>✓</Text>}
           </View>
-          <Text style={{ color: continuousMode ? C.green : C.muted, fontSize:11, fontWeight:"600" }}>{lang==="ar"?"قراءة متواصلة":lang==="en"?"Continuous (next surah auto)":lang==="tr"?"Sürekli okuma":"Lecture continue (sourate suivante auto)"}</Text>
+          <Text style={{ color: continuousMode ? C.green : C.muted, fontSize:11, fontWeight:"600" }}>{t("lectureContinue",lang)}</Text>
         </TouchableOpacity>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop:6 }}>
           {QURAN_RECITERS.map(r => (
@@ -2592,7 +2604,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌟 {lang==="ar"?"سيرة النبي ﷺ":lang==="en"?"Life of the Prophet ﷺ":lang==="tr"?"Peygamberin Hayatı ﷺ":"La Sira du Prophete ﷺ"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>🌟 {t("siraTitle",lang)}</Text>
         <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{lang==="ar"?"انقر على حدث لمعرفة المزيد":lang==="en"?"Click an event to learn more":lang==="tr"?"Daha fazla bilgi için bir olaya tıklayın":"Cliquez sur un evenement pour en savoir plus"}</Text>
       </View>
       <FlatList data={SIRA_EVENTS} keyExtractor={(_, i) => String(i)}
@@ -2737,7 +2749,7 @@ function EcranCulture({ lang="fr" }) {
         </View>
         <ScrollView style={{ flex:1, padding:16 }} showsVerticalScrollIndicator={false}>
           <View style={[styles.card, { padding:16 }]}>
-            <Text style={{ color:C.gold, fontSize:14, fontWeight:"700", marginBottom:10 }}>{lang==="ar"?"ماذا تفعل؟":lang==="en"?"What to do?":lang==="tr"?"Ne yapmalı?":"Quoi faire?"}</Text>
+            <Text style={{ color:C.gold, fontSize:14, fontWeight:"700", marginBottom:10 }}>{t("quoiFaire",lang)}</Text>
             <Text style={{ color:C.white, fontSize:13, lineHeight:24 }}>{quoi.replace(/\\n/g, "\n")}</Text>
           </View>
         </ScrollView>
@@ -2788,7 +2800,7 @@ function EcranCulture({ lang="fr" }) {
           <Text style={{ color:C.gold, fontSize:16 }}>←</Text>
           <Text style={{ color:C.gold, fontSize:16, fontWeight:"700" }}>{t("retour",lang||"fr")}</Text>
         </TouchableOpacity>
-        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☪️ {lang==="ar"?"أسماء الله الحسنى":lang==="en"?"99 Names of Allah":lang==="tr"?"Allah'ın 99 İsmi":"Les 99 Noms d'Allah"}</Text>
+        <Text style={{ color:C.white, fontSize:18, fontWeight:"900", marginTop:8 }}>☪️ {t("noms99Title",lang)}</Text>
         <Text style={{ color:C.muted, fontSize:12, marginTop:4 }}>{lang==="ar"?"الأسماء الأكثر جمالاً":lang==="en"?"The Most Beautiful Names":lang==="tr"?"En Güzel İsimler":"Asma ul Husna — Les plus beaux noms"}</Text>
       </View>
       <FlatList data={ASMA_UL_HUSNA} keyExtractor={n => String(n.num)} numColumns={3}
