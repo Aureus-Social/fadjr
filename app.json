@@ -44,7 +44,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.fadjr",
-      "buildNumber": "20",
+      "buildNumber": "22",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -53,7 +53,8 @@
         "CFBundleDevelopmentRegion": "fr",
         "NSLocationWhenInUseUsageDescription": "FADJR utilise votre position pour afficher les horaires de priere, la direction de la Qibla et les commerces halal proches de vous.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "FADJR utilise votre position pour vous envoyer les rappels de priere au bon moment selon votre localisation.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "FADJR peut utiliser le micro pour la récitation du Coran."
       },
       "associatedDomains": [
         "applinks:fadjr.app"
