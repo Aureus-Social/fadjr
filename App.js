@@ -265,23 +265,28 @@ const DAILY_DHIKR = [
 
 async function scheduleDailyInspiration() {
   try {
-    // Morning verse at 7:00
+    const morningTrigger = Platform.OS === 'ios'
+      ? { type: 'calendar', hour: 7, minute: 0, repeats: true }
+      : { hour: 7, minute: 0, repeats: true, channelId: 'prayers' }
+    const eveningTrigger = Platform.OS === 'ios'
+      ? { type: 'calendar', hour: 20, minute: 0, repeats: true }
+      : { hour: 20, minute: 0, repeats: true, channelId: 'prayers' }
+
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "🌅 Verset du matin",
         body: DAILY_VERSES[Math.floor(Math.random() * DAILY_VERSES.length)],
-        sound: true,
+        sound: 'default',
       },
-      trigger: { hour: 7, minute: 0, repeats: true },
+      trigger: morningTrigger,
     })
-    // Evening dhikr at 20:00
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "🌙 Dhikr du soir",
         body: DAILY_DHIKR[Math.floor(Math.random() * DAILY_DHIKR.length)],
-        sound: true,
+        sound: 'default',
       },
-      trigger: { hour: 20, minute: 0, repeats: true },
+      trigger: eveningTrigger,
     })
   } catch(e) {}
 }
@@ -508,16 +513,23 @@ async function schedulePrayerNotifications(prayers) {
   for (const p of prayers) {
     if (!NOTIF_PRAYERS.includes(p.name)) continue
     const [h, m] = p.time.split(":").map(Number)
-    
-    // Use daily repeating trigger at the prayer time
+
+    // iOS requires explicit 'calendar' type trigger for daily repeating local notifs
+    // Android uses channelId for high-priority delivery
+    const trigger = Platform.OS === 'ios'
+      ? { type: 'calendar', hour: h, minute: m, repeats: true }
+      : { hour: h, minute: m, repeats: true, channelId: 'prayers' }
+
     await Notifications.scheduleNotificationAsync({
       content: {
         title: `${p.emoji} ${p.name} — il est l'heure`,
         body: `${p.ar} · ${p.time}`,
-        sound: true,
+        sound: 'default',
+        priority: 'high',
         data: { prayer: p.name },
+        ...(Platform.OS === 'android' && { channelId: 'prayers' }),
       },
-      trigger: { hour: h, minute: m, repeats: true },
+      trigger,
     })
     scheduled++
   }
