@@ -17,7 +17,9 @@ import * as NavigationBar from 'expo-navigation-bar'
 // ─── Notifications handler (foreground) ──────────────────────────────────────
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowAlert: true,   // legacy (< 0.28)
+    shouldShowBanner: true,  // iOS foreground banner (0.28+)
+    shouldShowList: true,    // iOS notification centre (0.28+)
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),

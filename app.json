@@ -24,7 +24,8 @@
         {
           "icon": "./assets/icon.png",
           "color": "#C9A84C",
-          "sounds": []
+          "sounds": [],
+          "iosDisplayInForeground": true
         }
       ],
       [
