@@ -3743,14 +3743,47 @@ export default function App() {
     AsyncStorage.getItem('fadjr_notif_enabled').then(val => {
       if (val === 'true') setNotifEnabled(true)
     })
-    // Listeners
+
+    // Helper — joue le vrai Adhan MP3 du reciteur sauvegardé
+    const playAdhanAudio = async () => {
+      try {
+        const savedId = await AsyncStorage.getItem('fadjr_adhan')
+        const reciter = ADHAN_RECITERS.find(r => r.id === savedId) || ADHAN_RECITERS[0]
+        if (adhanPlayerRef.current) {
+          try { adhanPlayerRef.current.pause(); adhanPlayerRef.current.remove() } catch(e) {}
+          adhanPlayerRef.current = null
+        }
+        await setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: false })
+        const player = createAudioPlayer({ uri: reciter.url })
+        adhanPlayerRef.current = player
+        let attempts = 0
+        const waitAndPlay = setInterval(() => {
+          try {
+            const status = player.currentStatus
+            if (status && status.isLoaded !== false) {
+              clearInterval(waitAndPlay); player.play()
+            }
+            if (++attempts > 30) { clearInterval(waitAndPlay); player.play() }
+          } catch(e) { clearInterval(waitAndPlay) }
+        }, 100)
+      } catch(e) {}
+    }
+
+    // Foreground : notification reçue → joue l'Adhan directement
     notifListener.current = Notifications.addNotificationReceivedListener(notif => {
-      console.log('Notification reçue:', notif.request.content.title)
+      const isPrayer = notif.request.content.data?.prayer
+      if (isPrayer) playAdhanAudio()
     })
+
+    // Background → foreground : tap sur notif → onglet prière + Adhan
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const prayer = response.notification.request.content.data?.prayer
-      if (prayer) setTab('priere')
+      if (prayer) {
+        setTab('priere')
+        playAdhanAudio()
+      }
     })
+
     // Android channel
     if (Platform.OS === 'android') {
       Notifications.setNotificationChannelAsync('prayers', {
@@ -3773,6 +3806,51 @@ export default function App() {
       schedulePrayerNotifications(prayers)
     }
   }, [prayers, notifEnabled])
+
+  // ── Foreground : détecter heure de prière et jouer Adhan ──
+  const lastPlayedPrayerRef = useRef(null)
+  useEffect(() => {
+    if (prayers.length === 0) return
+    const interval = setInterval(async () => {
+      const now = new Date()
+      const nowH = now.getHours()
+      const nowM = now.getMinutes()
+      const nowSec = now.getSeconds()
+      // Jouer à HH:MM:00 — dans les 20 premières secondes de la minute
+      if (nowSec > 20) return
+      for (const p of prayers) {
+        if (!NOTIF_PRAYERS.includes(p.name)) continue
+        const [pH, pM] = p.time.split(':').map(Number)
+        if (pH === nowH && pM === nowM) {
+          const key = `${p.name}-${nowH}:${nowM}`
+          if (lastPlayedPrayerRef.current === key) return // déjà joué cette minute
+          lastPlayedPrayerRef.current = key
+          // Jouer Adhan audio
+          try {
+            const savedId = await AsyncStorage.getItem('fadjr_adhan')
+            const reciter = ADHAN_RECITERS.find(r => r.id === savedId) || ADHAN_RECITERS[0]
+            if (adhanPlayerRef.current) {
+              try { adhanPlayerRef.current.pause(); adhanPlayerRef.current.remove() } catch(e) {}
+              adhanPlayerRef.current = null
+            }
+            await setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: false })
+            const player = createAudioPlayer({ uri: reciter.url })
+            adhanPlayerRef.current = player
+            let attempts = 0
+            const waitAndPlay = setInterval(() => {
+              try {
+                const status = player.currentStatus
+                if (status && status.isLoaded !== false) { clearInterval(waitAndPlay); player.play() }
+                if (++attempts > 30) { clearInterval(waitAndPlay); player.play() }
+              } catch(e) { clearInterval(waitAndPlay) }
+            }, 100)
+          } catch(e) {}
+          break
+        }
+      }
+    }, 10000) // vérification toutes les 10s
+    return () => clearInterval(interval)
+  }, [prayers])
 
   // ── Toggle notifications ──
   const onToggleNotif = async (val) => {
