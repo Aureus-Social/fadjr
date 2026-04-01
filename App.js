@@ -205,12 +205,14 @@ const T = {
 const t = (key, lang) => (T[key] && T[key][lang]) || (T[key] && T[key]["fr"]) || key
 
 
+const SUPABASE_AUDIO_URL = "https://bpvrqphmxrnjrbjtaxuw.supabase.co/storage/v1/object/public/fadjr-audio"
+
 const ADHAN_RECITERS = [
-  { id:"mishary", name:"Mishary Al-Afasy", flag:"🇰🇼", url:"https://cdn.aladhan.com/audio/adhans/1.mp3" },
-  { id:"abdulbasit", name:"Abdul Basit", flag:"🇪🇬", url:"https://cdn.aladhan.com/audio/adhans/2.mp3" },
-  { id:"nasser", name:"Nasser Al-Qatami", flag:"🇸🇦", url:"https://cdn.aladhan.com/audio/adhans/3.mp3" },
-  { id:"makkah", name:"Adhan Makkah", flag:"🕋", url:"https://cdn.aladhan.com/audio/adhans/4.mp3" },
-  { id:"madinah", name:"Adhan Madinah", flag:"🕌", url:"https://cdn.aladhan.com/audio/adhans/5.mp3" },
+  { id:"mishary",    name:"Mishary Al-Afasy",   flag:"🇰🇼", url:`${SUPABASE_AUDIO_URL}/adhan_mishary.mp3` },
+  { id:"abdulbasit", name:"Abdul Basit",         flag:"🇪🇬", url:`${SUPABASE_AUDIO_URL}/adhan_abdulbasit.mp3` },
+  { id:"nasser",     name:"Nasser Al-Qatami",    flag:"🇸🇦", url:`${SUPABASE_AUDIO_URL}/adhan_nasser.mp3` },
+  { id:"makkah",     name:"Adhan Makkah",        flag:"🕋", url:`${SUPABASE_AUDIO_URL}/adhan_makkah.mp3` },
+  { id:"madinah",    name:"Adhan Madinah",       flag:"🕌", url:`${SUPABASE_AUDIO_URL}/adhan_madinah.mp3` },
 ]
 
 // ─── Location Tracking ───────────────────────────────────────────────────────
