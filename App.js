@@ -932,12 +932,41 @@ function EcranPriere({ prayers, city, loading, nextPrayer, prayedToday, onToggle
               {ADHAN_RECITERS.map(r => (
                 <TouchableOpacity key={r.id} onPress={async () => {
                   AsyncStorage.setItem("fadjr_adhan", r.id)
-                  Alert.alert("Adhan", r.name)
+                  // Stop previous adhan if playing
                   try {
-                    await setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true })
-                    const player = createAudioPlayer({ uri: r.url })
-                    player.play()
+                    if (adhanPlayerRef.current) {
+                      adhanPlayerRef.current.pause()
+                      adhanPlayerRef.current.remove()
+                      adhanPlayerRef.current = null
+                    }
                   } catch(e) {}
+                  try {
+                    // iOS: must set audio mode BEFORE creating player
+                    await setAudioModeAsync({
+                      playsInSilentMode: true,
+                      shouldPlayInBackground: false,
+                    })
+                    const player = createAudioPlayer({ uri: r.url })
+                    adhanPlayerRef.current = player
+                    // Wait for player to be ready before playing
+                    let attempts = 0
+                    const waitAndPlay = setInterval(() => {
+                      try {
+                        const status = player.currentStatus
+                        if (status && (status.isLoaded !== false)) {
+                          clearInterval(waitAndPlay)
+                          player.play()
+                        }
+                        attempts++
+                        if (attempts > 30) { // 3s timeout
+                          clearInterval(waitAndPlay)
+                          player.play() // try anyway
+                        }
+                      } catch(e) { clearInterval(waitAndPlay) }
+                    }, 100)
+                  } catch(e) {
+                    Alert.alert("Erreur audio", "Impossible de lire l'Adhan. Vérifiez votre connexion.")
+                  }
                 }}
                   style={{ paddingHorizontal:12, paddingVertical:10, borderRadius:10, marginRight:6, backgroundColor:C.card2, borderWidth:1, borderColor:C.border, alignItems:"center" }}>
                   <Text style={{ fontSize:20, marginBottom:4 }}>{r.flag}</Text>
@@ -3578,6 +3607,8 @@ export default function App() {
   const [notifEnabled, setNotifEnabled] = useState(false)
   const notifListener = useRef()
   const responseListener = useRef()
+  // Adhan player
+  const adhanPlayerRef = useRef(null)
 
   // ── Auth ──
   // Load saved language
