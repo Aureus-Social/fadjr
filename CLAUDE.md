@@ -66,7 +66,7 @@
 ---
 
 ## CONTEXTE ENTREPRISE
-- Société : Aureus IA SPRL — BCE BE 1028.230.781
+- Société : Aureus IA SRL — BCE BE 1028.230.781
 - Contact : moussati.nourdin@gmail.com
 
 ---
