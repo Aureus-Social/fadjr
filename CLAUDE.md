@@ -68,3 +68,9 @@
 ## CONTEXTE ENTREPRISE
 - Société : Aureus IA SPRL — BCE BE 1028.230.781
 - Contact : moussati.nourdin@gmail.com
+
+---
+
+## CERVEAU EVERGREEN (skill aureus-brain-wiki)
+- **Avant** de re-dériver un sujet durable → lire sa page dans le vault aureus-brain (`00 Wiki - Cerveau evergreen`).
+- **Après** un apprentissage durable (archi, gotcha, décision) → créer/MAJ la page evergreen via le skill `aureus-brain-wiki` (≠ note datée, dédup, liens `[[ ]]`, jamais recopier une valeur faisant foi).
